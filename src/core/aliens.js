@@ -7,8 +7,10 @@ import { dropPickup } from './powerups.js';
 import { emit } from './util.js';
 
 // A wave of aliens: spawn, fly in, hold the formation, swoop, shoot back.
-//   alien = { id, role, x, y, hp, slot, mode, t, dive }
-//   mode  'enter' (ENTER_TIME s, the same for the whole wave) -> 'hold' -> 'dive' (first half of a
+//   alien = { id, role, x, y, hp, maxHp, slot, mode, t, dive }
+//   maxHp the hp of the alien whole, set once where it is made (here, boss minions, the reborn
+//         wrecks of reassemble, the saucer) so nothing downstream has to work it out again
+//   mode 'enter' (ENTER_TIME s, the same for the whole wave) -> 'hold' -> 'dive' (first half of a
 //         swoop) -> 'return' (second half) -> 'hold' again. t is seconds in the current mode; in
 //         'hold' it is the wave's hold clock. dive is { fx, fy, ax, ay } while swooping (where it
 //         left, where it is aiming), else null.
@@ -33,8 +35,9 @@ export function spawnWave(world) {
   const slots = makeSlots(spec);
   for (const slot of slots) {
     const bonus = slot.role === 'armored' || slot.role === 'gunner' ? world.scale.armorBonus : 0;
+    const hp = ROLES[slot.role].hp + bonus;
     const a = {
-      id: world.nextId++, role: slot.role, x: 0, y: 0, hp: ROLES[slot.role].hp + bonus,
+      id: world.nextId++, role: slot.role, x: 0, y: 0, hp, maxHp: hp,
       slot, mode: 'enter', t: 0, dive: null,
     };
     place(a, entryPosition(spec.formation, slot, 0));

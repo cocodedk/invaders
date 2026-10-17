@@ -4,15 +4,14 @@
 //   drawAliens(ctx, world, look, t)          world space, after the bunkers, before the boss
 //   drawAlienLights(ctx, world, look, t, k)  the lights again at strength k: Neon Rain's darkness
 //                                            pass dims the scene, then calls this so the neon survives
-//   crackStage(world, alien)                 0 | 1 | 2, how cracked an alien is drawn
-// A reborn armored (Iron Dawn, 2 hp of its 3+) is drawn cracked: patched together, not new.
+//   crackStage(alien)                        0 | 1 | 2, how cracked an alien is drawn (a.maxHp)
+// A reborn armored (Iron Dawn) keeps the fallen one's maxHp, so it stands up drawn cracked.
 // Per alien: a halo (cached glow, 'lighter'), the body (cracked once it has lost hp; a white
 // silhouette for FLASH s after a hit) and its lights ('lighter'); frames alternate at the world's
 // rate, some worlds bob, swoopers lean into the swoop. The flash is the renderer's own memory: a
 // WeakMap of the hp each alien had when last drawn. Nothing on world or fx is written.
 import { glow } from '../sprites.js';
 import { clamp } from '../../core/math.js';
-import { ROLES } from '../../core/kinds.js';
 import { art, roleSprites, extraSprites, cracked } from './bake.js';
 
 const FLASH = 0.09; // s
@@ -29,10 +28,10 @@ function flashing(a, t) {
   return t >= m.at && t - m.at < FLASH;
 }
 
-// 0 unhurt, 1 hurt, 2 badly hurt (only roles with more than 1 hp ever crack). Exported for tests.
-export function crackStage(world, a) {
-  const bonus = a.role === 'armored' || a.role === 'gunner' ? world.scale?.armorBonus ?? 0 : 0;
-  const max = ROLES[a.role].hp + bonus;
+// 0 unhurt, 1 hurt, 2 badly hurt, from the hp lost out of the alien's own maxHp (set by the core
+// where it was made; ruling R25). An alien without one is drawn whole. Exported for tests.
+export function crackStage(a) {
+  const max = a.maxHp ?? a.hp;
   if (a.hp >= max) return 0;
   return Math.min(2, Math.ceil((2 * (max - a.hp)) / max - 1e-9));
 }
@@ -113,7 +112,7 @@ export function drawAliens(ctx, world, look, t) {
   for (const a of world.aliens) {
     const set = roleSprites(look, a.role);
     const f = frameOf(A, a, t);
-    const k = crackStage(world, a);
+    const k = crackStage(a);
     const img = flashing(a, t) ? set.flash[f] : k ? cracked(set, f, k) : set.body[f];
     blit(ctx, img, set, a.x, a.y + bobOf(A, a, t), 1, lean(world, a));
   }

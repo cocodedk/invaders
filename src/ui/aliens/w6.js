@@ -1,4 +1,4 @@
-// World 6, Code Rain: sentinel machines of the code world. Gunmetal heads, rows of burning eyes,
+// World 6, Code Rain: squid drones of the code world. Gunmetal heads, rows of burning eyes,
 // segmented tentacles trailing behind them (up, since they hunt downward) that sway between frames,
 // edges caught in green code-light.
 import { path, sym, ink, lin, rad, rgba, shade, neon, eye, bloom, gloss, line, circle, both, TAU } from './kit.js';
@@ -40,7 +40,7 @@ function tentacle(b, l, x, y, a, len, bend, r0, eyeEvery = 0) {
 
 const UP = -Math.PI / 2;
 
-// A small sentinel: a round head, three eyes in a row, a fan of six tentacles.
+// A small squid drone: a round head, three eyes in a row, a fan of six tentacles.
 function grunt(b, l, f, c) {
   const sway = f ? 0.35 : -0.35;
   for (const k of [-2.5, -1.5, -0.5, 0.5, 1.5, 2.5]) {
@@ -74,7 +74,7 @@ function diver(b, l, f, c) {
   gloss(b, -3, -6, 2, 5, 0.35);
 }
 
-// A many-eyed sentinel: a wide dome, a crescent of white-hot eyes, two pairs of claws below.
+// A many-eyed squid drone: a wide dome, a crescent of white-hot eyes, two pairs of claws below.
 function gunner(b, l, f, c) {
   for (const k of [-1.5, -0.5, 0.5, 1.5]) tentacle(b, l, k * 7, -8, UP + k * 0.3, 18, (f ? 0.3 : -0.3) * k, 3.2);
   both((s) => [[10, 18, 26], [5, 20, 30]].forEach(([x0, x1, y1]) => {
@@ -103,7 +103,7 @@ function gunner(b, l, f, c) {
   }
 }
 
-// A heavy sentinel: a ringed spherical shell, one great lens, four thick armoured tentacles.
+// A heavy squid drone: a ringed spherical shell, one great lens, four thick armoured tentacles.
 function armored(b, l, f, c) {
   for (const k of [-1.5, -0.5, 0.5, 1.5]) tentacle(b, l, k * 9, -10, UP + k * 0.45, 20, (f ? 0.25 : -0.25), 4.6);
   circle(b, 0, 2, 22);

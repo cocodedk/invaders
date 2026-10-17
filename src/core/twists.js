@@ -14,14 +14,15 @@ export { enemyDt };
 //   wind     px/s^2 pushing every bullet and shot sideways (gusts); 0 elsewhere
 //   slow     seconds of bullet time left (glitch); 0 when off
 //   saucer   null or the bonus carrier crossing the top (bunkers): alien-shaped, saucer true
-//   wrecks   [{ x, y, hp, left, slot, hold, wreck: true }] (reassemble; hold: it hangs in its slot)
+//   wrecks   [{ x, y, hp, left, slot, hold, maxHp, wreck: true }] (reassemble; hold: it hangs in its
+//            slot; maxHp: the fallen alien's, handed on to the one that stands up)
 //   well     { x, y } or null (gravity)
 //   twist    { timer, cool, wave, sent, drips } private: the countdown to the next lightning, gust,
 //            blink or saucer; the bullet-time cooldown; the wave bunkers were last laid for; the
 //            saucers sent; acid in the making
 
 const SAUCER_EVERY = 20; // s
-const SAUCER_Y = 70;
+const SAUCER_Y = 104; // just under the HUD band (panels end at y 96), so it is never behind a panel
 const SAUCER_SPEED = 260;
 const SAUCER_R = ALIEN_R + 8;
 const GUST = 120; // px/s^2, either way
@@ -57,7 +58,7 @@ function bunkers(world, dt) {
     const dir = t.sent++ % 2 ? -1 : 1;
     const id = world.nextId++;
     world.saucer = {
-      id, role: 'carrier', x: dir > 0 ? -40 : 1960, y: SAUCER_Y, hp: 1, vx: dir * SAUCER_SPEED,
+      id, role: 'carrier', x: dir > 0 ? -40 : 1960, y: SAUCER_Y, hp: 1, maxHp: 1, vx: dir * SAUCER_SPEED,
       saucer: true, mode: 'hold', t: 0, slot: null, dive: null,
     };
     t.timer = SAUCER_EVERY;

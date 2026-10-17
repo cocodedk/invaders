@@ -101,7 +101,8 @@ export function glitch(world, dt) {
 
 // Reassemble: an armored death leaves a wreck (hp 1) for 2 s, which hangs in the formation where the
 // alien held. A shot, the beam or a bomb breaks it for good; left alone it stands up again as an
-// armored alien with 2 hp, once (`reborn`).
+// armored alien with 2 hp, once (`reborn`). It keeps the fallen alien's maxHp, so it is a hurt
+// alien (2 of 3 or more), not a new one.
 export const WRECK_TIME = 2;
 const REBORN_HP = 2;
 
@@ -115,7 +116,9 @@ export function hurtWreck(world, w, dmg) {
 export function reassemble(world, dt) {
   for (const a of world.aliens) {
     if (a.hp <= 0 && a.role === 'armored' && a.slot && !a.reborn) {
-      world.wrecks.push({ x: a.x, y: a.y, hp: 1, left: WRECK_TIME, slot: a.slot, hold: a.mode === 'hold', wreck: true });
+      world.wrecks.push({
+        x: a.x, y: a.y, hp: 1, left: WRECK_TIME, slot: a.slot, hold: a.mode === 'hold', maxHp: a.maxHp, wreck: true,
+      });
       emit(world, 'wreck', { x: a.x, y: a.y });
     }
   }
@@ -135,7 +138,7 @@ export function reassemble(world, dt) {
     if (w.left > 0) return true;
     const id = world.nextId++;
     world.aliens.push({
-      id, role: 'armored', x: w.x, y: w.y, hp: REBORN_HP, slot: w.slot, mode: 'hold',
+      id, role: 'armored', x: w.x, y: w.y, hp: REBORN_HP, maxHp: w.maxHp, slot: w.slot, mode: 'hold',
       t: world.march?.clock ?? 0, dive: null, reborn: true,
     });
     emit(world, 'reassemble', { id, x: w.x, y: w.y });

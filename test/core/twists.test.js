@@ -51,7 +51,7 @@ test('bunkers: a carrier saucer crosses the top every 20 s, and shooting it down
   seconds(w, 0.4);
   const s = w.saucer;
   assert.deepEqual([s.role, s.hp, s.saucer], ['carrier', 1, true]);
-  assert.ok(s.y < 120);
+  assert.equal(s.y, 104, 'across the top, just under the HUD band (y 16..96)');
   const launch = ofType(drain(w), 'saucer');
   assert.equal(launch.length, 1);
   const x0 = s.x;

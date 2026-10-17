@@ -54,9 +54,10 @@ function launch(world, b, m) {
   for (let i = 0; i < m.count && live < MINION_CAP; i++, live++) {
     const id = world.nextId++;
     const carrier = m.role === 'carrier';
+    const hp = ROLES[m.role].hp; // minions carry no armour bonus
     world.aliens.push({
       id, role: m.role, x: carrier ? (id % 2 ? -40 : 1960) : src.x + (i - (m.count - 1) / 2) * 56,
-      y: carrier ? 500 : src.y + src.h / 2, hp: ROLES[m.role].hp, slot: null,
+      y: carrier ? 500 : src.y + src.h / 2, hp, maxHp: hp, slot: null,
       mode: carrier ? 'hold' : 'dive', t: 0, dive: null, minion: true, vx: carrier ? (id % 2 ? 150 : -150) : 0,
     });
   }

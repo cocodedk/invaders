@@ -58,13 +58,14 @@ function cells(c) {
   };
 }
 
-const painter = (rows) => (b, l, f, c) => {
-  pixels(b, l, rows[f], PX, cells(c));
+const painter = (rows, px = PX) => (b, l, f, c) => {
+  pixels(b, l, rows[f], px, cells(c));
   phosphor(b, l, 0.45, 4);
 };
 
-const saucer = painter(SAUCER);
-saucer.size = 128;
+// 4 px cells: 64 x 28, as wide as its hit circle, and flat enough to fly at y 104 under the HUD.
+const saucer = painter(SAUCER, 4);
+saucer.size = 96;
 
 export default {
   rate: 1.5, sync: true, halo: 0.3,
