@@ -1,0 +1,87 @@
+// Falling pickups: a dark capsule ringed in the power's tint (look.power), with its icon, a pulsing
+// glow and turning dashes so it reads as "catch me" on any sky. Icons are shared by the HUD.
+import { INK, cached, glow, rgba } from './sprites.js';
+
+// The icon for `kind`, drawn centred on (0, 0) about 30 px across.
+export function drawIcon(g, kind, color) {
+  g.strokeStyle = color;
+  g.fillStyle = color;
+  g.lineWidth = 4;
+  g.lineCap = 'round';
+  g.lineJoin = 'round';
+  g.beginPath();
+  if (kind === 'spread') {
+    for (const a of [-0.55, 0, 0.55]) {
+      g.moveTo(0, 12);
+      g.lineTo(Math.sin(a) * 26, 12 - Math.cos(a) * 26);
+    }
+    g.stroke();
+  } else if (kind === 'laser') {
+    g.fillRect(-4, -15, 8, 30);
+    g.fillStyle = '#ffffff';
+    g.fillRect(-1.5, -15, 3, 30);
+  } else if (kind === 'rapid') {
+    for (const y of [-6, 6]) {
+      g.moveTo(-11, y + 6);
+      g.lineTo(0, y - 5);
+      g.lineTo(11, y + 6);
+    }
+    g.stroke();
+  } else if (kind === 'shield') {
+    for (let i = 0; i <= 6; i++) {
+      const a = (i * Math.PI) / 3 - Math.PI / 2;
+      g.lineTo(Math.cos(a) * 14, Math.sin(a) * 14);
+    }
+    g.stroke();
+  } else { // bomb
+    g.arc(-2, 3, 11, 0, Math.PI * 2);
+    g.fill();
+    g.beginPath();
+    g.moveTo(5, -6);
+    g.quadraticCurveTo(10, -14, 15, -12);
+    g.lineWidth = 3;
+    g.stroke();
+    g.fillStyle = '#fff6c8';
+    g.fillRect(13, -16, 5, 5);
+  }
+  g.lineCap = 'butt';
+}
+
+const capsule = (kind, color) => cached(`pick${kind}${color}`, 60, 60, (g) => {
+  g.translate(30, 30);
+  g.fillStyle = 'rgba(8,10,20,0.88)';
+  g.beginPath();
+  g.arc(0, 0, 24, 0, Math.PI * 2);
+  g.fill();
+  g.lineWidth = 4;
+  g.strokeStyle = color;
+  g.stroke();
+  g.lineWidth = 2;
+  g.strokeStyle = INK;
+  g.beginPath();
+  g.arc(0, 0, 27, 0, Math.PI * 2);
+  g.stroke();
+  drawIcon(g, kind, color);
+});
+
+export function drawPickups(ctx, world, look, t) {
+  for (const p of world.pickups) {
+    const color = look.power[p.kind] ?? '#ffffff';
+    const y = p.y + Math.sin(t * 4 + p.x) * 3;
+    const pulse = 0.55 + 0.25 * Math.sin(t * 6 + p.x);
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = pulse;
+    ctx.drawImage(glow(color), p.x - 56, y - 56, 112, 112);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = rgba(color, 0.8);
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 4; i++) {
+      const a = t * 2.4 + (i * Math.PI) / 2;
+      ctx.beginPath();
+      ctx.arc(p.x, y, 33, a, a + 0.7);
+      ctx.stroke();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(capsule(p.kind, color), p.x - 30, y - 30);
+  }
+}
