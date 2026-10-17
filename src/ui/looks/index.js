@@ -4,9 +4,11 @@
 //   layers    3 parallax bands, far to near (parallax.js; kinds in parallax-shapes/-city/-wild.js)
 //   ambient   particle entries per depth (ambient.js); flourish: animated extras (flourish.js)
 //   palette   accent (HUD, engine), shot, beam (laser power), enemy + enemyRim (bullets), alien
-//             colours per role and boss colours (the stubs; Tasks 9/10 bring the real sprites)
+//             colours per role (aliens/w1.js .. w8.js paint in them; Neon Rain's darkness glows in
+//             them) and boss colours (the stub; Task 10 brings the real bosses)
 //   bullet    how enemy bullets are drawn: 'orb' | 'bolt' | 'pixel' (bullets-view.js)
-//   bunker    { fill, light, dark, edge }; power: tint per pickup kind; music: { mood, root, scale, bpm }
+//   bunker    { fill, light, dark, edge, accent?, skin } (skin: a texture in bunker-skins.js)
+//   power     tint per pickup kind (shapes per world: pickup-skins.js); music: { mood, root, scale, bpm }
 import w1 from './w1.js';
 import w2 from './w2.js';
 import w3 from './w3.js';

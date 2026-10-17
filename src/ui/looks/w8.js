@@ -20,7 +20,7 @@ export default {
     boss: { hull: '#0a0c18', plate: '#3a4a7a', weak: '#ffd28a' },
   },
   bullet: 'orb',
-  bunker: { fill: '#3a5a8a', light: '#c8e0ff', dark: '#14203a', edge: '#e8f4ff' },
+  bunker: { fill: '#3a5a8a', light: '#c8e0ff', dark: '#14203a', edge: '#e8f4ff', skin: 'ice' },
   power: { spread: '#ffd28a', laser: '#8fb8ff', rapid: '#ffb36a', shield: '#c8a8ff', bomb: '#ff7a4a' },
   music: { mood: 'organ swell', root: 'A', scale: 'lydian', bpm: 60 },
 };

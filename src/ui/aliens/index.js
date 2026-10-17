@@ -1,128 +1,143 @@
-// STUB for Task 9, which replaces it with each world's own sprites (aliens/w1.js .. w8.js).
-// drawAliens(ctx, world, look, t) draws everything alien-shaped on the playfield:
-//   world.aliens (formation and boss minions), world.saucer (the bonus carrier, or null) and
-//   world.wrecks (armored wrecks waiting to reassemble).
-// Called in world space after the bunkers and pickups, before the boss. Placeholder shapes, one per
-// role in look.palette.alien colours, pre-rendered (2 animation frames) into cached canvases.
-import { INK, cached, glow, rgba, shade } from '../sprites.js';
+// Everything alien-shaped on the playfield, in each world's own sprites (aliens/w1.js .. w8.js,
+// baked once by bake.js): world.aliens (formation and boss minions), world.saucer (the bonus carrier,
+// or null) and world.wrecks (armored wrecks waiting to reassemble).
+//   drawAliens(ctx, world, look, t)          world space, after the bunkers, before the boss
+//   drawAlienLights(ctx, world, look, t, k)  the lights again at strength k: Neon Rain's darkness
+//                                            pass dims the scene, then calls this so the neon survives
+//   crackStage(world, alien)                 0 | 1 | 2, how cracked an alien is drawn
+// A reborn armored (Iron Dawn, 2 hp of its 3+) is drawn cracked: patched together, not new.
+// Per alien: a halo (cached glow, 'lighter'), the body (cracked once it has lost hp; a white
+// silhouette for FLASH s after a hit) and its lights ('lighter'); frames alternate at the world's
+// rate, some worlds bob, swoopers lean into the swoop. The flash is the renderer's own memory: a
+// WeakMap of the hp each alien had when last drawn. Nothing on world or fx is written.
+import { glow } from '../sprites.js';
+import { clamp } from '../../core/math.js';
+import { ROLES } from '../../core/kinds.js';
+import { art, roleSprites, extraSprites, cracked } from './bake.js';
 
-const SIZE = 64;
+const FLASH = 0.09; // s
+const seen = new WeakMap(); // alien -> { hp, at }
 
-function body(g, role, color, frame) {
-  g.fillStyle = color;
-  g.strokeStyle = INK;
-  g.lineWidth = 3;
-  g.lineJoin = 'round';
-  g.beginPath();
-  if (role === 'grunt') { // a dome with legs that step
-    g.arc(0, -2, 16, Math.PI, 0);
-    g.lineTo(16, 8);
-    for (let i = 0; i < 4; i++) {
-      const x = 12 - i * 8;
-      g.lineTo(x, 8 + (frame ^ (i & 1) ? 10 : 6));
-      g.lineTo(x - 4, 8);
-    }
-    g.lineTo(-16, 8);
-  } else if (role === 'diver') { // a dart pointing down, wings swept
-    g.moveTo(0, 22);
-    g.lineTo(20, -10 - frame * 4);
-    g.lineTo(6, -6);
-    g.lineTo(0, -18);
-    g.lineTo(-6, -6);
-    g.lineTo(-20, -10 - frame * 4);
-  } else if (role === 'gunner') { // a wide crab with a gun beneath
-    g.moveTo(-22, -4);
-    g.lineTo(-12, -14);
-    g.lineTo(12, -14);
-    g.lineTo(22, -4);
-    g.lineTo(26, frame ? -16 : 6);
-    g.lineTo(18, 6);
-    g.lineTo(5, 8);
-    g.lineTo(5, 20);
-    g.lineTo(-5, 20);
-    g.lineTo(-5, 8);
-    g.lineTo(-18, 6);
-    g.lineTo(-26, frame ? -16 : 6);
-  } else if (role === 'armored') { // a plated hexagon
-    for (let i = 0; i < 6; i++) g.lineTo(Math.cos((i * Math.PI) / 3) * 22, Math.sin((i * Math.PI) / 3) * 20);
-  } else { // carrier: an orb in a ring
-    g.arc(0, 0, 15, 0, Math.PI * 2);
+function flashing(a, t) {
+  let m = seen.get(a);
+  if (!m) {
+    m = { hp: a.hp, at: -Infinity };
+    seen.set(a, m);
   }
-  g.closePath();
-  g.fill();
-  g.stroke();
-  g.fillStyle = rgba('#ffffff', 0.35);
-  g.fillRect(-10, -12, 20, 3);
-  if (role === 'carrier') {
-    g.strokeStyle = shade(color, 0.5);
-    g.lineWidth = 3;
-    g.beginPath();
-    g.ellipse(0, 0, 26, 8, frame ? 0.3 : -0.3, 0, Math.PI * 2);
-    g.stroke();
-  }
-  if (role === 'armored') {
-    g.strokeStyle = shade(color, -0.45);
-    g.lineWidth = 2;
-    g.strokeRect(-11, -9, 22, 18);
-  }
-  g.fillStyle = role === 'carrier' ? '#ffffff' : INK;
-  for (const x of [-6, 6]) g.fillRect(x - 3, -4, 6, 6);
-  g.fillStyle = '#ffffff';
-  for (const x of [-6, 6]) g.fillRect(x - 1, -3, 2, 2);
+  if (a.hp < m.hp) m.at = t;
+  m.hp = a.hp;
+  return t >= m.at && t - m.at < FLASH;
 }
 
-const sprite = (role, color, frame) => cached(`alien${role}${color}${frame}`, SIZE, SIZE, (g) => {
-  g.translate(SIZE / 2, SIZE / 2);
-  body(g, role, color, frame);
-});
-
-function saucer(ctx, s, color, t) {
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = 0.6;
-  ctx.drawImage(glow(color), s.x - 70, s.y - 40, 140, 80);
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = shade(color, 0.4);
-  ctx.strokeStyle = INK;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.ellipse(s.x, s.y - 6, 14, 12, 0, Math.PI, 0);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(s.x, s.y, 36, 11, 0, 0, Math.PI * 2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.stroke();
-  for (let i = 0; i < 5; i++) {
-    const on = Math.floor(t * 8 + i) % 5 === 0;
-    ctx.fillStyle = on ? '#ffffff' : INK;
-    ctx.fillRect(s.x - 22 + i * 11 - 2, s.y - 2, 4, 4);
-  }
+// 0 unhurt, 1 hurt, 2 badly hurt (only roles with more than 1 hp ever crack). Exported for tests.
+export function crackStage(world, a) {
+  const bonus = a.role === 'armored' || a.role === 'gunner' ? world.scale?.armorBonus ?? 0 : 0;
+  const max = ROLES[a.role].hp + bonus;
+  if (a.hp >= max) return 0;
+  return Math.min(2, Math.ceil((2 * (max - a.hp)) / max - 1e-9));
 }
 
-function wreck(ctx, w, look, t) {
-  const pulse = 0.5 + 0.5 * Math.sin(t * (6 + (2 - w.left) * 6));
+const frameOf = (A, a, t) => Math.floor(t * A.rate + (A.sync ? 0 : a.id * 0.37)) & 1;
+const bobOf = (A, a, t) => (A.bob ? Math.sin(t * 2.3 + a.id * 1.7) * A.bob : 0);
+
+// A swooping alien leans into its swoop (sprites face down): toward its aim on the way out, a little
+// back the other way on the return; a boss minion leans toward the ship it is falling on.
+function lean(world, a) {
+  if (a.mode !== 'dive' && a.mode !== 'return') return 0;
+  const dx = a.dive ? a.dive.ax - a.dive.fx : a.minion ? world.ship.x - a.x : 0;
+  return clamp(-dx / 500, -0.55, 0.55) * (a.mode === 'return' ? -0.6 : 1);
+}
+
+function blit(ctx, img, set, x, y, a = 1, rot = 0) {
+  const s = set.size;
+  ctx.globalAlpha = a;
+  if (!rot) {
+    ctx.drawImage(img, x - s / 2, y - s / 2, s, s);
+    return;
+  }
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  ctx.drawImage(img, -s / 2, -s / 2, s, s);
+  ctx.restore();
+}
+
+function halos(ctx, list, look, A, t) {
+  const colors = look.palette.alien;
   ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = 0.5 * pulse;
-  ctx.drawImage(glow('#ff3a1a'), w.x - 36, w.y - 36, 72, 72);
-  ctx.globalAlpha = 0.55;
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.drawImage(sprite('armored', shade(look.palette.alien.armored, -0.5), 0), w.x - SIZE / 2, w.y - SIZE / 2 + 6);
+  for (const a of list) {
+    const carrier = a.role === 'carrier';
+    const r = carrier ? 62 : 44;
+    ctx.globalAlpha = carrier ? 0.42 + 0.18 * Math.sin(t * 5 + a.id) : A.halo;
+    ctx.drawImage(glow(colors[a.role]), a.x - r, a.y + bobOf(A, a, t) - r, r * 2, r * 2);
+  }
   ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function wreck(ctx, w, look, A, t) {
+  const hurry = 2 - w.left; // 0 just fell .. 2 about to rise
+  const pulse = 0.5 + 0.5 * Math.sin(t * (5 + hurry * 9));
+  const own = extraSprites(look, 'wreck');
+  const set = own ?? roleSprites(look, 'armored');
+  const jx = hurry > 1.4 ? Math.sin(t * 61) * (hurry - 1.4) * 4 : 0; // it shudders before it rises
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = 0.35 + 0.35 * pulse;
+  ctx.drawImage(glow('#ff3a1a'), w.x - 40, w.y - 34, 80, 80);
+  ctx.globalCompositeOperation = 'source-over';
+  blit(ctx, own ? own.body[0] : cracked(set, 0, 2), set, w.x + jx, w.y, 0.9);
+  ctx.globalCompositeOperation = 'lighter';
+  blit(ctx, set.lights[0], set, w.x + jx, w.y, 0.3 + 0.7 * pulse);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+function saucer(ctx, s, look, t) {
+  const set = extraSprites(look, 'saucer') ?? roleSprites(look, 'carrier');
+  const f = Math.floor(t * 6) & 1;
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = 0.5 + 0.15 * Math.sin(t * 9);
+  ctx.drawImage(glow(look.palette.alien.carrier), s.x - 90, s.y - 50, 180, 100);
+  ctx.globalCompositeOperation = 'source-over';
+  blit(ctx, flashing(s, t) ? set.flash[f] : set.body[f], set, s.x, s.y);
+  ctx.globalCompositeOperation = 'lighter';
+  blit(ctx, set.lights[f], set, s.x, s.y);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
 }
 
 export function drawAliens(ctx, world, look, t) {
-  const colors = look.palette.alien;
-  const list = world.saucer ? [...world.aliens, world.saucer] : world.aliens;
+  const A = art(look);
+  halos(ctx, world.aliens, look, A, t);
+  for (const w of world.wrecks) wreck(ctx, w, look, A, t);
+  for (const a of world.aliens) {
+    const set = roleSprites(look, a.role);
+    const f = frameOf(A, a, t);
+    const k = crackStage(world, a);
+    const img = flashing(a, t) ? set.flash[f] : k ? cracked(set, f, k) : set.body[f];
+    blit(ctx, img, set, a.x, a.y + bobOf(A, a, t), 1, lean(world, a));
+  }
   ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = 0.32;
-  for (const a of list) ctx.drawImage(glow(colors[a.role]), a.x - 44, a.y - 44, 88, 88);
+  for (const a of world.aliens) {
+    const set = roleSprites(look, a.role);
+    blit(ctx, set.lights[frameOf(A, a, t)], set, a.x, a.y + bobOf(A, a, t), 1, lean(world, a));
+  }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
-  for (const w of world.wrecks) wreck(ctx, w, look, t);
+  if (world.saucer) saucer(ctx, world.saucer, look, t);
+}
+
+export function drawAlienLights(ctx, world, look, t, k) {
+  const A = art(look);
+  const colors = look.palette.alien;
+  ctx.globalCompositeOperation = 'lighter';
   for (const a of world.aliens) {
-    const frame = Math.floor(t * 2 + a.id * 0.37) & 1;
-    ctx.drawImage(sprite(a.role, colors[a.role], frame), a.x - SIZE / 2, a.y - SIZE / 2);
+    const y = a.y + bobOf(A, a, t);
+    ctx.globalAlpha = 0.45 * k;
+    ctx.drawImage(glow(colors[a.role]), a.x - 46, y - 46, 92, 92);
+    const set = roleSprites(look, a.role);
+    blit(ctx, set.lights[frameOf(A, a, t)], set, a.x, y, k, lean(world, a));
   }
-  if (world.saucer) saucer(ctx, world.saucer, colors.carrier, t);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
 }

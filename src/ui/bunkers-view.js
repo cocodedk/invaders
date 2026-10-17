@@ -1,8 +1,9 @@
 // Bunkers drawn from their pixel masks, so every carve shows: each bunker is baked into its own
-// small canvas (lit rim on top and left edges, shadow on the others, faint strata and grain) and
-// re-baked only when its count of solid pixels changes (carving only ever removes pixels).
-// Colours: look.bunker { fill, light, dark, edge }. Task 9 brings per-world textures.
-import { makeCanvas, rgb, hash2, glow } from './sprites.js';
+// small canvas (lit rim on top and left edges, shadow on the others, the world's texture inside)
+// and re-baked only when its count of solid pixels changes (carving only ever removes pixels).
+// Colours: look.bunker { fill, light, dark, edge, accent?, skin } (skin: bunker-skins.js).
+import { makeCanvas, rgb, glow } from './sprites.js';
+import { SKINS } from './bunker-skins.js';
 
 const baked = new WeakMap(); // bunker -> { canvas, count, look }
 
@@ -16,13 +17,15 @@ function bake(b, look, count, canvas) {
   const { w, h, mask } = b;
   const g = canvas.getContext('2d');
   const img = g.createImageData(w, h);
-  const [fill, light, dark, edge] = ['fill', 'light', 'dark', 'edge'].map((k) => rgb(look.bunker[k]));
+  const P = {};
+  for (const k of ['fill', 'light', 'dark', 'edge', 'accent']) P[k] = rgb(look.bunker[k] ?? look.bunker.light);
+  const { light, dark, edge } = P;
+  const skin = SKINS[look.bunker.skin] ?? SKINS.plain;
   const at = (x, y) => x >= 0 && y >= 0 && x < w && y < h && mask[y * w + x] === 1;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       if (!mask[y * w + x]) continue;
-      let c = fill;
-      let k = 0.3 * (1 - y / h) + (hash2(x >> 1, y >> 1) - 0.5) * 0.16 - (y % 12 === 11 ? 0.12 : 0);
+      let [c, k] = skin(x, y, w, h, P);
       if (!at(x, y - 1) || !at(x - 1, y)) [c, k] = [edge, 0];
       else if (!at(x, y - 2) || !at(x - 2, y)) [c, k] = [light, 0];
       else if (!at(x, y + 1) || !at(x + 1, y) || !at(x, y + 2)) [c, k] = [dark, 0];

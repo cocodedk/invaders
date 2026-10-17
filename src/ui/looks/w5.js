@@ -20,7 +20,7 @@ export default {
     boss: { hull: '#0e1814', plate: '#3a4a42', weak: '#c8ff3a' },
   },
   bullet: 'orb',
-  bunker: { fill: '#2a3a30', light: '#6a8a72', dark: '#0c1610', edge: '#b8ff9a' },
+  bunker: { fill: '#2a3a30', light: '#6a8a72', dark: '#0c1610', edge: '#b8ff9a', skin: 'resin' },
   power: { spread: '#d8f0ff', laser: '#c8ff6a', rapid: '#ffd27a', shield: '#7ad8ff', bomb: '#ff7a3a' },
   music: { mood: 'dread drones', root: 'C#', scale: 'locrian', bpm: 66 },
 };

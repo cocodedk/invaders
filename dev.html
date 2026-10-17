@@ -19,6 +19,7 @@
 //   &live=1   keep simulating after t     &seed=N   world seed (default: the level's)
 //   &hud=0    hide the HUD                &film=1   the trailer's film look, fully on
 //   &debug    frame time and auto-quality readout
+//   dev.html?sheet=w4   instead: world 4's aliens, bunkers and pickups large on its sky (aliens/sheet.js)
 import { LEVELS, levelById } from './src/core/levels.js';
 import { createWorld, stepWorld } from './src/core/world.js';
 import { autopilot } from './src/core/autopilot.js';
@@ -30,6 +31,7 @@ import { createFilm, stepFilm } from './src/fx/film.js';
 import { createView, drawFrame } from './src/ui/view.js';
 import { sampleFrame } from './src/ui/quality.js';
 import { createDebug } from './src/ui/debug.js';
+import { drawSheet } from './src/ui/aliens/sheet.js';
 
 const q = new URLSearchParams(location.search);
 const level = levelById(q.get('level') || 'w1-1') ?? LEVELS[0];
@@ -73,7 +75,8 @@ function frame(now) {
   }
   requestAnimationFrame(frame);
 }
-requestAnimationFrame(frame);
+if (q.has('sheet')) drawSheet(document.getElementById('game'), q.get('sheet'));
+else requestAnimationFrame(frame);
 globalThis.bench = { world, fx, view };
 </script>
 </body>

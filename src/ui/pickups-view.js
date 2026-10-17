@@ -1,9 +1,18 @@
 // Falling pickups: a dark capsule ringed in the power's tint (look.power), with its icon, a pulsing
-// glow and turning dashes so it reads as "catch me" on any sky. Icons are shared by the HUD.
+// glow and turning dashes so it reads as "catch me" on any sky. Icons are shared by the HUD. Each
+// world reskins the capsule's rim and some icons (pickup-skins.js, keyed by look.world).
 import { INK, cached, glow, rgba } from './sprites.js';
+import { FRAMES, ICONS } from './pickup-skins.js';
 
-// The icon for `kind`, drawn centred on (0, 0) about 30 px across.
-export function drawIcon(g, kind, color) {
+// The icon for `kind` in world `world` (0: the default set), drawn centred on (0, 0) about 30 px across.
+export function drawIcon(g, kind, color, world = 0) {
+  const own = ICONS[world]?.[kind];
+  if (own) {
+    own(g, color);
+    g.lineCap = 'butt';
+    g.lineJoin = 'miter';
+    return;
+  }
   g.strokeStyle = color;
   g.fillStyle = color;
   g.lineWidth = 4;
@@ -47,8 +56,7 @@ export function drawIcon(g, kind, color) {
   g.lineCap = 'butt';
 }
 
-const capsule = (kind, color) => cached(`pick${kind}${color}`, 60, 60, (g) => {
-  g.translate(30, 30);
+function plainFrame(g, color) {
   g.fillStyle = 'rgba(8,10,20,0.88)';
   g.beginPath();
   g.arc(0, 0, 24, 0, Math.PI * 2);
@@ -61,7 +69,12 @@ const capsule = (kind, color) => cached(`pick${kind}${color}`, 60, 60, (g) => {
   g.beginPath();
   g.arc(0, 0, 27, 0, Math.PI * 2);
   g.stroke();
-  drawIcon(g, kind, color);
+}
+
+const capsule = (kind, color, world) => cached(`pick${kind}${color}${world}`, 60, 60, (g) => {
+  g.translate(30, 30);
+  (FRAMES[world] ?? plainFrame)(g, color);
+  drawIcon(g, kind, color, world);
 });
 
 export function drawPickups(ctx, world, look, t) {
@@ -82,6 +95,6 @@ export function drawPickups(ctx, world, look, t) {
       ctx.stroke();
     }
     ctx.globalCompositeOperation = 'source-over';
-    ctx.drawImage(capsule(p.kind, color), p.x - 30, y - 30);
+    ctx.drawImage(capsule(p.kind, color, look.world), p.x - 30, y - 30);
   }
 }

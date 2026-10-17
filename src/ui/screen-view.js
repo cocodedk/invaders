@@ -4,6 +4,7 @@
 import { W, H, glow } from './sprites.js';
 import { drawLights, layerX } from './parallax.js';
 import { drawFlourishes } from './flourish.js';
+import { drawAlienLights } from './aliens/index.js';
 
 const LIT = 0.15; // s a lightning flash lights the dark world fully, then it fades out
 const DIM = 0.66; // how dark the dark world is
@@ -21,7 +22,8 @@ function lightningLight(fx) {
 }
 
 // After the aliens and the boss, before bullets, ship and fx (which keep their full light). The
-// neon is drawn again over the dark: the skyline's lights and the 'neonfar'/'neonmid' flourishes.
+// neon is drawn again over the dark: the skyline's lights, the 'neonfar'/'neonmid' flourishes and
+// the aliens' own lights (aliens/index.js drawAlienLights).
 export function drawDarkness(ctx, env) {
   const { v, world, fx, t } = env;
   if (world.level.twist !== 'darkness') return;
@@ -38,10 +40,9 @@ export function drawDarkness(ctx, env) {
     drawFlourishes(ctx, env, 'neonfar', layerX(far, world.ship.x), far.top);
     drawFlourishes(ctx, env, 'neonmid', layerX(mid, world.ship.x), mid.top);
   }
-  const colors = v.look.palette.alien;
+  drawAlienLights(ctx, world, v.look, t, back); // their neon, and the glow it throws around them
   ctx.globalCompositeOperation = 'lighter';
   ctx.globalAlpha = 0.6 * back;
-  for (const a of world.aliens) ctx.drawImage(glow(colors[a.role]), a.x - 46, a.y - 46, 92, 92);
   if (world.boss) {
     for (const p of world.boss.parts) {
       if (p.hp <= 0 || !p.weak) continue;

@@ -19,7 +19,7 @@ export default {
     boss: { hull: '#3a3e48', plate: '#8a9aa8', weak: '#ff6a3a' },
   },
   bullet: 'bolt',
-  bunker: { fill: '#c8955a', light: '#f2c890', dark: '#6a4224', edge: '#ffe0b0' },
+  bunker: { fill: '#c8955a', light: '#f2c890', dark: '#6a4224', edge: '#ffe0b0', skin: 'sandstone' },
   power: { spread: '#ffb347', laser: '#ff4a3a', rapid: '#7ad0ff', shield: '#8affc8', bomb: '#ff6a3a' },
   music: { mood: 'desert brass', root: 'C', scale: 'dorian', bpm: 100 },
 };

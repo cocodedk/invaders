@@ -17,6 +17,7 @@ import { drawFlourishes } from './flourish.js';
 import { drawBunkers } from './bunkers-view.js';
 import { drawPickups } from './pickups-view.js';
 import { drawAliens } from './aliens/index.js';
+import { warmAliens } from './aliens/bake.js';
 import { drawBoss } from './bosses/index.js';
 import { drawBullets } from './bullets-view.js';
 import { drawLasers, drawBeam, drawShots } from './lasers-view.js';
@@ -29,6 +30,7 @@ import { createQuality } from './quality.js';
 
 export function createView(canvas, level) {
   const look = lookFor(level);
+  warmAliens(look);
   return {
     canvas, ctx: canvas.getContext('2d'), level, look,
     sky: buildSky(look), layers: buildLayers(look, level.seed ?? 1),
