@@ -1,0 +1,71 @@
+import { clamp, lerp } from './math.js';
+
+// How aliens arrive (entryPosition, 1.5 s) and how a diver swoops (diveCurve, 2.2 s). Both are pure
+// functions of u in 0..1 and both end exactly on the position they are given.
+
+const CENTER = 960;
+const ease = (u) => 1 - (1 - u) ** 3;
+const side = (slot) => (slot.sx < CENTER ? -1 : 1);
+
+// Progress of one alien: later places in line start later but all finish at u = 1.
+const late = (u, k, step) => ease(clamp((u - Math.min(k, 5) * step) / (1 - 5 * step), 0, 1));
+
+const quad = (a, b, c, e) => ({
+  x: (1 - e) * (1 - e) * a.x + 2 * (1 - e) * e * b.x + e * e * c.x,
+  y: (1 - e) * (1 - e) * a.y + 2 * (1 - e) * e * b.y + e * e * c.y,
+});
+
+const ENTRY = {
+  // Rows slide down from above, top row first.
+  grid: (s, u) => ({ x: s.sx, y: lerp(-100, s.sy, late(u, s.row, 0.06)) }),
+  // Drop in from above with a sideways flourish that unwinds, column by column.
+  sway: (s, u) => {
+    const e = late(u, s.col, 0.04);
+    return { x: s.sx + side(s) * 260 * (1 - e), y: lerp(-100, s.sy, e) };
+  },
+  // Swing in around a shrinking circle.
+  orbit: (s, u) => {
+    const e = late(u, s.col, 0.03);
+    const th = (u * 1.5 + s.col * 0.5) * Math.PI * 2;
+    return { x: s.sx + 100 * (1 - e) * Math.cos(th), y: lerp(-160, s.sy, e) + 100 * (1 - e) * Math.sin(th) };
+  },
+  // Wind in along a spiral that tightens onto the slot, arriving from straight above.
+  spiral: (s, u) => {
+    const e = late(u, s.col + s.row, 0.03);
+    const th = -Math.PI / 2 + 4 * Math.PI * (1 - e) * (s.col % 2 ? 1 : -1); // two turns, start straight up
+    const rad = (700 + 60 * s.row) * (1 - e);
+    return { x: s.sx + rad * Math.cos(th), y: s.sy + rad * Math.sin(th) };
+  },
+  // One column drops in down the middle, then fans out to the slots.
+  split: (s, u) => {
+    const e = late(u, s.row, 0.05);
+    return { x: lerp(CENTER, s.sx, ease(clamp(u * 1.3 - 0.3, 0, 1))), y: lerp(-120 - 40 * s.row, s.sy, e) };
+  },
+  // Slide in from the left or right edge, level with the slot.
+  escort: (s, u) => ({ x: lerp(side(s) < 0 ? -140 : 2060, s.sx, late(u, s.col, 0.05)), y: s.sy }),
+  // Columns fall in from above one after another.
+  rain: (s, u) => ({ x: s.sx, y: lerp(-100, s.sy, late(u, s.col, 0.09)) }),
+  // Galaga: stream in from alternate sides on a curve that dips low before climbing to the slot.
+  dive: (s, u) => {
+    const left = (s.col + s.row) % 2 === 0;
+    const from = { x: left ? -120 : 2040, y: 160 + s.row * 50 };
+    const bend = { x: left ? 760 : 1160, y: 800 };
+    return quad(from, bend, { x: s.sx, y: s.sy }, late(u, s.col + s.row, 0.03));
+  },
+};
+
+export function entryPosition(formation, slot, u) {
+  const enter = ENTRY[formation];
+  if (!enter) throw new Error(`unknown formation: ${formation}`);
+  return u >= 1 ? { x: slot.sx, y: slot.sy } : enter(slot, Math.max(u, 0));
+}
+
+// A swoop from `from` (the slot) down toward the ship's x and as deep as its y, and back up to
+// `from`. A sideways weave rides on top; it is zero at both ends, so the dive closes exactly.
+export function diveCurve(from, target, u) {
+  if (u <= 0 || u >= 1) return { x: from.x, y: from.y };
+  const arc = Math.sin(Math.PI * u);
+  const depth = clamp(target.y - from.y, 200, 900);
+  const x = from.x + (target.x - from.x) * arc + 70 * Math.sin(4 * Math.PI * u) * arc;
+  return { x: clamp(x, 20, 1900), y: from.y + depth * arc ** 1.5 };
+}
