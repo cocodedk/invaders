@@ -1,0 +1,41 @@
+import { ROLES } from './kinds.js';
+import { emit } from './util.js';
+
+// Points, the combo and stars. world.combo = { mult, timer }: every kill within COMBO_WINDOW of the
+// last raises mult by 1 (up to COMBO_MAX); timer counts down and mult falls back to 1 at 0.
+
+export const COMBO_WINDOW = 1.5;
+export const COMBO_MAX = 8;
+export const CLEAR_BONUS = 2000;
+export const FLAWLESS_BONUS = 3000; // on top of CLEAR_BONUS when the ship was never hit
+
+// An alien is dead (its hp is already 0). `scored` false is a ram: no points, the combo untouched.
+// The caller removes it from world.aliens.
+export function awardKill(world, alien, scored = true) {
+  const c = world.combo;
+  let points = 0;
+  if (scored) {
+    c.mult = c.timer > 0 ? Math.min(COMBO_MAX, c.mult + 1) : 1;
+    c.timer = COMBO_WINDOW;
+    points = ROLES[alien.role].score * c.mult;
+    world.score += points;
+  }
+  const { id, role, x, y } = alien;
+  emit(world, 'kill', { id, role, x, y, score: points, mult: c.mult, scored });
+  emit(world, 'explode', { x, y, size: 1 });
+}
+
+export function tickCombo(world, dt) {
+  const c = world.combo;
+  if (c.timer <= 0) return;
+  c.timer = Math.max(0, c.timer - dt);
+  if (c.timer === 0) c.mult = 1;
+}
+
+export const clearBonus = (world) => CLEAR_BONUS + (world.hits === 0 ? FLAWLESS_BONUS : 0);
+
+// 0 unless cleared; 3 with no hits, 2 after losing one life, 1 after more.
+export function stars(world) {
+  if (world.state !== 'cleared') return 0;
+  return world.hits === 0 ? 3 : world.hits === 1 ? 2 : 1;
+}
