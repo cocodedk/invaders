@@ -1,18 +1,22 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Nothing in this head makes a network request: the game runs offline at any sub-path. -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Invaders</title>
+  <meta name="description" content="A Space Invaders game in your browser: eight film-inspired worlds, forty levels, bosses, power-ups and free flight.">
   <meta name="theme-color" content="#05060b">
   <meta name="color-scheme" content="dark">
-  <style>
-    html, body { margin: 0; height: 100%; background: #05060b; overflow: hidden; }
-    canvas#game { display: block; width: 100vw; height: 100vh; object-fit: contain; }
-  </style>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="src/ui/css/base.css">
+  <link rel="stylesheet" href="src/ui/css/screens.css">
+  <link rel="stylesheet" href="src/ui/css/lobby.css">
+  <link rel="stylesheet" href="src/ui/css/demo.css">
 </head>
 <body>
   <canvas id="game" width="1920" height="1080"></canvas>
+  <div id="ui"></div>
   <script type="module" src="src/main.js"></script>
 </body>
 </html>

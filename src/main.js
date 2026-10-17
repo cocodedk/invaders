@@ -1,17 +1,81 @@
-// Placeholder boot: paints world 1's sky. Replaced by the real loop and screen routing later.
-import { WORLDS } from './core/levels.js';
+// Invaders: boot, the frame loop and the keys every screen shares. The fixed-step core runs inside
+// the scene's session (ui/session.js: advance with fx.slow, whole TICKs, the recording); routing is
+// ui/router.js, the end of a level ui/flow.js. Each frame: step and draw the scene, judge the
+// work for auto quality (R21/R23), feed the music, tick the overlay screen.
+import { store } from './ui/storage.js';
+import { createInput } from './ui/input.js';
+import { unlockAudio, toggleMute } from './ui/audio.js';
+import { updateMusic } from './ui/music.js';
+import { sampleFrame } from './ui/quality.js';
+import { createDebug } from './ui/debug.js';
+import { createStage, toast } from './ui/screens/stage.js';
+import { createRouter } from './ui/router.js';
+import { createFlow } from './ui/flow.js';
+import { runScene } from './ui/scenes.js';
+import { installDebug } from './ui/debug-hooks.js';
+import { stepDirector } from './ui/demo/script.js';
 
 const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+const stage = createStage(document.getElementById('ui'));
+const input = createInput(canvas);
+input.onGesture = unlockAudio;
+const router = createRouter({ canvas, stage, input });
+const flow = createFlow(router, stage);
+const { app } = router;
+const debug = createDebug();
+const jump = installDebug(router);
 
-const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
-sky.addColorStop(0, '#02030c');
-sky.addColorStop(0.6, '#0a0a2a');
-sky.addColorStop(1, '#241046');
-ctx.fillStyle = sky;
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Screens under which the scene steps (the world moves) and under which it is drawn at all: the
+// lobby and the title card cover the canvas, so it keeps its last frame there.
+const STEPS = new Set(['title', 'play', 'demo', 'results', 'failed']);
+const DRAWS = new Set([...STEPS, 'paused']);
 
-ctx.fillStyle = '#9fffd0';
-ctx.font = '72px system-ui, sans-serif';
-ctx.textAlign = 'center';
-ctx.fillText(WORLDS[0].name, canvas.width / 2, canvas.height / 2);
+input.onKey = (code, e) => {
+  if (code === 'KeyM') {
+    toast(toggleMute() ? 'Sound off' : 'Sound on');
+    return;
+  }
+  if (stage.onKey(code, e)) return;
+  if (router.live() && (code === 'Escape' || code === 'KeyP')) router.pause();
+};
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) router.pause();
+});
+
+function frame(dt, t) {
+  const sc = app.scene;
+  if (!sc || !DRAWS.has(app.screen)) return null;
+  runScene(sc, dt, t, STEPS.has(app.screen));
+  if (sc.mode === 'watch' && app.screen === 'demo' && app.demo?.d) {
+    stepDirector(app.demo.d, dt);
+    app.demo.screen.watch(app.demo.d, sc.session.world, sc.last);
+    const lost = sc.session.world.state === 'failed' && sc.session.over > 2; // the autopilot fell: hand over anyway
+    if (app.demo.d.done || lost) router.startTry();
+  }
+  flow.check(sc);
+  document.body.classList.toggle('playing', router.live());
+  return sc;
+}
+
+let last = null;
+function loop(now) {
+  const interval = last == null ? 0 : now - last;
+  last = now;
+  const dt = Math.min(0.1, interval / 1000); // a stalled tab is not a 10 s step
+  const start = performance.now();
+  const sc = frame(dt, now / 1000);
+  const work = performance.now() - start;
+  if (sc && interval) {
+    sampleFrame(sc.view.quality, work, interval);
+    sc.session.fx.density = sc.view.quality.level;
+    debug?.sample(work, interval, sc.view.quality);
+  }
+  updateMusic();
+  stage.update(dt);
+  requestAnimationFrame(loop);
+}
+
+if (jump) router.startLevel(jump);
+else if (!store.demoSeen()) router.startDemo(); // first launch: watch, then try
+else router.goTitle();
+requestAnimationFrame(loop);
