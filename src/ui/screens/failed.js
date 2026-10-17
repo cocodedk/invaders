@@ -1,6 +1,8 @@
 // A failed level: SHOT DOWN, how far the run got, and Retry / Select.
 //   failedScreen({ label, score, progress }, { retry, select }) -> screen
-import { h, button, navigate, shell, armed } from './dom.js';
+import { h, button, shell, armed, endKeys } from './dom.js';
+
+const SETTLE = 1100; // ms the fire key and held-key repeats are ignored: a cleared card's count-up
 
 export function failedScreen(o, act) {
   const ready = armed();
@@ -14,5 +16,5 @@ export function failedScreen(o, act) {
       h('p', 'result-line', h('span', 'result-cap', 'Score'), h('span', 'result-score', o.score.toLocaleString('en-US'))),
       h('p', 'result-best', o.progress)),
     h('nav', 'menu menu-row', ...items));
-  return { el, focus: items[0], onKey: (code) => !ready() || navigate(items, code) };
+  return { el, focus: items[0], onKey: endKeys(items, ready, armed(SETTLE)) };
 }

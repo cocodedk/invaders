@@ -58,7 +58,7 @@ export function createFlow(r, stage) {
       const next = demo ? r.goLobby : LEVELS[i + 1] && (() => r.startLevel(LEVELS[i + 1]));
       stage.show(resultsScreen({
         label: r.labelOf(o.level), title: demo ? 'You’re ready!' : o.level.boss ? 'Victory' : 'Cleared',
-        score: o.score, stars: o.stars, best: o.best, newBest: o.newBest && !demo,
+        score: o.score, stars: o.stars, best: demo ? null : o.best, newBest: o.newBest && !demo, // the demo has no best
       }, {
         next, nextLabel: demo ? 'Pick a level' : 'Next',
         retry: demo ? r.startTry : () => r.startLevel(o.level), retryLabel: demo ? 'Again' : 'Retry',

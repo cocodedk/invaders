@@ -1,12 +1,15 @@
 // The end of a cleared level: the kicker (world and reel), CLEARED, the stars stamping in one by
-// one, the score counting up, the best (or NEW BEST), and Next / Retry / Select.
+// one, the score counting up, the best (or NEW BEST; no line when best is null, as in the demo),
+// and Next / Retry / Select.
 //   resultsScreen({ label, title, score, stars, best, newBest }, { next?, retry, select }) -> screen
-// The buttons wait a moment (armed) so fire-button mashing at the clear cannot skip the card.
-import { h, button, navigate, shell, starRow, armed } from './dom.js';
+// The buttons wait a moment (armed) so fire-button mashing at the clear cannot skip the card, and
+// the fire key waits for the count-up and the stars (endKeys).
+import { h, button, shell, starRow, armed, endKeys } from './dom.js';
 import { play } from '../audio.js';
 
 const COUNT_TIME = 1.1; // s the score takes to count up
 const STAR_AT = [0.55, 0.85, 1.15]; // s each star stamps in
+const STAMP = 0.5; // s a star's stamp animation lasts (screens.css)
 
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
 
@@ -18,7 +21,7 @@ export function resultsScreen(o, act) {
   const score = h('span', 'result-score', '0');
   const best = o.newBest
     ? h('p', 'result-best new', 'New best!')
-    : h('p', 'result-best', `Best ${fmt(o.best.score)}`);
+    : o.best && h('p', 'result-best', `Best ${fmt(o.best.score)}`);
   const items = [];
   if (act.next) items.push(button(act.nextLabel ?? 'Next', go(act.next), 'btn btn-big'));
   items.push(button(act.retryLabel ?? 'Retry', go(act.retry), 'btn btn-big'));
@@ -33,9 +36,10 @@ export function resultsScreen(o, act) {
     h('nav', 'menu menu-row', ...items));
   let t = 0;
   let stamped = 0;
+  const settle = Math.max(COUNT_TIME, o.stars ? STAR_AT[o.stars - 1] + STAMP : 0);
   return {
     el, focus: items[0],
-    onKey: (code) => !ready() || navigate(items, code),
+    onKey: endKeys(items, ready, () => t >= settle),
     update(dt) {
       if (t > COUNT_TIME + 2) return;
       t += dt;

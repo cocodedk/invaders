@@ -95,6 +95,7 @@ export function createRouter({ canvas, stage, input }) {
         app.scene = scene;
         resetInput(input);
         then(scene);
+        if (document.hidden) r.pause(); // the tab went away during the card: start paused, not unseen
       }, Math.max(0, MIN_CARD * 1000 - (performance.now() - t0)));
     }));
   }

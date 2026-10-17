@@ -68,3 +68,11 @@ export function armed(ms = 450) {
   const shown = performance.now();
   return () => performance.now() - shown >= ms;
 }
+
+// An end card's keys (results, failed): nothing until the card is `ready` (armed); then, until it
+// has `settled` (its count-up and stars played out), the fire key and the repeats of a key still held
+// from the fight are swallowed too, so fire mashing cannot skip the card and a held arrow cannot spin
+// the focus. Enter confirms as soon as the card is armed. -> the screen's onKey
+export function endKeys(items, ready, settled) {
+  return (code, e) => !ready() || (!settled() && (code === 'Space' || Boolean(e?.repeat))) || navigate(items, code);
+}

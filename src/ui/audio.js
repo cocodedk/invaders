@@ -6,7 +6,7 @@
 // (setWorldSound(look) -> sound-data.js kitFor). Bursts are thinned per sound (GAP) and a voice
 // budget drops the small stuff when too much is ringing (cheap on a Pi 4).
 //   unlockAudio()  call from a keydown / pointerdown; toggleMute() (M; saved)
-//   play(name, { x, gain, wet, group, ... })   names: sfx-*.js   audioNodes() -> { ctx, music } | null
+//   play(name, { x, gain, wet, group, ... })   names: sfx-*.js   audioNodes() -> { ctx, music } | null (muted)
 //   hush(group)     fade every voice played with that group within 0.1 s (a skipped trailer)
 //   setBeam(on, x)  the laser power's sustained hum             duck(level)  music under menus
 //   audioStats()    sounds played and failed (the ?debug hooks report it)
@@ -100,7 +100,7 @@ globalThis.document?.addEventListener('visibilitychange', () => {
 });
 
 const running = () => ctx && ctx.state === 'running';
-export const audioNodes = () => (running() ? { ctx, music: musicBus, noise } : null);
+export const audioNodes = () => (running() && !muted ? { ctx, music: musicBus, noise } : null); // muted: no music
 export const setWorldSound = (look) => { kit = kitFor(look?.music); };
 export const audioStats = () => ({
   ...stats, state: ctx?.state ?? 'none', voices: voices.length, beam: Boolean(beam),
