@@ -3,10 +3,12 @@
 // look's music entry (sound-data.js STYLES[style].music). Every 2 passes of the sequence the lead
 // moves to the next chord of a four-step progression, so the loop does not drone on one phrase.
 //   setMusic(look)   the world to play (cross-fades from the last); null for silence
-//   updateMusic()    once per frame: schedules the next 0.3 s of notes ahead of the clock
-//   startLoop(nodes, look) / fillLoop(loop, until)   the same loop on any context (offline checks)
+//   updateMusic(nodes?)  once per frame: schedules the next 0.3 s of notes ahead of the clock
+//   startLoop(nodes, look) / fillLoop(loop, until) / stopLoop(loop)   the same loop on any context
+// A world change fades the old loop out, stops its sources and then disconnects every node it
+// made (the echo's feedback loop included), so a kiosk that cycles worlds for days stays flat.
 import { audioNodes } from './audio.js';
-import { tone, hiss, wobble } from './audio-kit.js';
+import { tone, hiss } from './audio-kit.js';
 import { STYLES, kitFor, degreeMidi, midiHz } from './sound-data.js';
 
 const AHEAD = 0.3; // s scheduled ahead of the audio clock
@@ -37,61 +39,65 @@ export function startLoop(nodes, look) {
   const { ctx } = nodes;
   const kit = kitFor(look.music);
   const m = STYLES[kit.style].music;
-  const bus = ctx.createGain();
+  const made = []; // every node this loop owns, to disconnect when it ends
+  const make = (node) => (made.push(node), node);
+  const bus = make(ctx.createGain());
   bus.gain.setValueAtTime(0.0001, ctx.currentTime);
   bus.gain.exponentialRampToValueAtTime(m.vol ?? 1, ctx.currentTime + FADE);
   bus.connect(nodes.music);
   let input = bus;
   if (kit.wet > 0.3) { // a tape echo for the wide, wet worlds
-    const echo = ctx.createDelay(1);
-    const fb = ctx.createGain();
+    const echo = make(ctx.createDelay(1));
+    const fb = make(ctx.createGain());
     echo.delayTime.value = (60 / kit.bpm) * 0.75;
     fb.gain.value = 0.32;
-    input = ctx.createGain();
+    input = make(ctx.createGain());
     input.connect(bus);
     input.connect(echo).connect(fb).connect(echo);
     fb.connect(bus);
   }
   const a = { ctx, t: ctx.currentTime, out: input, noise: nodes.noise, kit };
-  const drone = droneVoice(a, m.drone);
-  return { look, kit, m, a, bus, drone, next: ctx.currentTime + 0.1, step: 0 };
+  const sources = droneVoice(a, m.drone, make);
+  return { look, kit, m, a, bus, made, sources, next: ctx.currentTime + 0.1, step: 0 };
 }
 
-function droneVoice(a, d) {
+// The drone: detuned oscillators on the root (and fifth) through a lowpass a slow LFO opens and closes.
+function droneVoice(a, d, make) {
   const { ctx, kit } = a;
-  const g = ctx.createGain();
+  const g = make(ctx.createGain());
   g.gain.value = 0.05;
-  const f = ctx.createBiquadFilter();
+  const f = make(ctx.createBiquadFilter());
   f.type = 'lowpass';
   f.frequency.value = d.cut;
   f.connect(g).connect(a.out);
   const root = midiHz(degreeMidi(kit, 0, d.oct));
   const hz = d.fifth ? [root, root * 1.5, root * 1.003] : [root, root * 1.004];
-  const oscs = hz.map((h, i) => {
-    const o = ctx.createOscillator();
-    o.type = d.wave;
-    o.frequency.value = h;
-    o.detune.value = i * 4;
-    o.connect(f);
+  const osc = (type, freq) => {
+    const o = make(ctx.createOscillator());
+    o.type = type;
+    o.frequency.value = freq;
     o.start();
     return o;
+  };
+  const oscs = hz.map((h, i) => {
+    const o = osc(d.wave, h);
+    o.detune.value = i * 4;
+    o.connect(f);
+    return o;
   });
-  oscs.push(wobble(a, f.frequency, 0.09, d.cut * 0.45, ctx.currentTime, 1e6));
-  return oscs;
+  const lfo = osc('sine', 0.09);
+  const depth = make(ctx.createGain());
+  depth.gain.value = d.cut * 0.45;
+  lfo.connect(depth).connect(f.frequency);
+  return [...oscs, lfo];
 }
 
-function stop(c) {
+export function stopLoop(c) {
   const { ctx } = c.a;
   c.bus.gain.cancelScheduledValues(ctx.currentTime);
   c.bus.gain.setTargetAtTime(0.0001, ctx.currentTime, FADE / 4);
-  for (const o of c.drone) {
-    try {
-      o.stop(ctx.currentTime + FADE + 0.2);
-    } catch {
-      // already stopped
-    }
-  }
-  setTimeout(() => c.bus.disconnect(), (FADE + 1) * 1000);
+  for (const o of c.sources) o.stop(ctx.currentTime + FADE + 0.2);
+  setTimeout(() => { for (const n of c.made) n.disconnect(); }, (FADE + 1) * 1000);
 }
 
 function stepAt(c, t) {
@@ -113,11 +119,10 @@ function stepAt(c, t) {
   return len;
 }
 
-export function updateMusic() {
-  const nodes = audioNodes();
+export function updateMusic(nodes = audioNodes()) {
   if (!nodes) return;
   if ((cur?.look ?? null) !== want) {
-    if (cur) stop(cur);
+    if (cur) stopLoop(cur);
     cur = want ? startLoop(nodes, want) : null;
   }
   if (!cur) return;

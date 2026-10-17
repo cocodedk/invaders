@@ -3,6 +3,8 @@
 //   app = { screen, scene, backdrop, demo, lastLevel }
 //   screen 'title' | 'lobby' | 'loading' | 'play' | 'demo' | 'paused' | 'results' | 'failed'
 // The end of a level goes through flow.js (Task 12 puts the trailer and the blooper there).
+// Every route away from a level goes through leave(): the old scene stops stepping at once (the
+// loop only runs app.scene) and the level's own sounds (the laser hum) stop with it.
 import { DEMO_LEVEL, WORLDS } from '../core/levels.js';
 import { lookFor } from './looks/index.js';
 import { store } from './storage.js';
@@ -14,7 +16,7 @@ import { titleScreen } from './screens/title.js';
 import { lobbyScreen } from './screens/lobby.js';
 import { cardScreen } from './screens/card.js';
 import { pauseScreen } from './screens/pause.js';
-import { reelName } from './screens/posters.js';
+import { reelName, warmPosters } from './screens/posters.js';
 import { demoScreen } from './demo/demo-screen.js';
 import { DEMO_SEED, createDirector, directInput, noteEvents } from './demo/script.js';
 
@@ -33,13 +35,20 @@ export function createRouter({ canvas, stage, input }) {
   const app = { screen: 'boot', scene: null, backdrop: null, demo: null, lastLevel: 'w1-1', token: 0 };
   const r = { app, labelOf };
   const live = () => app.screen === 'play' || app.screen === 'demo';
+  const menus = () => app.screen === 'title' || app.screen === 'lobby'; // posters bake only here
 
-  r.goTitle = () => {
+  // Leave whatever runs for `screen`: nothing steps until the caller sets a new scene.
+  function leave(screen) {
     app.token += 1;
-    app.screen = 'title';
-    app.demo = null;
+    app.screen = screen;
+    app.scene = null;
     setBeam(false);
     duck(1);
+  }
+
+  r.goTitle = () => {
+    leave('title');
+    app.demo = null;
     const items = [ // the main menu, in order (Task 12 adds the cinema here)
       { label: 'Play', pick: r.goLobby },
       { label: 'Watch, then try', pick: r.startDemo },
@@ -47,31 +56,30 @@ export function createRouter({ canvas, stage, input }) {
     const level = app.backdrop?.level ?? pickBackdrop();
     sound(level);
     stage.show(titleScreen({ items, nowShowing: WORLDS[level.world - 1].name }));
+    warmPosters(menus);
     if (app.backdrop) {
       app.scene = app.backdrop;
       return;
     }
     const token = app.token; // the first time, the battle is baked once the menu has painted
     requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (token !== app.token) return; // already gone (Play pressed at once): bake it next time
       app.backdrop = backdropScene(canvas, level);
-      if (token === app.token) app.scene = app.backdrop;
+      app.scene = app.backdrop;
     }));
   };
 
   r.goLobby = () => {
-    app.token += 1;
-    app.screen = 'lobby';
+    leave('lobby');
     app.demo = null;
-    setBeam(false);
+    warmPosters(menus);
     stage.show(lobbyScreen({ best: store.allBest(), start: r.startLevel, back: r.goTitle, focusId: app.lastLevel }));
   };
 
   // Show the level's card, bake its view behind it, then play. build(level) -> scene.
   function load(level, kicker, build, then) {
-    const token = ++app.token;
-    app.screen = 'loading';
-    setBeam(false);
-    duck(1);
+    leave('loading');
+    const token = app.token;
     sound(level);
     stage.show(cardScreen(level, kicker));
     play('start');
@@ -120,9 +128,8 @@ export function createRouter({ canvas, stage, input }) {
   // Try: the same level, fresh, in the player's hands (the view is kept: no bake).
   r.startTry = () => {
     if (!app.demo) return;
-    app.token += 1;
+    leave('demo');
     app.scene = playScene(canvas, DEMO_LEVEL, input, { view: app.demo.view, seed: DEMO_SEED, mode: 'try' });
-    app.screen = 'demo';
     app.demo.d = null;
     resetInput(input);
     stage.show(app.demo.screen);

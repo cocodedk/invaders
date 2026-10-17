@@ -3,13 +3,14 @@
 // Keys: left/right change world (same reel), up/down change reel, down from the last reel reaches
 // Back, Enter plays, Esc goes back. The mouse focuses on hover and plays on click.
 //   lobbyScreen({ best, start(level), back(), focusId }) -> screen   best: storage allBest()
-// Posters not baked yet show their sky and develop in, one a frame (update), focused world first.
+// Posters not baked yet (posters.js bakes them in idle slices) show their sky, and develop in as
+// soon as they are ready (update).
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { bossDef } from '../../core/bosses-data.js';
 import { lookFor } from '../looks/index.js';
 import { play } from '../audio.js';
 import { h, button, focusItem, shell, starRow } from './dom.js';
-import { TAGLINES, posterFor, bakePoster } from './posters.js';
+import { TAGLINES, posterFor } from './posters.js';
 
 const fmt = (n) => n.toLocaleString('en-US');
 const skyCss = (look) => `linear-gradient(180deg, ${look.sky.map(([s, c]) => `${c} ${s * 100}%`).join(', ')})`;
@@ -61,8 +62,6 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
     }
     return null;
   };
-  const home = cols.find((c) => c.reels.includes(first));
-  const queue = [home, ...cols.filter((c) => c !== home)]; // the focused world develops first
   return {
     el, focus: first,
     onKey(code) {
@@ -85,12 +84,14 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
       if (code === 'Enter' || code === 'NumpadEnter' || code === 'Space') return document.activeElement.click(), true;
       return false;
     },
-    update() { // develop one missing poster a frame
-      const next = queue.find((c) => !c.art.querySelector('canvas'));
-      if (!next) return;
-      const canvas = bakePoster(next.world);
-      next.art.prepend(canvas);
-      next.art.classList.add('develop');
+    update() { // a poster that has just been baked develops in
+      for (const c of cols) {
+        if (c.art.querySelector('canvas')) continue;
+        const canvas = posterFor(c.world);
+        if (!canvas) continue;
+        c.art.prepend(canvas);
+        c.art.classList.add('develop');
+      }
     },
   };
 }

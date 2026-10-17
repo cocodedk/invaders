@@ -100,7 +100,7 @@ globalThis.document?.addEventListener('visibilitychange', () => {
 const running = () => ctx && ctx.state === 'running';
 export const audioNodes = () => (running() ? { ctx, music: musicBus, noise } : null);
 export const setWorldSound = (look) => { kit = kitFor(look?.music); };
-export const audioStats = () => ({ ...stats, state: ctx?.state ?? 'none', voices: voices.length });
+export const audioStats = () => ({ ...stats, state: ctx?.state ?? 'none', voices: voices.length, beam: Boolean(beam) });
 
 export function toggleMute() {
   muted = !muted;
