@@ -1,6 +1,7 @@
 import { stepShip } from './ship.js';
 import { stepAliens, spawnWave } from './aliens.js';
 import { stepBoss } from './boss.js';
+import { applyTwist, enemyDt } from './twists.js';
 import { stepPickups, tickPower } from './powerups.js';
 import { stepBeam, stepBomb } from './weapons.js';
 import { collide } from './collide.js';
@@ -10,7 +11,8 @@ import { emit, prune } from './util.js';
 
 // One tick of play, in the order that decides ties:
 //   combo -> projectiles move -> ship moves and shoots -> aliens and the boss move, dive, shoot ->
-//   power-ups, bomb and beam -> collisions -> the dead are pruned -> wave flow -> win or lose.
+//   power-ups, bomb and beam -> collisions -> the world's twist -> the dead are pruned -> wave flow
+//   -> win or lose.
 // New projectiles stay where they were fired until the next tick. Projectiles move before anything
 // is fired and collisions run after every kill and hit is possible, so a shot in flight still kills
 // the last alien on the tick the ship loses its last life, and settle() then favours the player.
@@ -26,6 +28,9 @@ function cull(world) {
   prune(world.aliens, (a) => a.hp > 0);
 }
 
+// A field with no alien and no wreck standing is empty.
+const empty = (world) => world.aliens.length === 0 && world.wrecks.length === 0;
+
 // An empty field ends the wave: waveClear on that very tick, then the gap, then the next wave.
 // Boss levels have no waves (boss.js runs the fight).
 function stepWave(world, dt) {
@@ -37,7 +42,7 @@ function stepWave(world, dt) {
       world.gap = null;
       spawnWave(world);
     }
-  } else if (world.aliens.length === 0) {
+  } else if (empty(world)) {
     const last = world.wave >= waves.length;
     emit(world, 'waveClear', { wave: world.wave, last });
     if (!last) world.gap = WAVE_GAP;
@@ -48,7 +53,7 @@ function stepWave(world, dt) {
 function won(world) {
   const { waves } = world.level;
   if (world.boss) return world.boss.dying === 0;
-  return Boolean(waves) && world.wave >= waves.length && world.gap === null && world.aliens.length === 0;
+  return Boolean(waves) && world.wave >= waves.length && world.gap === null && empty(world);
 }
 
 // Cleared beats failed: the last wave gone is a clear even if the ship died that same tick.
@@ -65,17 +70,19 @@ function settle(world) {
 }
 
 export function stepPlay(world, dt, input) {
+  const slow = enemyDt(world, dt); // enemy bullets, aliens and the boss move in this time
   tickCombo(world, dt);
   for (const s of world.shots) stepBullet(s, dt, world);
-  for (const b of world.bullets) stepBullet(b, dt, world);
+  for (const b of world.bullets) stepBullet(b, slow, world);
   stepShip(world, dt, input);
-  stepAliens(world, dt);
-  stepBoss(world, dt);
+  stepAliens(world, slow);
+  stepBoss(world, slow);
   tickPower(world, dt);
   stepPickups(world, dt);
   stepBomb(world);
   stepBeam(world, dt, input);
-  collide(world, dt);
+  collide(world, dt, slow);
+  applyTwist(world, dt);
   cull(world);
   stepWave(world, dt);
   settle(world);

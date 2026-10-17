@@ -1,0 +1,169 @@
+import { ALIEN_R } from './kinds.js';
+import { MAX_BULLETS } from './aliens.js';
+import { makeSlots, slotPosition } from './formations.js';
+import { segDist2 } from './math.js';
+import { rand } from './rng.js';
+import { emit, prune } from './util.js';
+
+// The rules of worlds 5-8 (twists.js has 1-4 and the dispatcher), plus the two helpers every
+// twist that touches bullets uses. They run once per tick, after collisions and before the dead
+// are pruned: a dead alien is still in world.aliens then, which is how acid and reassemble see it.
+
+export const SLOW = 0.5; // bullet time: enemy bullets, aliens and boss step at this fraction of real time
+export const SLOW_TIME = 2; // s it lasts
+export const SLOW_COOL = 8; // s from its start until a near miss can start it again
+
+// The time an enemy bullet, an alien or the boss moves in this tick.
+export const enemyDt = (world, dt) => (world.slow > 0 ? dt * SLOW : dt);
+
+// Push every ship shot and enemy bullet (not a laser: its vx, vy are the aim). `accel(p, out, dt)`
+// writes the acceleration in px/s^2 into out.x, out.y; dt is the time that projectile just moved.
+export function pushAll(world, dt, accel) {
+  const out = { x: 0, y: 0 };
+  const slow = enemyDt(world, dt);
+  for (const [list, step] of [[world.shots, dt], [world.bullets, slow]]) {
+    for (const p of list) {
+      if (p.life <= 0 || p.pattern === 'laser') continue;
+      accel(p, out, step);
+      p.vx += out.x * step;
+      p.vy += out.y * step;
+    }
+  }
+}
+
+// Acid: an armored death drips 3 slow bullets over 2 s from where it fell.
+const DRIPS = 3;
+const DRIP_GAP = 2 / 3;
+const ACID_SPEED = 100;
+
+export function acid(world, dt) {
+  const drips = world.twist.drips;
+  for (const a of world.aliens) if (a.hp <= 0 && a.role === 'armored') drips.push({ x: a.x, y: a.y, t: 0, n: 0 });
+  prune(drips, (d) => {
+    d.t += dt;
+    while (d.n < DRIPS && d.t >= d.n * DRIP_GAP - 1e-9) {
+      d.n += 1;
+      if (world.bullets.length < MAX_BULLETS) {
+        world.bullets.push({ pattern: 'acid', x: d.x, y: d.y, vx: 0, vy: ACID_SPEED, r: 10, life: 10 });
+      }
+      emit(world, 'acid', { x: d.x, y: d.y });
+    }
+    return d.n < DRIPS;
+  });
+}
+
+// Where a formation slot is right now, or null when there is no wave (a boss level).
+function slotNow(world, slot) {
+  const spec = world.level.waves?.[world.wave - 1];
+  const m = world.march;
+  return spec && m ? slotPosition(spec.formation, slot, m.clock, { dir: m.dir, speed: m.speed }) : null;
+}
+
+// Glitch: a holding alien blinks to a free slot every 3 to 5 s; a near miss starts bullet time.
+function blink(world) {
+  const spec = world.level.waves?.[world.wave - 1];
+  if (!spec || !world.march) return;
+  const free = makeSlots(spec).filter((s) => !world.aliens.some((a) => a.hp > 0 && a.slot.row === s.row && a.slot.col === s.col));
+  const holding = world.aliens.filter((a) => a.hp > 0 && a.mode === 'hold');
+  if (!free.length || !holding.length) return;
+  const a = holding[Math.floor(rand(world.rng) * holding.length)];
+  const s = free[Math.floor(rand(world.rng) * free.length)];
+  const [fromX, fromY] = [a.x, a.y];
+  a.slot = { ...s, role: a.slot.role };
+  Object.assign(a, slotNow(world, a.slot));
+  emit(world, 'teleport', { id: a.id, fromX, fromY, x: a.x, y: a.y });
+}
+
+// Did a near miss happen earlier in this very tick? (Events of this tick are the last ones.)
+function nearMissNow(world) {
+  const ev = world.events;
+  for (let i = ev.length - 1; i >= 0 && ev[i].tick === world.tick; i--) if (ev[i].type === 'nearMiss') return true;
+  return false;
+}
+
+export function glitch(world, dt) {
+  const t = world.twist;
+  if (world.slow > 0) {
+    world.slow = Math.max(0, world.slow - dt);
+    if (world.slow === 0) emit(world, 'bulletTime', { on: false });
+  }
+  t.cool = Math.max(0, t.cool - dt);
+  if (t.cool === 0 && nearMissNow(world)) {
+    world.slow = SLOW_TIME;
+    t.cool = SLOW_COOL;
+    emit(world, 'bulletTime', { on: true, left: SLOW_TIME });
+  }
+  t.timer -= dt;
+  if (t.timer > 0) return;
+  t.timer = 3 + 2 * rand(world.rng);
+  blink(world);
+}
+
+// Reassemble: an armored death leaves a wreck (hp 1) for 2 s, which hangs in the formation where the
+// alien held. A shot, the beam or a bomb breaks it for good; left alone it stands up again as an
+// armored alien with 2 hp, once (`reborn`).
+export const WRECK_TIME = 2;
+const REBORN_HP = 2;
+
+// Damage a wreck (the damage seam, damage.js). It is removed in reassemble().
+export function hurtWreck(world, w, dmg) {
+  if (w.hp <= 0) return;
+  w.hp -= dmg;
+  if (w.hp <= 0) emit(world, 'wreckDown', { x: w.x, y: w.y });
+}
+
+export function reassemble(world, dt) {
+  for (const a of world.aliens) {
+    if (a.hp <= 0 && a.role === 'armored' && a.slot && !a.reborn) {
+      world.wrecks.push({ x: a.x, y: a.y, hp: 1, left: WRECK_TIME, slot: a.slot, hold: a.mode === 'hold', wreck: true });
+      emit(world, 'wreck', { x: a.x, y: a.y });
+    }
+  }
+  for (const s of world.shots) {
+    if (s.life <= 0) continue;
+    for (const w of world.wrecks) {
+      if (w.hp <= 0 || segDist2(s.x - s.vx * dt, s.y - s.vy * dt, s.x, s.y, w.x, w.y) > (ALIEN_R + s.r) ** 2) continue;
+      s.life = 0;
+      hurtWreck(world, w, s.dmg ?? 1);
+      break;
+    }
+  }
+  prune(world.wrecks, (w) => {
+    if (w.hp <= 0) return false;
+    if (w.hold) Object.assign(w, slotNow(world, w.slot));
+    w.left -= dt;
+    if (w.left > 0) return true;
+    const id = world.nextId++;
+    world.aliens.push({
+      id, role: 'armored', x: w.x, y: w.y, hp: REBORN_HP, slot: w.slot, mode: 'hold',
+      t: world.march?.clock ?? 0, dive: null, reborn: true,
+    });
+    emit(world, 'reassemble', { id, x: w.x, y: w.y });
+    return false;
+  });
+}
+
+// Gravity: the well pulls every bullet and shot with a = 9e6 / max(d^2, 120^2) toward it, and
+// swallows whatever comes within 40 px of it.
+const PULL = 9e6;
+const PULL_MIN = 120;
+const ABSORB = 40;
+
+export function gravity(world, dt) {
+  const well = world.well;
+  pushAll(world, dt, (p, out, step) => {
+    const dx = well.x - p.x;
+    const dy = well.y - p.y;
+    if (segDist2(p.x - p.vx * step, p.y - p.vy * step, p.x, p.y, well.x, well.y) <= ABSORB * ABSORB) {
+      p.life = 0;
+      emit(world, 'absorb', { x: p.x, y: p.y });
+      out.x = 0;
+      out.y = 0;
+      return;
+    }
+    const d = Math.hypot(dx, dy);
+    const a = PULL / Math.max(d * d, PULL_MIN * PULL_MIN);
+    out.x = (dx / d) * a;
+    out.y = (dy / d) * a;
+  });
+}

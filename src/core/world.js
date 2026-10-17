@@ -4,6 +4,7 @@ import { createShip, stepShip } from './ship.js';
 import { spawnWave, stepAliens } from './aliens.js';
 import { layoutBunkers } from './bunkers.js';
 import { spawnBoss, stepBoss } from './boss.js';
+import { createTwist } from './twists.js';
 import { stepPlay } from './world-step.js';
 
 export { stars } from './scoring.js';
@@ -15,7 +16,8 @@ export { stars } from './scoring.js';
 // intro (seconds of intro left), gap (seconds to the next wave, or null), march (the current wave's
 // own state, aliens.js), nextId (the next alien id).
 // `wave` counts the waves spawned so far (1 while the first is in play; 0 on a boss level, where
-// `boss` holds the fight instead: boss.js).
+// `boss` holds the fight instead: boss.js). wind, slow, saucer, wrecks, well and twist carry the
+// level's twist (twists.js).
 // `events` is only pushed to here; main drains it after every step.
 
 export const INTRO = 1.5; // s before play begins; the first wave flies in meanwhile
@@ -30,7 +32,7 @@ export function createWorld(level, seed = level.seed) {
   };
   if (level.waves) spawnWave(world);
   if (level.boss) spawnBoss(world, level.boss);
-  return world;
+  return Object.assign(world, createTwist(level, world.rng));
 }
 
 // input = { dx, dy, fire, bomb, target }; missing fields mean "not pressed". A cleared or failed

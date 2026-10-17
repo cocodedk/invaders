@@ -92,11 +92,12 @@ function bulletsVsShip(world, dt) {
 
 // The dead (shots with life 0, aliens with hp 0, bullets with life 0) are pruned by the caller.
 // Cover comes before the ship, so a bullet that crosses a bunker on its way down never lands.
-export function collide(world, dt) {
+// `slow` is how long the enemy bullets moved this tick (less than dt in bullet time).
+export function collide(world, dt, slow = dt) {
   shotsVsAliens(world, dt);
   shotsVsBoss(world, dt);
   vsBunkers(world, world.shots, dt);
   rams(world);
-  vsBunkers(world, world.bullets, dt);
-  bulletsVsShip(world, dt);
+  vsBunkers(world, world.bullets, slow);
+  bulletsVsShip(world, slow);
 }
