@@ -1,0 +1,52 @@
+# Invaders — working notes
+
+A single-player 2D Space Invaders game for the browser and the Pi games menu: 8 film-inspired worlds
+x 5 levels, free 2D flight, formations, bosses, power-ups, and a movie trailer cut from your own
+run. The design is `docs/superpowers/specs/2026-10-17-invaders-design.md` and the build plan is
+`docs/superpowers/plans/2026-10-17-invaders.md`; the spec is the authority. Barrage
+(`../artillery`) is the reference game with the same architecture: copy and adapt from it, never
+import across repos.
+
+## Commands
+
+| What | Command |
+|---|---|
+| All tests | `node --test` (or `npm test`) |
+| Play locally | `python3 -m http.server 8000`, then open http://localhost:8000/ |
+
+## Layout
+
+| Path | Contents | DOM? |
+|---|---|---|
+| `src/core/` | rng, ship, aliens, formations, bullet patterns, bunkers, power-ups, bombs, scoring, bosses (data + phase logic), twists, levels data, world, autopilot, replay (record/encode/re-sim), highlight picker. Pure, stepped by `dt`, randomness passed in. | no |
+| `src/fx/` | particles, shockwaves, flashes, shake, pop-ups, slow-mo, film look state. Pure. | no |
+| `src/ui/` | canvas drawing per world (sky, parallax, aliens, boss, bunkers), ship, bullets, HUD, screens, trailer/cinema player, input, audio, storage, quality scaler. | yes |
+| `src/main.js` | boot, fixed-step loop, screen routing. | yes |
+| `test/` | `node:test` mirroring `src/core` and `src/fx`. | no |
+| `index.html` | One full-window canvas that loads `src/main.js`. | — |
+
+## Global constraints
+
+- No npm dependencies, no bundler, no build step, no network at runtime; all URLs relative (the game
+  is served from a sub-path, `/invaders/`).
+- Every code file < 200 lines (JS, HTML, CSS). Split by responsibility when approaching it.
+- `src/core` and `src/fx` never touch `window`, `document`, canvas, `Math.random` or `Date.now`;
+  randomness comes from an `rng` passed in, time from `dt`. Core iteration order must not depend on
+  object-key order of data that changes at runtime (arrays only), so replays stay exact.
+- World is 1920x1080, y down. Logic steps at fixed `TICK = 1/60` s. Player zone y in [620, 1040],
+  x in [40, 1880]; ship max speed 720 px/s.
+- Inputs are quantized before they reach the core: `dx, dy` in {-1, 0, 1}, `target` integer px or
+  null, `fire`/`bomb` booleans.
+- `localStorage` wrapped in try/catch; the game works without it. Keys prefixed `invaders.`.
+- Runs at 60 fps on a Pi 4 (Chromium 153 kiosk): no per-frame `shadowBlur`; glow via cached sprites +
+  `'lighter'`; at most 600 particles; at most 400 enemy bullets.
+- Names are original: no film titles, character names, logos or quoted film lines anywhere.
+- English only. Commits are Conventional Commits.
+
+## Level data
+
+`src/core/levels.js` and `levels-2.js` hold the 40 levels in a shorthand: `w(formation, cols,
+'roles', pattern, speed)` is one wave, `roles` being one letter per row (g grunt, d diver, u gunner,
+a armored, c carrier). A carrier row holds `cols` carriers, so carrier waves stay narrow. The repo
+test enforces the data rules (3-5 waves, at most 40 aliens a wave, a carrier on every wave level,
+four formations a world).
