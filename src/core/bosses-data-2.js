@@ -79,9 +79,9 @@ const titan = boss('titan', 'Endoskeleton titan', 275, { w: 620, h: 460 }, [
   ], { minions: [minion('gunner', 2, 12, 'shoulders')] }),
   phase(0, 'charge', [
     atk('ring', 3.8, 'skull', { count: 18 }),
-    atk('rain', 3, 'shoulders', { count: 9, spread: 540 }),
-    atk('laser', 6, 'cannonL'),
-    atk('laser', 6.8, 'cannonR'),
+    atk('rain', 3.6, 'shoulders', { count: 8, spread: 540 }),
+    atk('laser', 7, 'cannonL'),
+    atk('laser', 7.8, 'cannonR'),
     atk('fan', 2.6, 'skull', { count: 5, spread: 0.9 }),
   ], { rate: 1.3, minions: [minion('gunner', 3, 10, 'shoulders'), minion('carrier', 1, 18, 'shoulders')] }),
 ]);
@@ -105,15 +105,15 @@ const singularity = boss('singularity', 'The Singularity', 235, { w: 700, h: 380
     atk('laser', 6.5, 'moonL'),
     atk('laser', 7.5, 'moonR'),
     atk('fan', 2.6, 'jet', { count: 5, spread: 0.7 }),
-    atk('ring', 5, 'diskL', { count: 14 }),
-    atk('ring', 5.4, 'diskR', { count: 14 }),
+    atk('ring', 5.4, 'diskL', { count: 12 }),
+    atk('ring', 5.8, 'diskR', { count: 12 }),
   ], { rate: 1.1, minions: [minion('diver', 2, 10, 'diskL')] }),
   phase(0, 'charge', [
-    atk('rain', 2.8, 'diskL', { count: 8, spread: 400 }),
-    atk('rain', 2.8, 'diskR', { count: 8, spread: 400 }),
-    atk('spiral', 4, 'jet', { count: 20 }),
-    atk('homing', 2.4, 'jet'),
-    atk('laser', 6, 'moonL'),
+    atk('rain', 3.4, 'diskL', { count: 6, spread: 440 }),
+    atk('rain', 3.4, 'diskR', { count: 6, spread: 440 }),
+    atk('spiral', 4.8, 'jet', { count: 16 }),
+    atk('homing', 3, 'jet'),
+    atk('laser', 7.5, 'moonL'),
   ], { rate: 1.4, minions: [minion('diver', 3, 8, 'diskR'), minion('carrier', 1, 18, 'diskL')] }),
 ]);
 
