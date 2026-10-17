@@ -6,10 +6,6 @@ import { WARN } from '../../src/core/boss-attack.js';
 
 const sum = (parts) => parts.reduce((n, p) => n + p.hp, 0);
 
-// A part is exposed when no other part hangs below it in its centre column.
-const exposed = (def, p) =>
-  !def.parts.some((o) => o !== p && o.dy > p.dy && Math.abs(o.dx - p.dx) < o.w / 2 + 1 && o.dy - o.h / 2 > p.dy - p.h / 2);
-
 // The weak parts by the time phase `i` begins: weak from the start, or opened by phase i or before.
 const weakAt = (def, i) => def.parts.filter((p) =>
   p.weak || def.phases.some((ph, j) => j <= i && ph.open?.includes(p.id)));
@@ -47,11 +43,16 @@ test('every boss has 2 or 3 phases at falling hp thresholds, the last at 0', () 
   }
 });
 
-test('every phase of every boss has a weak part that can be shot from below', () => {
+test('every phase of every boss defines a weak part, and the bare hulls fit inside the last phase', () => {
   for (const def of BOSS_DEFS) {
-    def.phases.forEach((ph, i) => {
-      assert.ok(weakAt(def, i).some((p) => exposed(def, p)), `${def.kind} phase ${i}`);
-    });
+    def.phases.forEach((ph, i) => assert.ok(weakAt(def, i).length >= 1, `${def.kind} phase ${i}`));
+    // Hulls cannot be hurt until a phase opens them: their hp must be what is left when the last
+    // phase begins, or a boss reduced to its hulls could not be finished.
+    const hulls = def.parts.filter((p) => !p.weak && !p.armor);
+    const opens = hulls.every((p) => def.phases.some((ph) => ph.open?.includes(p.id)));
+    assert.ok(opens, `${def.kind}: every hull is opened by some phase`);
+    const last = def.phases.at(-2).until;
+    assert.ok(sum(hulls) <= last * def.maxHp + 1e-9, `${def.kind}: hulls hold ${sum(hulls)} of ${def.maxHp}`);
   }
 });
 

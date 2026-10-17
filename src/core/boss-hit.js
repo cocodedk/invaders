@@ -3,11 +3,12 @@ import { emit } from './util.js';
 
 // What hurts a boss. The parts are the targets: damage.js lists them, and these are the rules.
 //   weak part  full damage        armor plate  25 %        bare hull  none (it still soaks shots)
-// A part at 0 hp is gone and no longer blocks. Every change re-adds the boss's hp (syncBoss), which
-// is where phases change and the boss dies.
+// A shot or the beam goes through that rule (hurtPart); a bomb is raw damage (bombBoss). A part at
+// 0 hp is gone and no longer blocks. Every change re-adds the boss's hp (syncBoss), which is where
+// phases change, plates crack open when no weak point is left, and the boss dies.
 
 export const ARMOR = 0.25;
-export const BOMB_SHARE = 0.08; // of the boss's max hp, per bomb
+export const BOMB_SHARE = 0.08; // of the boss's max hp, per bomb, as raw damage
 
 // The parts that can be hit right now: none while the boss flies in or once it is dying.
 export function liveParts(world) {
@@ -15,11 +16,12 @@ export function liveParts(world) {
   return b && b.enter <= 0 && b.dying === null ? b.parts.filter((p) => p.hp > 0) : [];
 }
 
-// `dmg` through the part's rule. `at` is where it landed (default: the part's centre), for the sparks.
-export function hurtPart(world, p, dmg, at = p) {
+// `dealt` points off the part, whatever its rule, with the hit or the part-down event. `at` is where
+// it landed (default: the part's centre), for the sparks.
+function damagePart(world, p, dealt, at = p) {
   if (p.hp <= 0) return;
-  const dealt = dmg * (p.weak ? 1 : p.armor ? ARMOR : 0);
   p.hp = Math.max(0, p.hp - dealt);
+  if (p.hp < 1e-9) p.hp = 0;
   const b = world.boss;
   if (p.hp > 0) {
     emit(world, 'hit', { id: p.id, role: 'boss', part: p.id, x: at.x, y: at.y, hp: p.hp, dmg: dealt, weak: p.weak });
@@ -30,15 +32,34 @@ export function hurtPart(world, p, dmg, at = p) {
   syncBoss(world);
 }
 
-// A bomb takes 8 % of the boss's max hp in all, shared by the weak points it can see; with none
-// left, by what is left, through the armour rule.
+// `dmg` through the part's rule.
+export function hurtPart(world, p, dmg, at = p) {
+  damagePart(world, p, dmg * (p.weak ? 1 : p.armor ? ARMOR : 0), at);
+}
+
+// A bomb takes 8 % of the boss's max hp as raw damage (the armour rule does not apply), shared
+// equally by the live parts that can be damaged, weak ones first. What a part cannot take moves on
+// to the next, and what is still left after the last goes back to the first that can take it, so
+// the total is min(8 % of max hp, what the parts have left). A bare hull is not touched.
 export function bombBoss(world) {
-  const live = liveParts(world);
-  if (!live.length) return;
-  const weak = live.filter((p) => p.weak);
-  const pool = weak.length ? weak : live;
-  const share = (world.boss.maxHp * BOMB_SHARE) / pool.length;
-  for (const p of pool) hurtPart(world, p, share);
+  const live = liveParts(world).filter((p) => p.weak || p.armor);
+  const order = [...live.filter((p) => p.weak), ...live.filter((p) => !p.weak)];
+  if (!order.length) return;
+  const share = (world.boss.maxHp * BOMB_SHARE) / order.length;
+  const take = order.map(() => 0);
+  let carry = 0;
+  order.forEach((p, i) => {
+    take[i] = Math.min(share + carry, p.hp);
+    carry += share - take[i];
+  });
+  order.forEach((p, i) => {
+    const more = Math.min(carry, p.hp - take[i]);
+    take[i] += more;
+    carry -= more;
+  });
+  order.forEach((p, i) => {
+    if (take[i] > 0) damagePart(world, p, take[i]);
+  });
 }
 
 // Where the segment (ax, ay)-(bx, by) first enters the rectangle of `p` grown by r: its fraction

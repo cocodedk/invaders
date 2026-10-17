@@ -6,17 +6,6 @@ import { bossWorld, part, shotOn, leave } from './boss-kit.js';
 
 const FIRE = input({ fire: true });
 
-test('a bomb takes 8 % of the boss\'s max hp, split over its weak parts, and ignores the plates', () => {
-  const w = bossWorld('mothership');
-  w.ship.bombs = 1;
-  const armor = w.boss.parts.filter((p) => p.armor).map((p) => p.hp);
-  step(w, 1, input({ bomb: true }));
-  assert.ok(Math.abs(w.boss.maxHp - w.boss.hp - w.boss.maxHp * 0.08) < 1e-9);
-  assert.deepEqual(w.boss.parts.filter((p) => p.armor).map((p) => p.hp), armor);
-  const weak = w.boss.parts.filter((p) => p.weak);
-  assert.ok(weak.every((p) => Math.abs(p.max - p.hp - (w.boss.maxHp * 0.08) / 3) < 1e-9));
-});
-
 test('the laser beam burns a weak part for 8 a second and an armour plate for 2', () => {
   const w = bossWorld('mothership');
   w.ship.power = { kind: 'laser', left: 10 };
@@ -94,24 +83,4 @@ test('with the ship out of lives and the boss alive, the level is failed', () =>
   bulletAt(w, w.ship.x, w.ship.y);
   step(w);
   assert.equal(w.state, 'failed');
-});
-
-test('with no weak point left a bomb falls on the plates, through the 25 % rule', () => {
-  const w = bossWorld('mothership');
-  for (const p of w.boss.parts) if (p.weak) p.hp = 0;
-  const plates = w.boss.parts.filter((p) => p.armor);
-  const before = plates.map((p) => p.hp);
-  w.ship.bombs = 1;
-  step(w, 1, input({ bomb: true }));
-  const share = (w.boss.maxHp * 0.08) / plates.length;
-  assert.deepEqual(plates.map((p) => p.hp), before.map((hp) => hp - share * 0.25));
-});
-
-test('a bomb dropped while the boss is still flying in costs a bomb and hurts nothing', () => {
-  const w = bossWorld('mothership');
-  w.boss.enter = 1;
-  w.ship.bombs = 1;
-  step(w, 1, input({ bomb: true }));
-  assert.equal(w.boss.hp, w.boss.maxHp);
-  assert.equal(w.ship.bombs, 0);
 });

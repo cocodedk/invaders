@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { BOSSES } from '../../src/core/kinds.js';
 import { bossDef } from '../../src/core/bosses-data.js';
 import { ofType } from './world-kit.js';
-import { botFight } from './boss-kit.js';
+import { botFight, reachable } from './boss-kit.js';
 
 // The bar every boss has to clear: a bot that stands under the nearest weak part and never stops
 // firing, with a ship that cannot be hurt, wins inside 120 simulated seconds. Task 6's autopilot
@@ -20,5 +20,23 @@ for (const kind of BOSSES) {
     const last = log.findIndex((e) => e.type === 'bossDeath');
     assert.ok(log.slice(last).some((e) => e.type === 'explode' && e.size === 3), 'the finale');
     assert.ok(world.score >= 10000);
+  });
+}
+
+// "At least one weak part exposed in every phase" has to hold while the fight runs, not just on
+// paper: on every tick from the end of the fly-in to the boss's death some live weak part has a
+// clear column from the player zone.
+for (const kind of BOSSES) {
+  test(`the ${bossDef(kind).name} always has a live weak part a shot can reach`, () => {
+    let ticks = 0;
+    const { world } = botFight(kind, 120, (w) => {
+      if (w.boss.enter > 0 || w.boss.dying !== null) return;
+      ticks++;
+      const weak = w.boss.parts.filter((p) => p.hp > 0 && p.weak);
+      assert.ok(weak.some((p) => reachable(w, p)),
+        `${kind} at ${w.t.toFixed(2)} s (phase ${w.boss.phase}): live weak ${weak.map((p) => p.id)} but none reachable`);
+    });
+    assert.equal(world.state, 'cleared');
+    assert.ok(ticks > 60 * 10, `${ticks} ticks checked`);
   });
 }

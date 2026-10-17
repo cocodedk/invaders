@@ -40,8 +40,24 @@ function die(world, b) {
   emit(world, 'bossDeath', { kind: b.kind, x: b.x, y: b.y, score: BOSS_SCORE });
 }
 
+// When no weak point is left alive the plates crack open: every live armor part becomes weak (and
+// is no longer armor), so a fight never turns into a grind at 25 % with nothing to aim at. One
+// bossExpose per occurrence names the parts. A bare hull is not a plate and stays shut.
+function crack(world, b) {
+  if (b.parts.some((p) => p.hp > 0 && p.weak)) return;
+  const plates = b.parts.filter((p) => p.hp > 0 && p.armor);
+  if (!plates.length) return;
+  for (const p of plates) {
+    p.weak = true;
+    p.armor = false;
+    p.cracked = true;
+  }
+  emit(world, 'bossExpose', { kind: b.kind, parts: plates.map((p) => p.id), x: b.x, y: b.y });
+}
+
 // Re-add the parts' hp, then cross every threshold that hp has fallen through (one bossPhase each,
-// in order, so a big hit lands in the later phase), then die at 0.
+// in order, so a big hit lands in the later phase), then crack the plates if no weak point is left,
+// then die at 0.
 export function syncBoss(world) {
   const b = world.boss;
   if (!b || b.dying !== null) return;
@@ -52,4 +68,5 @@ export function syncBoss(world) {
     emit(world, 'bossPhase', { kind: b.kind, phase: b.phase, x: b.x, y: b.y, hp: b.hp, open });
   }
   if (b.hp <= 0) die(world, b);
+  else crack(world, b);
 }

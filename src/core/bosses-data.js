@@ -3,7 +3,9 @@ import { BOSSES2 } from './bosses-data-2.js';
 
 // The first four bosses (worlds 1-4); bosses-data-2.js holds the other four. Each is built from its
 // world's look: parts are where the picture needs them, the attack mix is what the world shoots.
-// Layouts keep every weak part open from below, so a ship can always get a clear column to it.
+// Layouts keep a clear column to some weak part from below at every moment of the fight (the boss
+// tests check it tick by tick), and when the last weak part falls the plates crack open to be shot
+// at full strength (boss-phase.js), so there is always something to aim at.
 
 const mothership = boss('mothership', 'Mothership', 240, { w: 640, h: 220 }, [
   armor('dome', 0, -60, 240, 80, 8),
@@ -32,31 +34,39 @@ const mothership = boss('mothership', 'Mothership', 240, { w: 640, h: 220 }, [
   ], { rate: 1.4, minions: [minion('grunt', 3, 9, 'eye'), minion('carrier', 1, 16, 'dome')] }),
 ]);
 
+// The tiers are split by a shaft down the middle: the eye hangs in it at the bottom, the spire sits
+// at its top, so the spire opens to the player's fire as soon as the eye is gone.
 const pyramid = boss('pyramid', 'Corporate pyramid', 250, { w: 560, h: 300 }, [
   weak('spire', 0, -105, 60, 60, 16),
-  armor('cap', 0, -55, 170, 50, 6),
-  armor('mid', 0, 0, 300, 56, 8),
-  armor('base', 0, 60, 440, 56, 8),
+  armor('capL', -75, -55, 60, 50, 3),
+  armor('capR', 75, -55, 60, 50, 3),
+  armor('midL', -100, 0, 110, 56, 4),
+  armor('midR', 100, 0, 110, 56, 4),
+  armor('baseL', -133, 60, 176, 56, 4),
+  armor('baseR', 133, 60, 176, 56, 4),
   weak('eye', 0, 105, 80, 44, 28),
   weak('signL', -150, 100, 90, 40, 14),
   weak('signR', 150, 100, 90, 40, 14),
 ], [
   phase(0.6, 'hover', [
-    atk('rain', 3.2, 'base', { count: 6, spread: 460 }),
+    atk('rain', 3.2, 'baseL', { count: 3, spread: 300 }),
+    atk('rain', 3.2, 'baseR', { count: 3, spread: 300 }),
     atk('fan', 3.6, 'eye', { count: 3, spread: 0.5 }),
   ]),
   phase(0.25, 'sway', [
-    atk('rain', 3, 'base', { count: 8, spread: 520 }),
+    atk('rain', 3, 'baseL', { count: 4, spread: 340 }),
+    atk('rain', 3, 'baseR', { count: 4, spread: 340 }),
     atk('homing', 3.4, 'signL'),
     atk('homing', 3.4, 'signR'),
     atk('laser', 8, 'eye'),
   ], { rate: 1.1, minions: [minion('gunner', 2, 12, 'signL')] }),
   phase(0, 'orbit', [
-    atk('rain', 2.6, 'base', { count: 9, spread: 560 }),
+    atk('rain', 2.6, 'baseL', { count: 5, spread: 380 }),
+    atk('rain', 2.6, 'baseR', { count: 5, spread: 380 }),
     atk('spiral', 4.8, 'spire', { count: 14 }),
     atk('fan', 3, 'eye', { count: 5, spread: 0.9 }),
     atk('laser', 7, 'signR'),
-  ], { rate: 1.2, minions: [minion('gunner', 2, 10, 'signR'), minion('carrier', 1, 18, 'cap')] }),
+  ], { rate: 1.2, minions: [minion('gunner', 2, 10, 'signR'), minion('carrier', 1, 18, 'capL')] }),
 ]);
 
 // The trench: in the last phase the core, a bare hull until then, takes full damage.

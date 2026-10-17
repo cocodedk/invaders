@@ -11,7 +11,7 @@ import { hurtWreck } from './twists-2.js';
 //   hurt(world, t, dmg)   damage with the kill and the hit event; a boss part applies its own
 //                         rule (weak 100 %, armor 25 %, bare hull 0), a wreck just breaks
 //   bombAll(world)        what one bomb does: 3 to everything loose on screen, and 8 % of the boss's
-//                         max hp in all, shared by its weak points
+//                         max hp as raw damage, shared by its damageable parts (boss-hit.js)
 //   drip(world, t, amount) damage that arrives continuously, paid out in whole points
 
 export const BOMB_DAMAGE = 3;
