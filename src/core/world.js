@@ -3,6 +3,7 @@ import { scaled } from './difficulty.js';
 import { createShip, stepShip } from './ship.js';
 import { spawnWave, stepAliens } from './aliens.js';
 import { layoutBunkers } from './bunkers.js';
+import { spawnBoss, stepBoss } from './boss.js';
 import { stepPlay } from './world-step.js';
 
 export { stars } from './scoring.js';
@@ -13,7 +14,8 @@ export { stars } from './scoring.js';
 // simulation needs: rng (a { s } state, draw with rand), scale (scaled(level.d), constant),
 // intro (seconds of intro left), gap (seconds to the next wave, or null), march (the current wave's
 // own state, aliens.js), nextId (the next alien id).
-// `wave` counts the waves spawned so far (1 while the first is in play; 0 on a boss level).
+// `wave` counts the waves spawned so far (1 while the first is in play; 0 on a boss level, where
+// `boss` holds the fight instead: boss.js).
 // `events` is only pushed to here; main drains it after every step.
 
 export const INTRO = 1.5; // s before play begins; the first wave flies in meanwhile
@@ -27,6 +29,7 @@ export function createWorld(level, seed = level.seed) {
     score: 0, combo: { mult: 1, timer: 0 }, hits: 0, state: 'intro', events: [],
   };
   if (level.waves) spawnWave(world);
+  if (level.boss) spawnBoss(world, level.boss);
   return world;
 }
 
@@ -42,6 +45,7 @@ export function stepWorld(world, dt, input = {}) {
   }
   stepShip(world, dt, input);
   stepAliens(world, dt);
+  stepBoss(world, dt);
   world.intro -= dt;
   if (world.intro <= 0) world.state = 'play';
 }

@@ -11,3 +11,12 @@ export const dist2 = (a, b) => (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
 
 // Angle in radians from `a` to `b`; 0 is +x, and +y points down the screen.
 export const angleTo = (a, b) => Math.atan2(b.y - a.y, b.x - a.x);
+
+// Squared distance from the point (px, py) to the segment (ax, ay)-(bx, by).
+export function segDist2(ax, ay, bx, by, px, py) {
+  const ex = bx - ax;
+  const ey = by - ay;
+  const len2 = ex * ex + ey * ey;
+  const u = len2 ? clamp(((px - ax) * ex + (py - ay) * ey) / len2, 0, 1) : 0;
+  return (ax + ex * u - px) ** 2 + (ay + ey * u - py) ** 2;
+}

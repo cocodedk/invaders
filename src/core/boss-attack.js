@@ -1,0 +1,93 @@
+import { ROLES } from './kinds.js';
+import { MAX_BULLETS } from './aliens.js';
+import { emitPattern } from './patterns.js';
+import { bossDef } from './bosses-data.js';
+import { clamp } from './math.js';
+import { emit, prune } from './util.js';
+
+// What a boss throws. An attack is a countdown per phase entry; when it runs out the part warns
+// (bossWarn, and an entry in b.warns for the renderer to draw as a charge-up), WARN s later it
+// fires, and the countdown restarts. A part destroyed in between never fires. A quiet world
+// (scale.fireMult 0) neither attacks nor launches minions.
+
+export const WARN = 0.7; // s between the warning and the bullets; the rule is at least 0.6
+const MINION_CAP = 8;
+
+function release(world, b, w) {
+  const a = bossDef(b.kind).phases[w.phase].attacks[w.i];
+  const src = b.parts.find((p) => p.id === w.part);
+  if (src.hp <= 0) return;
+  const from = { x: src.x, y: src.y + src.h / 2 - 6 };
+  const p = { ...a.p, speed: world.scale.bulletSpeed * (a.p.speed ?? 1) };
+  for (const bullet of emitPattern(a.pattern, from, world.ship, p, world.rng)) {
+    if (world.bullets.length < MAX_BULLETS) world.bullets.push(bullet);
+  }
+  emit(world, 'fire', { side: 'enemy', id: src.id, role: 'boss', x: from.x, y: from.y, pattern: a.pattern });
+}
+
+export function stepAttacks(world, b, def, dt) {
+  const rate = world.scale.fireMult;
+  if (rate <= 0) return;
+  prune(b.warns, (w) => {
+    w.left -= dt;
+    if (w.left > 0) return true;
+    release(world, b, w);
+    return false;
+  });
+  def.phases[b.phase].attacks.forEach((a, i) => {
+    b.cd[i] -= dt;
+    if (b.cd[i] > 0) return;
+    b.cd[i] = a.every / rate;
+    const src = b.parts.find((p) => p.id === a.from);
+    if (src.hp <= 0) return;
+    b.warns.push({ phase: b.phase, i, part: a.from, pattern: a.pattern, left: WARN, total: WARN });
+    emit(world, 'bossWarn', { kind: b.kind, part: a.from, pattern: a.pattern, x: src.x, y: src.y, warn: WARN });
+  });
+}
+
+// Launch `m.count` aliens of the role from a part. They are ordinary aliens without a formation
+// slot (slot null, minion true): divers and the rest fly at the ship, a carrier crosses the
+// screen below the boss with a power-up to shoot loose.
+function launch(world, b, m) {
+  const src = b.parts.find((p) => p.id === m.from);
+  let live = world.aliens.reduce((n, a) => n + (a.minion ? 1 : 0), 0);
+  for (let i = 0; i < m.count && live < MINION_CAP; i++, live++) {
+    const id = world.nextId++;
+    const carrier = m.role === 'carrier';
+    world.aliens.push({
+      id, role: m.role, x: carrier ? (id % 2 ? -40 : 1960) : src.x + (i - (m.count - 1) / 2) * 56,
+      y: carrier ? 500 : src.y + src.h / 2, hp: ROLES[m.role].hp, slot: null,
+      mode: carrier ? 'hold' : 'dive', t: 0, dive: null, minion: true, vx: carrier ? (id % 2 ? 150 : -150) : 0,
+    });
+  }
+}
+
+export function stepMinions(world, b, def, dt) {
+  if (world.scale.fireMult <= 0) return;
+  const list = def.phases[b.phase].minions ?? [];
+  list.forEach((m, i) => {
+    b.mcd[i] -= dt;
+    if (b.mcd[i] > 0) return;
+    b.mcd[i] = m.every;
+    launch(world, b, m);
+  });
+}
+
+// Minions fly: a carrier drifts across at y ~ 500, the rest fall toward the ship's column. Anything
+// that leaves the screen is dropped without score.
+export function moveMinions(world, dt) {
+  const speed = 150 + 120 * world.level.d;
+  for (const a of world.aliens) {
+    if (!a.minion || a.hp <= 0) continue;
+    a.t += dt;
+    if (a.role === 'carrier') {
+      a.x += a.vx * dt;
+      a.y = 500 + 18 * Math.sin(a.t * 2);
+      if (a.x < -80 || a.x > 2000) a.hp = 0;
+    } else {
+      a.y += speed * dt;
+      a.x = clamp(a.x + (clamp((world.ship.x - a.x) / 40, -1, 1) * 90 + Math.cos(a.t * 3 + a.id) * 60) * dt, 20, 1900);
+      if (a.y > 1120) a.hp = 0;
+    }
+  }
+}

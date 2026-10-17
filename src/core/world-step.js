@@ -1,5 +1,6 @@
 import { stepShip } from './ship.js';
 import { stepAliens, spawnWave } from './aliens.js';
+import { stepBoss } from './boss.js';
 import { stepPickups, tickPower } from './powerups.js';
 import { stepBeam, stepBomb } from './weapons.js';
 import { collide } from './collide.js';
@@ -8,8 +9,8 @@ import { tickCombo, clearBonus, stars } from './scoring.js';
 import { emit, prune } from './util.js';
 
 // One tick of play, in the order that decides ties:
-//   combo -> projectiles move -> ship moves and shoots -> aliens move, dive, shoot -> power-ups, bomb
-//   and beam -> collisions -> the dead are pruned -> wave flow -> win or lose.
+//   combo -> projectiles move -> ship moves and shoots -> aliens and the boss move, dive, shoot ->
+//   power-ups, bomb and beam -> collisions -> the dead are pruned -> wave flow -> win or lose.
 // New projectiles stay where they were fired until the next tick. Projectiles move before anything
 // is fired and collisions run after every kill and hit is possible, so a shot in flight still kills
 // the last alien on the tick the ship loses its last life, and settle() then favours the player.
@@ -26,7 +27,7 @@ function cull(world) {
 }
 
 // An empty field ends the wave: waveClear on that very tick, then the gap, then the next wave.
-// Boss levels have no waves (a later task owns them).
+// Boss levels have no waves (boss.js runs the fight).
 function stepWave(world, dt) {
   const waves = world.level.waves;
   if (!waves) return;
@@ -43,10 +44,16 @@ function stepWave(world, dt) {
   }
 }
 
+// The last wave gone, or the boss's destruction chain over.
+function won(world) {
+  const { waves } = world.level;
+  if (world.boss) return world.boss.dying === 0;
+  return Boolean(waves) && world.wave >= waves.length && world.gap === null && world.aliens.length === 0;
+}
+
 // Cleared beats failed: the last wave gone is a clear even if the ship died that same tick.
 function settle(world) {
-  const waves = world.level.waves;
-  if (waves && world.wave >= waves.length && world.gap === null && world.aliens.length === 0) {
+  if (won(world)) {
     const bonus = clearBonus(world);
     world.score += bonus;
     world.state = 'cleared';
@@ -63,6 +70,7 @@ export function stepPlay(world, dt, input) {
   for (const b of world.bullets) stepBullet(b, dt, world);
   stepShip(world, dt, input);
   stepAliens(world, dt);
+  stepBoss(world, dt);
   tickPower(world, dt);
   stepPickups(world, dt);
   stepBomb(world);

@@ -1,6 +1,6 @@
 import { carveRect } from './bunkers.js';
 import { MUZZLE } from './ship.js';
-import { targets, inColumn, onScreen, bombHurt, drip } from './damage.js';
+import { targets, inColumn, bombAll, drip } from './damage.js';
 import { emit } from './util.js';
 
 // The two weapons that are not shots: the laser power's beam and the smart bomb.
@@ -30,7 +30,7 @@ export function stepBeam(world, dt, input) {
 }
 
 // A fresh press of the bomb key (ship.bombPressed, set in stepShip) spends one bomb: every enemy
-// bullet and beam goes, and everything on screen takes bombHurt.
+// bullet and beam goes, and everything on screen takes the bomb (damage.js bombAll).
 export function stepBomb(world) {
   const s = world.ship;
   if (!s.alive || !s.bombPressed || s.bombs <= 0) return;
@@ -38,5 +38,5 @@ export function stepBomb(world) {
   const cleared = world.bullets.length;
   world.bullets.length = 0;
   emit(world, 'bomb', { x: s.x, y: s.y, cleared, left: s.bombs });
-  for (const t of targets(world)) if (onScreen(t)) bombHurt(world, t);
+  bombAll(world);
 }

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { clamp, lerp, approach, dist2, angleTo } from '../../src/core/math.js';
+import { clamp, lerp, approach, dist2, angleTo, segDist2 } from '../../src/core/math.js';
 
 test('clamp keeps a value inside the range', () => {
   assert.equal(clamp(5, 0, 10), 5);
@@ -33,4 +33,11 @@ test('angleTo is the angle from the first point to the second, y down', () => {
   assert.equal(angleTo(o, { x: 0, y: 5 }), Math.PI / 2);
   assert.equal(angleTo(o, { x: -5, y: 0 }), Math.PI);
   assert.equal(angleTo(o, { x: 0, y: -5 }), -Math.PI / 2);
+});
+
+test('segDist2 is the squared distance to the nearest point of a segment, ends included', () => {
+  assert.equal(segDist2(0, 0, 10, 0, 5, 3), 9, 'beside the middle');
+  assert.equal(segDist2(0, 0, 10, 0, 14, 3), 25, 'past the end: measured to the end point');
+  assert.equal(segDist2(0, 0, 10, 0, -3, 4), 25, 'before the start');
+  assert.equal(segDist2(2, 2, 2, 2, 5, 6), 25, 'a segment of length 0 is a point');
 });

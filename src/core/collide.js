@@ -1,7 +1,9 @@
-import { clamp, dist2 } from './math.js';
+import { dist2, segDist2 } from './math.js';
+import { ALIEN_R, NEAR_MISS } from './kinds.js';
 import { laserHits } from './patterns.js';
 import { SHIP_R, hitShip } from './ship.js';
 import { hurtAlien } from './aliens.js';
+import { shotsVsBoss } from './boss-hit.js';
 import { sweepBunkers } from './bunkers.js';
 import { awardKill } from './scoring.js';
 import { emit } from './util.js';
@@ -9,17 +11,7 @@ import { emit } from './util.js';
 // Who hits whom. Projectiles are tested along the path they flew this tick (from where their
 // velocity says they were to where they are), so a fast shot cannot tunnel through anything.
 
-export const ALIEN_R = 26;
-export const NEAR_MISS = 28; // centre distance, for a standard 8 px bullet: 6 px outside the hit circle
-
-// Squared distance from the point (px, py) to the segment (ax, ay)-(bx, by).
-function segDist2(ax, ay, bx, by, px, py) {
-  const ex = bx - ax;
-  const ey = by - ay;
-  const len2 = ex * ex + ey * ey;
-  const u = len2 ? clamp(((px - ax) * ex + (py - ay) * ey) / len2, 0, 1) : 0;
-  return (ax + ex * u - px) ** 2 + (ay + ey * u - py) ** 2;
-}
+export { ALIEN_R, NEAR_MISS }; // they live in kinds.js now, so damage.js and the twists can use them
 
 // Each shot is spent on the alien it meets first, the nearest to where it started this tick.
 function shotsVsAliens(world, dt) {
@@ -102,6 +94,7 @@ function bulletsVsShip(world, dt) {
 // Cover comes before the ship, so a bullet that crosses a bunker on its way down never lands.
 export function collide(world, dt) {
   shotsVsAliens(world, dt);
+  shotsVsBoss(world, dt);
   vsBunkers(world, world.shots, dt);
   rams(world);
   vsBunkers(world, world.bullets, dt);

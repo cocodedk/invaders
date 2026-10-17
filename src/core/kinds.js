@@ -16,3 +16,7 @@ export const POWERS = ['spread', 'laser', 'rapid', 'shield'];
 // World order: WORLDS[i].twist is TWISTS[i] and WORLDS[i].boss is BOSSES[i].
 export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity'];
 export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity'];
+
+// Collision sizes shared by the collision code and by everything that must agree with it.
+export const ALIEN_R = 26; // hit radius of an alien
+export const NEAR_MISS = 28; // centre distance, for a standard 8 px bullet: 6 px outside the hit circle

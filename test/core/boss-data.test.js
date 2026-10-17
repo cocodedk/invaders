@@ -1,0 +1,82 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { BOSS_DEFS, bossDef } from '../../src/core/bosses-data.js';
+import { BOSSES, PATTERNS, ROLES } from '../../src/core/kinds.js';
+import { WARN } from '../../src/core/boss-attack.js';
+
+const sum = (parts) => parts.reduce((n, p) => n + p.hp, 0);
+
+// A part is exposed when no other part hangs below it in its centre column.
+const exposed = (def, p) =>
+  !def.parts.some((o) => o !== p && o.dy > p.dy && Math.abs(o.dx - p.dx) < o.w / 2 + 1 && o.dy - o.h / 2 > p.dy - p.h / 2);
+
+// The weak parts by the time phase `i` begins: weak from the start, or opened by phase i or before.
+const weakAt = (def, i) => def.parts.filter((p) =>
+  p.weak || def.phases.some((ph, j) => j <= i && ph.open?.includes(p.id)));
+
+test('there are eight definitions, in world order, looked up by kind', () => {
+  assert.deepEqual(BOSS_DEFS.map((d) => d.kind), BOSSES);
+  for (const kind of BOSSES) assert.equal(bossDef(kind).kind, kind);
+  assert.equal(bossDef('nope'), undefined);
+});
+
+test('each definition is plain data: maxHp is the sum of its parts, ids are unique, parts fit the size', () => {
+  for (const def of BOSS_DEFS) {
+    assert.equal(def.maxHp, sum(def.parts), def.kind);
+    assert.equal(new Set(def.parts.map((p) => p.id)).size, def.parts.length, `${def.kind} ids`);
+    assert.equal(typeof def.name, 'string');
+    assert.doesNotThrow(() => structuredClone(def));
+    for (const p of def.parts) {
+      assert.ok(p.hp > 0 && p.w > 0 && p.h > 0, `${def.kind}/${p.id}`);
+      assert.ok(!(p.weak && p.armor), `${def.kind}/${p.id} is weak or armoured, not both`);
+      assert.ok(Math.abs(p.dx) + p.w / 2 <= def.size.w / 2, `${def.kind}/${p.id} fits the width`);
+      assert.ok(Math.abs(p.dy) + p.h / 2 <= def.size.h / 2, `${def.kind}/${p.id} fits the height`);
+    }
+    assert.ok(def.y - def.size.h / 2 >= 0 && def.y + def.size.h / 2 <= 620, `${def.kind} stays above the player zone`);
+  }
+});
+
+test('every boss has 2 or 3 phases at falling hp thresholds, the last at 0', () => {
+  for (const def of BOSS_DEFS) {
+    const n = def.phases.length;
+    assert.ok(n >= 2 && n <= 3, `${def.kind} has ${n} phases`);
+    const until = def.phases.map((p) => p.until);
+    assert.equal(until[n - 1], 0);
+    for (let i = 0; i < n - 1; i++) assert.ok(until[i] > until[i + 1] && until[i] < 1, `${def.kind} thresholds`);
+    for (const ph of def.phases) assert.ok(['sway', 'hover', 'charge', 'orbit'].includes(ph.move), ph.move);
+  }
+});
+
+test('every phase of every boss has a weak part that can be shot from below', () => {
+  for (const def of BOSS_DEFS) {
+    def.phases.forEach((ph, i) => {
+      assert.ok(weakAt(def, i).some((p) => exposed(def, p)), `${def.kind} phase ${i}`);
+    });
+  }
+});
+
+test('attacks come from real parts with real patterns, and are slower than their own telegraph', () => {
+  for (const def of BOSS_DEFS) {
+    const ids = def.parts.map((p) => p.id);
+    for (const ph of def.phases) {
+      assert.ok(ph.attacks.length >= 1, `${def.kind} attacks in every phase`);
+      for (const a of ph.attacks) {
+        assert.ok(PATTERNS.includes(a.pattern), `${def.kind}: ${a.pattern}`);
+        assert.ok(ids.includes(a.from), `${def.kind}: from ${a.from}`);
+        assert.ok(a.every >= WARN + 0.8, `${def.kind} ${a.pattern} every ${a.every}`);
+      }
+      for (const m of ph.minions ?? []) {
+        assert.ok(m.role in ROLES && m.count >= 1 && m.every >= 4, `${def.kind} minions`);
+        assert.ok(ids.includes(m.from), `${def.kind}: minions from ${m.from}`);
+      }
+    }
+  }
+  assert.ok(WARN >= 0.6, 'the telegraph is at least 0.6 s');
+});
+
+test('the bosses differ: layouts, part counts and attack mixes are not copies of one another', () => {
+  const sig = BOSS_DEFS.map((d) => JSON.stringify([d.parts.map((p) => [p.dx, p.dy]), d.phases.map((p) => p.attacks.map((a) => a.pattern))]));
+  assert.equal(new Set(sig).size, 8);
+  for (const def of BOSS_DEFS) assert.ok(def.parts.length >= 5, `${def.kind} has parts`);
+  assert.ok(BOSS_DEFS.some((d) => d.phases.some((p) => p.open)), 'a trench that opens');
+});
