@@ -7,7 +7,9 @@
 //   warmBoss(look, kind)  bake ahead (createView, on a boss level)
 //   painterFor(mod, id)   [painter, mirror] for a part: its own painter, or its left twin's
 //                         mirrored for an id ending in R (gunR from gun), or null
-// A module is { pad?, margin?, crack?, hull(b, l, S), parts: { [id | base]: (b, l, p, S) },
+// A module is { pad?, margin?, margins?: { [id]: px }, crack?, hull(b, l, S),
+//   parts: { [id | base]: (b, l, p, S) } (margin: px of canvas round a part's rect for art that
+//   overhangs it, 34 by default; margins overrides it per part id),
 //   opened?: { [id]: painter } (art once a phase opens the part), rage?: [(l, S) | null per phase]
 //   (extra hull lights that fade in with that phase), live?(ctx, boss, S, t, k) (per-frame extras
 //   in boss coordinates, 'lighter', cached sprites only; k is the light strength) }.
@@ -45,7 +47,7 @@ function layer(w, h, ox, oy, flip = 1) {
 const pair = (w, h, ox, oy, flip) => [layer(w, h, ox, oy, flip), layer(w, h, ox, oy, flip)];
 
 function bakePart(mod, p, S, i) {
-  const m = mod.margin ?? 34;
+  const m = mod.margins?.[p.id] ?? mod.margin ?? 34;
   const w = p.w + m * 2;
   const h = p.h + m * 2;
   const [paint, flip] = painterFor(mod, p.id);

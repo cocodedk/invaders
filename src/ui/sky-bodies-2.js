@@ -108,29 +108,36 @@ function warfire(g) {
   horizonGlow(g, '#ff6a1a', 0.5, 600);
 }
 
+// How strongly the sky's black hole is drawn: on the boss level (the Singularity) it steps back to
+// faint lensing, about 35 %, so the boss is the one black hole that reads as the target (ruling
+// R29); the bending of the bullets stays visible as its faint arcs. level null: full (the sheet).
+export const wellLight = (level) => (level?.boss ? 0.35 : 1);
+
 // The black hole above the formation (the well, 960, 300): its far disk lensed into a halo round
 // the shadow, the near disk crossing in front, Doppler-brighter on the left.
 const HOLE = { x: 960, y: 300, r: 78 };
-function blackhole(g) {
+function blackhole(g, look, level) {
   blobs(g, [[380, 260, 700, '#2a1a5a', 0.12, 0.5], [1500, 420, 800, '#0a2a5a', 0.12, 0.45], [960, 820, 900, '#1a1440', 0.1, 0.4]]);
   stars(g, 520, 61, H, 0.95, false, { x: HOLE.x, y: HOLE.y, r: 210 });
   const { x, y, r } = HOLE;
-  add(g, glow('#ffb060'), x, y, 520, 0.35);
-  add(g, glow('#ffd8a0'), x, y, 240, 0.55);
+  const k = wellLight(level);
+  add(g, glow('#ffb060'), x, y, 520, 0.35 * k);
+  add(g, glow('#ffd8a0'), x, y, 240, 0.55 * k);
   g.globalCompositeOperation = 'lighter';
   for (let i = 0; i < 26; i++) { // the lensed halo: the far side of the disk bent over and under
-    g.strokeStyle = rgba(i < 8 ? '#fff4e0' : '#ffb868', 0.08 + (i < 8 ? 0.07 : 0));
+    g.strokeStyle = rgba(i < 8 ? '#fff4e0' : '#ffb868', (0.08 + (i < 8 ? 0.07 : 0)) * k);
     g.lineWidth = 3;
     g.beginPath();
     g.ellipse(x, y + 4, r + 8 + i * 2.2, r * 0.9 + i * 2.6, 0, 0, Math.PI * 2);
     g.stroke();
   }
   g.globalCompositeOperation = 'source-over';
-  g.fillStyle = '#000000';
+  g.fillStyle = rgba('#000000', k);
   g.beginPath();
   g.arc(x, y, r, 0, Math.PI * 2);
   g.fill();
   g.globalCompositeOperation = 'lighter';
+  g.globalAlpha = k;
   for (let i = 0; i < 18; i++) { // the near disk, edge-on
     const gr = g.createLinearGradient(x - 470, 0, x + 470, 0);
     gr.addColorStop(0, rgba('#ff9a4a', 0));
@@ -144,6 +151,7 @@ function blackhole(g) {
     g.ellipse(x, y + 6, 150 + i * 18, 10 + i * 1.6, 0, 0, Math.PI);
     g.stroke();
   }
+  g.globalAlpha = 1;
   g.globalCompositeOperation = 'source-over';
   horizonGlow(g, '#3a5aa8', 0.25);
 }

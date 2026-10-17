@@ -1,8 +1,9 @@
 import { boss, weak, armor, atk, minion, phase } from './bosses-kit.js';
 
 // The bosses of worlds 5-8: the Hive queen, the Agent core, the Endoskeleton titan, the Singularity.
+// The queen, the titan and the Singularity rest low enough that no part is under the HUD (R28).
 
-const queen = boss('queen', 'Hive queen', 255, { w: 660, h: 360 }, [
+const queen = boss('queen', 'Hive queen', 275, { w: 660, h: 360 }, [
   armor('crown', 0, -130, 200, 80, 6),
   armor('thorax', 0, -40, 260, 110, 8),
   weak('head', 0, 80, 130, 110, 34),
@@ -55,7 +56,7 @@ const agent = boss('agent', 'Agent core', 250, { w: 560, h: 340 }, [
   ], { rate: 1.5, minions: [minion('gunner', 2, 9, 'nodeR'), minion('carrier', 1, 18, 'halo')] }),
 ]);
 
-const titan = boss('titan', 'Endoskeleton titan', 275, { w: 620, h: 460 }, [
+const titan = boss('titan', 'Endoskeleton titan', 285, { w: 620, h: 460 }, [
   armor('shoulders', 0, -150, 560, 60, 8),
   weak('skull', 0, -50, 120, 110, 34),
   armor('ribL', -100, 40, 60, 150, 6),
@@ -86,8 +87,8 @@ const titan = boss('titan', 'Endoskeleton titan', 275, { w: 620, h: 460 }, [
   ], { rate: 1.3, minions: [minion('gunner', 3, 10, 'shoulders'), minion('carrier', 1, 18, 'shoulders')] }),
 ]);
 
-// The well of this world's twist sits at (960, 300), just under the boss's resting place.
-const singularity = boss('singularity', 'The Singularity', 235, { w: 700, h: 380 }, [
+// The well of this world's twist sits at (960, 300): at rest the black hole's core hangs over it.
+const singularity = boss('singularity', 'The Singularity', 290, { w: 700, h: 380 }, [
   armor('jetN', 0, -130, 50, 110, 6),
   weak('core', 0, 10, 120, 120, 56),
   armor('diskL', -190, 20, 230, 34, 8),

@@ -5,6 +5,8 @@ import { CHAIN } from '../../src/core/boss-phase.js';
 import { BOSS_ART, painterFor } from '../../src/ui/bosses/bake.js';
 import { partStage } from '../../src/ui/bosses/index.js';
 import { collapse } from '../../src/ui/bosses/death.js';
+import { wellLight } from '../../src/ui/sky-bodies-2.js';
+import { levelById } from '../../src/core/levels.js';
 
 const parts = (kind) => BOSS_DEFS.find((d) => d.kind === kind).parts.map((p) => ({ ...p }));
 const dying = (kind, left) => ({ kind, dying: left, parts: parts(kind) });
@@ -48,6 +50,12 @@ test('the collapse starts whole and ends with every part torn off and the hull b
   assert.ok(left.dx < 0 && right.dx > 0, 'the halves part sideways');
   assert.ok(left.rot < 0 && right.rot > 0, 'and droop outward');
   assert.ok(end.white > 0.9, 'white-hot at the end');
+});
+
+test("on the Singularity's level the sky's own black hole steps back to faint lensing (R29)", () => {
+  assert.equal(wellLight(levelById('w8-5')), 0.35, 'the boss level dims the well');
+  for (const id of ['w8-1', 'w8-4']) assert.equal(wellLight(levelById(id)), 1, `${id} keeps it whole`);
+  assert.equal(wellLight(null), 1, 'the alien sheet (no level) keeps it whole');
 });
 
 test('the collapse is a pure function of the boss and the chain left (replays and trailer clips match)', () => {

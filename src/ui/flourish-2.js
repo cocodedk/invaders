@@ -3,6 +3,7 @@
 // ring that turns round the well.
 import { W, rgba, hash, glow, soft, lighter, normal, makeCanvas } from './sprites.js';
 import { makeRng } from '../core/rng.js';
+import { wellLight } from './sky-bodies-2.js';
 
 // A bolt for every lightning flash, seeded by its birth so it holds still while it lives.
 function bolt(ctx, { fx }) {
@@ -130,22 +131,24 @@ function gunships(ctx, { v, t }) {
   normal(ctx);
 }
 
-// The photon ring round the well: bright arcs that turn, brightest on the approaching side.
+// The photon ring round the well: bright arcs that turn, brightest on the approaching side (faint
+// on the boss level, where the Singularity is the black hole to watch: wellLight).
 function lens(ctx, { world, t }) {
   const c = world.well ?? { x: 960, y: 300 };
+  const k = wellLight(world.level);
   lighter(ctx);
   ctx.lineCap = 'round';
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * Math.PI * 2 + t * 0.7;
     const side = 0.55 + 0.45 * Math.cos(a + 0.6);
-    ctx.strokeStyle = rgba(i % 3 ? '#ffe8c0' : '#ffffff', 0.5 * side);
+    ctx.strokeStyle = rgba(i % 3 ? '#ffe8c0' : '#ffffff', 0.5 * side * k);
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.ellipse(c.x, c.y, 86, 80, 0, a, a + 0.4);
     ctx.stroke();
   }
   const pulse = (t * 0.5) % 1;
-  ctx.strokeStyle = rgba('#b8a8ff', 0.25 * (1 - pulse));
+  ctx.strokeStyle = rgba('#b8a8ff', 0.25 * (1 - pulse) * k);
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.ellipse(c.x, c.y, 90 + pulse * 240, (90 + pulse * 240) * 0.9, 0, 0, Math.PI * 2);

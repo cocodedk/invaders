@@ -177,6 +177,7 @@ const aura = (a, gold) => (l) => {
 
 export default {
   pad: 60,
+  margins: { helm: 56 }, // the flame crest rises to y -88, 43 px over the helm's rect
   hull,
   parts: { helm, torso, pauldron, core, leg, blade },
   rage: [null, aura(0.22, false), aura(0.32, true)],

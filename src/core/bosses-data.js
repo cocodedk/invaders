@@ -95,7 +95,8 @@ const fortress = boss('fortress', 'Star fortress', 235, { w: 760, h: 280 }, [
   ], { open: ['core'], minions: [minion('carrier', 1, 18, 'plateL')] }),
 ]);
 
-const shogun = boss('shogun', 'Shogun mecha', 280, { w: 600, h: 440 }, [
+// Rests 40 px lower than first set (ruling R28) so the helmet and its crest clear the HUD.
+const shogun = boss('shogun', 'Shogun mecha', 320, { w: 600, h: 440 }, [
   armor('helm', 0, -170, 120, 90, 6),
   armor('torso', 0, -40, 200, 150, 10),
   armor('pauldronL', -160, -70, 110, 110, 6),

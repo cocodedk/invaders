@@ -26,7 +26,7 @@ function ring(l, rx, ry, c, w, a, from = 0, to = TAU) {
 }
 
 function hull(b, l) {
-  b.fillStyle = rad(b, 0, 10, 0, 260, [[0, 'rgba(0,0,4,0.85)'], [0.55, 'rgba(2,2,10,0.55)'], [1, 'rgba(2,2,10,0)']]);
+  b.fillStyle = rad(b, 0, 10, 0, 260, [[0, 'rgba(0,0,4,0.95)'], [0.45, 'rgba(2,2,10,0.72)'], [1, 'rgba(2,2,10,0)']]);
   b.fillRect(-300, -250, 600, 520);
   l.save();
   l.translate(0, 10);
@@ -44,29 +44,38 @@ function hull(b, l) {
   l.restore();
 }
 
-// The black hole: its shadow, the photon ring, and the far disk lensed into arcs above and below.
+// The black hole: a hard shadow filling the hit box, ringed by a thick white-gold photon ring, the
+// far disk lensed into arcs above and below, a dark skirt round it hiding the sky's own (faint)
+// hole; nothing glows inside the shadow, so it is the one black disc that reads as the target (R29).
+const SHADOW = 57;
 function core(b, l) {
   b.beginPath();
-  b.arc(0, 0, 44, 0, TAU);
+  b.arc(0, 0, SHADOW + 16, 0, TAU);
+  b.fillStyle = rad(b, 0, 0, SHADOW, SHADOW + 16, [[0, 'rgba(0,0,0,0.9)'], [1, 'rgba(0,0,0,0)']]);
+  b.fill();
+  b.beginPath();
+  b.arc(0, 0, SHADOW, 0, TAU);
   b.fillStyle = '#000000';
   b.fill();
-  ring(l, 50, 50, GOLD, 2.4, 1);
-  ring(l, 47, 47, '#ffffff', 1, 0.9);
   l.save();
   l.globalCompositeOperation = 'lighter';
   for (const s of [-1, 1]) {
     l.beginPath();
-    l.ellipse(0, s * 6, 60, 52, 0, s < 0 ? Math.PI : 0, s < 0 ? TAU : Math.PI);
-    l.lineWidth = 9;
-    l.strokeStyle = lin(l, -60, 0, 60, 0, [[0, rgba(HOT, 0.85)], [0.5, rgba(GOLD, 0.6)], [1, rgba(ORANGE, 0.35)]]);
+    l.ellipse(0, s * 8, 78, 68, 0, s < 0 ? Math.PI : 0, s < 0 ? TAU : Math.PI);
+    l.lineWidth = 10;
+    l.strokeStyle = lin(l, -78, 0, 78, 0, [[0, rgba(HOT, 0.9)], [0.5, rgba(GOLD, 0.6)], [1, rgba(ORANGE, 0.35)]]);
     l.stroke();
   }
   l.restore();
-  bloom(l, -30, 0, 60, GOLD, 0.25);
-  b.beginPath();
-  b.arc(0, 0, 40, 0, TAU);
-  b.fillStyle = '#000000';
-  b.fill();
+  ring(l, SHADOW + 4, SHADOW + 4, GOLD, 3.2, 1);
+  ring(l, SHADOW + 2, SHADOW + 2, '#ffffff', 1.8, 1);
+  bloom(l, -44, 0, 70, HOT, 0.35);
+  l.save();
+  l.globalCompositeOperation = 'destination-out';
+  l.beginPath();
+  l.arc(0, 0, SHADOW, 0, TAU);
+  l.fill();
+  l.restore();
 }
 
 // The near disk (drawn as the left one): a burning band thinning outward, hotter near the hole.
