@@ -1,10 +1,11 @@
 // Effects on the whole frame: Neon Rain's darkness (the scene dimmed, neon still burning, lightning
 // lighting it all for 0.15 s), full-frame flashes, the bullet-time tint and Code Rain's glitch
 // slices (bands of the finished frame shifted sideways).
-import { W, H, glow } from './sprites.js';
+import { W, H } from './sprites.js';
 import { drawLights, layerX } from './parallax.js';
 import { drawFlourishes } from './flourish.js';
 import { drawAlienLights } from './aliens/index.js';
+import { drawBossLights } from './bosses/index.js';
 
 const LIT = 0.15; // s a lightning flash lights the dark world fully, then it fades out
 const DIM = 0.66; // how dark the dark world is
@@ -21,9 +22,9 @@ function lightningLight(fx) {
   return k;
 }
 
-// After the aliens and the boss, before bullets, ship and fx (which keep their full light). The
-// neon is drawn again over the dark: the skyline's lights, the 'neonfar'/'neonmid' flourishes and
-// the aliens' own lights (aliens/index.js drawAlienLights).
+// After the boss and the aliens, before bullets, ship and fx (which keep their full light). The
+// neon is drawn again over the dark: the skyline's lights, the 'neonfar'/'neonmid' flourishes, the
+// boss's lights (bosses/index.js drawBossLights) and the aliens' (aliens/index.js drawAlienLights).
 export function drawDarkness(ctx, env) {
   const { v, world, fx, t } = env;
   if (world.level.twist !== 'darkness') return;
@@ -40,17 +41,8 @@ export function drawDarkness(ctx, env) {
     drawFlourishes(ctx, env, 'neonfar', layerX(far, world.ship.x), far.top);
     drawFlourishes(ctx, env, 'neonmid', layerX(mid, world.ship.x), mid.top);
   }
+  drawBossLights(ctx, world, v.look, t, back); // the boss's neon, under its minions'
   drawAlienLights(ctx, world, v.look, t, back); // their neon, and the glow it throws around them
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.globalAlpha = 0.6 * back;
-  if (world.boss) {
-    for (const p of world.boss.parts) {
-      if (p.hp <= 0 || !p.weak) continue;
-      ctx.drawImage(glow(v.look.palette.boss.weak), p.x - p.w, p.y - p.h, p.w * 2, p.h * 2);
-    }
-  }
-  ctx.globalAlpha = 1;
-  ctx.globalCompositeOperation = 'source-over';
 }
 
 // Full-frame flashes (bombs, boss deaths, lightning, bullet time) and the bullet-time tint.

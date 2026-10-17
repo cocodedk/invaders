@@ -108,7 +108,7 @@ export function neon(l, c, w = 3, a = 1) {
 
 // Phosphor afterglow: a blurred copy of the whole body added to the lights at strength a.
 export function phosphor(b, l, a = 0.5, r = 4) {
-  const k = b.getTransform().a;
+  const k = Math.abs(b.getTransform().a); // a mirrored boss part has a = -1
   l.save();
   l.setTransform(1, 0, 0, 1, 0, 0);
   l.globalCompositeOperation = 'lighter';

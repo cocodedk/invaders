@@ -1,7 +1,8 @@
 // Everything alien-shaped on the playfield, in each world's own sprites (aliens/w1.js .. w8.js,
 // baked once by bake.js): world.aliens (formation and boss minions), world.saucer (the bonus carrier,
 // or null) and world.wrecks (armored wrecks waiting to reassemble).
-//   drawAliens(ctx, world, look, t)          world space, after the bunkers, before the boss
+//   drawAliens(ctx, world, look, t)          world space, after the bunkers and the boss (minions
+//                                            fly over the boss they launch from)
 //   drawAlienLights(ctx, world, look, t, k)  the lights again at strength k: Neon Rain's darkness
 //                                            pass dims the scene, then calls this so the neon survives
 //   crackStage(alien)                        0 | 1 | 2, how cracked an alien is drawn (a.maxHp)

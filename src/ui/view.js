@@ -19,6 +19,7 @@ import { drawPickups } from './pickups-view.js';
 import { drawAliens } from './aliens/index.js';
 import { warmAliens } from './aliens/bake.js';
 import { drawBoss } from './bosses/index.js';
+import { warmBoss } from './bosses/bake.js';
 import { drawBullets } from './bullets-view.js';
 import { drawLasers, drawBeam, drawShots } from './lasers-view.js';
 import { drawShip } from './ship-view.js';
@@ -31,6 +32,7 @@ import { createQuality } from './quality.js';
 export function createView(canvas, level) {
   const look = lookFor(level);
   warmAliens(look);
+  warmBoss(look, level.boss);
   return {
     canvas, ctx: canvas.getContext('2d'), level, look,
     sky: buildSky(look), layers: buildLayers(look, level.seed ?? 1),
@@ -65,7 +67,7 @@ function letterbox(v, f) {
   ctx.fillRect(0, 0, c.width, c.height);
 }
 
-// Everything in the world, shaken by fx.shake: parallax, cover, aliens, bullets, ship, fx.
+// Everything in the world, shaken by fx.shake: parallax, cover, boss, aliens, bullets, ship, fx.
 function field(ctx, v, world, fx, t, env, amb) {
   const { look } = v;
   const q = v.quality.level;
@@ -80,8 +82,8 @@ function field(ctx, v, world, fx, t, env, amb) {
   });
   drawFlourishes(ctx, env, 'near');
   drawBunkers(ctx, world, look);
+  drawBoss(ctx, world, look, t); // under the aliens: minions launch from it and fly over it (R27)
   drawAliens(ctx, world, look, t);
-  drawBoss(ctx, world, look, t);
   drawDarkness(ctx, env);
   drawPickups(ctx, world, look, t);
   drawLasers(ctx, world, look, t);
