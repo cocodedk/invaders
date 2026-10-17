@@ -1,6 +1,7 @@
 import { carveRect } from './bunkers.js';
 import { MUZZLE } from './ship.js';
 import { targets, inColumn, bombAll, drip } from './damage.js';
+import { clearBullets } from './patterns.js';
 import { emit } from './util.js';
 
 // The two weapons that are not shots: the laser power's beam and the smart bomb.
@@ -36,7 +37,7 @@ export function stepBomb(world) {
   if (!s.alive || !s.bombPressed || s.bombs <= 0) return;
   s.bombs -= 1;
   const cleared = world.bullets.length;
-  world.bullets.length = 0;
+  clearBullets(world);
   emit(world, 'bomb', { x: s.x, y: s.y, cleared, left: s.bombs });
   bombAll(world);
 }

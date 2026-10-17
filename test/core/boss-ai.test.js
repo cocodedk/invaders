@@ -71,7 +71,7 @@ test('a quiet world (fireMult 0) never attacks and never spawns minions', () => 
 
 test('later phases bring minions that fly at the ship, and a carrier among them drops a power-up', () => {
   const w = live('mothership', 0);
-  leave(w, ['gunL', 'gunR', 'eye'], 5);
+  leave(w, ['gunL', 'gunR', 'eye', 'dome'], 5); // the carrier comes from the dome: it must stand
   assert.deepEqual(bossDef('mothership').phases[2].minions.map((m) => m.role), ['grunt', 'carrier']);
   const seen = new Set();
   for (let i = 0; i < 60 * 45; i++) {

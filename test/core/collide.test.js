@@ -67,7 +67,7 @@ test('one shot hits one alien even when several overlap it', () => {
   assert.ok(!w.aliens.some((a) => a.id === 21), 'the one in front of the shot died');
 });
 
-test('a bullet hit costs a life, gives 1.5 s of invulnerability, and ignores bullets meanwhile', () => {
+test('a bullet hit costs a life, gives 1.5 s of invulnerability, and spends bullets meanwhile', () => {
   const w = playing(lv(['grunt'], 0, 4));
   bulletOnShip(w);
   step(w);
@@ -77,12 +77,13 @@ test('a bullet hit costs a life, gives 1.5 s of invulnerability, and ignores bul
   assert.equal(w.bullets.length, 0, 'the bullet is spent');
   const [hit] = ofType(drain(w), 'shipHit');
   assert.equal(hit.lives, 2);
-  bulletOnShip(w);
+  bulletOnShip(w); // a lingering bullet (slow, homing) parked on the ship
   seconds(w, 1.2);
   assert.equal(w.ship.lives, 2, 'no second hit while invulnerable');
-  assert.equal(w.bullets.length, 1, 'a bullet passes through a blinking ship');
+  assert.equal(w.bullets.length, 0, 'a bullet that touches a blinking ship is spent');
   seconds(w, 0.4);
-  assert.equal(w.ship.lives, 1, 'the bullet still in the ship hurts once the blinking ends');
+  assert.equal(w.ship.lives, 2, 'so it cannot hurt once the blinking ends');
+  assert.equal(ofType(drain(w), 'shipHit').length, 0);
 });
 
 test('the hit circle is 14 px plus the bullet radius', () => {
@@ -140,7 +141,7 @@ test('nearMiss is per bullet: three bullets, three events; none for a fast bulle
   assert.equal(ofType(drain(w), 'nearMiss').length, 1, 'swept, so speed cannot hop over the band');
 });
 
-test('a bullet that passes through a blinking ship is not a near miss afterwards', () => {
+test('a bullet spent on a blinking ship is not a near miss', () => {
   const w = playing(lv(['grunt'], 0, 4));
   w.ship.invuln = 5;
   bulletAt(w, w.ship.x - 100, w.ship.y, 300, 0);

@@ -1,5 +1,5 @@
 import { ROLES } from './kinds.js';
-import { MAX_BULLETS } from './aliens.js';
+import { MAX_BULLETS, fire } from './aliens.js';
 import { emitPattern } from './patterns.js';
 import { bossDef } from './bosses-data.js';
 import { clamp } from './math.js';
@@ -45,11 +45,12 @@ export function stepAttacks(world, b, def, dt) {
   });
 }
 
-// Launch `m.count` aliens of the role from a part. They are ordinary aliens without a formation
-// slot (slot null, minion true): divers and the rest fly at the ship, a carrier crosses the
-// screen below the boss with a power-up to shoot loose.
+// Launch `m.count` aliens of the role from a part, unless the part is destroyed. They are ordinary
+// aliens without a formation slot (slot null, minion true): divers and the rest fly at the ship, a
+// carrier crosses the screen below the boss with a power-up to shoot loose.
 function launch(world, b, m) {
   const src = b.parts.find((p) => p.id === m.from);
+  if (src.hp <= 0) return;
   let live = world.aliens.reduce((n, a) => n + (a.minion ? 1 : 0), 0);
   for (let i = 0; i < m.count && live < MINION_CAP; i++, live++) {
     const id = world.nextId++;
@@ -63,8 +64,13 @@ function launch(world, b, m) {
   }
 }
 
+// Gunner minions shoot as gunners do in a wave, plain aimed shots (a boss level has no wave pattern);
+// the other roles only fly at the ship.
+const gunner = (a) => a.minion && a.role === 'gunner' && a.hp > 0;
+
 export function stepMinions(world, b, def, dt) {
   if (world.scale.fireMult <= 0) return;
+  fire(world, dt, 'aimed', gunner);
   const list = def.phases[b.phase].minions ?? [];
   list.forEach((m, i) => {
     b.mcd[i] -= dt;

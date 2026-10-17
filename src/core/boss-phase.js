@@ -1,4 +1,5 @@
 import { bossDef } from './bosses-data.js';
+import { clearBullets } from './patterns.js';
 import { emit } from './util.js';
 
 // A boss's health and the story it tells: phases begin as hp falls through their thresholds, and
@@ -30,7 +31,7 @@ function die(world, b) {
   b.blast = 0;
   b.warns.length = 0;
   world.score += BOSS_SCORE;
-  world.bullets.length = 0;
+  clearBullets(world);
   for (const a of world.aliens) {
     if (a.minion && a.hp > 0) {
       a.hp = 0;

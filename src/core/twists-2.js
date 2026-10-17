@@ -1,5 +1,5 @@
 import { ALIEN_R } from './kinds.js';
-import { MAX_BULLETS } from './aliens.js';
+import { MAX_BULLETS, DIVE_TIME } from './aliens.js';
 import { makeSlots, slotPosition } from './formations.js';
 import { segDist2 } from './math.js';
 import { rand } from './rng.js';
@@ -100,11 +100,20 @@ export function glitch(world, dt) {
 }
 
 // Reassemble: an armored death leaves a wreck (hp 1) for 2 s, which hangs in the formation where the
-// alien held. A shot, the beam or a bomb breaks it for good; left alone it stands up again as an
-// armored alien with 2 hp, once (`reborn`). It keeps the fallen alien's maxHp, so it is a hurt
-// alien (2 of 3 or more), not a new one.
+// alien held, or lies where it fell if it fell out of the formation (mid-dive). A shot, the beam or a
+// bomb breaks it for good; left alone it stands up again as an armored alien with 2 hp, once
+// (`reborn`): in its slot, or where it fell, flying home on the second half of a swoop. It keeps
+// the fallen alien's maxHp, so it is a hurt alien (2 of 3 or more), not a new one.
 export const WRECK_TIME = 2;
 const REBORN_HP = 2;
+const RISE = 200; // px: the depth of the homeward swoop's curve (diveCurve's least)
+
+// Standing up where it is (a hold), or on the way home: the swoop that is at the wreck halfway
+// through (diveCurve at u = 0.5 is the aim, the curve's depth below its start) and ends in the slot.
+function standUp(w) {
+  if (w.hold) return { mode: 'hold', dive: null };
+  return { mode: 'return', t: DIVE_TIME / 2, dive: { fx: w.x, fy: w.y - RISE, ax: w.x, ay: w.y } };
+}
 
 // Damage a wreck (the damage seam, damage.js). It is removed in reassemble().
 export function hurtWreck(world, w, dmg) {
@@ -138,8 +147,8 @@ export function reassemble(world, dt) {
     if (w.left > 0) return true;
     const id = world.nextId++;
     world.aliens.push({
-      id, role: 'armored', x: w.x, y: w.y, hp: REBORN_HP, maxHp: w.maxHp, slot: w.slot, mode: 'hold',
-      t: world.march?.clock ?? 0, dive: null, reborn: true,
+      id, role: 'armored', x: w.x, y: w.y, hp: REBORN_HP, maxHp: w.maxHp, slot: w.slot,
+      t: world.march?.clock ?? 0, reborn: true, ...standUp(w),
     });
     emit(world, 'reassemble', { id, x: w.x, y: w.y });
     return false;

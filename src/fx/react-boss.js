@@ -26,7 +26,7 @@ function bossPhase(fx, ev, rng) {
 // burst is at the boss centre.
 function bossExpose(fx, ev, rng, world) {
   const parts = world?.boss?.parts ?? [];
-  const at = ev.parts.map((id) => parts.find((p) => p.id === id)).filter(Boolean).slice(0, 6);
+  const at = (ev.parts ?? []).map((id) => parts.find((p) => p.id === id)).filter(Boolean).slice(0, 6);
   for (const p of at.length ? at : [ev]) {
     addRing(fx, { x: p.x, y: p.y, maxR: 90, color: '#ffe14a', life: 0.3 });
     addFlash(fx, { x: p.x, y: p.y, r: 120, life: 0.15, tag: 'crack' });

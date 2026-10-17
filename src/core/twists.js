@@ -9,7 +9,8 @@ import { enemyDt, pushAll, acid, glitch, reassemble, gravity } from './twists-2.
 export { enemyDt };
 
 // Each world's one small rule of its own. A level's rule is `level.twist`; applyTwist(world, dt)
-// runs it once per tick, after collisions (twists-2.js has worlds 5-8 and says why that order).
+// runs it once per tick, after collisions (twists-2.js has worlds 5-8 and says why that order); the
+// shuriken's cut is the exception, collide() runs it (cutShuriken).
 // The state is plain data on the world, the same fields in every world:
 //   wind     px/s^2 pushing every bullet and shot sideways (gusts); 0 elsewhere
 //   slow     seconds of bullet time left (glitch); 0 when off
@@ -104,8 +105,9 @@ function gusts(world, dt) {
   });
 }
 
-// Shuriken: a ship shot that touches a shuriken cuts it, and is spent doing so.
-function shuriken(world, dt) {
+// Shuriken: a ship shot that touches a shuriken cuts it, and is spent doing so. Unlike the other
+// rules it runs inside collide(), before the bullets meet the ship (collide.js says why).
+export function cutShuriken(world, dt) {
   for (const s of world.shots) {
     if (s.life <= 0) continue;
     for (const b of world.bullets) {
@@ -119,7 +121,7 @@ function shuriken(world, dt) {
   }
 }
 
-const RULES = { bunkers, darkness, gusts, shuriken, acid, glitch, reassemble, gravity };
+const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity }; // shuriken: cutShuriken
 
 export function applyTwist(world, dt) {
   RULES[world.level.twist]?.(world, dt);
