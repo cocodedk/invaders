@@ -1,8 +1,10 @@
 // Screen routing: title (over the backdrop battle) -> lobby -> title card -> play -> pause ->
 // results / failed, and "watch, then try". `app` is the one piece of state the loop reads.
 //   app = { screen, scene, backdrop, demo, lastLevel }
-//   screen 'title' | 'lobby' | 'loading' | 'play' | 'demo' | 'paused' | 'results' | 'failed'
-// The end of a level goes through flow.js (Task 12 puts the trailer and the blooper there).
+//   screen 'title' | 'lobby' | 'loading' | 'play' | 'demo' | 'paused' | 'results' | 'failed' |
+//          'trailer' (the trailer or the blooper draws the canvas) | 'cinema'
+// The end of a level goes through flow.js; trailer/routes.js puts the trailer and the blooper there
+// and adds r.goCinema (it uses r.leave).
 // Every route away from a level goes through leave(): the old scene stops stepping at once (the
 // loop only runs app.scene) and the level's own sounds (the laser hum) stop with it.
 import { DEMO_LEVEL, WORLDS } from '../core/levels.js';
@@ -35,7 +37,7 @@ export function createRouter({ canvas, stage, input }) {
   const app = { screen: 'boot', scene: null, backdrop: null, demo: null, lastLevel: 'w1-1', token: 0 };
   const r = { app, labelOf };
   const live = () => app.screen === 'play' || app.screen === 'demo';
-  const menus = () => app.screen === 'title' || app.screen === 'lobby'; // posters bake only here
+  const menus = () => ['title', 'lobby', 'cinema'].includes(app.screen); // posters bake only here
 
   // Leave whatever runs for `screen`: nothing steps until the caller sets a new scene.
   function leave(screen) {
@@ -49,9 +51,10 @@ export function createRouter({ canvas, stage, input }) {
   r.goTitle = () => {
     leave('title');
     app.demo = null;
-    const items = [ // the main menu, in order (Task 12 adds the cinema here)
+    const items = [ // the main menu, in order
       { label: 'Play', pick: r.goLobby },
       { label: 'Watch, then try', pick: r.startDemo },
+      { label: 'Cinema', pick: () => r.goCinema() }, // trailer/routes.js
     ];
     const level = app.backdrop?.level ?? pickBackdrop();
     sound(level);
@@ -161,5 +164,6 @@ export function createRouter({ canvas, stage, input }) {
   };
 
   r.live = live;
+  r.leave = leave;
   return r;
 }

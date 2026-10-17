@@ -3,7 +3,7 @@
 //   createSession(level, seed?, { record }) -> session
 //   stepSession(s, frameDt, source, onEvents?)   one real frame
 //   recording(s) -> { level, seed, inputs, events, ticks, score, stars, state, tainted }
-//   runOf(s) -> makeRun(...) | null   the storable run (Task 12 saves it); null for unsaved levels
+//   runOf(s) -> makeRun(...) | null   the storable run (trailer/runs.js saves the best); null for unsaved levels
 // Ruling R19: slow motion is presentation only: the frame's time is scaled by fx.slow before the
 // accumulator, and the core always steps a whole TICK (fewer ticks per frame), so a recording
 // replays exactly. Ruling R6: every tick keeps the quantized input it ran on and its events (each

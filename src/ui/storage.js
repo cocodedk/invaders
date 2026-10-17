@@ -1,5 +1,5 @@
 // Saved progress, adapted from Barrage: best score and best stars per level, the best run per level
-// (Task 12 stores and reads it), the mute switch and whether the demo was seen. Every localStorage
+// (trailer/runs.js stores and reads it), the mute switch and whether the demo was seen. Every localStorage
 // touch is wrapped: private windows, kiosks and blocked storage play on without saving. Whatever is
 // written also lands in memory, so a session without storage still remembers its own results.
 //   keys  invaders.best        { [levelId]: { score, stars } }

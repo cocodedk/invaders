@@ -1,6 +1,6 @@
 // The end of a level: the best is saved the moment the level is cleared, and once the slow motion
 // has played out the outcome goes to `flow.cleared` or `flow.failed`, which show the results or
-// failed card. Task 12 replaces those two to run the trailer or the blooper first; each must end by
+// failed card. trailer/routes.js replaces those two to run the trailer or the blooper first; each ends by
 // calling flow.showResults(outcome) / flow.showFailed(outcome).
 //   outcome = { level, mode ('play' | 'try'), cleared, score, stars, best, prev, newBest,
 //               recording: { level, seed, inputs, events, ticks, score, stars, state, tainted },

@@ -6,12 +6,16 @@
 //   grant(kind)       drop a pickup on the ship: 'spread' | 'laser' | 'rapid' | 'shield' | 'bomb'
 //   clear(hits?)      empty the field now (a boss level runs its death chain); hits sets the stars
 //   fail()            the last life goes
+//   drive(mode)       who flies: 'auto' (the autopilot), 'idle' (nobody) or null (the player). It
+//                     changes only where the inputs come from, never the world, so the run stays
+//                     untainted: recorded, replayable, saved as a best run, cut into a trailer.
 // With ?debug&level=w2-1 the game boots straight into that level.
 import { levelById } from '../core/levels.js';
 import { FALL, PICKUP_R } from '../core/powerups.js';
 import { syncBoss } from '../core/boss-phase.js';
 import { taint } from './session.js';
 import { audioStats } from './audio.js';
+import { autopilot } from '../core/autopilot.js';
 
 export function installDebug(r) {
   const q = new URLSearchParams(location.search);
@@ -38,6 +42,7 @@ export function installDebug(r) {
         power: w?.ship.power?.kind ?? null, hits: w?.hits ?? 0, inputs: sc?.session.inputs.length ?? 0,
         events: sc?.session.events.length ?? 0, tainted: sc?.session.tainted ?? false,
         quality: sc?.view.quality.level ?? null, caption: app.demo?.d?.caption ?? null, audio: audioStats(),
+        film: app.film?.status?.() ?? null,
       };
     },
     play(id) {
@@ -61,6 +66,13 @@ export function installDebug(r) {
       w.wave = w.level.waves.length;
     }),
     fail: () => touch((w) => { w.ship.lives = 0; }),
+    drive(mode = 'auto') {
+      const sc = live();
+      if (!sc) return false;
+      sc.own ??= sc.source;
+      sc.source = mode === 'auto' ? autopilot : mode === 'idle' ? () => ({}) : sc.own;
+      return true;
+    },
     lobby: () => r.goLobby(),
     title: () => r.goTitle(),
     demo: () => r.startDemo(),

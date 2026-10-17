@@ -11,6 +11,7 @@ import { createDebug } from './ui/debug.js';
 import { createStage, toast } from './ui/screens/stage.js';
 import { createRouter } from './ui/router.js';
 import { createFlow } from './ui/flow.js';
+import { installTrailers } from './ui/trailer/routes.js';
 import { runScene } from './ui/scenes.js';
 import { installDebug } from './ui/debug-hooks.js';
 import { stepDirector } from './ui/demo/script.js';
@@ -21,6 +22,7 @@ const input = createInput(canvas);
 input.onGesture = unlockAudio;
 const router = createRouter({ canvas, stage, input });
 const flow = createFlow(router, stage);
+installTrailers(router, { stage, canvas }); // the trailer, the blooper and the cinema
 const { app } = router;
 const debug = createDebug();
 const jump = installDebug(router);
