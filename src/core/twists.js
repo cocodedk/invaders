@@ -115,6 +115,7 @@ export function cutShuriken(world, dt) {
       if (segDist2(s.x - s.vx * dt, s.y - s.vy * dt, s.x, s.y, b.x, b.y) > (s.r + b.r) ** 2) continue;
       s.life = 0;
       b.life = 0;
+      b.near = true; // settled: a cut is not a dodge, even inside the near band (R37)
       emit(world, 'cut', { x: b.x, y: b.y });
       break;
     }

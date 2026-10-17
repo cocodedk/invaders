@@ -2,7 +2,7 @@ import { rand } from './rng.js';
 import { angleTo } from './math.js';
 import { LASER_WARN, LASER_BEAM } from './patterns-2.js';
 
-export { stepBullet, laserSegment, laserHits, nearMissed, clearBullets, LASER_WARN, LASER_BEAM } from './patterns-2.js';
+export { stepBullet, laserSegment, laserHits, LASER_WARN, LASER_BEAM } from './patterns-2.js';
 
 // The enemy bullet library. emitPattern(pattern, from, target, p, rng) returns fresh bullets
 //   { pattern, x, y, vx, vy, r, life, warn?, turn? }

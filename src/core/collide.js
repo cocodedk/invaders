@@ -1,6 +1,6 @@
 import { dist2, segDist2 } from './math.js';
 import { ALIEN_R, NEAR_MISS } from './kinds.js';
-import { laserHits, nearMissed } from './patterns.js';
+import { laserHits } from './patterns.js';
 import { SHIP_R, hitShip } from './ship.js';
 import { hurtAlien } from './aliens.js';
 import { shotsVsBoss } from './boss-hit.js';
@@ -62,12 +62,21 @@ function rams(world) {
   }
 }
 
+// b.near is a bullet's closest approach while it is in the ship's near band, and true once settled.
+// A bullet that leaves the band without touching the ship, or runs out of life or hits cover inside
+// it, was a near miss: report it now. A wipe (a bomb, a boss's death, a Ronin Moon cut) is not a
+// dodge: it settles the bullet silently (ruling R37).
+function nearMissed(world, b) {
+  if (typeof b.near !== 'number') return;
+  emit(world, 'nearMiss', { x: b.x, y: b.y, dist: b.near });
+  b.near = true;
+}
+
 // Bullets hit within their radius + 14 and are spent. A bullet that comes close without touching
-// is a nearMiss, reported once it has gone past or is gone (so a bullet that goes on to hit is never
-// one). b.near is its closest approach while it is in the zone, and true once settled. A beam is
-// tested by laserHits (the warning line harms nothing) and never counts. A bullet that touches a
-// blinking ship is spent without harm, so a slow one lingering on the ship cannot take a second
-// life the moment the blinking ends.
+// is a nearMiss (nearMissed), so a bullet that goes on to hit is never one. A beam is tested by
+// laserHits (the warning line harms nothing) and never counts. A bullet that touches a blinking ship
+// is spent without harm, so a slow one lingering on the ship cannot take a second life the moment
+// the blinking ends.
 function bulletsVsShip(world, dt) {
   const ship = world.ship;
   if (!ship.alive) return;

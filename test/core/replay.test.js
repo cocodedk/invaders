@@ -17,7 +17,7 @@ const sample = () => {
 test('makeRun builds the storable run and decodeRun gives the playable one back', () => {
   const { inputs, run } = sample();
   assert.deepEqual(Object.keys(run).sort(), ['inputs', 'level', 'score', 'seed', 'stars', 'ticks', 'v']);
-  assert.equal(run.v, 1);
+  assert.equal(run.v, 2);
   assert.equal(run.level, 'w3-2');
   assert.equal(run.ticks, 900);
   assert.equal(typeof run.inputs, 'string');
@@ -30,7 +30,7 @@ test('decodeRun rejects the wrong version, bad shapes and bad encodings', () => 
   const { run } = sample();
   const bad = [
     null, undefined, 'garbage', 42, [], true, {},
-    { ...run, v: 0 }, { ...run, v: 2 }, { ...run, v: '1' }, { ...run, v: undefined },
+    { ...run, v: 0 }, { ...run, v: 1 }, { ...run, v: 3 }, { ...run, v: '2' }, { ...run, v: undefined },
     { ...run, level: 'w9-9' }, { ...run, level: 3 }, { ...run, level: undefined },
     { ...run, seed: -1 }, { ...run, seed: 1.5 }, { ...run, seed: 2 ** 32 }, { ...run, seed: '7' },
     { ...run, ticks: 899 }, { ...run, ticks: -1 }, { ...run, ticks: MAX_TICKS + 1 }, { ...run, ticks: 'x' },
@@ -39,6 +39,14 @@ test('decodeRun rejects the wrong version, bad shapes and bad encodings', () => 
     { ...run, inputs: 'garbage!' }, { ...run, inputs: 42 }, { ...run, inputs: undefined }, { ...run, inputs: '' },
   ];
   for (const obj of bad) assert.equal(decodeRun(obj), null, JSON.stringify(obj)?.slice(0, 80));
+});
+
+// R38: the rule changes of task 13a (bullets spent on a blinking ship, near misses, the shuriken cut,
+// minions, reborn armored) re-simulate a version 1 run differently, so it is not replayed at all.
+test('a version 1 run, saved under the old rules, decodes to null', () => {
+  const { run } = sample();
+  assert.equal(decodeRun(JSON.parse(JSON.stringify({ ...run, v: 1 }))), null);
+  assert.notEqual(decodeRun(JSON.parse(JSON.stringify(run))), null, 'the same run as version 2 is fine');
 });
 
 test('decodeRun rejects every truncation of a valid run', () => {

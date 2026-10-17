@@ -9,28 +9,32 @@ export { TICK };
 
 // A run is its level, its seed and the input of every tick: the core is deterministic, so
 // re-simulating those gives back every state and event of the run.
-//   run    { v: 1, level: 'w3-2', seed, ticks, inputs: <encoded>, score, stars }   (makeRun)
-// The inputs and their text form are in input-codec.js.
+//   run    { v: 2, level: 'w3-2', seed, ticks, inputs: <encoded>, score, stars }   (makeRun)
+// The inputs and their text form are in input-codec.js. RUN_V goes up whenever a rule change makes
+// the same inputs play out differently: an older run would replay diverged, so it is not read at all
+// (2: task 13a's rules: bullets spent on a blinking ship, near misses, the shuriken cut, boss minions,
+// the reborn armored).
+export const RUN_V = 2;
 
 // The storable form of a finished run. `level` is a level or its id; `result` is { score, stars }.
 export const makeRun = (level, seed, inputs, result) => ({
-  v: 1, level: level.id ?? level, seed, ticks: inputs.length, inputs: encodeInputs(inputs),
+  v: RUN_V, level: level.id ?? level, seed, ticks: inputs.length, inputs: encodeInputs(inputs),
   score: result.score, stars: result.stars,
 });
 
 const isCount = (v, max) => Number.isInteger(v) && v >= 0 && v <= max;
 
 // A saved run read back: the same fields with `inputs` decoded to a list, or null when it is not a
-// valid run of version 1 (wrong version, unknown level, bad numbers, an encoding that is garbage
+// valid run of version RUN_V (wrong version, unknown level, bad numbers, an encoding that is garbage
 // or whose length is not `ticks`, which is what a truncation looks like).
 export function decodeRun(obj) {
-  if (typeof obj !== 'object' || obj === null || Array.isArray(obj) || obj.v !== 1) return null;
+  if (typeof obj !== 'object' || obj === null || Array.isArray(obj) || obj.v !== RUN_V) return null;
   const { level, seed, ticks, score, stars } = obj;
   if (typeof level !== 'string' || !levelById(level)) return null;
   if (!isCount(seed, 2 ** 32 - 1) || !isCount(ticks, MAX_TICKS) || !isCount(stars, 3)) return null;
   if (typeof score !== 'number' || !Number.isFinite(score) || score < 0) return null;
   const inputs = decodeInputs(obj.inputs, ticks);
-  return inputs && inputs.length === ticks ? { v: 1, level, seed, ticks, inputs, score, stars } : null;
+  return inputs && inputs.length === ticks ? { v: RUN_V, level, seed, ticks, inputs, score, stars } : null;
 }
 
 // Re-simulate a run: a fresh world for `level` (a level or its id) and `seed`, stepped through

@@ -1,5 +1,4 @@
 import { clamp, angleTo } from './math.js';
-import { emit } from './util.js';
 
 // The life of one enemy bullet after it is fired, plus the laser's geometry. Bullets are the plain
 // objects emitPattern returns: { pattern, x, y, vx, vy, r, life, warn?, turn? }.
@@ -57,19 +56,4 @@ export function laserHits(b, at, rad) {
   const u = len2 ? clamp(((at.x - x1) * ex + (at.y - y1) * ey) / len2, 0, 1) : 0;
   const reach = b.r + rad;
   return (x1 + ex * u - at.x) ** 2 + (y1 + ey * u - at.y) ** 2 <= reach * reach;
-}
-
-// b.near is a bullet's closest approach while it is inside the ship's near band (collide.js), and
-// true once settled. A bullet removed from inside the band without touching the ship (its life ran
-// out, a bomb or a boss's death wiped the screen) was still a near miss: report it now.
-export function nearMissed(world, b) {
-  if (typeof b.near !== 'number' || !world.ship.alive) return;
-  emit(world, 'nearMiss', { x: b.x, y: b.y, dist: b.near });
-  b.near = true;
-}
-
-// Every enemy bullet and beam goes at once (a bomb, a boss's death).
-export function clearBullets(world) {
-  for (const b of world.bullets) nearMissed(world, b);
-  world.bullets.length = 0;
 }

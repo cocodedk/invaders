@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { levelById } from '../../src/core/levels.js';
 import { IDLE, TICK, level, wave, input, step, seconds, playing, drain, ofType, shotAt, bulletAt } from './world-kit.js';
-import { bossLevel, leave } from './boss-kit.js';
+import { bossLevel, bossWorld, leave, part, shotOn } from './boss-kit.js';
 
-// Small fairness rules (task 13a): near misses that end early still count, a cut star cannot hit on
+// Small fairness rules (task 13a): near misses that end early still count (wipes do not, R37), a cut
+// star cannot hit on
 // its last tick, minions come only from parts still standing and gunner minions shoot, and an
 // armored alien that falls mid-dive stands up where it fell and flies home.
 
@@ -28,16 +29,46 @@ test('a bullet that never came near leaves no near miss when it expires', () => 
   assert.equal(ofType(drain(w), 'nearMiss').length, 0);
 });
 
-test('a bomb that clears a bullet inside the near band leaves a near miss, the same tick', () => {
-  const w = playing(level([wave()]));
+// R37: a wipe is not a dodge. Bullets inside the band that a bomb, a boss's death or a cut removes
+// settle silently (no fx ring, no trailer tally, no Code Rain bullet time on an empty screen).
+test('a bomb that wipes a bullet inside the near band is no near miss', () => {
+  const w = playing(level([wave()], 0, { twist: 'glitch' }));
   bulletAt(w, w.ship.x - 25, w.ship.y);
   step(w);
   assert.equal(ofType(drain(w), 'nearMiss').length, 0, 'still in the band');
   step(w, 1, input({ bomb: true }));
   const ev = drain(w);
   assert.equal(ofType(ev, 'bomb').length, 1);
-  assert.equal(ofType(ev, 'nearMiss').length, 1);
-  assert.equal(ev.find((e) => e.type === 'nearMiss').tick, ev.find((e) => e.type === 'bomb').tick);
+  assert.equal(ofType(ev, 'nearMiss').length, 0);
+  assert.equal(ofType(ev, 'bulletTime').length, 0, 'Code Rain: no bullet time on the bomb');
+  assert.equal(w.slow, 0);
+});
+
+test('a boss\'s death wipes bullets inside the near band without a near miss', () => {
+  const w = bossWorld('mothership');
+  bulletAt(w, w.ship.x - 25, w.ship.y);
+  step(w);
+  assert.equal(w.bullets[0].near, 25, 'it is in the band');
+  leave(w, ['eye'], 1);
+  shotOn(w, part(w, 'eye'));
+  step(w);
+  const ev = drain(w);
+  assert.equal(ofType(ev, 'bossDeath').length, 1);
+  assert.equal(w.bullets.length, 0);
+  assert.equal(ofType(ev, 'nearMiss').length, 0);
+});
+
+test('Ronin Moon: a shuriken cut inside the near band is no near miss', () => {
+  const w = playing(level([wave()], 0, { twist: 'shuriken' }));
+  const { x, y } = w.ship;
+  w.bullets.push({ pattern: 'shuriken', x, y: y - 35, vx: 0, vy: 0, r: 18, life: 6 }); // band 38, hit 32
+  step(w);
+  assert.equal(w.bullets[0].near, 35, 'it is in the band');
+  w.shots.push({ pattern: 'shot', x, y: y - 5, vx: 0, vy: -1400, r: 5, life: 1, dmg: 1 });
+  step(w);
+  const ev = drain(w);
+  assert.equal(ofType(ev, 'cut').length, 1);
+  assert.equal(ofType(ev, 'nearMiss').length, 0);
 });
 
 test('Ronin Moon: a shot that cuts a shuriken on the ship saves the ship on that very tick', () => {
