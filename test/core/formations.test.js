@@ -118,15 +118,44 @@ test('grid steps sideways, drops exactly 24 px at the edge, and only there', () 
   }
 });
 
-test('grid march speeds up as aliveFrac falls', () => {
+test('marchRate speeds the march up as the grid thins, and clamps aliveFrac to 0..1', () => {
+  const fracs = [1, 0.75, 0.5, 0.25, 0.05, 0];
+  fracs.slice(1).forEach((f, i) => assert.ok(marchRate(f) > marchRate(fracs[i]), `aliveFrac ${f}`));
+  assert.equal(marchRate(1), 1);
+  assert.ok(marchRate(0) > 3);
+  assert.equal(marchRate(-1), marchRate(0));
+  assert.equal(marchRate(2), 1);
+});
+
+test('the grid position depends on its march clock t, never on aliveFrac, so it cannot teleport', () => {
+  const slots = makeSlots(wave(4, 6));
+  for (const t of [0.1, 2.9, 3.2, 7.77, 41, 600]) {
+    for (const s of slots) {
+      assert.deepEqual(
+        slotPosition('grid', s, t, { aliveFrac: 1, dir: 1, speed: 1 }),
+        slotPosition('grid', s, t, { aliveFrac: 0.1, dir: 1, speed: 1 }), `t${t}`);
+    }
+  }
+  const s = slots[0];
+  const dist = (speed) => Math.abs(slotPosition('grid', s, 0.2, { ...ONE, speed }).x
+    - slotPosition('grid', s, 0.1, { ...ONE, speed }).x);
+  assert.ok(Math.abs(dist(2) - 2 * dist(1)) < 1e-9, 'ctx.speed scales the march linearly');
+});
+
+test('driving the grid with clock += dt * marchRate(aliveFrac) speeds it up without a jump', () => {
   const s = makeSlots(wave(1, 1))[0];
-  const dist = (aliveFrac, speed = 1) => Math.abs(
-    slotPosition('grid', s, 0.2, { aliveFrac, dir: 1, speed }).x
-    - slotPosition('grid', s, 0.1, { aliveFrac, dir: 1, speed }).x);
-  const fracs = [1, 0.75, 0.5, 0.25, 0.05];
-  fracs.slice(1).forEach((f, i) => assert.ok(dist(f) > dist(fracs[i]), `aliveFrac ${f}`));
-  assert.ok(Math.abs(dist(0.5, 2) - 2 * dist(0.5)) < 1e-9, 'ctx.speed scales it linearly');
-  assert.ok(marchRate(1) === 1 && marchRate(0) > 3);
+  const speed = 1.9;
+  let clock = 0;
+  let prev = slotPosition('grid', s, 0, { ...ONE, speed });
+  let fastest = 0;
+  for (let i = 1; i <= 60 * 90; i++) {
+    clock += marchRate(1 - Math.min(1, i / (60 * 60)) * 0.95) / 60;
+    const p = slotPosition('grid', s, clock, { ...ONE, speed });
+    fastest = Math.max(fastest, Math.hypot(p.x - prev.x, p.y - prev.y));
+    prev = p;
+  }
+  assert.ok(fastest < 14, `largest step in one tick ${fastest}`);
+  assert.ok(fastest > (80 * speed * 3) / 60, 'and the last aliens really do march about 3x faster');
 });
 
 test('grid never drops below y 560, even after hundreds of edges', () => {
@@ -134,7 +163,7 @@ test('grid never drops below y 560, even after hundreds of edges', () => {
     const slots = makeSlots(wave(rows, 5));
     let lowest = 0;
     for (let t = 0; t <= 3000; t += 1.7) {
-      for (const s of slots) lowest = Math.max(lowest, slotPosition('grid', s, t, { ...ONE, aliveFrac: 0.2 }).y);
+      for (const s of slots) lowest = Math.max(lowest, slotPosition('grid', s, t, ONE).y);
     }
     assert.ok(lowest <= 560 + 1e-9, `${rows} rows reached ${lowest}`);
   }

@@ -47,6 +47,37 @@ test('diveCurve leaves the slot, swoops to the ship x and back up, and returns e
   assert.deepEqual(from, { x: 700, y: 200 }, 'inputs are not mutated');
 });
 
+test('diveCurve without home is the same as home = from', () => {
+  const from = { x: 700, y: 200 };
+  const ship = { x: 1500, y: 900 };
+  for (let u = 0; u <= 1; u += 0.05) assert.deepEqual(diveCurve(from, ship, u), diveCurve(from, ship, u, from), `u${u}`);
+});
+
+test('diveCurve lands exactly on the live slot (home) at u = 1, still aims at the ship, and has no jump', () => {
+  const from = { x: 700, y: 200 };
+  const ship = { x: 1500, y: 900 };
+  for (const home of [{ x: 876, y: 200 }, { x: 524, y: 200 }, { x: 700, y: 376 }, { x: 800, y: 130 }]) {
+    const at = JSON.stringify(home);
+    assert.deepEqual(diveCurve(from, ship, 0, home), from, at);
+    assert.deepEqual(diveCurve(from, ship, 1, home), home, at);
+    assert.deepEqual(diveCurve(from, ship, 3, home), home, `${at} clamps u`);
+    assert.ok(Math.abs(diveCurve(from, ship, 0.5, home).x - ship.x) < 1, `${at} the swoop still reaches the ship`);
+    // The homed path may differ from the plain one by no more than a smooth drift: compare how far
+    // each 0.01 step of u moves the two paths.
+    let worst = 0;
+    let a = diveCurve(from, ship, 0, home);
+    let b = diveCurve(from, ship, 0);
+    for (let i = 1; i <= 100; i++) {
+      const c = diveCurve(from, ship, i / 100, home);
+      const d = diveCurve(from, ship, i / 100);
+      worst = Math.max(worst, Math.hypot(c.x - a.x - (d.x - b.x), c.y - a.y - (d.y - b.y)));
+      a = c;
+      b = d;
+    }
+    assert.ok(worst < 6, `${at} steps differ by ${worst} px; a 176 px snap would show here`);
+  }
+});
+
 test('diveCurve stays on screen for ships at either edge and never dips above its slot', () => {
   for (const sx of [40, 960, 1880]) {
     for (const hx of [400, 960, 1520]) {

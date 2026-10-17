@@ -5,6 +5,7 @@ import { clamp, lerp } from './math.js';
 
 const CENTER = 960;
 const ease = (u) => 1 - (1 - u) ** 3;
+const smooth = (u) => u * u * (3 - 2 * u); // smoothstep: flat at both ends
 const side = (slot) => (slot.sx < CENTER ? -1 : 1);
 
 // Progress of one alien: later places in line start later but all finish at u = 1.
@@ -60,12 +61,17 @@ export function entryPosition(formation, slot, u) {
   return u >= 1 ? { x: slot.sx, y: slot.sy } : enter(slot, Math.max(u, 0));
 }
 
-// A swoop from `from` (the slot) down toward the ship's x and as deep as its y, and back up to
-// `from`. A sideways weave rides on top; it is zero at both ends, so the dive closes exactly.
-export function diveCurve(from, target, u) {
-  if (u <= 0 || u >= 1) return { x: from.x, y: from.y };
+// A swoop from `from` (the slot where the dive began) down toward the ship's x and as deep as its
+// y, and back up. A sideways weave rides on top; it is zero at both ends. The slots keep moving
+// during the 2.2 s, so the caller passes `home`, the slot's live position, and the return leg
+// drifts onto it (smoothly, from the lowest point on), landing exactly on `home` at u = 1. Without
+// `home` the dive closes on `from`.
+export function diveCurve(from, target, u, home = from) {
+  if (u <= 0) return { x: from.x, y: from.y };
+  if (u >= 1) return { x: home.x, y: home.y };
   const arc = Math.sin(Math.PI * u);
   const depth = clamp(target.y - from.y, 200, 900);
-  const x = from.x + (target.x - from.x) * arc + 70 * Math.sin(4 * Math.PI * u) * arc;
-  return { x: clamp(x, 20, 1900), y: from.y + depth * arc ** 1.5 };
+  const back = smooth(clamp(2 * u - 1, 0, 1));
+  const x = from.x + (home.x - from.x) * back + (target.x - from.x) * arc + 70 * Math.sin(4 * Math.PI * u) * arc;
+  return { x: clamp(x, 20, 1900), y: from.y + (home.y - from.y) * back + depth * arc ** 1.5 };
 }

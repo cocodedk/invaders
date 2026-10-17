@@ -5,9 +5,13 @@ import { clamp } from './math.js';
 // without a seam. Amplitudes do not depend on ctx.speed (it scales frequency only), which is what
 // keeps every slot inside x 0..1920, y 0..600 at any speed.
 //
-//   t    seconds since the wave started
-//   ctx  { aliveFrac, dir, speed }: aliveFrac in 0..1, dir +1 or -1 (mirrors the wave's sideways
-//        motion), speed the wave speed x scaled(d).formationSpeed.
+//   t    seconds since the alien began to HOLD, not since the wave started: the caller restarts it at
+//        0 the moment entry ends (entryPosition reaches u = 1). Every offset is 0 at t = 0, so entry
+//        and hold join without a seam; counting from the wave start would skip 1.5 s of the motion
+//        and make the alien jump when it settles. For 'grid' it is the wave's march clock (below).
+//   ctx  { dir, speed }: dir +1 or -1 (mirrors the wave's sideways motion), speed the wave speed x
+//        scaled(d).formationSpeed, constant within a wave. aliveFrac is accepted and ignored by
+//        every formation; its one effect, the grid speeding up, is marchRate(aliveFrac).
 
 export { entryPosition, diveCurve } from './formations-2.js';
 
@@ -54,11 +58,12 @@ const sideOf = (slot) => (slot.sx < CENTER ? -1 : slot.sx > CENTER ? 1 : slot.ro
 
 // The classic march: sweep to an edge, drop 24 px while turning, sweep back. The drop is spread over
 // GRID_SLIDE px of travel and capped, so the lowest row of any wave never goes below y 560.
-// The distance marched is t * speed * marchRate(aliveFrac), so a caller whose aliveFrac changes
-// mid-wave would see the grid jump; it should instead advance its own clock by dt * marchRate(...)
-// and pass aliveFrac: 1.
+// Here `t` is the wave's march clock and aliveFrac plays no part: the caller advances
+// `clock += dt * marchRate(aliveFrac)` each tick and passes the clock as t. The position for a given
+// t is then the same however many aliens are left, so a kill speeds the march up from where it is
+// instead of teleporting the grid.
 function grid(slot, t, ctx) {
-  const x = (t * GRID_SPEED * ctx.speed * marchRate(ctx.aliveFrac ?? 1)) / GRID_AMP; // edges at 1, 3, 5...
+  const x = (t * GRID_SPEED * ctx.speed) / GRID_AMP; // in half-sweeps: the edges are at 1, 3, 5...
   const lap = x % 4;
   const tri = lap <= 1 ? lap : lap <= 3 ? 2 - lap : lap - 4;
   const edges = Math.floor((x + 1) / 2);
@@ -119,5 +124,5 @@ const MOTION = { grid, sway, dive, spiral, split, escort, rain, orbit };
 export function slotPosition(formation, slot, t, ctx) {
   const move = MOTION[formation];
   if (!move) throw new Error(`unknown formation: ${formation}`);
-  return move(slot, t, { speed: ctx.speed || 1, dir: ctx.dir < 0 ? -1 : 1, aliveFrac: ctx.aliveFrac });
+  return move(slot, t, { speed: ctx.speed || 1, dir: ctx.dir < 0 ? -1 : 1 });
 }
