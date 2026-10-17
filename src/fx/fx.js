@@ -1,0 +1,86 @@
+// Effect state. Everything a renderer draws on top of the world lives on one `fx` object (world px,
+// y down; the frame is 1920x1080):
+//   particles [see particles.js]
+//   rings     shockwaves   { x, y, r, r0, maxR, width, color, kind, life, max }
+//             r eases from r0 to maxR; r0 > maxR is an inward ring. kind 'ring'|'lens'|'charge'|'shield'
+//   flashes   glow flashes { x, y, r, color, alpha, full, ramp, tag, life, max }
+//             full: lights the whole frame (x, y, r unused); ramp: brightens toward the end (a
+//             charge) instead of fading; alpha is the peak; tag names the cause
+//   popups    floating text { x, y, vy, text, color, scale, life, max }
+//   slices    glitch bands { x, y, w, h, dx, color, life, max }: shift the band of the frame by dx
+//   shake     screen-shake amplitude in px; shakeX/shakeY the offset to apply this frame
+//   slow      1, or SLOW_FACTOR during slow motion: main multiplies the logic dt by it
+//   bulletTime true while the glitch world's bullet time runs (tint the frame)
+//   density   1, or less when the quality scaler halves particle spawns
+//   shieldT   fx.time of the last shield flare (react-fight throttles on it); time = real seconds run
+// stepFx takes real frame time. Particles, rings, flashes, pop-ups and slices follow `slow` so slow
+// motion shows; the shake does not.
+import { stepParticles } from './particles.js';
+import { stepShake } from './camera.js';
+
+const SLOW_FACTOR = 0.3;
+const SLOW_TIME = 0.8; // real seconds
+const CAP = 64; // per list, oldest dropped
+
+export function createFx() {
+  return {
+    particles: [], rings: [], flashes: [], popups: [], slices: [],
+    shake: 0, shakeX: 0, shakeY: 0, slow: 1, slowLeft: 0, time: 0,
+    bulletTime: false, density: 1, shieldT: -1,
+  };
+}
+
+export function startSlowMo(fx, secs = SLOW_TIME) {
+  fx.slowLeft = secs;
+  fx.slow = SLOW_FACTOR;
+}
+
+function push(list, e) {
+  if (list.length >= CAP) list.shift();
+  list.push({ ...e, max: e.life });
+}
+
+export const addFlash = (fx, f) => push(fx.flashes, {
+  x: 960, y: 540, r: 100, color: '#ffffff', alpha: 1, full: false, ramp: false, tag: 'glow', life: 0.15, ...f,
+});
+
+export const addRing = (fx, r) => {
+  const ring = { x: 960, y: 540, r0: 0, maxR: 100, width: 4, color: '#ffffff', kind: 'ring', life: 0.5, ...r };
+  push(fx.rings, { ...ring, r: ring.r0 });
+};
+
+export const addPopup = (fx, p) => push(fx.popups, {
+  x: 960, y: 540, vy: -60, text: '', color: '#ffffff', scale: 1, life: 1, ...p,
+});
+
+export const addSlice = (fx, s) => push(fx.slices, {
+  x: 0, y: 0, w: 60, h: 6, dx: 16, color: '#5dff9a', life: 0.2, ...s,
+});
+
+function stepTimed(list, dt, onStep) {
+  let n = 0;
+  for (const e of list) {
+    e.life -= dt;
+    if (e.life <= 0) continue;
+    onStep(e, dt);
+    list[n++] = e;
+  }
+  list.length = n;
+}
+
+export function stepFx(fx, dt) {
+  fx.time += dt;
+  fx.slowLeft = Math.max(0, fx.slowLeft - dt);
+  fx.slow = fx.slowLeft > 0 ? SLOW_FACTOR : 1;
+  const sdt = dt * fx.slow;
+
+  stepParticles(fx.particles, sdt);
+  stepTimed(fx.rings, sdt, (r) => {
+    const t = 1 - r.life / r.max;
+    r.r = r.r0 + (r.maxR - r.r0) * (1 - (1 - t) * (1 - t)); // ease-out
+  });
+  stepTimed(fx.flashes, sdt, () => {});
+  stepTimed(fx.popups, sdt, (p, d) => { p.y += p.vy * d; });
+  stepTimed(fx.slices, sdt, () => {});
+  stepShake(fx, dt);
+}
