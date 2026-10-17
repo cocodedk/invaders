@@ -55,6 +55,16 @@ test('multi-kills need three scored kills in 30 ticks', () => {
   assert.equal(only([kill(1000), kill(1010), kill(1020), kill(1029), kill(1040)]).length, 1, 'one cluster, one window');
 });
 
+test('a burst may start on any kill: a short stretch does not hide the three kills after it', () => {
+  for (const base of [0, 1000]) {
+    const list = only([kill(base), kill(base + 25), kill(base + 40), kill(base + 50)]);
+    assert.equal(list.length, 1, `from ${base}`);
+    assert.equal(list[0].kind, 'multiKill');
+    assert.equal(list[0].peak, base + 40, 'the middle of the three kills in 25 ticks');
+  }
+  assert.deepEqual(only([kill(1000), kill(1025), kill(1056), kill(1090)]), [], 'no three within 30 ticks');
+});
+
 test('a combo needs a multiplier of two or more, and peaks where the multiplier is highest', () => {
   assert.deepEqual(only([kill(1000, 1), kill(2000, 1)]), []);
   const list = only([kill(1000, 1), kill(1100, 2), kill(1200, 3), kill(1300, 4), kill(1400, 1), kill(1500, 2)]);

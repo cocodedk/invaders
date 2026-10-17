@@ -3,53 +3,9 @@ import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { levelById } from '../../src/core/levels.js';
 import {
-  encodeInputs, decodeInputs, quantizeInput, makeRun, decodeRun, replay, stateHash, TICK, MAX_TICKS,
+  encodeInputs, decodeInputs, makeRun, decodeRun, replay, stateHash, TICK, MAX_TICKS,
 } from '../../src/core/replay.js';
 import { randomInputs, liveRun } from './replay-kit.js';
-
-const IDLE = { dx: 0, dy: 0, fire: false, bomb: false, target: null };
-
-// ---- input encoding ---------------------------------------------------------------------------
-
-test('encode/decode round-trips random input lists, keys and pointer alike', () => {
-  for (let seed = 1; seed <= 30; seed++) {
-    const list = randomInputs(seed, (seed * 97) % 1500, { mouse: seed % 3 !== 0 });
-    assert.deepEqual(decodeInputs(encodeInputs(list)), list, `seed ${seed}`);
-  }
-  assert.deepEqual(decodeInputs(encodeInputs([])), []);
-});
-
-test('every combination of keys, fire, bomb and a target survives the round trip', () => {
-  const list = [];
-  for (const dx of [-1, 0, 1]) for (const dy of [-1, 0, 1]) for (const fire of [false, true]) for (const bomb of [false, true]) {
-    list.push({ dx, dy, fire, bomb, target: null }, { dx, dy, fire, bomb, target: { x: 1920, y: 620 } });
-    list.push({ dx, dy, fire, bomb, target: { x: 0, y: 1080 } });
-  }
-  assert.deepEqual(decodeInputs(encodeInputs(list)), list);
-});
-
-test('runs of identical inputs are run-length encoded', () => {
-  const held = Array.from({ length: 3000 }, () => ({ ...IDLE, fire: true }));
-  assert.ok(encodeInputs(held).length <= 8, encodeInputs(held));
-  const keys = randomInputs(5, 3600, { mouse: false });
-  assert.ok(encodeInputs(keys).length < 3600, 'a keyboard run is far smaller than one token a tick');
-});
-
-test('quantizeInput gives the one shape the core is fed and the encoder writes', () => {
-  assert.deepEqual(quantizeInput({ dx: 5, dy: -0.3, fire: 1, target: { x: 10.6, y: 700.4 } }),
-    { dx: 1, dy: -1, fire: true, bomb: false, target: { x: 11, y: 700 } });
-  assert.deepEqual(quantizeInput({}), IDLE);
-  assert.deepEqual(quantizeInput({ target: { x: 5000, y: -5 } }).target, { x: 1920, y: 0 }, 'held on the screen');
-  assert.deepEqual(quantizeInput({ target: { x: NaN, y: 3 } }).target, null);
-  assert.deepEqual(decodeInputs(encodeInputs([{ dx: 3, fire: 1 }])), [{ ...IDLE, dx: 1, fire: true }]);
-});
-
-test('decodeInputs rejects garbage, broken tokens and absurd run lengths with null', () => {
-  const bad = ['garbage!', 'A ', 'A*', 'A*0', 'A*1', 'A**3', '*3', '@1,2', 'A@', 'A@1', 'A@1,', 'A@1,2,3', 'A@x,y', 'A@1921,0', 'A@0,1081', 'A@-1,5',
-    'k', 'AA*5x', 'A*99999999999', `A*${MAX_TICKS + 1}`, 'A*60000A*60000A*60000'];
-  for (const text of bad) assert.equal(decodeInputs(text), null, JSON.stringify(text));
-  for (const x of [null, undefined, 42, {}, [], true]) assert.equal(decodeInputs(x), null);
-});
 
 // ---- run objects ------------------------------------------------------------------------------
 

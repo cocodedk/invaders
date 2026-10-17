@@ -14,14 +14,20 @@ const MIN_LEN = 180;
 const MAX_LEN = 300;
 const MAX_CLIPS = 4;
 
-// Kills in a burst: a run of kills each within MULTI_SPAN ticks of the run's first, at least
-// MULTI_KILLS long; its peak is the middle kill.
+// Kills in a burst: MULTI_KILLS or more kills within MULTI_SPAN ticks of each other, found by
+// sliding the window along the kills: a burst that is too short to count is passed one kill at a
+// time (the next kills may still start one), and a burst that counts is taken whole before the
+// search goes on after it. Its peak is the middle kill.
 function multiKills(kills) {
   const out = [];
   for (let i = 0; i < kills.length;) {
     let j = i;
     while (j + 1 < kills.length && kills[j + 1].tick - kills[i].tick <= MULTI_SPAN) j++;
-    if (j - i + 1 >= MULTI_KILLS) out.push({ peak: kills[i + Math.floor((j - i) / 2)].tick, weight: WEIGHT.multiKill, kind: 'multiKill' });
+    if (j - i + 1 < MULTI_KILLS) {
+      i++;
+      continue;
+    }
+    out.push({ peak: kills[i + Math.floor((j - i) / 2)].tick, weight: WEIGHT.multiKill, kind: 'multiKill' });
     i = j + 1;
   }
   return out;
