@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createQuality, sampleFrame, DROP_MS, RESTORE_MS } from '../../src/ui/quality.js';
+import {
+  createQuality, sampleFrame, DROP_MS, RESTORE_MS, INTERVAL_DROP_MS, INTERVAL_RESTORE_MS,
+} from '../../src/ui/quality.js';
 
 // Feed `secs` seconds of frames that each take `ms`.
 function run(q, ms, secs) {
@@ -86,4 +88,27 @@ test('a stall (hidden tab, GC pause) or a bad sample is ignored', () => {
   run(q, 12, 0.6);
   assert.equal(q.level, 1);
   assert.ok(q.avg > 11 && q.avg < 13, `avg ${q.avg}`);
+});
+
+// Ruling R23: a GPU-bound Pi shows up in the display's pace, not in the work measured on the CPU.
+test('a slow display pace drops quality even when the work is light (1 s average interval > 22 ms)', () => {
+  assert.equal(INTERVAL_DROP_MS, 22);
+  assert.equal(INTERVAL_RESTORE_MS, 18);
+  const q = createQuality();
+  assert.equal(runAt(q, 5, 22, 2), 1, 'exactly 22 ms does not drop');
+  assert.equal(runAt(q, 5, 33.4, 1.05), 0.5, 'light work at 30 fps drops');
+  assert.ok(q.interval > 33 && q.interval < 34, `the window's average interval is kept: ${q.interval}`);
+});
+
+test('restoring needs light work AND a quick pace (work < 14 ms and interval < 18 ms)', () => {
+  const dropped = () => {
+    const q = createQuality();
+    runAt(q, 25, 25, 1); // exactly one window: nothing carried into the next
+    assert.equal(q.level, 0.5);
+    return q;
+  };
+  assert.equal(runAt(dropped(), 5, 20, 2), 0.5, 'light work at 50 fps: the pace still holds it down');
+  assert.equal(runAt(dropped(), 15, 16.7, 2), 0.5, 'a 60 fps pace with 15 ms of work holds it down');
+  assert.equal(runAt(dropped(), 5, 18, 2), 0.5, 'exactly 18 ms does not restore');
+  assert.equal(runAt(dropped(), 5, 16.7, 1.05), 1, 'both under their lines restores');
 });

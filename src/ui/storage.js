@@ -1,0 +1,93 @@
+// Saved progress, adapted from Barrage: best score and best stars per level, the best run per level
+// (Task 12 stores and reads it), the mute switch and whether the demo was seen. Every localStorage
+// touch is wrapped: private windows, kiosks and blocked storage play on without saving. Whatever is
+// written also lands in memory, so a session without storage still remembers its own results.
+//   keys  invaders.best        { [levelId]: { score, stars } }
+//         invaders.run.<id>    a run as makeRun builds it (JSON)
+//         invaders.muted       '1' | '0'      invaders.demoSeen  '1'
+// createStorage(getBackend) takes a function returning the backend (the getter itself may throw);
+// `store` is the game's instance over globalThis.localStorage.
+
+export const PREFIX = 'invaders.';
+const NONE = Object.freeze({ score: 0, stars: 0 });
+
+const validScore = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+const validStars = (v) => Number.isInteger(v) && v >= 0 && v <= 3;
+const isRecord = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
+
+// The saved best map with every malformed entry dropped.
+function cleanBest(raw) {
+  const out = {};
+  if (!isRecord(raw)) return out;
+  for (const [id, e] of Object.entries(raw)) {
+    if (isRecord(e) && validScore(e.score) && validStars(e.stars)) out[id] = { score: e.score, stars: e.stars };
+  }
+  return out;
+}
+
+export function createStorage(getBackend = () => globalThis.localStorage) {
+  const memory = new Map(); // key (without the prefix) -> string written this session
+
+  function read(key) {
+    if (memory.has(key)) return memory.get(key);
+    try {
+      return getBackend()?.getItem(PREFIX + key) ?? null;
+    } catch {
+      return null; // unreadable: as if nothing were saved
+    }
+  }
+
+  // true when the backend took it
+  function write(key, value) {
+    memory.set(key, value);
+    try {
+      const back = getBackend();
+      if (!back) return false;
+      back.setItem(PREFIX + key, value);
+      return true;
+    } catch {
+      return false; // full or blocked: the in-memory copy holds for this session
+    }
+  }
+
+  function readJSON(key) {
+    const raw = read(key);
+    if (raw == null) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null; // corrupted
+    }
+  }
+
+  const allBest = () => cleanBest(readJSON('best'));
+  const best = (id) => ({ ...(allBest()[id] ?? NONE) });
+
+  // A finished level: keep the higher score and the higher stars, each on its own.
+  function recordResult(id, { score, stars }) {
+    const all = allBest();
+    const prev = { ...(all[id] ?? NONE) };
+    const s = validScore(score) ? score : 0;
+    const st = validStars(stars) ? stars : 0;
+    all[id] = { score: Math.max(prev.score, s), stars: Math.max(prev.stars, st) };
+    write('best', JSON.stringify(all));
+    return { best: { ...all[id] }, prev, newBest: s > prev.score, newStars: st > prev.stars };
+  }
+
+  return {
+    allBest,
+    best,
+    recordResult,
+    bestRun: (id) => {
+      const run = readJSON(`run.${id}`);
+      return isRecord(run) ? run : null;
+    },
+    setBestRun: (id, run) => write(`run.${id}`, JSON.stringify(run)),
+    muted: () => read('muted') === '1',
+    setMuted: (on) => write('muted', on ? '1' : '0'),
+    demoSeen: () => read('demoSeen') === '1',
+    setDemoSeen: () => write('demoSeen', '1'),
+  };
+}
+
+export const store = createStorage();
