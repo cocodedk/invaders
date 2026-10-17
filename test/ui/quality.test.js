@@ -55,6 +55,28 @@ test('the average is over the window, not the last frame', () => {
   assert.equal(q.level, 0.5);
 });
 
+// Feed `secs` seconds of a vsync-locked loop: each frame does `work` ms of work in an `interval` ms slot.
+function runAt(q, work, interval, secs) {
+  for (let t = 0; t < secs * 1000; t += interval) sampleFrame(q, work, interval);
+  return q.level;
+}
+
+test('work time, not the 60 Hz interval: a heavy second drops, 6 ms of work restores within a second', () => {
+  const q = createQuality();
+  assert.equal(runAt(q, 24, 33.4, 1), 0.5, '24 ms of work a frame drops (30 frames, one window)');
+  assert.equal(runAt(q, 6, 16.7, 1.05), 1, 'light work at 16.7 ms intervals restores');
+  assert.ok(q.avg > 5.9 && q.avg < 6.1, `avg is the work, not the interval: ${q.avg}`);
+});
+
+test('the window is a second of frames even when the work per frame is tiny', () => {
+  const q = createQuality();
+  runAt(q, 25, 25, 1); // exactly one window: no frames left over
+  assert.equal(q.level, 0.5);
+  assert.equal(runAt(q, 0.5, 16.7, 0.9), 0.5, 'not judged before a second of intervals');
+  assert.equal(runAt(q, 0.5, 16.7, 0.2), 1);
+  assert.equal(runAt(q, 0, 16.7, 1.1), 1, 'zero work (a coarse timer) is a valid sample');
+});
+
 test('a stall (hidden tab, GC pause) or a bad sample is ignored', () => {
   const q = createQuality();
   run(q, 12, 0.5);

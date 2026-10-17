@@ -1,7 +1,8 @@
 // The renderer. createView bakes everything static for a level (sky, parallax); drawFrame draws one
 // frame of world + fx, then the HUD and, in the trailer, the film look.
 //   createView(canvas, level) -> view   view.look: the world's look (looks/), view.quality: the
-//     auto-quality state (main feeds sampleFrame(view.quality, ms) and sets fx.density from it),
+//     auto-quality state (main feeds sampleFrame(view.quality, workMs, intervalMs) every frame, work
+//     = performance.now() around its core steps + fx + drawFrame, and sets fx.density from it),
 //     view.showHud: false hides the HUD (trailer, title backdrop)
 //   drawFrame(view, world, fx, t, film?)   t: seconds, any monotonic clock (animation only)
 // The canvas is sized to its CSS box; the 1920 x 1080 world is letterboxed into it, and the backing

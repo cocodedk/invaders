@@ -69,6 +69,9 @@ function flashes(ctx, fx) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
+// Pop-ups never rise above this line, so the HUD (panels end at y 96) never covers one.
+const POPUP_MIN_Y = 150;
+
 export function drawPopups(ctx, fx) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -80,9 +83,10 @@ export function drawPopups(ctx, fx) {
     ctx.font = `900 ${Math.round(30 * p.scale * pop)}px system-ui, sans-serif`;
     ctx.lineWidth = 7;
     ctx.strokeStyle = INK;
-    ctx.strokeText(p.text, p.x, p.y);
+    const y = Math.max(POPUP_MIN_Y, p.y);
+    ctx.strokeText(p.text, p.x, y);
     ctx.fillStyle = p.color;
-    ctx.fillText(p.text, p.x, p.y);
+    ctx.fillText(p.text, p.x, y);
   }
   ctx.globalAlpha = 1;
 }

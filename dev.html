@@ -54,19 +54,23 @@ const debug = createDebug();
 const live = q.get('live') === '1';
 let t = T;
 let last = null;
+// The auto-quality scaler is fed the frame's WORK (sim + fx + draw), not the rAF interval: a 60 Hz
+// display pins the interval at 16.7 ms, under which quality could never be restored.
 function frame(now) {
-  const ms = last == null ? 0 : now - last;
+  const interval = last == null ? 0 : now - last;
   last = now;
+  const start = performance.now();
   if (live) {
     tick();
     t += TICK;
   }
-  if (ms) {
-    sampleFrame(view.quality, ms);
-    fx.density = view.quality.level;
-    debug?.sample(ms, view.quality);
-  }
   drawFrame(view, world, fx, t, film);
+  const work = performance.now() - start;
+  if (interval) {
+    sampleFrame(view.quality, work, interval);
+    fx.density = view.quality.level;
+    debug?.sample(work, interval, view.quality);
+  }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
