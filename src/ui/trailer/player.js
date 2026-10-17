@@ -2,7 +2,8 @@
 // a frame, so nothing stalls); then the cut (cut.js): clips of the run in the world's film look
 // with slow motion on each peak, title cards in the world's voice between them (cards.js,
 // draw.js), and the final card. Sound: the clips' own effects over the world's music bed, a braam
-// under every card, a riser into the title and its impact. Any key (or a click) skips.
+// under every card, a riser into the title and its impact. Any key (or a click) skips, and the
+// skip (or the end) fades every sound the trailer started within 0.1 s (R34).
 // A stage screen that draws on the game canvas from its update(dt): the screen it runs under
 // ('trailer') is one the game loop neither steps nor draws.
 //   trailerScreen({ canvas, view?, level, seed, inputs, result: { stars, score, newBest }, onDone }) -> screen
@@ -15,7 +16,7 @@ import { warmAliens } from '../aliens/bake.js';
 import { warmBoss } from '../bosses/bake.js';
 import { createView, drawFrame } from '../view.js';
 import { drawFilm } from '../film-view.js';
-import { play, setBeam, duck } from '../audio.js';
+import { play, hush, setBeam, duck } from '../audio.js';
 import { eventSounds } from '../sounds.js';
 import { h, armed } from '../screens/dom.js';
 import { fastForward, startClip, stepClip, clipDone, HOLD } from './reel.js';
@@ -27,7 +28,8 @@ import { drawLeader, drawFinal } from './draw-final.js';
 const LEADER_MIN = 1.2; // s: the leader counts 8 to 3 at least this slowly
 const FLASH = 0.12; // s of white cutting into a clip
 const RISER = 1.3; // s the riser builds before the final card
-const quiet = (name, o) => play(name, { ...o, gain: 0.8 });
+const sfx = (name, o = {}) => play(name, { ...o, group: 'film' }); // hushed together on a skip
+const quiet = (name, o) => sfx(name, { ...o, gain: 0.8 });
 const finished = (w) => w.state === 'cleared' || w.state === 'failed';
 
 export function trailerScreen({ canvas, view: given = null, level, seed, inputs, result, onDone }) {
@@ -80,6 +82,7 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
   function finish() {
     if (phase === 'done') return;
     phase = 'done';
+    hush('film');
     setBeam(false);
     duck(1);
     if (view) Object.assign(view, { showHud: hud, lift: 0 });
@@ -94,12 +97,12 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
     if (!s) return finish();
     if (s.type === 'clip') {
       clip = startClip(pass.snaps.get(s.start), inputs, s, { seed });
-      if (seg > 0) play('whoosh');
+      if (seg > 0) sfx('whoosh');
       duck(1);
       return;
     }
     clip = null;
-    play(s.type === 'final' ? 'impact' : 'braam', { n: cards++ });
+    sfx(s.type === 'final' ? 'impact' : 'braam', { n: cards++ });
     duck(s.type === 'final' ? 0.8 : 0.55);
   }
 
@@ -111,13 +114,13 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
     }
     const shown = Math.min(gen ? progress : 1, clock / LEADER_MIN);
     const num = 8 - Math.min(5, Math.floor(shown * 6));
-    if (num !== n) play('tick');
+    if (num !== n) sfx('tick');
     n = num;
     begin(ctx, canvas);
     drawLeader(ctx, n, (shown * 6) % 1, frame);
     drawFilm(ctx, film);
     if (!gen && clock >= LEADER_MIN) {
-      play('pop');
+      sfx('pop');
       phase = 'play';
       next();
     }
@@ -136,7 +139,7 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
     const w = clip.world;
     if (!riser && s === segs.findLast((x) => x.type === 'clip') && left(s) <= RISER) {
       riser = true;
-      play('riser');
+      sfx('riser');
     }
     view.showHud = false;
     frameClip(view, film);

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fastForward, drain, startClip, stepClip, clipDone, HOLD } from '../../src/ui/trailer/reel.js';
-import { cutClips } from '../../src/ui/trailer/cut.js';
+import { cutClips, BLOOPER_TICKS } from '../../src/ui/trailer/cut.js';
 import { levelById } from '../../src/core/levels.js';
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { autopilot } from '../../src/core/autopilot.js';
@@ -86,12 +86,12 @@ test('the clip that ends the run holds on the aftermath; the blooper plays at 0.
   assert.equal(clipDone(c), false, 'the last blast still plays');
   for (let t = 0; t < HOLD + 0.1; t += 1 / 60) stepClip(c, 1 / 60);
   assert.equal(clipDone(c), true);
-  const span = { start: 600, end: 690, peak: 690 };
+  const span = { start: 600, end: 600 + BLOOPER_TICKS, peak: 600 + BLOOPER_TICKS };
   const b = startClip(drain(fastForward(level, level.seed, inputs, () => [600])).snaps.get(600), inputs, span, { seed: 1, speed: 0.3, peakSlow: 0 });
   let real = 0;
   while (b.world.tick < span.end) {
     stepClip(b, 1 / 60);
     real += 1 / 60;
   }
-  assert.ok(Math.abs(real - 90 / 60 / 0.3) < 0.1, `${real.toFixed(2)} s for 1.5 s of play`);
+  assert.ok(Math.abs(real - 4) < 0.1, `${real.toFixed(2)} s for the blooper's 1.2 s of play (R32: about 4 s, then the clapper)`);
 });

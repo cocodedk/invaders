@@ -1,7 +1,7 @@
 // The trailer's edit, DOM-free: which stretches of the run become clips, where the blooper starts,
 // and the running order of clips, title cards and the final card.
 //   cutClips(events, ticks) -> [{ start, end, peak, kind }]   at most 4, in order, never overlapping
-//   blooperSpan(events, ticks) -> { start, hit } | null        the last 3 s before the fatal hit
+//   blooperSpan(events, ticks) -> { start, hit } | null        the last 1.2 s before the fatal hit
 //   timeline(clips, cards) -> [{ type: 'clip', ...clip } | { type: 'card', lines, secs } | { type: 'final', secs }]
 // The highlight picker (core/highlights.js) chooses the moments; each clip is trimmed to about three
 // seconds round its peak (the boss kill keeps its whole destruction chain), and a run with fewer than
@@ -11,7 +11,7 @@ import { clamp } from '../../core/math.js';
 
 export const CLIP_TICKS = 160; // 2.7 s of play; the slow motion on the peak makes it about 3.2 s
 export const BOSS_TICKS = 300;
-export const BLOOPER_TICKS = 180; // 3 s before the fatal hit
+export const BLOOPER_TICKS = 72; // 1.2 s before the fatal hit: about 4 s at 0.3x (R32)
 export const FINAL_SECS = 3.2;
 const MAX_CLIPS = 4;
 const PEAK_AT = 0.55; // where the peak sits in a trimmed clip (late: the build-up, then the hit)

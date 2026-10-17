@@ -34,10 +34,10 @@ test('a cleared run that beats the best is saved as the level best run', () => {
   assert.deepEqual(store.bestRun('w2-1'), runFor('w2-1'));
 });
 
-test('only on a new best: a lower score, a tainted run, the demo and a failure keep what is there', () => {
+test('only when it beats the saved run: a lower score, a tainted run, the demo and a failure keep what is there', () => {
   const store = createStorage(() => backend());
   saveBestRun(store, outcome(store, 'w2-1', { score: 9000 }));
-  assert.equal(saveBestRun(store, outcome(store, 'w2-1', { score: 8000 })), 'skip', 'not a new best');
+  assert.equal(saveBestRun(store, outcome(store, 'w2-1', { score: 8000 })), 'skip', 'lower than the saved run');
   assert.equal(saveBestRun(store, outcome(store, 'w2-1', { score: 9000 })), 'skip', 'equal is not better');
   assert.equal(store.bestRun('w2-1').score, 9000);
   assert.equal(saveBestRun(store, outcome(store, 'w3-1', { run: null })), 'skip', 'tainted: no run');
@@ -45,6 +45,39 @@ test('only on a new best: a lower score, a tainted run, the demo and a failure k
   assert.equal(saveBestRun(store, outcome(store, 'w1-1', { mode: 'try' })), 'skip', 'the demo');
   assert.equal(saveBestRun(store, outcome(store, 'w1-2', { cleared: false })), 'skip', 'failed');
   assert.equal(store.bestRun('w1-2'), null);
+});
+
+// R33: the gate is the saved run, not the level's best score, which a tainted debug run, a level
+// played before trailers existed or a save the quota refused can hold without any run behind it.
+test('with no saved run, a cleared run is saved even when the level best is higher', () => {
+  const store = createStorage(() => backend());
+  store.recordResult('w5-2', { score: 50000, stars: 3 }); // a best with no run behind it
+  const o = outcome(store, 'w5-2', { score: 12000 });
+  assert.equal(o.newBest, false, 'not a new level best');
+  assert.equal(saveBestRun(store, o), 'saved');
+  assert.equal(store.bestRun('w5-2').score, 12000);
+});
+
+test('a corrupted or mislabelled saved run is replaced by the next clear', () => {
+  for (const bad of ['{"v":1,"level":"w6-1","seed":', JSON.stringify({ ...runFor('w6-1', 99999), v: 2 }), JSON.stringify(runFor('w1-1', 99999))]) {
+    const back = backend();
+    back.map.set('invaders.run.w6-1', bad);
+    const store = createStorage(() => back);
+    store.recordResult('w6-1', { score: 99999, stars: 3 }); // the best the broken run once set
+    assert.equal(saveBestRun(store, outcome(store, 'w6-1', { score: 3000 })), 'saved', bad.slice(0, 30));
+    assert.equal(store.bestRun('w6-1').level, 'w6-1');
+    assert.equal(store.bestRun('w6-1').score, 3000);
+  }
+});
+
+test('a run that beats the saved run but not the level best is saved', () => {
+  const store = createStorage(() => backend());
+  saveBestRun(store, outcome(store, 'w7-3', { score: 8000 }));
+  store.recordResult('w7-3', { score: 20000, stars: 3 }); // a higher best whose run was never kept (tainted)
+  const o = outcome(store, 'w7-3', { score: 9500 });
+  assert.equal(o.newBest, false);
+  assert.equal(saveBestRun(store, o), 'saved');
+  assert.equal(store.bestRun('w7-3').score, 9500);
 });
 
 test('a full or blocked storage never crashes and keeps the score; the run lasts the session', () => {

@@ -1,18 +1,25 @@
 // Where the trailer, the blooper and Cinema join the game (installed once by main). The end of a
-// level (flow.js) goes through here: a clear saves the run when it is the level's new best, plays
-// its trailer and then the results; a failure plays the blooper and then the failed card. A run a
-// ?debug hook changed (tainted) no longer replays to what was seen, so it goes straight to its card.
-// Cinema hangs off the title menu: its listing, then a trailer, then back to the listing.
+// level (flow.js) goes through here: a clear saves the run when it beats the level's saved run (or
+// there is none: runs.js), plays its trailer and then the results; a failure plays the blooper and
+// then the failed card. A run a ?debug hook changed (tainted) no longer replays to what was seen, so
+// it goes straight to its card. Cinema hangs off the title menu: its listing, then a trailer in its
+// world's sound and music, then back to the listing with the menu's music again (R34).
 //   installTrailers(router, { stage, canvas })   sets flow.cleared, flow.failed and router.goCinema
 import { store } from '../storage.js';
 import { lookFor } from '../looks/index.js';
 import { setWorldSound } from '../audio.js';
-import { setMusic } from '../music.js';
+import { setMusic, musicLook } from '../music.js';
 import { toast } from '../screens/stage.js';
 import { cinemaScreen } from '../screens/cinema.js';
 import { saveBestRun, cinemaReels } from './runs.js';
 import { trailerScreen } from './player.js';
 import { blooperScreen } from './blooper.js';
+
+// A world's sound effects and its music loop (null: the default kit, silence).
+function music(look) {
+  setWorldSound(look);
+  setMusic(look);
+}
 
 export function installTrailers(r, { stage, canvas }) {
   const { app, flow } = r;
@@ -59,13 +66,15 @@ export function installTrailers(r, { stage, canvas }) {
       reels: cinemaReels(store), focusId, back: r.goTitle,
       play({ level, run }) {
         r.leave('trailer');
-        const look = lookFor(level);
-        setWorldSound(look);
-        setMusic(look);
+        const menu = musicLook();
+        music(lookFor(level));
         roll(trailerScreen({
           canvas, level, seed: run.seed, inputs: run.inputs,
           result: { stars: run.stars, score: run.score, newBest: false },
-          onDone: after(() => r.goCinema(level.id)),
+          onDone: after(() => {
+            music(menu); // the listing plays what the menu played
+            r.goCinema(level.id);
+          }),
         }));
       },
     }));

@@ -1,13 +1,15 @@
-// The blooper: a failed level's last three seconds before the fatal hit, re-simulated from the
-// start (reel.js) and replayed at 0.3x in an outtake's look (a warm grade, grain, a running
-// timecode), then a clapperboard slides in and snaps shut: CUT! Then the failed card (Retry).
-// Any key skips. Drawn on the game canvas from the screen's update(dt), like the trailer.
+// The blooper: a failed level's last 1.2 s before the fatal hit, re-simulated from the start
+// (reel.js) and replayed at 0.3x (about 4 s) in an outtake's look (a warm grade, grain, a running
+// timecode); the moment the ship is hit a clapperboard slides in over the wreck and snaps shut:
+// CUT! (about 1 s). About 5 s in all (R32), then the failed card (Retry). Any key skips, and a
+// skip fades every sound of the blooper at once (R34). Drawn on the game canvas from the screen's
+// update(dt), like the trailer.
 //   blooperScreen({ canvas, view, level, seed, inputs, take, onDone }) -> screen
 import { W, H, hash } from '../sprites.js';
 import { WORLDS } from '../../core/levels.js';
 import { createFilm, stepFilm } from '../../fx/film.js';
 import { drawFrame } from '../view.js';
-import { play, setBeam, duck } from '../audio.js';
+import { play, hush, setBeam, duck } from '../audio.js';
 import { eventSounds } from '../sounds.js';
 import { reelName } from '../screens/posters.js';
 import { h, armed } from '../screens/dom.js';
@@ -17,11 +19,11 @@ import { begin, frameClip, FONTS } from './draw.js';
 import { drawClapper } from './clapper.js';
 
 const SPEED = 0.3;
-const AFTER = 0.9; // real s on the wreck before the clapperboard
-const CLAP = { slide: 0.32, shut: 0.5, close: 0.08, hold: 1.8 }; // s into the clap phase
+const CLAP = { slide: 0.25, shut: 0.42, close: 0.08, hold: 1.0 }; // s from the hit: the wreck burns on behind it
 const REWIND = 0.4; // s of rewind lines at the start
 const OUTTAKE = '#d9a35f'; // the outtake's warm grade
-const quiet = (name, o) => play(name, { ...o, gain: 0.7 });
+const sfx = (name, o = {}) => play(name, { ...o, group: 'film' }); // hushed together on a skip
+const quiet = (name, o) => sfx(name, { ...o, gain: 0.7 });
 
 const p = (n) => String(n).padStart(2, '0');
 const timecode = (t) => { // hours:minutes:seconds:frames at 24 frames a second
@@ -66,6 +68,7 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
   function finish() {
     if (phase === 'done') return;
     phase = 'done';
+    hush('film');
     setBeam(false);
     duck(1);
     Object.assign(view, { showHud: hud, lift: 0 });
@@ -76,7 +79,7 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
     if (!snap) return finish();
     clip = startClip(snap, inputs, { start: span.start, end: span.hit, peak: span.hit }, { seed, speed: SPEED, peakSlow: 0 });
     phase = 'roll';
-    play('rewind');
+    sfx('rewind');
     duck(0.4);
   }
 
@@ -122,13 +125,13 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
       drawFrame(view, w, clip.fx, anim, film);
       setBeam(phase === 'roll' && Boolean(w.ship.beam) && w.state === 'play', w.ship.x);
       overlay(frame);
-      if (phase === 'roll' && clip.after >= AFTER) phase = 'clap';
+      if (phase === 'roll' && clip.after > 0) phase = 'clap'; // the hit: no hold, the clapper is the hold
       if (phase !== 'clap') return;
       clapT += dt;
       if (!clapped && clapT >= CLAP.shut) {
         clapped = true;
         setBeam(false);
-        play('clap');
+        sfx('clap');
       }
       ctx.globalAlpha = 0.45 * Math.min(1, clapT / CLAP.slide);
       ctx.fillStyle = '#000000';

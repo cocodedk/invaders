@@ -1,7 +1,8 @@
 // ?debug only (never in normal play): globalThis.invaders, test hooks that reach into the running
 // level. Each hook that changes the world taints the recording (session.js taint), so a run a hook
 // touched is never stored as a replay.
-//   info()            where the game is: screen, level, state, score, lives, power, bombs, recording
+//   info()            where the game is: screen, level, state, score, lives, power, bombs, recording,
+//                     the trailer or blooper (film) and the world whose music plays (music)
 //   play(id)          jump to a level ('w2-1')              lobby() title() demo() try()
 //   grant(kind)       drop a pickup on the ship: 'spread' | 'laser' | 'rapid' | 'shield' | 'bomb'
 //   clear(hits?)      empty the field now (a boss level runs its death chain); hits sets the stars
@@ -16,6 +17,7 @@ import { syncBoss } from '../core/boss-phase.js';
 import { taint } from './session.js';
 import { audioStats } from './audio.js';
 import { autopilot } from '../core/autopilot.js';
+import { musicLook } from './music.js';
 
 export function installDebug(r) {
   const q = new URLSearchParams(location.search);
@@ -42,7 +44,7 @@ export function installDebug(r) {
         power: w?.ship.power?.kind ?? null, hits: w?.hits ?? 0, inputs: sc?.session.inputs.length ?? 0,
         events: sc?.session.events.length ?? 0, tainted: sc?.session.tainted ?? false,
         quality: sc?.view.quality.level ?? null, caption: app.demo?.d?.caption ?? null, audio: audioStats(),
-        film: app.film?.status?.() ?? null,
+        film: app.film?.status?.() ?? null, music: musicLook()?.world ?? null,
       };
     },
     play(id) {

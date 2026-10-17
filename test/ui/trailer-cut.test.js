@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cutClips, blooperSpan, timeline, CLIP_TICKS, BOSS_TICKS, CARD_SECS, FINAL_SECS } from '../../src/ui/trailer/cut.js';
+import { cutClips, blooperSpan, timeline, CLIP_TICKS, BOSS_TICKS, BLOOPER_TICKS, CARD_SECS, FINAL_SECS } from '../../src/ui/trailer/cut.js';
 
 const kill = (tick, mult = 1) => ({ type: 'kill', tick, mult, scored: true });
 const clip = (start) => ({ start, end: start + CLIP_TICKS, peak: start + 90, kind: 'combo' });
@@ -50,11 +50,12 @@ test('an uneventful run still gets its last seconds; a tiny run its whole length
   assert.deepEqual(cutClips([], 0), []);
 });
 
-test('the blooper is the last three seconds before the fatal hit', () => {
+test('the blooper is the last 1.2 s (72 ticks) before the fatal hit (R32)', () => {
+  assert.equal(BLOOPER_TICKS, 72);
   const hits = [{ type: 'shipHit', tick: 400, lives: 2 }, { type: 'shipHit', tick: 900, lives: 0 }, { type: 'failed', tick: 900 }];
-  assert.deepEqual(blooperSpan(hits, 901), { start: 720, hit: 900 });
+  assert.deepEqual(blooperSpan(hits, 901), { start: 828, hit: 900 });
   assert.deepEqual(blooperSpan([{ type: 'shipHit', tick: 50, lives: 0 }], 51), { start: 0, hit: 50 });
-  assert.deepEqual(blooperSpan([{ type: 'failed', tick: 400 }], 401), { start: 220, hit: 400 }, 'no hit: the failure itself');
+  assert.deepEqual(blooperSpan([{ type: 'failed', tick: 400 }], 401), { start: 328, hit: 400 }, 'no hit: the failure itself');
   assert.equal(blooperSpan([{ type: 'cleared', tick: 400 }], 401), null);
 });
 
