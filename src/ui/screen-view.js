@@ -41,7 +41,7 @@ export function drawDarkness(ctx, env) {
     drawFlourishes(ctx, env, 'neonfar', layerX(far, world.ship.x), far.top);
     drawFlourishes(ctx, env, 'neonmid', layerX(mid, world.ship.x), mid.top);
   }
-  drawBossLights(ctx, world, v.look, t, back); // the boss's neon, under its minions'
+  drawBossLights(ctx, world, v.look, t, back, env.quality); // the boss's neon, under its minions'
   drawAlienLights(ctx, world, v.look, t, back); // their neon, and the glow it throws around them
 }
 

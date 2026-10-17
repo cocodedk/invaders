@@ -1,6 +1,7 @@
 // Damage states of a boss part, baked from its body canvas: cracked (stage 1 | 2, armour losing
 // hp), exposed (a plate cracked wide open, fissures burning in the weak colour) and wreck (the part
-// destroyed: charred dark, cracks glowing like embers). Baked once, on first use; never per frame.
+// destroyed: charred dark, cracks glowing like embers). Baked once, ahead of the fight (warmBoss),
+// or on first use for a boss that is only drawn (posters); never per frame.
 import { makeCanvas, hash, rgba, shade, INK } from '../sprites.js';
 import { path, line, bloom } from './kit.js';
 
@@ -91,10 +92,12 @@ export function exposed(set, weak) {
 }
 
 // Destroyed: the body charred nearly black, scorched, its cracks glowing ember-orange (on the body,
-// so the darkness pass leaves wrecks dark).
-export function wreck(set) {
-  if (set.wreck) return set.wreck;
-  const [c, g] = over(set);
+// so the darkness pass leaves wrecks dark). `open`: the part was destroyed open (the fortress's
+// reactor port), so it is the open art that chars, not the closed doors.
+export function wreck(set, open = false) {
+  const key = open && set.open ? 'openWreck' : 'wreck';
+  if (set[key]) return set[key];
+  const [c, g] = over(set, key === 'openWreck' ? set.open.body : set.body);
   g.fillStyle = 'rgba(14,8,6,0.74)';
   g.fillRect(-c.width / 2, -c.height / 2, c.width, c.height);
   for (let i = 0; i < 4; i++) {
@@ -112,7 +115,7 @@ export function wreck(set) {
     path(g, pts, true);
     line(g, rgba(shade('#ff6a1a', 0.1), 0.85), 1.4);
   }
-  set.wreck = c;
+  set[key] = c;
   return c;
 }
 

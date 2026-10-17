@@ -16,7 +16,7 @@ import { createFx, stepFx } from '../../fx/fx.js';
 import { applyEvents } from '../../fx/react.js';
 import { lookFor } from '../looks/index.js';
 import { warmAliens } from '../aliens/bake.js';
-import { warmBoss } from '../bosses/bake.js';
+import { bossArt } from '../bosses/bake.js';
 import { createView, drawFrame } from '../view.js';
 import { makeCanvas } from '../sprites.js';
 
@@ -62,10 +62,10 @@ function* bake(world) {
   yield;
   warmAliens(look);
   yield;
-  warmBoss(look, level.boss);
+  bossArt(look, level.boss); // drawn whole: none of the fight's damage art (warmBoss)
   yield;
   const frame = makeCanvas(FRAME_W, FRAME_H);
-  const view = createView(frame, level); // sky and parallax; the sprites above are already baked
+  const view = createView(frame, level, false); // sky and parallax; the sprites above are already baked
   view.showHud = false;
   yield;
   drawFrame(view, w, fx, secs);

@@ -5,6 +5,7 @@
 //                                            fly over the boss they launch from)
 //   drawAlienLights(ctx, world, look, t, k)  the lights again at strength k: Neon Rain's darkness
 //                                            pass dims the scene, then calls this so the neon survives
+//                                            (and a hurt alien's cracks glow faintly, cracks.js)
 //   crackStage(alien)                        0 | 1 | 2, how cracked an alien is drawn (a.maxHp)
 // A reborn armored (Iron Dawn) keeps the fallen one's maxHp, so it stands up drawn cracked.
 // Per alien: a halo (cached glow, 'lighter'), the body (cracked once it has lost hp; a white
@@ -13,7 +14,8 @@
 // WeakMap of the hp each alien had when last drawn. Nothing on world or fx is written.
 import { glow } from '../sprites.js';
 import { clamp } from '../../core/math.js';
-import { art, roleSprites, extraSprites, cracked } from './bake.js';
+import { art, roleSprites, extraSprites } from './bake.js';
+import { cracked, crackLights } from './cracks.js';
 
 const FLASH = 0.09; // s
 const seen = new WeakMap(); // alien -> { hp, at }
@@ -136,7 +138,10 @@ export function drawAlienLights(ctx, world, look, t, k) {
     ctx.globalAlpha = 0.45 * k;
     ctx.drawImage(glow(colors[a.role]), a.x - 46, y - 46, 92, 92);
     const set = roleSprites(look, a.role);
-    blit(ctx, set.lights[frameOf(A, a, t)], set, a.x, y, k, lean(world, a));
+    const f = frameOf(A, a, t);
+    blit(ctx, set.lights[f], set, a.x, y, k, lean(world, a));
+    const stage = crackStage(a);
+    if (stage) blit(ctx, crackLights(set, f, stage), set, a.x, y, k * 0.8, lean(world, a));
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';

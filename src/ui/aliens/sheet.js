@@ -9,7 +9,8 @@ import { buildSky } from '../sky.js';
 import { label } from '../hud-kit.js';
 import { drawBunkers } from '../bunkers-view.js';
 import { drawPickups } from '../pickups-view.js';
-import { roleSprites, extraSprites, cracked, ROLE_LIST } from './bake.js';
+import { roleSprites, extraSprites, ROLE_LIST } from './bake.js';
+import { cracked } from './cracks.js';
 
 const BIG = 2.6;
 const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon', 'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon'];

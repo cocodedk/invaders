@@ -73,7 +73,7 @@ export function partBodies(ctx, b, B, look, t) {
     const m = memo(p, t);
     const [x, y] = corner(p, set);
     if (p.hp <= 0) {
-      ctx.drawImage(wreck(set), x, y);
+      ctx.drawImage(wreck(set, p.open), x, y);
       continue;
     }
     const stage = partStage(p);

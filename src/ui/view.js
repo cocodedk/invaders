@@ -1,6 +1,6 @@
 // The renderer. createView bakes everything static for a level (sky, parallax); drawFrame draws one
 // frame of world + fx, then the HUD and, in the trailer, the film look.
-//   createView(canvas, level) -> view   view.look: the world's look (looks/), view.quality: the
+//   createView(canvas, level, warm?) -> view   view.look: the world's look (looks/), view.quality: the
 //     auto-quality state (main feeds sampleFrame(view.quality, workMs, intervalMs) every frame, work
 //     = performance.now() around its core steps + fx + drawFrame, and sets fx.density from it),
 //     view.showHud: false hides the HUD (trailer, title backdrop); view.lift: px the sky and the
@@ -30,10 +30,14 @@ import { drawFilm } from './film-view.js';
 import { drawHud } from './hud.js';
 import { createQuality } from './quality.js';
 
-export function createView(canvas, level) {
+// warm (default true) bakes the level's aliens and boss with all their damage art; a poster, which
+// draws one frame and has baked what it draws, passes false.
+export function createView(canvas, level, warm = true) {
   const look = lookFor(level);
-  warmAliens(look);
-  warmBoss(look, level.boss);
+  if (warm) {
+    warmAliens(look);
+    warmBoss(look, level.boss);
+  }
   return {
     canvas, ctx: canvas.getContext('2d'), level, look,
     sky: buildSky(look, level), layers: buildLayers(look, level.seed ?? 1),
@@ -83,7 +87,7 @@ function field(ctx, v, world, fx, t, env, amb) {
   });
   drawFlourishes(ctx, env, 'near');
   drawBunkers(ctx, world, look);
-  drawBoss(ctx, world, look, t); // under the aliens: minions launch from it and fly over it (R27)
+  drawBoss(ctx, world, look, t, q); // under the aliens: minions launch from it and fly over it (R27)
   drawAliens(ctx, world, look, t);
   drawDarkness(ctx, env);
   drawPickups(ctx, world, look, t);

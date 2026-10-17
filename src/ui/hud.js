@@ -45,14 +45,14 @@ function combo(ctx, world, t) {
   label(ctx, 'COMBO', x + 75, CAP, 'center');
   const pulse = hotK ? 1 + (hotK === 2 ? 0.14 : 0.09) * Math.abs(Math.sin(t * (hotK === 2 ? 12 : 8))) : 1;
   ctx.save();
-  ctx.translate(x + 75, MAIN - 1);
+  ctx.translate(x + 75, MAIN - 5); // 4 px up, and the timer bar 1 px down: clear of the x8 at its pulse
   ctx.scale(pulse, pulse);
   text(ctx, `×${mult}`, 0, 0, 40, color, 'center', 900);
   ctx.restore();
   const f = clamp(timer / COMBO_WINDOW, 0, 1);
   if (mult > 1 && f > 0) {
     ctx.fillStyle = color;
-    ctx.fillRect(x + 14, HUD_BOTTOM - 9, 122 * f, 4);
+    ctx.fillRect(x + 14, HUD_BOTTOM - 8, 122 * f, 4);
   }
 }
 

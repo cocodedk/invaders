@@ -2,9 +2,13 @@
 // offscreen canvases; per frame the game only blits them (bosses/index.js).
 //   bossArt(look, kind)   -> { mod, S, hull, parts } (baked on first call, kept until another boss)
 //     hull  = { body, lights, flash, rage: [canvas | null per phase], x0, y0 } boss-local top-left
+//             (flash: null until hullFlash(B) bakes it; only the dying boss needs it)
 //     parts = { [id]: set }, set = { body, lights, flash, open?, w, h, m, seed, crack, cracks, ... }
-//             drawn at the part's centre; the damage states are baked on first use (cracks.js)
-//   warmBoss(look, kind)  bake ahead (createView, on a boss level)
+//             drawn at the part's centre; the damage states (cracks.js) are baked on first use
+//   warmBoss(look, kind)  bossArt plus everything the fight will need, the damage states and the hull
+//                         flash included, so nothing is baked mid-fight (createView, on a boss level;
+//                         a poster only draws the boss whole and calls bossArt)
+//   hullFlash(B)          the hull's white silhouette (the collapse), baked on first use
 //   painterFor(mod, id)   [painter, mirror] for a part: its own painter, or its left twin's
 //                         mirrored for an id ending in R (gunR from gun), or null
 // A module is { pad?, margin?, margins?: { [id]: px }, crack?, hull(b, l, S),
@@ -16,7 +20,7 @@
 // S = { def, pal: look.palette.boss, look, W, H, pad }; b, l are the body and lights contexts.
 import { makeCanvas } from '../sprites.js';
 import { bossDef } from '../../core/bosses-data.js';
-import { white } from './cracks.js';
+import { white, cracked, exposed, wreck } from './cracks.js';
 import mothership from './mothership.js';
 import pyramid from './pyramid.js';
 import fortress from './fortress.js';
@@ -82,7 +86,7 @@ function bake(look, kind) {
   def.parts.forEach((p, i) => {
     parts[p.id] = bakePart(mod, p, S, i);
   });
-  return { mod, S, hull: { body, lights, flash: white(body), rage, x0: -W / 2, y0: -H / 2 }, parts };
+  return { mod, S, hull: { body, lights, flash: null, rage, x0: -W / 2, y0: -H / 2 }, parts };
 }
 
 // Only the current boss is kept: a boss is several MB of canvases, and a kiosk session that plays
@@ -98,4 +102,19 @@ export function bossArt(look, kind) {
   return a;
 }
 
-export const warmBoss = (look, kind) => (kind ? bossArt(look, kind) : null);
+export const hullFlash = (B) => (B.hull.flash ??= white(B.hull.body));
+
+export function warmBoss(look, kind) {
+  if (!kind) return null;
+  const B = bossArt(look, kind);
+  for (const p of B.S.def.parts) {
+    const set = B.parts[p.id];
+    cracked(set, 1);
+    cracked(set, 2);
+    if (p.armor) exposed(set, look.palette.boss.weak); // a plate cracks open once no weak part is left
+    wreck(set);
+    if (set.open) wreck(set, true);
+  }
+  hullFlash(B);
+  return B;
+}

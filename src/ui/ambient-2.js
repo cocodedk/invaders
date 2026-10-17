@@ -42,6 +42,7 @@ function lensed(ctx, a, t, drift, wind, world) {
     ctx.ellipse(c.x, c.y, rr, rr * 0.9, 0, ang, ang + span);
     ctx.stroke();
   }
+  ctx.lineCap = 'butt'; // the default again: later strokes (the HUD's power ring) must not inherit it
 }
 
 // CRT: dark lines every 3 px and the tube's darker corners, baked once; a soft bright band rolls

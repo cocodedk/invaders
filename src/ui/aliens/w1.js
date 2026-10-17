@@ -20,12 +20,12 @@ const ROWS = {
     '...........', '...........', 'XX..hhh..XX', 'XXXXXXXXXXX', '.XXXoXoXXX.', '...XXXXX...', '....XXX....',
     '....XXX....', '.....X.....',
   ]],
-  gunner: [[ // a crab with its claws up and a twin gun underneath
-    'XX.........XX', 'X.X..hhh..X.X', '..XXXXXXXXX..', '.XXXoXXXoXXX.', 'XXXXXXXXXXXXX', 'X.XXXXXXXXX.X',
-    'X.X..XXX..X.X', '.....X.X.....', '.....o.o.....',
+  gunner: [[ // a crab with its claws up and a twin gun underneath (11 cells: no wider than its hit)
+    'XX.......XX', 'X.X.hhh.X.X', '..XXXXXXX..', '.XXoXXXoXX.', 'XXXXXXXXXXX', 'X.XXXXXXX.X',
+    'X.X.XXX.X.X', '....X.X....', '....o.o....',
   ], [
-    '..X.......X..', '.X...hhh...X.', '.XXXXXXXXXXX.', 'XXXXoXXXoXXXX', 'XXXXXXXXXXXXX', '..XXXXXXXXX..',
-    '..X..XXX..X..', '.....X.X.....', '.............',
+    '.X.......X.', 'X...hhh...X', 'XXXXXXXXXXX', 'XXXoXXXoXXX', 'XXXXXXXXXXX', '.XXXXXXXXX.',
+    '.X..XXX..X.', '....X.X....', '...........',
   ]],
   armored: [[ // a plated block with a visor
     '.hhhhhhhhhh.', 'hXXXXXXXXXXh', 'hXddddddddXh', 'hXdoodddoodh', 'hXddddddddXh', 'hXXXXXXXXXXh',

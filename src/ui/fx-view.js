@@ -69,24 +69,55 @@ function flashes(ctx, fx) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-// Pop-ups never rise above this line, so the HUD (panels end at y 96) never covers one.
-const POPUP_MIN_Y = 150;
+// Pop-ups never rise above this line, so the HUD (panels end at y 96) never covers one. Those held
+// at the line would pile up on it (a top row shot away at once), so each is pushed below any held one
+// it would overlap: a small stack of at most STACK rows; past that they overlap as they fade.
+export const POPUP_MIN_Y = 150;
+const STACK = 3;
+const ROW = 34; // px a stacked row takes at scale 1 (the text is 30 px)
+const halfWidth = (p) => 9 * p.scale * p.text.length; // about half the text's width (30 px font)
+
+// Would pop-up i, drawn at y, overlap a held one placed before it?
+function overlaps(popups, out, i, y) {
+  const p = popups[i];
+  for (let j = 0; j < i; j++) {
+    const q = popups[j];
+    if (q.y >= POPUP_MIN_Y) continue;
+    if (Math.abs(out[j] - y) < (ROW * (p.scale + q.scale)) / 2 && Math.abs(q.x - p.x) < halfWidth(p) + halfWidth(q)) return true;
+  }
+  return false;
+}
+
+// The y each pop-up is drawn at, in list order, written into `out` (reused: no allocation per frame).
+export function popupYs(popups, out = []) {
+  out.length = popups.length;
+  for (let i = 0; i < popups.length; i++) {
+    const p = popups[i];
+    let y = Math.max(POPUP_MIN_Y, p.y);
+    for (let row = 1; p.y < POPUP_MIN_Y && row < STACK && overlaps(popups, out, i, y); row++) y += ROW * p.scale;
+    out[i] = y;
+  }
+  return out;
+}
+
+const ys = [];
 
 export function drawPopups(ctx, fx) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.lineJoin = 'round';
-  for (const p of fx.popups) {
+  popupYs(fx.popups, ys);
+  for (let i = 0; i < fx.popups.length; i++) {
+    const p = fx.popups[i];
     const age = p.max - p.life;
     const pop = 1 + Math.max(0, 1 - age / 0.18) * 0.6;
     ctx.globalAlpha = Math.min(1, (p.life / p.max) * 2.5);
     ctx.font = `900 ${Math.round(30 * p.scale * pop)}px system-ui, sans-serif`;
     ctx.lineWidth = 7;
     ctx.strokeStyle = INK;
-    const y = Math.max(POPUP_MIN_Y, p.y);
-    ctx.strokeText(p.text, p.x, y);
+    ctx.strokeText(p.text, p.x, ys[i]);
     ctx.fillStyle = p.color;
-    ctx.fillText(p.text, p.x, y);
+    ctx.fillText(p.text, p.x, ys[i]);
   }
   ctx.globalAlpha = 1;
 }

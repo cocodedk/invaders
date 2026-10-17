@@ -6,12 +6,13 @@ import { INK, rgba, glow, star, addGlow } from './sprites.js';
 import { clamp } from '../core/math.js';
 import { SHIP_SPEED } from '../core/ship.js';
 
-function flames(ctx, s, accent, t) {
+// `alpha` is the ship's own (0.3 while it blinks), so the flames blink with it.
+function flames(ctx, s, accent, t, alpha) {
   const climb = clamp(-s.vy / SHIP_SPEED, 0, 1);
   ctx.globalCompositeOperation = 'lighter';
   for (const nx of [-9, 9]) {
     const len = 26 + climb * 26 + Math.sin(t * 43 + nx) * 5;
-    ctx.globalAlpha = 0.9;
+    ctx.globalAlpha = 0.9 * alpha;
     ctx.drawImage(glow(accent), s.x + nx - 10, s.y + 26, 20, len);
     ctx.drawImage(glow('#ffffff'), s.x + nx - 5, s.y + 26, 10, len * 0.45);
   }
@@ -20,7 +21,7 @@ function flames(ctx, s, accent, t) {
   if (speed > 60) {
     for (let k = 1; k <= 5; k++) {
       const d = k * 0.028;
-      ctx.globalAlpha = 0.22 * (1 - k / 6) * Math.min(1, speed / SHIP_SPEED);
+      ctx.globalAlpha = 0.22 * (1 - k / 6) * Math.min(1, speed / SHIP_SPEED) * alpha;
       ctx.drawImage(glow(accent), s.x - s.vx * d - 16, s.y + 30 - s.vy * d - 16, 32, 32);
     }
   }
@@ -108,10 +109,11 @@ export function drawShip(ctx, world, look, t) {
   if (!s.alive || s.lives <= 0) return;
   const accent = look.palette.accent;
   const blink = s.invuln > 0 && Math.floor(t * 14) % 2 === 0;
-  ctx.globalAlpha = blink ? 0.3 : 1;
+  const alpha = blink ? 0.3 : 1;
+  ctx.globalAlpha = alpha;
   addGlow(ctx, glow(accent), s.x, s.y + 4, 64, blink ? 0.12 : 0.3);
-  flames(ctx, s, accent, t);
-  ctx.globalAlpha = blink ? 0.3 : 1;
+  flames(ctx, s, accent, t, alpha);
+  ctx.globalAlpha = alpha;
   const bank = clamp(s.vx / SHIP_SPEED, -1, 1);
   ctx.save();
   ctx.translate(s.x, s.y);
@@ -120,8 +122,8 @@ export function drawShip(ctx, world, look, t) {
   const [wl, wr] = hull(ctx, bank, accent);
   ctx.restore();
   const tip = 0.6 + 0.4 * Math.sin(t * 6);
-  addGlow(ctx, star(accent), s.x - 38 * wl, s.y + 22, 10, tip * (blink ? 0.3 : 1));
-  addGlow(ctx, star(accent), s.x + 38 * wr, s.y + 22, 10, tip * (blink ? 0.3 : 1));
+  addGlow(ctx, star(accent), s.x - 38 * wl, s.y + 22, 10, tip * alpha);
+  addGlow(ctx, star(accent), s.x + 38 * wr, s.y + 22, 10, tip * alpha);
   ctx.globalAlpha = 1;
   if (s.power?.kind === 'shield') shield(ctx, s, look.power.shield, t, s.power.left);
 }

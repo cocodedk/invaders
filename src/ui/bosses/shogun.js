@@ -50,14 +50,13 @@ function hull(b, l) {
   for (const s of [-1, 1]) for (let i = 0; i < 4; i++) eye(l, s * (182 + i * 18), -50, 1.4, FIRE, 2.2);
 }
 
-// The helmet: a lacquered bowl with ridges, swept side flaps, two horns and a flame crest in gold,
-// under it a war mask with ember eyes.
+// The helmet: a lacquered bowl with ridges, swept side flaps, two horns and a flame crest in gold on
+// its brow, under it a war mask with ember eyes. Nothing rises above y -48 (5 px over the rect), so
+// at rest (helm centre y 150) the crest clears the boss bar's panel (y 97) with room to spare.
 function helm(b, l) {
-  path(b, sym([[0, -36], [10, -62], [4, -78], [14, -70], [20, -88], [24, -60], [18, -36]]));
-  ink(b, lin(b, 0, -88, 0, -36, [[0, '#fff0b0'], [0.5, GOLD], [1, shade(GOLD, -0.5)]]), 2.5);
   both((s) => {
-    path(b, [[s * 30, -28], [s * 52, -60], [s * 64, -66], [s * 48, -50], [s * 40, -24]]);
-    ink(b, lin(b, 0, -66, 0, -24, [[0, '#f8f0e0'], [1, '#8a7a60']]), 2.5);
+    path(b, [[s * 30, -26], [s * 50, -42], [s * 62, -46], [s * 47, -34], [s * 40, -22]]);
+    ink(b, lin(b, 0, -46, 0, -22, [[0, '#f8f0e0'], [1, '#8a7a60']]), 2.5);
     path(b, [[s * 40, -14], [s * 74, -24], [s * 70, 8], [s * 44, 12]]);
     ink(b, lacquer(b, LACQUER, -24, 12), 3);
     path(b, [[s * 46, -8], [s * 68, -14]], true);
@@ -73,6 +72,8 @@ function helm(b, l) {
     path(b, [[x * 0.9, -40 + Math.abs(x) * 0.3], [x, 2]], true);
     line(b, rgba('#000000', 0.45), 2);
   }
+  path(b, sym([[0, -4], [9, -24], [4, -33], [13, -30], [19, -48], [23, -26], [15, -4]])); // the crest
+  ink(b, lin(b, 0, -48, 0, -4, [[0, '#fff0b0'], [0.5, GOLD], [1, shade(GOLD, -0.5)]]), 2.5);
   path(b, sym([[0, 4], [30, 4], [34, 22], [22, 42], [0, 46]]));
   ink(b, lin(b, 0, 4, 0, 46, [[0, '#2a1a1c'], [1, '#0a0608']]), 3);
   both((s) => {
@@ -177,7 +178,6 @@ const aura = (a, gold) => (l) => {
 
 export default {
   pad: 60,
-  margins: { helm: 56 }, // the flame crest rises to y -88, 43 px over the helm's rect
   hull,
   parts: { helm, torso, pauldron, core, leg, blade },
   rage: [null, aura(0.22, false), aura(0.32, true)],

@@ -97,6 +97,7 @@ function tracers(ctx, { t }) {
     ctx.lineTo(x - Math.cos(ang) * 90, y - Math.sin(ang) * 90);
     ctx.stroke();
   }
+  ctx.lineCap = 'butt'; // the default again: later strokes (the HUD's power ring) must not inherit it
   normal(ctx);
 }
 
@@ -153,6 +154,7 @@ function lens(ctx, { world, t }) {
   ctx.beginPath();
   ctx.ellipse(c.x, c.y, 90 + pulse * 240, (90 + pulse * 240) * 0.9, 0, 0, Math.PI * 2);
   ctx.stroke();
+  ctx.lineCap = 'butt';
   normal(ctx);
 }
 

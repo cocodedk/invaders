@@ -44,26 +44,26 @@ function grunt(b, l, f, c) {
 
 // An aerial hunter: a flying wing slung between two ducted fans, a red sensor at its nose.
 function diver(b, l, f, c) {
-  path(b, sym([[0, -16], [20, -10], [22, 0], [8, 6], [5, 22], [0, 26]]));
-  ink(b, chrome(b, c, -22, 22), 2.8);
+  path(b, sym([[0, -16], [16, -11], [18, -1], [8, 6], [5, 22], [0, 26]]));
+  ink(b, chrome(b, c, -18, 18), 2.8);
   path(b, sym([[0, -10], [6, -8], [5, 12], [0, 16]]));
   b.fillStyle = rgba('#000000', 0.25);
   b.fill();
   both((s) => {
-    circle(b, s * 25, -6, 10);
-    ink(b, chrome(b, shade(c, -0.2), s * 15, s * 35), 2.8);
-    circle(b, s * 25, -6, 7);
+    circle(b, s * 20, -7, 9);
+    ink(b, chrome(b, shade(c, -0.2), s * 11, s * 29), 2.8);
+    circle(b, s * 20, -7, 6.3);
     b.fillStyle = '#0c0d12';
     b.fill();
     for (let i = 0; i < 5; i++) {
       const a = (i / 5) * TAU + f * 0.6 * s;
-      path(b, [[s * 25, -6], [s * 25 + Math.cos(a) * 6.5, -6 + Math.sin(a) * 6.5]], true);
+      path(b, [[s * 20, -7], [s * 20 + Math.cos(a) * 5.8, -7 + Math.sin(a) * 5.8]], true);
       line(b, rgba('#a8b0c0', 0.75), 1.6);
     }
-    circle(b, s * 25, -6, 2);
+    circle(b, s * 20, -7, 2);
     b.fillStyle = '#a8b0c0';
     b.fill();
-    eye(l, s * 25, 4, 1, RED, 2.4);
+    eye(l, s * 20, 3, 1, RED, 2.4);
   });
   eye(l, 0, 22, 2.6, RED, 4);
   bloom(l, 0, 34, 10, RED, 0.25);

@@ -93,15 +93,19 @@ function gunner(b, l, f, c) {
   }
 }
 
-// An obsidian shard: a heavy faceted hexagon, a tilted ring of light passing behind and before it.
+// An obsidian shard: a heavy faceted hexagon, a polar ring of light standing up through it, passing
+// behind it on the left and before it on the right (the carrier's disk lies flat: they must not
+// read alike).
+const POLAR = [Math.PI / 2, Math.PI * 1.5]; // the half of the ring behind the shard
 function armored(b, l, f, c) {
-  const tilt = f ? -0.32 : -0.22;
-  b.beginPath();
-  b.ellipse(0, 2, 32, 9, tilt, Math.PI, TAU);
-  line(b, '#05060e', 4.4);
-  b.beginPath();
-  b.ellipse(0, 2, 32, 9, tilt, Math.PI, TAU);
-  line(b, shade(c, 0.5), 2);
+  const tilt = f ? 0.42 : 0.3;
+  const ring = (from, to, color, w) => {
+    b.beginPath();
+    b.ellipse(0, 0, 10, 31, tilt, from, to);
+    line(b, color, w);
+  };
+  ring(...POLAR, '#05060e', 4.4);
+  ring(...POLAR, shade(c, 0.5), 2);
   const hex = [0, 1, 2, 3, 4, 5].map((i) => {
     const a = (i / 6) * TAU - Math.PI / 2;
     return [Math.cos(a) * 21, Math.sin(a) * 24];
@@ -118,14 +122,10 @@ function armored(b, l, f, c) {
     line(b, rgba('#000000', 0.45), 1.2);
   }
   gloss(b, -8, -12, 5, 2.5, 0.5, -0.5);
-  b.beginPath();
-  b.ellipse(0, 2, 32, 9, tilt, 0, Math.PI);
-  line(b, '#05060e', 4.4);
-  b.beginPath();
-  b.ellipse(0, 2, 32, 9, tilt, 0, Math.PI);
-  line(b, shade(c, 0.5), 2);
+  ring(-Math.PI / 2, Math.PI / 2, '#05060e', 4.4);
+  ring(-Math.PI / 2, Math.PI / 2, shade(c, 0.5), 2);
   l.beginPath();
-  l.ellipse(0, 2, 32, 9, tilt, 0, TAU);
+  l.ellipse(0, 0, 10, 31, tilt, 0, TAU);
   neon(l, '#c8d8ff', 1, 0.55);
   eye(l, 0, 0, 2, '#8fb8ff', 3);
 }

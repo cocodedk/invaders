@@ -1,7 +1,9 @@
 // The eight bosses, drawn from their baked sprites (bake.js; painters in bosses/<kind>.js).
-//   drawBoss(ctx, world, look, t)            world space, after the bunkers, before the aliens (so
+//   drawBoss(ctx, world, look, t, q?)        world space, after the bunkers, before the aliens (so
 //                                            minions launched from the boss fly over it; ruling R27)
-//   drawBossLights(ctx, world, look, t, k)   only the lights, at strength k: Neon Rain's darkness pass
+//   drawBossLights(ctx, world, look, t, k, q?)  only the lights, at strength k: Neon Rain's darkness pass
+// q is the view's quality level: below 1 the phases' rage overlays (hull-sized, purely decorative
+// glow) are skipped, the biggest fill a boss frame has on a Pi.
 //   partStage(p)                             0 | 1 | 2, how cracked a part is drawn (parts.js)
 // Per frame, bottom to top: the hull and its lights (the phase's own lights cross-fading in on a
 // phase change), the glow round each live weak point, the parts in their states, their lights, the
@@ -26,8 +28,8 @@ function phaseMemo(b, t) {
   return m;
 }
 
-// The hull's lights and its phase's own lights, under the parts.
-function hullLights(ctx, b, B, t, k) {
+// The hull's lights and its phase's own lights, under the parts (not at half quality: q < 1).
+function hullLights(ctx, b, B, t, k, q) {
   const h = B.hull;
   const ph = phaseMemo(b, t);
   ctx.globalCompositeOperation = 'lighter';
@@ -36,7 +38,7 @@ function hullLights(ctx, b, B, t, k) {
   const e = smooth((t - ph.at) / FADE);
   for (const [i, a] of [[ph.phase, e], [ph.prev, 1 - e]]) {
     const img = h.rage[i];
-    if (!img || a <= 0) continue;
+    if (!img || a <= 0 || q < 1) continue;
     ctx.globalAlpha = k * a;
     ctx.drawImage(img, b.x + h.x0, b.y + h.y0);
   }
@@ -60,7 +62,7 @@ function lights(ctx, b, B, look, t, k) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-export function drawBoss(ctx, world, look, t) {
+export function drawBoss(ctx, world, look, t, q = 1) {
   const b = world.boss;
   if (!b) return;
   const B = bossArt(look, b.kind);
@@ -70,13 +72,13 @@ export function drawBoss(ctx, world, look, t) {
   }
   const h = B.hull;
   ctx.drawImage(h.body, b.x + h.x0, b.y + h.y0);
-  hullLights(ctx, b, B, t, 1);
+  hullLights(ctx, b, B, t, 1, q);
   halos(ctx, b, look.palette.boss, t, 1);
   partBodies(ctx, b, B, look, t);
   lights(ctx, b, B, look, t, 1);
 }
 
-export function drawBossLights(ctx, world, look, t, k) {
+export function drawBossLights(ctx, world, look, t, k, q = 1) {
   const b = world.boss;
   if (!b) return;
   const B = bossArt(look, b.kind);
@@ -84,7 +86,7 @@ export function drawBossLights(ctx, world, look, t, k) {
     drawDying(ctx, b, B, t, k, false);
     return;
   }
-  hullLights(ctx, b, B, t, k);
+  hullLights(ctx, b, B, t, k, q);
   halos(ctx, b, look.palette.boss, t, k);
   lights(ctx, b, B, look, t, k);
 }

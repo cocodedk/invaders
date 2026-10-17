@@ -7,6 +7,7 @@
 import { hash, glow, soft } from '../sprites.js';
 import { CHAIN } from '../../core/boss-phase.js';
 import { wreck } from './cracks.js';
+import { hullFlash } from './bake.js';
 
 const smooth = (x) => {
   const v = Math.max(0, Math.min(1, x));
@@ -104,13 +105,13 @@ export function drawDying(ctx, b, B, t, light = 1, bodies = true) {
     ctx.globalAlpha = fade * light * (1 - 0.7 * P.k) * (0.7 + 0.3 * Math.sin(t * 31));
     ctx.drawImage(hull.lights, hull.x0, hull.y0);
     ctx.globalAlpha = fade * Math.max(P.white, 0.12 * P.k);
-    ctx.drawImage(hull.flash, hull.x0, hull.y0);
+    ctx.drawImage(hullFlash(B), hull.x0, hull.y0);
     ctx.restore();
     ctx.globalAlpha = fade;
     b.parts.forEach((p, i) => {
       if (P.parts[i] || Math.sign(p.dx) !== h.s || !bodies) return;
       const set = parts[p.id];
-      partImg(ctx, set, p.dx, p.dy, wreck(set));
+      partImg(ctx, set, p.dx, p.dy, wreck(set, p.open));
       ctx.globalCompositeOperation = 'lighter';
       ctx.globalAlpha = fade * P.white;
       partImg(ctx, set, p.dx, p.dy, set.flash);
@@ -138,7 +139,7 @@ export function drawDying(ctx, b, B, t, light = 1, bodies = true) {
       ctx.translate(b.x + p.dx + f.dx, b.y + p.dy + f.dy);
       ctx.rotate(f.rot);
       ctx.globalAlpha = f.a * fade;
-      partImg(ctx, set, 0, 0, wreck(set));
+      partImg(ctx, set, 0, 0, wreck(set, p.open));
       ctx.restore();
     });
   }
