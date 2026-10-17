@@ -2,6 +2,7 @@ import { createRng } from './rng.js';
 import { scaled } from './difficulty.js';
 import { createShip, stepShip } from './ship.js';
 import { spawnWave, stepAliens } from './aliens.js';
+import { layoutBunkers } from './bunkers.js';
 import { stepPlay } from './world-step.js';
 
 export { stars } from './scoring.js';
@@ -20,7 +21,8 @@ export const INTRO = 1.5; // s before play begins; the first wave flies in meanw
 export function createWorld(level, seed = level.seed) {
   const world = {
     level, rng: createRng(seed), scale: scaled(level.d), t: 0, tick: 0,
-    ship: createShip(), aliens: [], shots: [], bullets: [], pickups: [], bunkers: [], boss: null,
+    ship: createShip(), aliens: [], shots: [], bullets: [], pickups: [],
+    bunkers: level.bunkers ? layoutBunkers() : [], boss: null,
     wave: 0, gap: null, march: null, nextId: 1, intro: INTRO,
     score: 0, combo: { mult: 1, timer: 0 }, hits: 0, state: 'intro', events: [],
   };

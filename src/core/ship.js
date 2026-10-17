@@ -1,7 +1,7 @@
 import { approach, clamp } from './math.js';
 import { emit } from './util.js';
 
-// The player's ship: movement, the base gun, and what a hit does.
+// The player's ship: movement, the gun (and how spread and rapid change it), and what a hit does.
 
 export const SHIP_R = 14; // hit radius
 export const SHIP_SPEED = 720; // px/s
@@ -10,12 +10,17 @@ export const LIVES = 3;
 export const INVULN = 1.5; // s of blinking after a hit
 export const COOLDOWN = 0.18; // s between base shots
 export const SHOT_SPEED = 1400;
+export const RAPID_COOLDOWN = 0.07; // s between shots under the rapid power
+export const MUZZLE = 22; // px above the ship's centre where shots (and the beam) start
+export const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spread power
 
 const ACCEL = 7200; // px/s^2: from rest to full speed in 0.1 s, the same to stop (a short ease)
 const FOLLOW = 12; // 1/s: how hard a pointer target pulls; speed is FOLLOW * distance, capped at max
 
+// bombHeld / bombPressed turn the bomb key into an edge (stepShip); beam is whether the laser burns.
 export const createShip = () => ({
   x: 960, y: 1000, vx: 0, vy: 0, lives: LIVES, invuln: 0, power: null, bombs: 1, cooldown: 0, alive: true,
+  beam: false, bombHeld: false, bombPressed: false,
 });
 
 const SNAP = 0.5; // px: closer than this to a pointer target, the ship stops dead on it
@@ -39,20 +44,30 @@ function wanted(ship, input, g) {
   return [dx * k, dy * k];
 }
 
+// One trigger pull: a single shot, or the spread's five. Rapid only shortens the wait.
 function shoot(world) {
   const s = world.ship;
-  s.cooldown = COOLDOWN;
-  const at = { x: s.x, y: s.y - 22 };
-  world.shots.push({ pattern: 'shot', x: at.x, y: at.y, vx: 0, vy: -SHOT_SPEED, r: 5, life: 1.5, dmg: 1 });
-  emit(world, 'fire', { side: 'ship', x: at.x, y: at.y });
+  const power = s.power?.kind ?? null;
+  s.cooldown = power === 'rapid' ? RAPID_COOLDOWN : COOLDOWN;
+  const at = { x: s.x, y: s.y - MUZZLE };
+  for (const deg of power === 'spread' ? SPREAD : [0]) {
+    const a = (deg * Math.PI) / 180;
+    const vx = Math.sin(a) * SHOT_SPEED;
+    world.shots.push({ pattern: 'shot', x: at.x, y: at.y, vx, vy: -Math.cos(a) * SHOT_SPEED, r: 5, life: 1.5, dmg: 1 });
+  }
+  emit(world, 'fire', { side: 'ship', x: at.x, y: at.y, power });
 }
 
-// Ease, move, clamp to the zone, count the timers down, and shoot while fire is held. The ship
-// moves during the intro too, but only shoots in play.
+// Ease, move, clamp to the zone, count the timers down, and shoot while fire is held (the laser
+// power has a beam instead, weapons.js). The ship moves during the intro too, but only shoots in
+// play. bombPressed is true on the one tick the bomb key goes down, intro included, so a key held
+// since before play is not a fresh press.
 export function stepShip(world, dt, input) {
   const s = world.ship;
   s.cooldown = Math.max(0, s.cooldown - dt);
   s.invuln = Math.max(0, s.invuln - dt);
+  s.bombPressed = Boolean(input.bomb) && !s.bombHeld;
+  s.bombHeld = Boolean(input.bomb);
   const g = goal(input.target);
   if (g && Math.hypot(g.x - s.x, g.y - s.y) < SNAP) {
     Object.assign(s, { x: g.x, y: g.y, vx: 0, vy: 0 });
@@ -71,14 +86,19 @@ export function stepShip(world, dt, input) {
       s.vy = 0;
     }
   }
-  if (world.state === 'play' && input.fire && s.cooldown <= 0) shoot(world);
+  if (world.state === 'play' && input.fire && s.cooldown <= 0 && s.power?.kind !== 'laser') shoot(world);
 }
 
 // A bullet, a beam or a ram reached the ship. True when it was spent, i.e. the hit landed; a
 // blinking ship cannot be touched and a dead one has nothing left to lose, so those pass through.
+// The shield soaks up every hit while it lasts: nothing is lost, nothing is counted, no blink.
 export function hitShip(world, source) {
   const s = world.ship;
   if (!s.alive || s.invuln > 0) return false;
+  if (s.power?.kind === 'shield') {
+    emit(world, 'shieldHit', { x: s.x, y: s.y, source });
+    return true;
+  }
   s.lives -= 1;
   s.invuln = INVULN;
   world.hits += 1;

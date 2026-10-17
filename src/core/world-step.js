@@ -1,13 +1,15 @@
 import { stepShip } from './ship.js';
 import { stepAliens, spawnWave } from './aliens.js';
+import { stepPickups, tickPower } from './powerups.js';
+import { stepBeam, stepBomb } from './weapons.js';
 import { collide } from './collide.js';
 import { stepBullet } from './patterns.js';
 import { tickCombo, clearBonus, stars } from './scoring.js';
 import { emit, prune } from './util.js';
 
 // One tick of play, in the order that decides ties:
-//   combo -> projectiles move -> ship moves and shoots -> aliens move, dive, shoot -> collisions ->
-//   the dead are pruned -> wave flow -> win or lose.
+//   combo -> projectiles move -> ship moves and shoots -> aliens move, dive, shoot -> power-ups, bomb
+//   and beam -> collisions -> the dead are pruned -> wave flow -> win or lose.
 // New projectiles stay where they were fired until the next tick. Projectiles move before anything
 // is fired and collisions run after every kill and hit is possible, so a shot in flight still kills
 // the last alien on the tick the ship loses its last life, and settle() then favours the player.
@@ -61,6 +63,10 @@ export function stepPlay(world, dt, input) {
   for (const b of world.bullets) stepBullet(b, dt, world);
   stepShip(world, dt, input);
   stepAliens(world, dt);
+  tickPower(world, dt);
+  stepPickups(world, dt);
+  stepBomb(world);
+  stepBeam(world, dt, input);
   collide(world, dt);
   cull(world);
   stepWave(world, dt);

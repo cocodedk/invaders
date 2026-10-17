@@ -1,0 +1,42 @@
+import { carveRect } from './bunkers.js';
+import { MUZZLE } from './ship.js';
+import { targets, inColumn, onScreen, bombHurt, drip } from './damage.js';
+import { emit } from './util.js';
+
+// The two weapons that are not shots: the laser power's beam and the smart bomb.
+
+export const BEAM_W = 26; // px wide
+export const BEAM_DPS = 8; // damage a second to every target in the column
+
+// The beam runs from the muzzle to the top of the screen while the laser power is active and fire
+// is held. It pierces: every target in the column burns, and the bunkers in the column lose a
+// 26 px slot. ship.beam says whether it is on this tick (the drawing reads it).
+export function stepBeam(world, dt, input) {
+  const s = world.ship;
+  const on = s.alive && s.power?.kind === 'laser' && Boolean(input.fire);
+  if (on && !s.beam) emit(world, 'fire', { side: 'ship', x: s.x, y: s.y - MUZZLE, power: 'laser' });
+  s.beam = on;
+  if (!on) return;
+  const top = s.y - MUZZLE;
+  const half = BEAM_W / 2;
+  for (const t of targets(world)) {
+    if (t.y < top && inColumn(t, s.x, half)) drip(world, t, BEAM_DPS * dt);
+  }
+  for (const b of world.bunkers) {
+    if (carveRect(b, s.x - half, s.x + half, 0, top) > 0) {
+      emit(world, 'bunker', { x: s.x, y: b.y + b.h, laser: true });
+    }
+  }
+}
+
+// A fresh press of the bomb key (ship.bombPressed, set in stepShip) spends one bomb: every enemy
+// bullet and beam goes, and everything on screen takes bombHurt.
+export function stepBomb(world) {
+  const s = world.ship;
+  if (!s.alive || !s.bombPressed || s.bombs <= 0) return;
+  s.bombs -= 1;
+  const cleared = world.bullets.length;
+  world.bullets.length = 0;
+  emit(world, 'bomb', { x: s.x, y: s.y, cleared, left: s.bombs });
+  for (const t of targets(world)) if (onScreen(t)) bombHurt(world, t);
+}

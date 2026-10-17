@@ -2,6 +2,7 @@ import { clamp, dist2 } from './math.js';
 import { laserHits } from './patterns.js';
 import { SHIP_R, hitShip } from './ship.js';
 import { hurtAlien } from './aliens.js';
+import { sweepBunkers } from './bunkers.js';
 import { awardKill } from './scoring.js';
 import { emit } from './util.js';
 
@@ -40,6 +41,19 @@ function shotsVsAliens(world, dt) {
     if (!best) continue;
     s.life = 0;
     hurtAlien(world, best, s.dmg ?? 1);
+  }
+}
+
+// Whatever is still flying (ship shots, enemy bullets) is spent on the first bunker it reaches along
+// its path, which loses a chunk there. Enemy lasers are skipped: a beam burns through cover.
+function vsBunkers(world, list, dt) {
+  if (!world.bunkers.length) return;
+  for (const p of list) {
+    if (p.life <= 0 || p.pattern === 'laser') continue;
+    const at = sweepBunkers(world.bunkers, p, dt);
+    if (!at) continue;
+    p.life = 0;
+    emit(world, 'bunker', at);
   }
 }
 
@@ -85,8 +99,11 @@ function bulletsVsShip(world, dt) {
 }
 
 // The dead (shots with life 0, aliens with hp 0, bullets with life 0) are pruned by the caller.
+// Cover comes before the ship, so a bullet that crosses a bunker on its way down never lands.
 export function collide(world, dt) {
   shotsVsAliens(world, dt);
+  vsBunkers(world, world.shots, dt);
   rams(world);
+  vsBunkers(world, world.bullets, dt);
   bulletsVsShip(world, dt);
 }
