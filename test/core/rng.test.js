@@ -42,3 +42,20 @@ test('between and pick draw from a makeRng stream', () => {
   const seen = new Set(draw(() => pick(rng, ['a', 'b', 'c']), 100));
   assert.deepEqual([...seen].sort(), ['a', 'b', 'c']);
 });
+
+// Saved replays re-simulate from a seed, so these streams must never change: if a number here
+// moves, every recorded run on every device stops replaying.
+const GOLDEN_42 = [
+  0.6011037519201636, 0.44829055899754167, 0.8524657934904099,
+  0.6697340414393693, 0.17481389874592423, 0.5265925421845168,
+];
+
+test('makeRng(42) is pinned to its first six outputs', () => {
+  assert.deepEqual(draw(makeRng(42), 6), GOLDEN_42);
+});
+
+test('rand(createRng(42)) is pinned to the same six outputs and ends in a pinned state', () => {
+  const r = createRng(42);
+  assert.deepEqual(draw(() => rand(r), 6), GOLDEN_42);
+  assert.equal(r.s, 2399460328);
+});
