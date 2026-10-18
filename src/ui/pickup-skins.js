@@ -6,10 +6,10 @@
 //                                  also drawn by the HUD every frame, so plain paths only
 //                                  (pickup-icons.js worlds 1-4, pickup-icons-2.js worlds 5-8)
 import { INK, rgba } from './sprites.js';
+import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
 import { ICONS2 } from './pickup-icons-2.js';
 
-const TAU = Math.PI * 2;
 const disc = (g, r) => {
   g.fillStyle = 'rgba(8,10,20,0.88)';
   g.beginPath();

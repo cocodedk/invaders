@@ -5,10 +5,7 @@
 // the fade-out factor, y0 the art's top. The light sprites they share are cached once.
 //   REVEAL[style.reveal](...)      bloom(color): a soft radial light sprite
 import { W, H, cached, hash } from '../sprites.js';
-import { clamp } from '../../core/math.js';
-
-const smooth = (k) => { const x = clamp(k, 0, 1); return x * x * (3 - 2 * x); };
-const easeOut = (k) => 1 - (1 - clamp(k, 0, 1)) ** 3;
+import { clamp, smooth, easeOut } from '../../core/math.js';
 
 const radial = (key, color, stops) => cached(key + color, 256, 256, (g) => {
   const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);

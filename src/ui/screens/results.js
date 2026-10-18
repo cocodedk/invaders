@@ -6,6 +6,7 @@
 // the fire key waits for the count-up and the stars (endKeys).
 import { h, button, shell, starRow, armed, endKeys } from './dom.js';
 import { play } from '../audio.js';
+import { easeOut } from '../../core/math.js';
 
 const COUNT_TIME = 1.1; // s the score takes to count up
 const STAR_AT = [0.55, 0.85, 1.15]; // s each star stamps in
@@ -44,7 +45,7 @@ export function resultsScreen(o, act) {
       if (t > COUNT_TIME + 2) return;
       t += dt;
       const k = Math.min(1, t / COUNT_TIME);
-      score.textContent = fmt(o.score * (1 - (1 - k) ** 3));
+      score.textContent = fmt(o.score * easeOut(k));
       if (k < 1) play('count');
       while (stamped < o.stars && t >= STAR_AT[stamped]) {
         stamped += 1;

@@ -1,8 +1,8 @@
 import { ALIEN_R } from './kinds.js';
-import { MAX_BULLETS, DIVE_TIME } from './aliens.js';
-import { makeSlots, slotPosition } from './formations.js';
-import { segDist2 } from './math.js';
-import { rand } from './rng.js';
+import { DIVE_TIME, addBullets, waveSpec, slotAt } from './aliens.js';
+import { makeSlots } from './formations.js';
+import { sweepDist2 } from './math.js';
+import { randBetween, randPick } from './rng.js';
 import { emit, prune } from './util.js';
 
 // The rules of worlds 5-8 (twists.js has 1-4 and the dispatcher), plus the two helpers every
@@ -43,34 +43,25 @@ export function acid(world, dt) {
     d.t += dt;
     while (d.n < DRIPS && d.t >= d.n * DRIP_GAP - 1e-9) {
       d.n += 1;
-      if (world.bullets.length < MAX_BULLETS) {
-        world.bullets.push({ pattern: 'acid', x: d.x, y: d.y, vx: 0, vy: ACID_SPEED, r: 10, life: 10 });
-      }
+      addBullets(world, [{ pattern: 'acid', x: d.x, y: d.y, vx: 0, vy: ACID_SPEED, r: 10, life: 10 }]);
       emit(world, 'acid', { x: d.x, y: d.y });
     }
     return d.n < DRIPS;
   });
 }
 
-// Where a formation slot is right now, or null when there is no wave (a boss level).
-function slotNow(world, slot) {
-  const spec = world.level.waves?.[world.wave - 1];
-  const m = world.march;
-  return spec && m ? slotPosition(spec.formation, slot, m.clock, { dir: m.dir, speed: m.speed }) : null;
-}
-
 // Glitch: a holding alien blinks to a free slot every 3 to 5 s; a near miss starts bullet time.
 function blink(world) {
-  const spec = world.level.waves?.[world.wave - 1];
+  const spec = waveSpec(world);
   if (!spec || !world.march) return;
   const free = makeSlots(spec).filter((s) => !world.aliens.some((a) => a.hp > 0 && a.slot.row === s.row && a.slot.col === s.col));
   const holding = world.aliens.filter((a) => a.hp > 0 && a.mode === 'hold');
   if (!free.length || !holding.length) return;
-  const a = holding[Math.floor(rand(world.rng) * holding.length)];
-  const s = free[Math.floor(rand(world.rng) * free.length)];
+  const a = randPick(world.rng, holding);
+  const s = randPick(world.rng, free);
   const [fromX, fromY] = [a.x, a.y];
   a.slot = { ...s, role: a.slot.role };
-  Object.assign(a, slotNow(world, a.slot));
+  Object.assign(a, slotAt(world, a.slot));
   emit(world, 'teleport', { id: a.id, fromX, fromY, x: a.x, y: a.y });
 }
 
@@ -95,7 +86,7 @@ export function glitch(world, dt) {
   }
   t.timer -= dt;
   if (t.timer > 0) return;
-  t.timer = 3 + 2 * rand(world.rng);
+  t.timer = randBetween(world.rng, 3, 5);
   blink(world);
 }
 
@@ -134,7 +125,7 @@ export function reassemble(world, dt) {
   for (const s of world.shots) {
     if (s.life <= 0) continue;
     for (const w of world.wrecks) {
-      if (w.hp <= 0 || segDist2(s.x - s.vx * dt, s.y - s.vy * dt, s.x, s.y, w.x, w.y) > (ALIEN_R + s.r) ** 2) continue;
+      if (w.hp <= 0 || sweepDist2(s, dt, w) > (ALIEN_R + s.r) ** 2) continue;
       s.life = 0;
       hurtWreck(world, w, s.dmg ?? 1);
       break;
@@ -142,7 +133,7 @@ export function reassemble(world, dt) {
   }
   prune(world.wrecks, (w) => {
     if (w.hp <= 0) return false;
-    if (w.hold) Object.assign(w, slotNow(world, w.slot));
+    if (w.hold) Object.assign(w, slotAt(world, w.slot));
     w.left -= dt;
     if (w.left > 0) return true;
     const id = world.nextId++;
@@ -166,7 +157,7 @@ export function gravity(world, dt) {
   pushAll(world, dt, (p, out, step) => {
     const dx = well.x - p.x;
     const dy = well.y - p.y;
-    if (segDist2(p.x - p.vx * step, p.y - p.vy * step, p.x, p.y, well.x, well.y) <= ABSORB * ABSORB) {
+    if (sweepDist2(p, step, well) <= ABSORB * ABSORB) {
       p.life = 0;
       emit(world, 'absorb', { x: p.x, y: p.y });
       out.x = 0;

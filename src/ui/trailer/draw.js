@@ -6,7 +6,7 @@
 //   bakeCard(lines, style, scale?) -> art { canvas, rows, h, size }
 //   drawCard(ctx, art, style, t, secs)   t: seconds into the card
 import { W, H, makeCanvas } from '../sprites.js';
-import { clamp } from '../../core/math.js';
+import { clamp, smooth } from '../../core/math.js';
 import { REVEAL, bloom } from './reveal.js';
 
 export const FONTS = {
@@ -29,7 +29,6 @@ export const TYPE = [
 
 const MAX_W = 1640;
 const FADE_OUT = 0.16;
-const smooth = (k) => { const x = clamp(k, 0, 1); return x * x * (3 - 2 * x); };
 
 // A clip is framed 2 : 1 rather than the cards' 2.39 : 1, and the field drawn higher, so the ship
 // (down to y 1040) stays above the lower bar and the formation's top rows below the upper one.

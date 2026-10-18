@@ -10,7 +10,8 @@
 import { LEVELS, WORLDS } from '../core/levels.js';
 import { store } from './storage.js';
 import { play, setBeam } from './audio.js';
-import { finished, recording, runOf } from './session.js';
+import { recording, runOf } from './session.js';
+import { finished } from '../core/util.js';
 import { saveBestRun } from './trailer/runs.js';
 import { resultsScreen } from './screens/results.js';
 import { failedScreen } from './screens/failed.js';

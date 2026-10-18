@@ -18,7 +18,8 @@ import { lookFor } from '../looks/index.js';
 import { warmAliens } from '../aliens/bake.js';
 import { bossArt } from '../bosses/bake.js';
 import { createView, drawFrame } from '../view.js';
-import { makeCanvas } from '../sprites.js';
+import { makeCanvas, W } from '../sprites.js';
+import { clamp } from '../../core/math.js';
 
 export const TAGLINES = [
   'Where it all began.',
@@ -70,7 +71,7 @@ function* bake(world) {
   yield;
   drawFrame(view, w, fx, secs);
   const { s: k, ox, oy } = view.fit;
-  const x0 = Math.max(0, Math.min(1920 - CROP_W, (w.boss?.x ?? 960) - CROP_W / 2));
+  const x0 = clamp((w.boss?.x ?? W / 2) - CROP_W / 2, 0, W - CROP_W);
   const out = makeCanvas(CROP_W * k, CROP_H * k);
   out.getContext('2d').drawImage(frame, ox + x0 * k, oy, CROP_W * k, CROP_H * k, 0, 0, out.width, out.height);
   out.className = 'poster-canvas';

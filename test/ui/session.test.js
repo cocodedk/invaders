@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createSession, stepSession, recording, runOf, taint, finished } from '../../src/ui/session.js';
+import { createSession, stepSession, recording, runOf, taint } from '../../src/ui/session.js';
+import { finished } from '../../src/core/util.js';
 import { levelById, DEMO_LEVEL } from '../../src/core/levels.js';
 import { autopilot } from '../../src/core/autopilot.js';
 import { replay, decodeRun, stateHash, TICK } from '../../src/core/replay.js';

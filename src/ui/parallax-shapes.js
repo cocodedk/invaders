@@ -2,6 +2,7 @@
 // `g` (w x h, the band standing on the frame's bottom) in the layer colour; `rng` is seeded, `out`
 // collects lights ({ x, y, r, color, mode, ph, a? }) and sign frames for the flourishes.
 import { rgba, shade } from './sprites.js';
+import { pick } from '../core/rng.js';
 import { profile, waves, ridgeTop } from './parallax-kit.js';
 import { CITY } from './parallax-city.js';
 import { WILD } from './parallax-wild.js';
@@ -40,7 +41,7 @@ function blocks(g, w, h, rng, L, out) {
     for (let wy = h - bh + 16; wy < h - 8; wy += 24) {
       for (let wx = x + 8; wx < x + bw - 8; wx += 16) {
         if (rng() > 0.18) continue;
-        const c = L.lights[Math.floor(rng() * L.lights.length)];
+        const c = pick(rng, L.lights);
         g.fillStyle = rgba(c, 0.55 + rng() * 0.4);
         g.fillRect(wx, wy, 8, 8);
         if (rng() < 0.08) out.lights.push({ x: wx + 4, y: wy + 4, r: 14, color: c, mode: 'pulse', ph: rng(), a: 0.6 });

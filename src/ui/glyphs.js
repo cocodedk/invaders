@@ -1,6 +1,7 @@
 // Procedural glyphs for the Code Rain world: angular marks made of a few strokes on a small
 // lattice, half of them mirrored. Original shapes (no real script), cached as one atlas per colour.
 import { cached, hash } from './sprites.js';
+import { clamp } from '../core/math.js';
 
 const GLYPHS = 48;
 const CW = 24; // atlas cell, px
@@ -17,7 +18,7 @@ function strokes(i) {
     const c0 = Math.floor(h(1) * 3);
     const r0 = Math.floor(h(2) * 4);
     const dir = Math.floor(h(3) * 4); // right, down, down-right, down-left
-    const c1 = Math.max(0, Math.min(2, c0 + [1, 0, 1, -1][dir]));
+    const c1 = clamp(c0 + [1, 0, 1, -1][dir], 0, 2);
     const r1 = Math.min(3, r0 + [0, 1 + Math.floor(h(4) * 2), 1, 1][dir]);
     out.push([PX[c0], PY[r0], PX[c1], PY[r1]]);
   }

@@ -2,6 +2,7 @@
 // lighting it all for 0.15 s), full-frame flashes, the bullet-time tint and Code Rain's glitch
 // slices (bands of the finished frame shifted sideways).
 import { W, H } from './sprites.js';
+import { flashK } from '../fx/fx.js';
 import { drawLights, layerX } from './parallax.js';
 import { drawFlourishes } from './flourish.js';
 import { drawAlienLights } from './aliens/index.js';
@@ -50,7 +51,7 @@ export function drawScreenFx(ctx, fx) {
   ctx.globalCompositeOperation = 'lighter';
   for (const f of fx.flashes) {
     if (!f.full) continue;
-    const k = f.ramp ? 1 - f.life / f.max : f.life / f.max;
+    const k = flashK(f);
     ctx.globalAlpha = Math.min(0.9, f.alpha * k * (f.tag === 'lightning' ? 0.3 : 1));
     ctx.fillStyle = f.color;
     ctx.fillRect(0, 0, W, H);

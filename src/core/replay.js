@@ -2,6 +2,7 @@ import { createWorld, stepWorld } from './world.js';
 import { levelById } from './levels.js';
 import { TICK } from './kinds.js';
 import { decodeInputs, encodeInputs, MAX_TICKS } from './input-codec.js';
+import { isRecord, isCount, validScore } from './util.js';
 
 export { stateHash } from './state-hash.js';
 export { quantizeInput, encodeInputs, decodeInputs, MAX_TICKS } from './input-codec.js';
@@ -24,17 +25,15 @@ export const makeRun = (level, seed, inputs, result) => ({
   score: result.score, stars: result.stars,
 });
 
-const isCount = (v, max) => Number.isInteger(v) && v >= 0 && v <= max;
-
 // A saved run read back: the same fields with `inputs` decoded to a list, or null when it is not a
 // valid run of version RUN_V (wrong version, unknown level, bad numbers, an encoding that is garbage
 // or whose length is not `ticks`, which is what a truncation looks like).
 export function decodeRun(obj) {
-  if (typeof obj !== 'object' || obj === null || Array.isArray(obj) || obj.v !== RUN_V) return null;
+  if (!isRecord(obj) || obj.v !== RUN_V) return null;
   const { level, seed, ticks, score, stars } = obj;
   if (typeof level !== 'string' || !levelById(level)) return null;
   if (!isCount(seed, 2 ** 32 - 1) || !isCount(ticks, MAX_TICKS) || !isCount(stars, 3)) return null;
-  if (typeof score !== 'number' || !Number.isFinite(score) || score < 0) return null;
+  if (!validScore(score)) return null;
   const inputs = decodeInputs(obj.inputs, ticks);
   return inputs && inputs.length === ticks ? { v: RUN_V, level, seed, ticks, inputs, score, stars } : null;
 }

@@ -1,4 +1,5 @@
 import { clamp } from './math.js';
+import { WIDTH, HEIGHT } from './kinds.js';
 
 // The inputs of a run, one per tick, as a short string.
 //   input  { dx, dy, fire, bomb, target }  dx, dy in -1..1, target null or { x, y } in whole pixels
@@ -21,9 +22,10 @@ export const MAX_TICKS = 60 * 60 * 30; // half an hour of play: more than any le
 const HEADS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmn'; // 36 without a pointer, then 4 with
 const POINTER = 36;
 const DIGITS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-const WIDTH = 1920;
-const HEIGHT = 1080;
 const START = { x: WIDTH / 2, y: 960 }; // where the pointer is taken to be before it first appears
+
+// The input of a tick with nothing pressed.
+export const IDLE = Object.freeze({ dx: 0, dy: 0, fire: false, bomb: false, target: null });
 
 // The one shape the core is fed and the encoder writes: keys signed (and dropped under a pointer),
 // flags boolean, the pointer rounded to whole pixels and held on the screen (the ship's zone lies

@@ -1,8 +1,8 @@
 import { ROLES } from './kinds.js';
-import { MAX_BULLETS, fire } from './aliens.js';
+import { addBullets, fire } from './aliens.js';
 import { emitPattern } from './patterns.js';
 import { bossDef } from './bosses-data.js';
-import { clamp } from './math.js';
+import { clamp, dist2 } from './math.js';
 import { emit, prune } from './util.js';
 
 // What a boss throws. An attack is a countdown per phase entry; when it runs out the part warns
@@ -19,9 +19,7 @@ function release(world, b, w) {
   if (src.hp <= 0) return;
   const from = { x: src.x, y: src.y + src.h / 2 - 6 };
   const p = { ...a.p, speed: world.scale.bulletSpeed * (a.p.speed ?? 1) };
-  for (const bullet of emitPattern(a.pattern, from, world.ship, p, world.rng)) {
-    if (world.bullets.length < MAX_BULLETS) world.bullets.push(bullet);
-  }
+  addBullets(world, emitPattern(a.pattern, from, world.ship, p, world.rng));
   emit(world, 'fire', { side: 'enemy', id: src.id, role: 'boss', x: from.x, y: from.y, pattern: a.pattern });
 }
 
@@ -58,7 +56,7 @@ function launch(world, b, m) {
     const hp = ROLES[m.role].hp; // minions carry no armour bonus
     world.aliens.push({
       id, role: m.role, x: carrier ? (id % 2 ? -40 : 1960) : src.x + (i - (m.count - 1) / 2) * 56,
-      y: carrier ? 500 : src.y + src.h / 2, hp, maxHp: hp, slot: null,
+      y: carrier ? CARRIER_Y : src.y + src.h / 2, hp, maxHp: hp, slot: null,
       mode: carrier ? 'hold' : 'dive', t: 0, dive: null, minion: true, vx: carrier ? (id % 2 ? 150 : -150) : 0,
     });
   }
@@ -69,7 +67,7 @@ function launch(world, b, m) {
 // POINT_BLANK of it, and once it is level with it or below: a shot from there could not be dodged.
 export const POINT_BLANK = 180; // px
 const gunnerOf = (ship) => (a) =>
-  a.minion && a.role === 'gunner' && a.hp > 0 && a.y < ship.y && (a.x - ship.x) ** 2 + (a.y - ship.y) ** 2 >= POINT_BLANK ** 2;
+  a.minion && a.role === 'gunner' && a.hp > 0 && a.y < ship.y && dist2(ship, a) >= POINT_BLANK ** 2;
 
 export function stepMinions(world, b, def, dt) {
   if (world.scale.fireMult <= 0) return;
@@ -83,20 +81,27 @@ export function stepMinions(world, b, def, dt) {
   });
 }
 
-// Minions fly: a carrier drifts across at y ~ 500, the rest fall toward the ship's column. Anything
-// that leaves the screen is dropped without score.
+// How minions fly, shared with predict.js so the autopilot's lookahead is the real flight: a carrier
+// bobs along y ~ CARRIER_Y at `t` s of age; the rest fall at minionSpeed(d) and, over a step of h s
+// ending at age t, steer toward the ship's column while they weave.
+const CARRIER_Y = 500;
+export const carrierY = (t) => CARRIER_Y + 18 * Math.sin(t * 2);
+export const minionSpeed = (d) => 150 + 120 * d;
+export const minionX = (x, shipX, t, id, h) => clamp(x + (clamp((shipX - x) / 40, -1, 1) * 90 + Math.cos(t * 3 + id) * 60) * h, 20, 1900);
+
+// Minions fly (above). Anything that leaves the screen is dropped without score.
 export function moveMinions(world, dt) {
-  const speed = 150 + 120 * world.level.d;
+  const speed = minionSpeed(world.level.d);
   for (const a of world.aliens) {
     if (!a.minion || a.hp <= 0) continue;
     a.t += dt;
     if (a.role === 'carrier') {
       a.x += a.vx * dt;
-      a.y = 500 + 18 * Math.sin(a.t * 2);
+      a.y = carrierY(a.t);
       if (a.x < -80 || a.x > 2000) a.hp = 0;
     } else {
       a.y += speed * dt;
-      a.x = clamp(a.x + (clamp((world.ship.x - a.x) / 40, -1, 1) * 90 + Math.cos(a.t * 3 + a.id) * 60) * dt, 20, 1900);
+      a.x = minionX(a.x, world.ship.x, a.t, a.id, dt);
       if (a.y > 1120) a.hp = 0;
     }
   }

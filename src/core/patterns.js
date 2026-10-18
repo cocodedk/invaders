@@ -1,5 +1,5 @@
 import { rand } from './rng.js';
-import { angleTo } from './math.js';
+import { angleTo, TAU } from './math.js';
 import { LASER_WARN, LASER_BEAM } from './patterns-2.js';
 
 export { stepBullet, laserSegment, laserHits, LASER_WARN, LASER_BEAM } from './patterns-2.js';
@@ -11,7 +11,6 @@ export { stepBullet, laserSegment, laserHits, LASER_WARN, LASER_BEAM } from './p
 // in radians or the rain's width in px. `rng` is the core { s } state (world.rng); only the
 // patterns that scatter draw from it. Every bullet has a bright core and a dark rim, r is both.
 
-const TAU = Math.PI * 2;
 const LIFE = 6; // s; long enough to cross the screen at the slowest speed, short enough to be culled
 const HOMING_TURN = Math.PI / 3; // 60 degrees a second
 const HOMING_LIFE = 4;

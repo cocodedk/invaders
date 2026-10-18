@@ -8,6 +8,7 @@
 //     hits, boss (the kind of the boss that died, or null) }
 //   cardsFor(world, stats) -> [[line, ...] x 3]       fillLine(template, stats) -> line
 //   finalCard({ level, stats, stars, score, newBest }) -> { kicker, title, stars, label, score, value, record, billing }
+import { clamp } from '../../core/math.js';
 import { WORLDS } from '../../core/levels.js';
 import { TICK } from '../../core/kinds.js';
 import { bossDef } from '../../core/bosses-data.js';
@@ -117,7 +118,7 @@ export function finalCard({ level, stats, stars, score, newBest }) {
   return {
     kicker: `WORLD ${level.world} · ${reel}`,
     title: WORLDS[level.world - 1].name.toUpperCase(),
-    stars: Math.max(0, Math.min(3, stars | 0)),
+    stars: clamp(stars | 0, 0, 3),
     label: newBest ? 'RECORD BOX OFFICE' : 'BOX OFFICE',
     score: fmt(Math.max(0, score)),
     value: Math.max(0, score),

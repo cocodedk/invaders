@@ -1,8 +1,8 @@
-import { dist2, segDist2 } from './math.js';
+import { dist2, segDist2, sweepDist2 } from './math.js';
 import { ALIEN_R, NEAR_MISS } from './kinds.js';
 import { laserHits } from './patterns.js';
 import { SHIP_R, hitShip } from './ship.js';
-import { hurtAlien } from './aliens.js';
+import { hurtAlien, isSwooping } from './aliens.js';
 import { shotsVsBoss } from './boss-hit.js';
 import { sweepBunkers } from './bunkers.js';
 import { awardKill } from './scoring.js';
@@ -11,8 +11,6 @@ import { cutShuriken } from './twists.js';
 
 // Who hits whom. Projectiles are tested along the path they flew this tick (from where their
 // velocity says they were to where they are), so a fast shot cannot tunnel through anything.
-
-export { ALIEN_R, NEAR_MISS }; // they live in kinds.js now, so damage.js and the twists can use them
 
 // Each shot is spent on the alien it meets first, the nearest to where it started this tick.
 function shotsVsAliens(world, dt) {
@@ -54,7 +52,7 @@ function vsBunkers(world, list, dt) {
 function rams(world) {
   const reach = (ALIEN_R + SHIP_R) ** 2;
   for (const a of world.aliens) {
-    if (a.hp <= 0 || (a.mode !== 'dive' && a.mode !== 'return')) continue;
+    if (a.hp <= 0 || !isSwooping(a)) continue;
     if (dist2(a, world.ship) <= reach && hitShip(world, 'ram')) {
       a.hp = 0;
       awardKill(world, a, false);
@@ -90,7 +88,7 @@ function bulletsVsShip(world, dt) {
       continue;
     }
     const hit = b.r + SHIP_R;
-    const d2 = segDist2(b.x - b.vx * dt, b.y - b.vy * dt, b.x, b.y, ship.x, ship.y);
+    const d2 = sweepDist2(b, dt, ship);
     if (d2 <= hit * hit) {
       hitShip(world, b.pattern);
       b.life = 0;

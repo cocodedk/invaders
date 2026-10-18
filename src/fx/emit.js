@@ -2,6 +2,7 @@
 // scaler can thin all of them at once with fx.density. Pure: randomness comes from `rng`.
 import { addParticle } from './particles.js';
 import { between, pick } from '../core/rng.js';
+import { TAU } from '../core/math.js';
 
 export const FIRE = ['#fff6c8', '#ffd24a', '#ff9a2e', '#ff6a1a'];
 export const SMOKE = ['#3a3a3f', '#55555c', '#6e6e76'];
@@ -12,7 +13,7 @@ export const count = (fx, k) => Math.max(1, Math.round(k * fx.density));
 // k sparks flying out in every direction from (x, y), at up to `speed` px/s.
 export function sparks(fx, rng, x, y, k, speed, colors = FIRE) {
   for (let i = 0, m = count(fx, k); i < m; i++) {
-    const a = rng() * Math.PI * 2;
+    const a = rng() * TAU;
     const v = between(rng, speed * 0.3, speed);
     addParticle(fx, {
       x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: between(rng, 0.25, 0.7),
@@ -36,7 +37,7 @@ export function smoke(fx, rng, x, y, k, spread, size) {
 // k solid shards that tumble out and fall.
 export function debris(fx, rng, x, y, k, colors, speed) {
   for (let i = 0, m = count(fx, k); i < m; i++) {
-    const a = rng() * Math.PI * 2;
+    const a = rng() * TAU;
     const v = between(rng, speed * 0.3, speed);
     addParticle(fx, {
       x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - speed * 0.2, life: between(rng, 0.7, 1.4),

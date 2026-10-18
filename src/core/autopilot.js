@@ -1,7 +1,10 @@
 import { chooseAim, HOME_Y } from './aim.js';
 import { steer } from './dodge.js';
 import { SHIP_SPEED, ZONE } from './ship.js';
-import { clamp } from './math.js';
+import { clamp, dist2 } from './math.js';
+import { WIDTH } from './kinds.js';
+import { IDLE } from './input-codec.js';
+import { finished } from './util.js';
 
 // The autopilot: drives the title-screen backdrop and the "watch, then try" demo, and is how the
 // tests prove that every level can be finished. It plays the way a person with a mouse would:
@@ -17,7 +20,6 @@ import { clamp } from './math.js';
 const BOMB_CROWD = 6; // bullets within BOMB_RADIUS that call for a bomb
 const BOMB_RADIUS = 160;
 const GRACE = 0.4; // s: a power-up is chased once it would pass the ship's row this soon after the ship could be under it
-const IDLE = { dx: 0, dy: 0, fire: false, bomb: false, target: null };
 
 // A power-up that will fall past the ship's row about when the ship could get under it; once it is
 // level with the ship it is followed down until it is gone.
@@ -39,15 +41,15 @@ function shouldBomb(world) {
   if (!s.alive || s.bombs <= 0 || s.bombHeld) return false;
   let crowd = 0;
   for (const b of world.bullets) {
-    if (b.life > 0 && b.pattern !== 'laser' && (b.x - s.x) ** 2 + (b.y - s.y) ** 2 <= BOMB_RADIUS ** 2) crowd++;
+    if (b.life > 0 && b.pattern !== 'laser' && dist2(s, b) <= BOMB_RADIUS ** 2) crowd++;
   }
   const boss = world.boss;
   return crowd >= BOMB_CROWD || (s.lives === 1 && Boolean(boss) && boss.enter <= 0 && boss.dying === null);
 }
 
 export function autopilot(world) {
-  if (world.state === 'cleared' || world.state === 'failed') return { ...IDLE };
-  const want = pickupSpot(world) ?? chooseAim(world) ?? { x: 960, y: HOME_Y };
+  if (finished(world)) return { ...IDLE };
+  const want = pickupSpot(world) ?? chooseAim(world) ?? { x: WIDTH / 2, y: HOME_Y };
   const to = steer(world, want);
   return { dx: 0, dy: 0, fire: true, bomb: shouldBomb(world), target: { x: Math.round(to.x), y: Math.round(to.y) } };
 }

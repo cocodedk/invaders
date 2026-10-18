@@ -4,9 +4,9 @@
 // all that survives Neon Rain's darkness. Paint-time only (sprites are baked once), so gradients and
 // many strokes are fine here; nothing in this file runs per frame.
 import { INK, rgba, shade, mix } from '../sprites.js';
+import { TAU } from '../../core/math.js';
 
-export { INK, rgba, shade, mix };
-export const TAU = Math.PI * 2;
+export { INK, rgba, shade, mix, TAU };
 
 // Path through [[x, y], ...]; closed unless open is set.
 export function path(g, pts, open = false) {

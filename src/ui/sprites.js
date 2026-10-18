@@ -1,9 +1,9 @@
 // Shared drawing helpers: offscreen canvases, colour maths, hashing and cached sprites (from Barrage).
 // Glow is never shadowBlur: it is a cached radial-gradient sprite drawn with 'lighter'.
 import { clamp } from '../core/math.js';
+import { WIDTH as W, HEIGHT as H } from '../core/kinds.js';
 
-export const W = 1920;
-export const H = 1080;
+export { W, H };
 export const INK = '#0a0c16'; // outlines that keep bright shapes readable on bright skies
 
 // v wrapped into [lo, hi).

@@ -13,6 +13,7 @@
 import { store } from './storage.js';
 import { kitFor } from './sound-data.js';
 import { SFX } from './sfx.js';
+import { panOf } from './audio-kit.js';
 
 let ctx = null;
 let master = null;
@@ -145,7 +146,7 @@ function voice(o) {
   let tail = out;
   if (o.x != null) {
     const pan = ctx.createStereoPanner();
-    pan.pan.value = Math.max(-0.8, Math.min(0.8, (o.x / 1920 - 0.5) * 1.5));
+    pan.pan.value = panOf(o.x);
     out.connect(pan);
     tail = pan;
   }

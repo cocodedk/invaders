@@ -6,7 +6,7 @@
 //   vignette, grade, grain   0..1 strengths at the film's full look
 //   tint     the world's grade colour      seed  grain seed (level seed)
 //   frame    grain frame counter, 24 per second while the look is on or fading
-import { approach } from '../core/math.js';
+import { approach, smooth } from '../core/math.js';
 
 const DURATION = 0.8; // seconds from off to fully on
 const FPS = 24;
@@ -14,8 +14,6 @@ const LOOK = { vignette: 0.7, grade: 0.55, grain: 0.35 };
 
 // One grade colour per world, in world order.
 const TINTS = ['#3affc8', '#ff4fd8', '#ffb347', '#d94a4a', '#9ad67a', '#33ff66', '#ff6a3a', '#8fb8ff'];
-
-const ease = (k) => k * k * (3 - 2 * k);
 
 export function createFilm(world) {
   const level = world?.level ?? {};
@@ -28,7 +26,7 @@ export function createFilm(world) {
 
 export function stepFilm(film, dt, on) {
   film.k = approach(film.k, on ? 1 : 0, dt / DURATION);
-  const e = ease(film.k);
+  const e = smooth(film.k);
   film.letterbox = e;
   film.vignette = LOOK.vignette * e;
   film.grade = LOOK.grade * e;

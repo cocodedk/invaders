@@ -6,6 +6,7 @@ import { layoutBunkers } from './bunkers.js';
 import { spawnBoss, stepBoss } from './boss.js';
 import { createTwist } from './twists.js';
 import { stepPlay } from './world-step.js';
+import { finished } from './util.js';
 
 export { stars } from './scoring.js';
 
@@ -38,7 +39,7 @@ export function createWorld(level, seed = level.seed) {
 // input = { dx, dy, fire, bomb, target }; missing fields mean "not pressed". A cleared or failed
 // world is finished and no longer moves.
 export function stepWorld(world, dt, input = {}) {
-  if (world.state === 'cleared' || world.state === 'failed') return;
+  if (finished(world)) return;
   world.t += dt;
   world.tick += 1;
   if (world.state === 'play') {

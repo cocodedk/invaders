@@ -1,6 +1,8 @@
 import { posAt, bossShifts } from './predict.js';
 import { liveParts } from './boss-hit.js';
-import { SHOT_SPEED, MUZZLE, ZONE } from './ship.js';
+import { loose } from './damage.js';
+import { isSwooping } from './aliens.js';
+import { SHOT_SPEED, MUZZLE, ZONE, FOLLOW } from './ship.js';
 import { clamp } from './math.js';
 import { TICK } from './kinds.js';
 
@@ -9,7 +11,7 @@ import { TICK } from './kinds.js';
 // boss's weak parts (plates when none is weak), each led by its own movement (predict.js).
 
 export const HOME_Y = 960; // the row the ship fights from
-const LAG = 1 / 12; // s: the ship follows a pointer target with this time constant, so aim that far further ahead
+const LAG = 1 / FOLLOW; // s: the ship follows a pointer target with this time constant, so aim that far further ahead
 const TOLERANCE = 16; // px either side of an alien's centre the shot may be moved to get through a gap
 const OFFSETS = [0, -8, 8, -16, 16];
 const BIAS = { saucer: 150, plate: 200, boss: -50, diver: -200 }; // px added to the distance when ranking
@@ -43,13 +45,11 @@ function lead(world, t, muzzle) {
 // Aliens (minions and divers included), the saucer and wrecks, each at the point a shot will find it.
 function looseTargets(world, muzzle) {
   const out = [];
-  const things = world.saucer ? [...world.aliens, world.saucer, ...world.wrecks] : [...world.aliens, ...world.wrecks];
-  for (const t of things) {
+  for (const t of loose(world)) {
     if (t.hp <= 0) continue;
     const p = lead(world, t, muzzle);
     if (p.y < 20 || p.y > muzzle - 20) continue;
-    const diving = t.mode === 'dive' || t.mode === 'return';
-    out.push({ x: p.x, y: p.y, bias: t.saucer ? BIAS.saucer : diving ? BIAS.diver : 0, tol: TOLERANCE });
+    out.push({ x: p.x, y: p.y, bias: t.saucer ? BIAS.saucer : isSwooping(t) ? BIAS.diver : 0, tol: TOLERANCE });
   }
   return out;
 }

@@ -3,12 +3,14 @@ import { addShake } from './camera.js';
 import { addFlash, addPopup, addRing, addSlice } from './fx.js';
 import { addParticle } from './particles.js';
 import { between } from '../core/rng.js';
+import { clamp, TAU } from '../core/math.js';
+import { HEIGHT } from '../core/kinds.js';
 import { count, debris, dust, FIRE, METAL, smoke, sparks } from './emit.js';
 
 const POWER_COLORS = { spread: '#ffd24a', laser: '#ff4fd8', rapid: '#6ad6ff', shield: '#5cf0ff', bomb: '#ff8a3a' };
 const GLYPH = ['#5dff9a', '#b8ffd0', '#ffffff'];
 const RED_EYE = ['#ff3a2a', '#ff7a3a', '#ffd0a0'];
-const clampX = (x) => Math.min(1890, Math.max(30, x));
+const clampX = (x) => clamp(x, 30, 1890);
 
 function pickup(fx, ev, rng) {
   const color = POWER_COLORS[ev.kind] ?? '#ffffff';
@@ -63,7 +65,7 @@ function gust(fx, ev, rng) {
   if (!dir) return;
   for (let i = 0, m = count(fx, 10); i < m; i++) {
     addParticle(fx, {
-      x: dir > 0 ? -20 : 1940, y: between(rng, 0, 1080), vx: dir * between(rng, 900, 1500),
+      x: dir > 0 ? -20 : 1940, y: between(rng, 0, HEIGHT), vx: dir * between(rng, 900, 1500),
       vy: between(rng, -30, 60), life: 1.6, size: between(rng, 1.5, 2.5), color: '#e0c48a', kind: 'dust',
     });
   }
@@ -102,7 +104,7 @@ function wreckDown(fx, ev, rng) {
 function reassemble(fx, ev, rng) {
   const life = 0.4;
   for (let i = 0, m = count(fx, 10); i < m; i++) {
-    const a = rng() * Math.PI * 2;
+    const a = rng() * TAU;
     const r = between(rng, 40, 80);
     addParticle(fx, {
       x: ev.x + Math.cos(a) * r, y: ev.y + Math.sin(a) * r, vx: -Math.cos(a) * r / life,

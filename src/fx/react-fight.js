@@ -2,6 +2,7 @@
 import { addShake } from './camera.js';
 import { addFlash, addPopup, addRing, startSlowMo } from './fx.js';
 import { debris, FIRE, sparks, smoke } from './emit.js';
+import { clamp } from '../core/math.js';
 
 const ROLE_COLORS = {
   grunt: ['#7dff7a', '#2fbf4a'], diver: ['#6ad6ff', '#2f8fd6'], gunner: ['#ff9a4a', '#d6502f'],
@@ -36,7 +37,7 @@ function kill(fx, ev, rng) {
 }
 
 function explode(fx, ev, rng) {
-  const b = BLASTS[Math.min(3, Math.max(1, ev.size | 0 || 1))];
+  const b = BLASTS[clamp(ev.size | 0 || 1, 1, 3)];
   addFlash(fx, { x: ev.x, y: ev.y, r: b.flash, life: 0.18, tag: 'blast' });
   addRing(fx, { x: ev.x, y: ev.y, maxR: b.ring, life: 0.5, color: '#ffe9b0' });
   if (b === BLASTS[3]) {

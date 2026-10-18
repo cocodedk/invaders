@@ -17,6 +17,15 @@ export const POWERS = ['spread', 'laser', 'rapid', 'shield'];
 export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity'];
 export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity'];
 
+// The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
+// HUD_BOTTOM; nothing that must be seen or shot may sit behind them.
+export const WIDTH = 1920;
+export const HEIGHT = 1080;
+export const HUD_BOTTOM = 96;
+
+// The gravity world's well (a template: a world takes a copy, so it stays plain cloneable data).
+export const WELL = { x: 960, y: 300 };
+
 // Collision sizes shared by the collision code and by everything that must agree with it.
 export const ALIEN_R = 26; // hit radius of an alien
 export const NEAR_MISS = 28; // centre distance, for a standard 8 px bullet: 6 px outside the hit circle

@@ -1,4 +1,5 @@
-import { clamp, angleTo } from './math.js';
+import { clamp, angleTo, segDist2, wrapAngle } from './math.js';
+import { WIDTH, HEIGHT } from './kinds.js';
 
 // The life of one enemy bullet after it is fired, plus the laser's geometry. Bullets are the plain
 // objects emitPattern returns: { pattern, x, y, vx, vy, r, life, warn?, turn? }.
@@ -6,14 +7,11 @@ import { clamp, angleTo } from './math.js';
 export const LASER_WARN = 0.8; // s of harmless warning line before the beam
 export const LASER_BEAM = 0.6; // s the beam then burns
 
-const WIDTH = 1920;
-const HEIGHT = 1080;
-
 // Turn the velocity toward `to` by at most `b.turn` rad/s, keeping the speed.
 function steer(b, dt, to) {
   const speed = Math.hypot(b.vx, b.vy);
   const heading = Math.atan2(b.vy, b.vx);
-  const diff = Math.atan2(Math.sin(angleTo(b, to) - heading), Math.cos(angleTo(b, to) - heading));
+  const diff = wrapAngle(angleTo(b, to) - heading);
   const next = heading + clamp(diff, -b.turn * dt, b.turn * dt);
   b.vx = Math.cos(next) * speed;
   b.vy = Math.sin(next) * speed;
@@ -50,10 +48,6 @@ export function laserSegment(b) {
 export function laserHits(b, at, rad) {
   if (b.warn > 0 || b.life <= 0) return false;
   const { x1, y1, x2, y2 } = laserSegment(b);
-  const ex = x2 - x1;
-  const ey = y2 - y1;
-  const len2 = ex * ex + ey * ey;
-  const u = len2 ? clamp(((at.x - x1) * ex + (at.y - y1) * ey) / len2, 0, 1) : 0;
   const reach = b.r + rad;
-  return (x1 + ex * u - at.x) ** 2 + (y1 + ey * u - at.y) ** 2 <= reach * reach;
+  return segDist2(x1, y1, x2, y2, at.x, at.y) <= reach * reach;
 }

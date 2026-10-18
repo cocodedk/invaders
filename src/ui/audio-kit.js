@@ -11,9 +11,14 @@
 //   crush   a soft-clip waveshaper (one shared curve per amount)
 //   semis   frequency ratio of n semitones; noteHz a note of the world's scale
 import { degreeMidi, midiHz } from './sound-data.js';
+import { clamp } from '../core/math.js';
+import { WIDTH as W } from '../core/kinds.js';
 
 const FLOOR = 0.0001;
 export const semis = (n) => 2 ** (n / 12);
+
+// Where a sound at world x sits in the stereo field, -0.8 (left) .. 0.8.
+export const panOf = (x) => clamp((x / W - 0.5) * 1.5, -0.8, 0.8);
 
 function env(a, t, peak, attack, decay, dest = a.out) {
   const g = a.ctx.createGain();

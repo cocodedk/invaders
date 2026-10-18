@@ -15,7 +15,7 @@ export const MUZZLE = 22; // px above the ship's centre where shots (and the bea
 export const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spread power
 
 const ACCEL = 7200; // px/s^2: from rest to full speed in 0.1 s, the same to stop (a short ease)
-const FOLLOW = 12; // 1/s: how hard a pointer target pulls; speed is FOLLOW * distance, capped at max
+export const FOLLOW = 12; // 1/s: how hard a pointer target pulls; speed is FOLLOW * distance, capped at max
 
 // bombHeld / bombPressed turn the bomb key into an edge (stepShip); beam is whether the laser burns.
 export const createShip = () => ({
@@ -58,34 +58,39 @@ function shoot(world) {
   emit(world, 'fire', { side: 'ship', x: at.x, y: at.y, power });
 }
 
-// Ease, move, clamp to the zone, count the timers down, and shoot while fire is held (the laser
-// power has a beam instead, weapons.js). The ship moves during the intro too, but only shoots in
-// play. bombPressed is true on the one tick the bomb key goes down, intro included, so a key held
-// since before play is not a fresh press.
+// Ease, move and clamp to the zone: `s` is anything with { x, y, vx, vy } (the autopilot flies a copy).
+export function moveShip(s, dt, input) {
+  const g = goal(input.target);
+  if (g && Math.hypot(g.x - s.x, g.y - s.y) < SNAP) {
+    Object.assign(s, { x: g.x, y: g.y, vx: 0, vy: 0 });
+    return;
+  }
+  const [wx, wy] = wanted(s, input, g);
+  s.vx = approach(s.vx, wx, ACCEL * dt);
+  s.vy = approach(s.vy, wy, ACCEL * dt);
+  s.x += s.vx * dt;
+  s.y += s.vy * dt;
+  if (s.x < ZONE.x0 || s.x > ZONE.x1) {
+    s.x = clamp(s.x, ZONE.x0, ZONE.x1);
+    s.vx = 0;
+  }
+  if (s.y < ZONE.y0 || s.y > ZONE.y1) {
+    s.y = clamp(s.y, ZONE.y0, ZONE.y1);
+    s.vy = 0;
+  }
+}
+
+// Count the timers down, move, and shoot while fire is held (the laser power has a beam instead,
+// weapons.js). The ship moves during the intro too, but only shoots in play. bombPressed is true on
+// the one tick the bomb key goes down, intro included, so a key held since before play is not a
+// fresh press.
 export function stepShip(world, dt, input) {
   const s = world.ship;
   s.cooldown = Math.max(0, s.cooldown - dt);
   s.invuln = Math.max(0, s.invuln - dt);
   s.bombPressed = Boolean(input.bomb) && !s.bombHeld;
   s.bombHeld = Boolean(input.bomb);
-  const g = goal(input.target);
-  if (g && Math.hypot(g.x - s.x, g.y - s.y) < SNAP) {
-    Object.assign(s, { x: g.x, y: g.y, vx: 0, vy: 0 });
-  } else {
-    const [wx, wy] = wanted(s, input, g);
-    s.vx = approach(s.vx, wx, ACCEL * dt);
-    s.vy = approach(s.vy, wy, ACCEL * dt);
-    s.x += s.vx * dt;
-    s.y += s.vy * dt;
-    if (s.x < ZONE.x0 || s.x > ZONE.x1) {
-      s.x = clamp(s.x, ZONE.x0, ZONE.x1);
-      s.vx = 0;
-    }
-    if (s.y < ZONE.y0 || s.y > ZONE.y1) {
-      s.y = clamp(s.y, ZONE.y0, ZONE.y1);
-      s.vy = 0;
-    }
-  }
+  moveShip(s, dt, input);
   if (world.state === 'play' && input.fire && s.cooldown <= 0 && s.power?.kind !== 'laser') shoot(world);
 }
 

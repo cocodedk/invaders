@@ -1,3 +1,5 @@
+import { WIDTH } from './kinds.js';
+
 // Destructible cover: a pixel mask per bunker, carved by shots of both sides (Barrage's carve
 // technique). bunker = { x, y, w, h, mask }: (x, y) is the top-left corner in world px and mask is a
 // Uint8Array of w * h bytes, one per world pixel, row by row from the top, 1 = solid. Pixel (ix, iy)
@@ -30,7 +32,7 @@ export function createBunker(x, y, w, h) {
 // The level's bunkers: evenly spread across the width.
 export function layoutBunkers() {
   const { w, h, y, count } = BUNKER;
-  return Array.from({ length: count }, (_, i) => createBunker(Math.round((1920 * (i + 0.5)) / count - w / 2), y, w, h));
+  return Array.from({ length: count }, (_, i) => createBunker(Math.round((WIDTH * (i + 0.5)) / count - w / 2), y, w, h));
 }
 
 // Visit the solid pixels whose centre lies within r of (lx, ly) (the bunker's own coordinates);

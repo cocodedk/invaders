@@ -1,5 +1,5 @@
 import { hurtAlien } from './aliens.js';
-import { ALIEN_R } from './kinds.js';
+import { ALIEN_R, WIDTH, HEIGHT } from './kinds.js';
 import { liveParts, hurtPart, bombBoss } from './boss-hit.js';
 import { hurtWreck } from './twists-2.js';
 
@@ -18,7 +18,7 @@ export const BOMB_DAMAGE = 3;
 const EPS = 1e-9; // 8 / 60 added fifteen times is 2 only up to rounding
 
 // Everything that is not the boss: aliens, the bonus saucer (an alien in all but its list), wrecks.
-const loose = (world) => (world.saucer ? [...world.aliens, world.saucer, ...world.wrecks] : [...world.aliens, ...world.wrecks]);
+export const loose = (world) => (world.saucer ? [...world.aliens, world.saucer, ...world.wrecks] : [...world.aliens, ...world.wrecks]);
 
 export const targets = (world) => [...loose(world), ...liveParts(world)];
 export function hurt(world, t, dmg) {
@@ -29,7 +29,7 @@ export function hurt(world, t, dmg) {
 export const bombHurt = (world, t) => hurt(world, t, BOMB_DAMAGE);
 export const inColumn = (t, x, half) =>
   t.y >= 0 && Math.abs(t.x - x) <= half + (t.part ? t.w / 2 : ALIEN_R);
-export const onScreen = (t) => t.x >= 0 && t.x <= 1920 && t.y >= 0 && t.y <= 1080;
+export const onScreen = (t) => t.x >= 0 && t.x <= WIDTH && t.y >= 0 && t.y <= HEIGHT;
 
 export function bombAll(world) {
   for (const t of loose(world)) if (onScreen(t)) bombHurt(world, t);

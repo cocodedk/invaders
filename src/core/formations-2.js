@@ -1,15 +1,14 @@
-import { clamp, lerp } from './math.js';
+import { clamp, lerp, TAU, smooth, easeOut } from './math.js';
+import { WIDTH } from './kinds.js';
 
 // How aliens arrive (entryPosition, 1.5 s) and how a diver swoops (diveCurve, 2.2 s). Both are pure
 // functions of u in 0..1 and both end exactly on the position they are given.
 
-const CENTER = 960;
-const ease = (u) => 1 - (1 - u) ** 3;
-const smooth = (u) => u * u * (3 - 2 * u); // smoothstep: flat at both ends
+const CENTER = WIDTH / 2;
 const side = (slot) => (slot.sx < CENTER ? -1 : 1);
 
 // Progress of one alien: later places in line start later but all finish at u = 1.
-const late = (u, k, step) => ease(clamp((u - Math.min(k, 5) * step) / (1 - 5 * step), 0, 1));
+const late = (u, k, step) => easeOut((u - Math.min(k, 5) * step) / (1 - 5 * step));
 
 const quad = (a, b, c, e) => ({
   x: (1 - e) * (1 - e) * a.x + 2 * (1 - e) * e * b.x + e * e * c.x,
@@ -27,7 +26,7 @@ const ENTRY = {
   // Swing in around a shrinking circle.
   orbit: (s, u) => {
     const e = late(u, s.col, 0.03);
-    const th = (u * 1.5 + s.col * 0.5) * Math.PI * 2;
+    const th = (u * 1.5 + s.col * 0.5) * TAU;
     return { x: s.sx + 100 * (1 - e) * Math.cos(th), y: lerp(-160, s.sy, e) + 100 * (1 - e) * Math.sin(th) };
   },
   // Corkscrew down onto the slot: fall from above while winding two turns from side to side, the
@@ -41,7 +40,7 @@ const ENTRY = {
   // One column drops in down the middle, then fans out to the slots.
   split: (s, u) => {
     const e = late(u, s.row, 0.05);
-    return { x: lerp(CENTER, s.sx, ease(clamp(u * 1.3 - 0.3, 0, 1))), y: lerp(-120 - 40 * s.row, s.sy, e) };
+    return { x: lerp(CENTER, s.sx, easeOut(u * 1.3 - 0.3)), y: lerp(-120 - 40 * s.row, s.sy, e) };
   },
   // Slide in from the left or right edge, level with the slot.
   escort: (s, u) => ({ x: lerp(side(s) < 0 ? -140 : 2060, s.sx, late(u, s.col, 0.05)), y: s.sy }),
@@ -72,7 +71,7 @@ export function diveCurve(from, target, u, home = from) {
   if (u >= 1) return { x: home.x, y: home.y };
   const arc = Math.sin(Math.PI * u);
   const depth = clamp(target.y - from.y, 200, 900);
-  const back = smooth(clamp(2 * u - 1, 0, 1));
+  const back = smooth(2 * u - 1);
   const x = from.x + (home.x - from.x) * back + (target.x - from.x) * arc + 70 * Math.sin(4 * Math.PI * u) * arc;
   return { x: clamp(x, 20, 1900), y: from.y + (home.y - from.y) * back + depth * arc ** 1.5 };
 }

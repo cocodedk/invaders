@@ -14,6 +14,7 @@
 // WeakMap of the hp each alien had when last drawn. Nothing on world or fx is written.
 import { glow } from '../sprites.js';
 import { clamp } from '../../core/math.js';
+import { WRECK_TIME } from '../../core/twists-2.js';
 import { art, roleSprites, extraSprites } from './bake.js';
 import { cracked, crackLights } from './cracks.js';
 
@@ -78,7 +79,7 @@ function halos(ctx, list, look, A, t) {
 }
 
 function wreck(ctx, w, look, A, t) {
-  const hurry = 2 - w.left; // 0 just fell .. 2 about to rise
+  const hurry = WRECK_TIME - w.left; // 0 just fell .. 2 about to rise
   const pulse = 0.5 + 0.5 * Math.sin(t * (5 + hurry * 9));
   const own = extraSprites(look, 'wreck');
   const set = own ?? roleSprites(look, 'armored');

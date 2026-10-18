@@ -1,7 +1,7 @@
 // Sound patches of the power-ups and the smart bomb: pickups chime in the world's scale, each power
 // switches on with its own gesture and winds down when it ends, the laser hums while it burns, and
 // the bomb inhales before it lands. A patch is (a, o) -> seconds (audio-kit.js).
-import { tone, hiss, fm, wobble, noteHz } from './audio-kit.js';
+import { tone, hiss, fm, wobble, noteHz, panOf } from './audio-kit.js';
 
 const ON = {
   spread(a) { // a fan opening
@@ -75,7 +75,7 @@ export const POWER = {
       });
     const lfo = wobble(a, f.frequency, 7, 500, a.t, 600);
     return {
-      pan(x) { a.tail.pan?.setTargetAtTime(Math.max(-0.8, Math.min(0.8, (x / 1920 - 0.5) * 1.5)), ctx.currentTime, 0.05); },
+      pan(x) { a.tail.pan?.setTargetAtTime(panOf(x), ctx.currentTime, 0.05); },
       stop() {
         const now = ctx.currentTime;
         g.gain.cancelScheduledValues(now);

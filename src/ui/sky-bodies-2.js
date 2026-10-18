@@ -2,6 +2,7 @@
 import { W, H, glow, hash, rgba, shade } from './sprites.js';
 import { add, blobs, stars, sun, horizonGlow } from './sky-paint.js';
 import { glyphAtlas, drawGlyph } from './glyphs.js';
+import { WELL } from '../core/kinds.js';
 
 // A tapered band along points `pts`, `w0` wide at the first and `w1` at the last.
 export function taper(g, pts, w0, w1) {
@@ -115,7 +116,7 @@ export const wellLight = (level) => (level?.boss ? 0.35 : 1);
 
 // The black hole above the formation (the well, 960, 300): its far disk lensed into a halo round
 // the shadow, the near disk crossing in front, Doppler-brighter on the left.
-const HOLE = { x: 960, y: 300, r: 78 };
+const HOLE = { ...WELL, r: 78 };
 function blackhole(g, look, level) {
   blobs(g, [[380, 260, 700, '#2a1a5a', 0.12, 0.5], [1500, 420, 800, '#0a2a5a', 0.12, 0.45], [960, 820, 900, '#1a1440', 0.1, 0.4]]);
   stars(g, 520, 61, H, 0.95, false, { x: HOLE.x, y: HOLE.y, r: 210 });

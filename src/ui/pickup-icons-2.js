@@ -1,5 +1,5 @@
 // Pickup icons of worlds 5-8 (see pickup-skins.js): plain paths, drawn by the HUD every frame too.
-const TAU = Math.PI * 2;
+import { TAU } from '../core/math.js';
 
 function stroke(g, color, w) {
   g.lineCap = 'round';

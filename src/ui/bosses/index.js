@@ -11,7 +11,8 @@
 // the collapse instead. Per frame only drawImage of baked canvases and cached glows.
 import { bossArt } from './bake.js';
 import { drawDying } from './death.js';
-import { smooth, halos, partBodies, partLights, warns } from './parts.js';
+import { halos, partBodies, partLights, warns } from './parts.js';
+import { smooth } from '../../core/math.js';
 
 export { partStage } from './parts.js';
 

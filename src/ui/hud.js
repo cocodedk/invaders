@@ -11,12 +11,12 @@ import { LIVES } from '../core/ship.js';
 import { ENTER } from '../core/boss-move.js';
 import { bossDef } from '../core/bosses-data.js';
 import { WORLDS } from '../core/levels.js';
+import { HUD_BOTTOM } from '../core/kinds.js';
 import { panel, text, label, shipIcon, bombIcon } from './hud-kit.js';
 import { drawIcon } from './pickups-view.js';
 
 const TOP = 16;
-const PH = 80; // panel height
-export const HUD_BOTTOM = TOP + PH;
+const PH = HUD_BOTTOM - TOP; // panel height
 const CAP = TOP + 22; // caption row
 const MAIN = TOP + 55; // big number row
 // The combo number: its ink centre (0.07 em above the 'middle' line it is drawn on) sits halfway

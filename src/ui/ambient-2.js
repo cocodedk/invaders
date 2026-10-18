@@ -2,6 +2,7 @@
 // Horizon) and CRT scanlines over the whole frame (Arcade Origin). Same contract as ambient.js.
 import { W, H, hash, glow, soft, wrap, cached } from './sprites.js';
 import { glyphAtlas, drawGlyph } from './glyphs.js';
+import { WELL } from '../core/kinds.js';
 
 // Columns of glyphs falling, a white-hot head and a fading tail; the marks flip as they fall.
 function glyphs(ctx, a, t) {
@@ -28,7 +29,7 @@ function glyphs(ctx, a, t) {
 
 // Stars caught near the hole, smeared into arcs that tighten into a ring as they get closer.
 function lensed(ctx, a, t, drift, wind, world) {
-  const c = world?.well ?? { x: 960, y: 300 };
+  const c = world?.well ?? WELL;
   ctx.lineCap = 'round';
   for (let i = 0; i < a.n; i++) {
     const h = hash(i * 11 + 1);

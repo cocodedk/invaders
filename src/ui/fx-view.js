@@ -2,6 +2,8 @@
 // rings by kind, local flashes, and floating score text. Pure reads of fx; nothing is changed here.
 // Full-frame flashes, glitch slices and tints are screen-view.js.
 import { INK, rgba, glow, soft } from './sprites.js';
+import { HUD_BOTTOM } from '../core/kinds.js';
+import { flashK } from '../fx/fx.js';
 
 function plain(ctx, p) {
   const f = p.life / p.max;
@@ -60,7 +62,7 @@ function flashes(ctx, fx) {
   ctx.globalCompositeOperation = 'lighter';
   for (const f of fx.flashes) {
     if (f.full) continue;
-    const k = f.ramp ? 1 - f.life / f.max : f.life / f.max;
+    const k = flashK(f);
     ctx.globalAlpha = Math.min(1, k * f.alpha);
     ctx.drawImage(glow(f.color), f.x - f.r * 1.6, f.y - f.r * 1.6, f.r * 3.2, f.r * 3.2);
     ctx.drawImage(glow('#ffffff'), f.x - f.r * 0.6, f.y - f.r * 0.6, f.r * 1.2, f.r * 1.2);
@@ -69,10 +71,10 @@ function flashes(ctx, fx) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-// Pop-ups never rise above this line, so the HUD (panels end at y 96) never covers one. Those held
+// Pop-ups never rise above this line, so the HUD (panels end at HUD_BOTTOM) never covers one. Those held
 // at the line would pile up on it (a top row shot away at once), so each is pushed below any held one
 // it would overlap: a small stack of at most STACK rows; past that they overlap as they fade.
-export const POPUP_MIN_Y = 150;
+export const POPUP_MIN_Y = HUD_BOTTOM + 54;
 const STACK = 3;
 const ROW = 34; // px a stacked row takes at scale 1 (the text is 30 px)
 const halfWidth = (p) => 9 * p.scale * p.text.length; // about half the text's width (30 px font)

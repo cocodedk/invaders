@@ -1,13 +1,14 @@
 import { posAt } from './predict.js';
 import { laserSegment } from './patterns.js';
-import { SHIP_R, ZONE, stepShip } from './ship.js';
+import { SHIP_R, ZONE, moveShip } from './ship.js';
+import { isSwooping } from './aliens.js';
 import { ALIEN_R } from './kinds.js';
 import { segDist2, clamp } from './math.js';
 
 // Staying alive. Everything that can hurt the ship is followed for N samples DT apart: bullets in
 // a straight line, divers along their swoop, a laser as a fixed segment that burns from `warn` to
 // the end of its life. Then a few places the ship could fly to are tried, each flown with the
-// ship's own movement (stepShip, so its ease and its speed are exactly right) from where it is and
+// ship's own movement (moveShip, so its ease and its speed are exactly right) from where it is and
 // how fast it is going, and the cheapest wins: a predicted hit costs far more than any detour.
 
 const N = 24;
@@ -49,21 +50,20 @@ function threatsOf(world) {
     bodies.push(sampled(r, (t) => ({ x: b.x + b.vx * t, y: b.y + b.vy * t })));
   }
   for (const a of world.aliens) {
-    if (a.hp > 0 && (a.mode === 'dive' || a.mode === 'return')) {
+    if (a.hp > 0 && isSwooping(a)) {
       bodies.push(sampled(ALIEN_R + SHIP_R + MARGIN, (t) => posAt(world, a, t)));
     }
   }
   return { bodies, beams };
 }
 
-// Fly a copy of the ship toward `to` for N samples with the real movement (stepShip on a stand-in
-// world that is never in play, so it cannot shoot), writing where it is at each sample.
+// Fly a copy of the ship toward `to` for N samples with the real movement, writing where it is at
+// each sample.
 function fly(ship, to, path) {
-  const copy = { x: ship.x, y: ship.y, vx: ship.vx, vy: ship.vy, cooldown: 0, invuln: 0, power: null, bombHeld: false, bombPressed: false };
-  const rig = { ship: copy, state: 'intro', shots: [], events: [], tick: 0 };
+  const copy = { x: ship.x, y: ship.y, vx: ship.vx, vy: ship.vy };
   const input = { target: to };
   for (let k = 0; k < N; k++) {
-    stepShip(rig, DT, input);
+    moveShip(copy, DT, input);
     path.xs[k] = copy.x;
     path.ys[k] = copy.y;
   }
@@ -113,6 +113,8 @@ export function steer(world, want) {
   const tries = [{ x: s.x, y: s.y }];
   for (let k = -STEPS; k <= STEPS; k++) for (const y of rows) tries.push({ x: clamp(s.x + STEP_X * k, ZONE.x0, ZONE.x1), y });
   for (const c of tries) {
+    // cost = hazard + detour, so a detour that alone reaches bestCost cannot win: skip the flight
+    if (PULL_X * Math.abs(c.x - want.x) + PULL_Y * Math.abs(c.y - want.y) >= bestCost) continue;
     const v = price(c);
     if (v.cost < bestCost) {
       best = c;

@@ -1,6 +1,6 @@
 import { clamp, dist2 } from './math.js';
-import { rand } from './rng.js';
-import { POWERS } from './kinds.js';
+import { rand, randPick } from './rng.js';
+import { POWERS, HEIGHT } from './kinds.js';
 import { SHIP_R, ZONE } from './ship.js';
 import { emit, prune } from './util.js';
 
@@ -19,7 +19,7 @@ export const BOMB_SHARE = 0.2; // of drops: a bomb instead of a power
 // A carrier died at `from`: 20 % a bomb, 80 % one of the four powers.
 export function dropPickup(world, from) {
   const bomb = rand(world.rng) < BOMB_SHARE;
-  const kind = bomb ? 'bomb' : POWERS[Math.floor(rand(world.rng) * POWERS.length)];
+  const kind = bomb ? 'bomb' : randPick(world.rng, POWERS);
   world.pickups.push({ kind, x: clamp(from.x, ZONE.x0, ZONE.x1), y: from.y, vy: FALL, r: PICKUP_R });
 }
 
@@ -44,7 +44,7 @@ export function stepPickups(world, dt) {
       collect(world, p);
       return false;
     }
-    return p.y - p.r < 1080;
+    return p.y - p.r < HEIGHT;
   });
 }
 

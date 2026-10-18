@@ -2,7 +2,7 @@ import { bossDef } from './bosses-data.js';
 import { beginPhase, syncBoss } from './boss-phase.js';
 import { stepMove, startAt, ENTER } from './boss-move.js';
 import { stepAttacks, stepMinions, moveMinions } from './boss-attack.js';
-import { rand } from './rng.js';
+import { rand, randPick } from './rng.js';
 import { emit } from './util.js';
 
 // A boss fight. world.boss holds only data (the static layout is looked up by kind in bossDef):
@@ -27,10 +27,7 @@ export function spawnBoss(world, kind) {
   const def = bossDef(kind);
   const b = {
     kind, ...startAt(def), hp: def.maxHp, maxHp: def.maxHp, phase: 0,
-    parts: def.parts.map((p) => ({
-      id: p.id, dx: p.dx, dy: p.dy, w: p.w, h: p.h, hp: p.hp, max: p.hp, weak: p.weak, armor: p.armor,
-      open: false, cracked: false, x: 0, y: 0, part: true, burn: 0,
-    })),
+    parts: def.parts.map((p) => ({ ...p, max: p.hp, open: false, cracked: false, x: 0, y: 0, part: true, burn: 0 })),
     clock: 0, enter: ENTER, dying: null, blast: 0, cd: [], mcd: [], warns: [],
   };
   beginPhase(b, 0);
@@ -46,7 +43,7 @@ function chain(world, b, dt) {
   b.blast -= dt;
   while (b.blast <= 0 && b.dying > 0) {
     b.blast += BLAST_EVERY;
-    const p = b.parts[Math.floor(rand(world.rng) * b.parts.length)];
+    const p = randPick(world.rng, b.parts);
     emit(world, 'explode', {
       x: p.x + (rand(world.rng) - 0.5) * p.w, y: p.y + (rand(world.rng) - 0.5) * p.h, size: rand(world.rng) < 0.25 ? 2 : 1,
     });

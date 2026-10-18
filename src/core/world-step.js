@@ -1,13 +1,15 @@
 import { stepShip } from './ship.js';
 import { stepAliens, spawnWave } from './aliens.js';
 import { stepBoss } from './boss.js';
-import { applyTwist, enemyDt } from './twists.js';
+import { applyTwist } from './twists.js';
+import { enemyDt } from './twists-2.js';
 import { stepPickups, tickPower } from './powerups.js';
 import { stepBeam, stepBomb } from './weapons.js';
 import { collide } from './collide.js';
 import { stepBullet } from './patterns.js';
 import { tickCombo, clearBonus, stars } from './scoring.js';
 import { emit, prune } from './util.js';
+import { WIDTH, HEIGHT } from './kinds.js';
 
 // One tick of play, in the order that decides ties:
 //   combo -> projectiles move -> ship moves and shoots -> aliens and the boss move, dive, shoot ->
@@ -20,7 +22,7 @@ import { emit, prune } from './util.js';
 export const WAVE_GAP = 1.2; // s between a wave's last death and the next wave
 
 const MARGIN = 60; // how far off screen a projectile may fly before it is dropped
-const inside = (b) => b.x > -MARGIN && b.x < 1920 + MARGIN && b.y > -MARGIN && b.y < 1080 + MARGIN;
+const inside = (b) => b.x > -MARGIN && b.x < WIDTH + MARGIN && b.y > -MARGIN && b.y < HEIGHT + MARGIN;
 
 function cull(world) {
   prune(world.shots, (s) => s.life > 0 && inside(s));

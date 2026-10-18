@@ -11,6 +11,7 @@
 //   view: the level's baked view after play; Cinema passes none and it is baked in the leader.
 import { W, H } from '../sprites.js';
 import { TICK } from '../../core/kinds.js';
+import { finished } from '../../core/util.js';
 import { createFilm, stepFilm } from '../../fx/film.js';
 import { lookFor } from '../looks/index.js';
 import { warmAliens } from '../aliens/bake.js';
@@ -31,7 +32,6 @@ const FLASH = 0.12; // s of white cutting into a clip
 const RISER = 1.3; // s the riser builds before the final card
 const sfx = (name, o = {}) => play(name, { ...o, group: 'film' }); // hushed together on a skip
 const quiet = (name, o) => sfx(name, { ...o, gain: 0.8 });
-const finished = (w) => w.state === 'cleared' || w.state === 'failed';
 
 export function trailerScreen({ canvas, view: given = null, level, seed, inputs, result, onDone }) {
   const ctx = canvas.getContext('2d');

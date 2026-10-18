@@ -8,7 +8,7 @@ import { emit } from './util.js';
 // phases change, plates crack open when no weak point is left, and the boss dies.
 
 export const ARMOR = 0.25;
-export const BOMB_SHARE = 0.08; // of the boss's max hp, per bomb, as raw damage
+export const BOMB_BOSS_SHARE = 0.08; // of the boss's max hp, per bomb, as raw damage
 
 // The parts that can be hit right now: none while the boss flies in or once it is dying.
 export function liveParts(world) {
@@ -45,7 +45,7 @@ export function bombBoss(world) {
   const live = liveParts(world).filter((p) => p.weak || p.armor);
   const order = [...live.filter((p) => p.weak), ...live.filter((p) => !p.weak)];
   if (!order.length) return;
-  const share = (world.boss.maxHp * BOMB_SHARE) / order.length;
+  const share = (world.boss.maxHp * BOMB_BOSS_SHARE) / order.length;
   const take = order.map(() => 0);
   let carry = 0;
   order.forEach((p, i) => {

@@ -3,10 +3,8 @@
 // destroyed: charred dark, cracks glowing like embers). Baked once, ahead of the fight (warmBoss),
 // or on first use for a boss that is only drawn (posters); never per frame.
 import { makeCanvas, hash, rgba, shade, INK } from '../sprites.js';
-import { path, line, bloom } from './kit.js';
-
-const TAU = Math.PI * 2;
-const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+import { path, line, bloom, TAU } from './kit.js';
+import { clamp } from '../../core/math.js';
 
 // n jagged cracks inside a w x h rect (centred), seeded: each starts inside the rect and wanders.
 export function crackPaths(seed, w, h, n, reach = 1) {

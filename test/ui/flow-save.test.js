@@ -14,7 +14,8 @@ const backing = new Map();
 globalThis.localStorage = { getItem: (k) => backing.get(k) ?? null, setItem: (k, v) => backing.set(k, String(v)) };
 
 const { createFlow } = await import('../../src/ui/flow.js');
-const { createSession, stepSession, finished, taint } = await import('../../src/ui/session.js');
+const { createSession, stepSession, taint } = await import('../../src/ui/session.js');
+const { finished } = await import('../../src/core/util.js');
 const { store } = await import('../../src/ui/storage.js');
 const { decodeRun } = await import('../../src/core/replay.js');
 const { levelById } = await import('../../src/core/levels.js');

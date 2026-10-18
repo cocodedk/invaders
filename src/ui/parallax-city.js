@@ -2,8 +2,7 @@
 // towers of Code Rain. See parallax-shapes.js for the painter contract.
 import { rgba, shade, hash } from './sprites.js';
 import { profile, waves } from './parallax-kit.js';
-
-const pick = (rng, list) => list[Math.floor(rng() * list.length)];
+import { pick } from '../core/rng.js';
 
 // Lit windows in rows, sparse: `cell` [w, h, pitchX, pitchY].
 function windows(g, rng, x, top, bw, h, colors, density, cell = [3, 4, 7, 9]) {

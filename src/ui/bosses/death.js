@@ -8,11 +8,8 @@ import { hash, glow, soft } from '../sprites.js';
 import { CHAIN } from '../../core/boss-phase.js';
 import { wreck } from './cracks.js';
 import { hullFlash } from './bake.js';
+import { clamp, smooth } from '../../core/math.js';
 
-const smooth = (x) => {
-  const v = Math.max(0, Math.min(1, x));
-  return v * v * (3 - 2 * v);
-};
 const seedOf = (kind) => [...kind].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 9973, 7);
 
 // Tear-off order: parts on the centre line first (they straddle the break), the rest shuffled.
@@ -23,7 +20,7 @@ function order(b, seed) {
 }
 
 export function collapse(b, t) {
-  const k = Math.min(1, Math.max(0, 1 - b.dying / CHAIN));
+  const k = clamp(1 - b.dying / CHAIN, 0, 1);
   const seed = seedOf(b.kind);
   const split = smooth((k - 0.3) / 0.6);
   const halves = [-1, 1].map((s) => ({ s, dx: s * 46 * split, dy: 120 * split * split, rot: s * 0.2 * split }));

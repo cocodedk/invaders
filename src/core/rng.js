@@ -26,8 +26,9 @@ export function rand(r) {
   return mix(r.s);
 }
 
-// A uniform draw in [lo, hi).
+// A uniform draw in [lo, hi), and a uniform pick from `list`: for a closure rng, and the same for a
+// `{ s }` state (randBetween, randPick: one rand(r) draw each).
 export const between = (rng, lo, hi) => lo + rng() * (hi - lo);
-
-// A uniform pick from `list`.
 export const pick = (rng, list) => list[Math.floor(rng() * list.length)];
+export const randBetween = (r, lo, hi) => lo + rand(r) * (hi - lo);
+export const randPick = (r, list) => list[Math.floor(rand(r) * list.length)];

@@ -17,9 +17,10 @@
 // motion shows; the shake does not.
 import { stepParticles } from './particles.js';
 import { stepShake } from './camera.js';
+import { prune } from '../core/util.js';
 
 const SLOW_FACTOR = 0.3;
-const SLOW_TIME = 0.8; // real seconds
+const SLOWMO_SECS = 0.8; // real seconds
 const CAP = 64; // per list, oldest dropped
 
 export function createFx() {
@@ -30,7 +31,7 @@ export function createFx() {
   };
 }
 
-export function startSlowMo(fx, secs = SLOW_TIME) {
+export function startSlowMo(fx, secs = SLOWMO_SECS) {
   fx.slowLeft = secs;
   fx.slow = SLOW_FACTOR;
 }
@@ -57,16 +58,16 @@ export const addSlice = (fx, s) => push(fx.slices, {
   x: 0, y: 0, w: 60, h: 6, dx: 16, color: '#5dff9a', life: 0.2, ...s,
 });
 
-function stepTimed(list, dt, onStep) {
-  let n = 0;
-  for (const e of list) {
-    e.life -= dt;
-    if (e.life <= 0) continue;
-    onStep(e, dt);
-    list[n++] = e;
-  }
-  list.length = n;
-}
+// How strong a flash is now, 0..1: fading out, or for a ramp (a charge) brightening toward its end.
+export const flashK = (f) => (f.ramp ? 1 - f.life / f.max : f.life / f.max);
+
+// Count every entry's life down, drop the spent ones and step the rest.
+const stepTimed = (list, dt, onStep) => prune(list, (e) => {
+  e.life -= dt;
+  if (e.life <= 0) return false;
+  onStep?.(e, dt);
+  return true;
+});
 
 export function stepFx(fx, dt) {
   fx.time += dt;
@@ -79,8 +80,8 @@ export function stepFx(fx, dt) {
     const t = 1 - r.life / r.max;
     r.r = r.r0 + (r.maxR - r.r0) * (1 - (1 - t) * (1 - t)); // ease-out
   });
-  stepTimed(fx.flashes, sdt, () => {});
+  stepTimed(fx.flashes, sdt);
   stepTimed(fx.popups, sdt, (p, d) => { p.y += p.vy * d; });
-  stepTimed(fx.slices, sdt, () => {});
+  stepTimed(fx.slices, sdt);
   stepShake(fx, dt);
 }

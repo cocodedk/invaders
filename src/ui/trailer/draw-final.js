@@ -5,12 +5,10 @@
 //   drawLeader(ctx, n, frac, frame)        frac: 0..1 round the current number
 //   drawFinal(ctx, fin, art, style, t, secs)   fin: cards.js finalCard; art: bakeCard([fin.title], style, k)
 import { W, H, hash, glow } from '../sprites.js';
-import { clamp } from '../../core/math.js';
+import { clamp, smooth, TAU } from '../../core/math.js';
 import { FONTS } from './draw.js';
 import { REVEAL, bloom } from './reveal.js';
 
-const TAU = Math.PI * 2;
-const smooth = (k) => { const x = clamp(k, 0, 1); return x * x * (3 - 2 * x); };
 const STAR_AT = [1.0, 1.18, 1.36];
 const COUNT = [1.2, 2.1]; // s the box office counts up
 const RECORD_AT = 2.25;

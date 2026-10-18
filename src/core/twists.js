@@ -1,12 +1,10 @@
 import { layoutBunkers } from './bunkers.js';
 import { hurtAlien } from './aliens.js';
-import { ALIEN_R } from './kinds.js';
-import { segDist2 } from './math.js';
-import { rand } from './rng.js';
+import { ALIEN_R, HUD_BOTTOM, WELL } from './kinds.js';
+import { sweepDist2 } from './math.js';
+import { randBetween } from './rng.js';
 import { emit } from './util.js';
-import { enemyDt, pushAll, acid, glitch, reassemble, gravity } from './twists-2.js';
-
-export { enemyDt };
+import { pushAll, acid, glitch, reassemble, gravity } from './twists-2.js';
 
 // Each world's one small rule of its own. A level's rule is `level.twist`; applyTwist(world, dt)
 // runs it once per tick, after collisions (twists-2.js has worlds 5-8 and says why that order); the
@@ -23,25 +21,23 @@ export { enemyDt };
 //            saucers sent; acid in the making
 
 const SAUCER_EVERY = 20; // s
-const SAUCER_Y = 104; // just under the HUD band (panels end at y 96), so it is never behind a panel
+const SAUCER_Y = HUD_BOTTOM + 8; // just under the HUD band, so it is never behind a panel
 const SAUCER_SPEED = 260;
 const SAUCER_R = ALIEN_R + 8;
 const GUST = 120; // px/s^2, either way
-
-const between = (rng, lo, hi) => lo + (hi - lo) * rand(rng);
 
 export function createTwist(level, rng) {
   const kind = level.twist;
   const twist = { timer: 0, cool: 0, wave: 0, sent: 0, drips: [] };
   const state = { wind: 0, slow: 0, saucer: null, wrecks: [], well: null, twist };
   if (kind === 'bunkers') twist.timer = SAUCER_EVERY;
-  if (kind === 'darkness') twist.timer = between(rng, 6, 10);
-  if (kind === 'glitch') twist.timer = between(rng, 3, 5);
+  if (kind === 'darkness') twist.timer = randBetween(rng, 6, 10);
+  if (kind === 'glitch') twist.timer = randBetween(rng, 3, 5);
   if (kind === 'gusts') {
-    state.wind = between(rng, -GUST, GUST);
-    twist.timer = between(rng, 4, 7);
+    state.wind = randBetween(rng, -GUST, GUST);
+    twist.timer = randBetween(rng, 4, 7);
   }
-  if (kind === 'gravity') state.well = { x: 960, y: 300 };
+  if (kind === 'gravity') state.well = { ...WELL };
   return state;
 }
 
@@ -71,7 +67,7 @@ function bunkers(world, dt) {
   s.t += dt;
   for (const shot of world.shots) {
     if (s.hp <= 0) break;
-    if (shot.life > 0 && segDist2(shot.x - shot.vx * dt, shot.y - shot.vy * dt, shot.x, shot.y, s.x, s.y) <= (SAUCER_R + shot.r) ** 2) {
+    if (shot.life > 0 && sweepDist2(shot, dt, s) <= (SAUCER_R + shot.r) ** 2) {
       shot.life = 0;
       hurtAlien(world, s, shot.dmg ?? 1);
     }
@@ -85,8 +81,8 @@ function darkness(world, dt) {
   const t = world.twist;
   t.timer -= dt;
   if (t.timer > 0) return;
-  t.timer = between(world.rng, 6, 10);
-  emit(world, 'lightning', { x: between(world.rng, 100, 1820), strength: between(world.rng, 0.6, 1) });
+  t.timer = randBetween(world.rng, 6, 10);
+  emit(world, 'lightning', { x: randBetween(world.rng, 100, 1820), strength: randBetween(world.rng, 0.6, 1) });
 }
 
 // Gusts: every 4 to 7 s the wind is rolled again, within +-120 px/s^2, and pushes every bullet
@@ -95,8 +91,8 @@ function gusts(world, dt) {
   const t = world.twist;
   t.timer -= dt;
   if (t.timer <= 0) {
-    t.timer = between(world.rng, 4, 7);
-    world.wind = between(world.rng, -GUST, GUST);
+    t.timer = randBetween(world.rng, 4, 7);
+    world.wind = randBetween(world.rng, -GUST, GUST);
     emit(world, 'gust', { wind: world.wind });
   }
   pushAll(world, dt, (p, out) => {
@@ -112,7 +108,7 @@ export function cutShuriken(world, dt) {
     if (s.life <= 0) continue;
     for (const b of world.bullets) {
       if (b.life <= 0 || b.pattern !== 'shuriken') continue;
-      if (segDist2(s.x - s.vx * dt, s.y - s.vy * dt, s.x, s.y, b.x, b.y) > (s.r + b.r) ** 2) continue;
+      if (sweepDist2(s, dt, b) > (s.r + b.r) ** 2) continue;
       s.life = 0;
       b.life = 0;
       b.near = true; // settled: a cut is not a dodge, even inside the near band (R37)

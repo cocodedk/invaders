@@ -3,7 +3,7 @@
 //   drawClapper(ctx, { k, shut, cut }, { scene, take, roll })
 //     k: slide in 0..1 · shut: 0 open .. 1 closed · cut: 0..1 the CUT! stamp
 import { W } from '../sprites.js';
-import { clamp } from '../../core/math.js';
+import { clamp, easeOut } from '../../core/math.js';
 import { FONTS } from './draw.js';
 
 const BW = 820;
@@ -11,7 +11,6 @@ const BH = 470;
 const BAR = 70;
 const CHALK = '#f2eee4';
 const SLATE = '#151519';
-const easeOut = (k) => 1 - (1 - clamp(k, 0, 1)) ** 3;
 
 function stripes(ctx, y, h, flip = false) { // flip: the stick's stripes mirror the slate's, chevrons when shut
   ctx.save();

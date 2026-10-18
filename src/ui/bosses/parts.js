@@ -11,6 +11,7 @@
 // first seen already open or cracked is drawn finished, so a frozen dev frame or a cloned world
 // never replays the transition. Nothing on world or fx is written.
 import { glow, star } from '../sprites.js';
+import { clamp, smooth } from '../../core/math.js';
 import { cracked, exposed, wreck } from './cracks.js';
 
 const FLASH = 0.06; // s a part shows white after losing hp
@@ -18,10 +19,6 @@ const OPEN = 1.6; // s a part takes to slide open (the fortress trench)
 const CRACK = 0.6; // s a plate takes to split open
 const NEVER = -1e9;
 
-export const smooth = (x) => {
-  const v = Math.max(0, Math.min(1, x));
-  return v * v * (3 - 2 * v);
-};
 
 export function partStage(p) {
   if (p.hp >= p.max) return 0;
@@ -144,7 +141,7 @@ export function warns(ctx, b, B, look, t, k) {
   for (const w of b.warns) {
     const p = b.parts.find((q) => q.id === w.part);
     if (!p) continue;
-    const e = Math.max(0, Math.min(1, 1 - w.left / w.total));
+    const e = clamp(1 - w.left / w.total, 0, 1);
     const r = 28 + 84 * e;
     ctx.globalAlpha = k * (0.35 + 0.6 * e);
     ctx.drawImage(glow(col), p.x - r, p.y - r, r * 2, r * 2);

@@ -14,6 +14,8 @@ import { createWorld, stepWorld, stars, INTRO } from '../src/core/world.js';
 import { levelById } from '../src/core/levels.js';
 import { autopilot } from '../src/core/autopilot.js';
 import { TICK } from '../src/core/kinds.js';
+import { IDLE } from '../src/core/input-codec.js';
+import { finished } from '../src/core/util.js';
 
 export const VARIANTS = [
   { name: 'base', delay: 0, sight: Infinity, hand: Infinity },
@@ -24,7 +26,6 @@ export const VARIANTS = [
 ];
 
 const LIMIT = 300; // simulated seconds before a run counts as stuck
-const IDLE = { dx: 0, dy: 0, fire: false, bomb: false, target: null };
 
 // What the pilot sees: the world, or a shallow copy without the bullets it cannot see yet.
 function view(world, sight) {
@@ -60,7 +61,7 @@ export function measure(id, variant, seed) {
   let shield = 0;
   let fightFrom = null;
   let fight = null;
-  while (world.state !== 'cleared' && world.state !== 'failed' && world.t < LIMIT) {
+  while (!finished(world) && world.t < LIMIT) {
     queue.push(reach(autopilot(view(world, variant.sight)), hand, variant.hand));
     stepWorld(world, TICK, queue.length > variant.delay ? queue.shift() : IDLE);
     for (const b of world.bullets) {

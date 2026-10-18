@@ -13,6 +13,7 @@
 //   clipDone(clip)   past its end, and past HOLD seconds of aftermath when the run ended in it
 import { createWorld, stepWorld } from '../../core/world.js';
 import { TICK } from '../../core/kinds.js';
+import { finished } from '../../core/util.js';
 import { advance } from '../../core/loop.js';
 import { makeRng } from '../../core/rng.js';
 import { createFx, stepFx, startSlowMo } from '../../fx/fx.js';
@@ -24,7 +25,6 @@ const CHECK = 32; // ticks between looks at the clock
 const GRID = 120; // ticks between kept worlds (more for very long runs: at most about 60 kept)
 const FX_SALT = 0x7a11e5;
 
-const finished = (w) => w.state === 'cleared' || w.state === 'failed';
 const clock = () => performance.now();
 
 export function* fastForward(level, seed, inputs, pick, { budget = 6, now = clock } = {}) {

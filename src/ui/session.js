@@ -12,13 +12,12 @@ import { createWorld, stepWorld } from '../core/world.js';
 import { quantizeInput, makeRun, TICK } from '../core/replay.js';
 import { levelById } from '../core/levels.js';
 import { advance } from '../core/loop.js';
+import { finished } from '../core/util.js';
 import { makeRng } from '../core/rng.js';
 import { createFx, stepFx } from '../fx/fx.js';
 import { applyEvents } from '../fx/react.js';
 
 const FX_SALT = 0x5eed; // effects draw from their own stream, never world.rng
-
-export const finished = (world) => world.state === 'cleared' || world.state === 'failed';
 
 export function createSession(level, seed = level.seed, { record = true } = {}) {
   return {

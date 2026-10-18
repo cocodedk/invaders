@@ -3,6 +3,7 @@
 // ring that turns round the well.
 import { W, rgba, hash, glow, soft, lighter, normal, makeCanvas } from './sprites.js';
 import { makeRng } from '../core/rng.js';
+import { WELL } from '../core/kinds.js';
 import { wellLight } from './sky-bodies-2.js';
 
 // A bolt for every lightning flash, seeded by its birth so it holds still while it lives.
@@ -135,7 +136,7 @@ function gunships(ctx, { v, t }) {
 // The photon ring round the well: bright arcs that turn, brightest on the approaching side (faint
 // on the boss level, where the Singularity is the black hole to watch: wellLight).
 function lens(ctx, { world, t }) {
-  const c = world.well ?? { x: 960, y: 300 };
+  const c = world.well ?? WELL;
   const k = wellLight(world.level);
   lighter(ctx);
   ctx.lineCap = 'round';
