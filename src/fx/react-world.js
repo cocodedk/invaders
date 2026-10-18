@@ -18,6 +18,11 @@ const STREAK = 0.5; // s a pickup swept up at the clear takes to fly into the sh
 const TAIL = 5; // glows behind its head
 const LAG = 0.03; // s between two of them
 const FADE = 0.35; // s the ship's glow takes to fade once they have landed
+const GLOW_R = 70; // px the ship's glow starts at, then grows by GLOW_R_STEP for each pickup after the first
+const GLOW_R_STEP = 7;
+const GLOW_R_MAX = 1.5 * GLOW_R;
+const GLOW_ALPHA = 0.7; // and brightens by GLOW_ALPHA_STEP, to a peak of 1
+const GLOW_ALPHA_STEP = 0.1;
 
 // Where a swept pickup's points pop up: where it was, unless that is on the bonus row (the two pop-ups
 // rise at the same speed, so clear at the start is clear throughout).
@@ -51,21 +56,24 @@ function sweep(fx, ev, rng, world) {
       color, kind: 'ember', additive: true,
     });
   }
-  shipGlow(fx, ship, color);
+  shipGlow(fx, ship, color, ev.nth);
 }
 
-// The whole sweep lands on one tick, so the ship gets one glow (R52), a little bigger and brighter for
-// each pickup after the first: it brightens as the comets fly in, then fades. One not yet stepped is
-// this tick's.
-function shipGlow(fx, ship, color) {
-  const glow = fx.flashes.find((f) => f.tag === 'sweep' && f.life === f.max);
-  if (!glow) {
-    const life = STREAK + FADE;
-    addFlash(fx, { x: ship.x, y: ship.y, r: 70, alpha: 0.7, color, ramp: STREAK / life, life, tag: 'sweep' });
+// The glow for the sweep's nth pickup (0 first): bigger and brighter for each, up to a cap.
+const glowAt = (nth) => ({
+  r: Math.min(GLOW_R_MAX, GLOW_R + GLOW_R_STEP * nth), alpha: Math.min(1, GLOW_ALPHA + GLOW_ALPHA_STEP * nth),
+});
+
+// The whole sweep lands on one tick, so the ship gets one glow (R52): the first pickup makes it and each
+// one after grows it. It brightens as the comets fly in, then fades.
+function shipGlow(fx, ship, color, nth) {
+  const glow = nth > 0 && fx.flashes.find((f) => f.tag === 'sweep');
+  if (glow) {
+    Object.assign(glow, glowAt(nth));
     return;
   }
-  glow.r = Math.min(105, glow.r + 7);
-  glow.alpha = Math.min(1, glow.alpha + 0.1);
+  const life = STREAK + FADE;
+  addFlash(fx, { x: ship.x, y: ship.y, ...glowAt(nth), color, ramp: STREAK / life, life, tag: 'sweep' });
 }
 
 // A power-up starting rings out from the ship; one running out fizzles into smoke.

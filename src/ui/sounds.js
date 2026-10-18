@@ -20,7 +20,6 @@ const CHIME_GAP = 0.06;
 
 export function eventSounds(events, world, play) {
   const dying = world.boss?.dying ?? null;
-  let swept = 0;
   for (const e of events) {
     switch (e.type) {
       case 'fire':
@@ -43,7 +42,7 @@ export function eventSounds(events, world, play) {
       case 'shieldHit': play('shield', at(e)); break;
       case 'nearMiss': play('nearMiss', at(e)); break;
       case 'pickup': play('pickup', { kind: e.kind, x: e.x }); break;
-      case 'sweep': play('pickup', { kind: e.kind, x: e.x, delay: CHIME_GAP * swept++ }); break;
+      case 'sweep': play('pickup', { kind: e.kind, x: e.x, delay: CHIME_GAP * e.nth }); break;
       case 'power': play(e.on ? 'powerOn' : 'powerOff', { kind: e.kind }); break;
       case 'bomb': play('bomb', at(e)); break;
       case 'bunker': play('bunker', { laser: e.laser, x: e.x }); break;

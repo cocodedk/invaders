@@ -28,13 +28,11 @@ export function awardKill(world, alien, scored = true) {
   emit(world, 'explode', { x, y, size: 1 });
 }
 
-// A pickup collected: its points go on the score, and `pickup` (the ship caught it) or `sweep` (the clear
-// swept it up) announces it.
-export function awardPickup(world, p, swept = false) {
+// A pickup collected: its points go on the score. Returns the fields of the event that announces it,
+// which the caller emits: `pickup` (the ship caught it) or `sweep` (the clear swept it up).
+export function awardPickup(world, p) {
   world.score += PICKUP_POINTS;
-  const fields = { kind: p.kind, x: p.x, y: p.y, points: PICKUP_POINTS };
-  if (swept) emit(world, 'sweep', fields);
-  else emit(world, 'pickup', fields);
+  return { kind: p.kind, x: p.x, y: p.y, points: PICKUP_POINTS };
 }
 
 export function tickCombo(world, dt) {

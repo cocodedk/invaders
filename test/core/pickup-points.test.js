@@ -39,7 +39,7 @@ test('the clear sweeps up every pickup in the air: scored before `cleared`, none
   const ev = drain(w);
   assert.deepEqual(types(ev).slice(-4), ['waveClear', 'sweep', 'sweep', 'cleared'], 'the order on the clear tick');
   const swept = ofType(ev, 'sweep');
-  assert.deepEqual(swept.map((e) => [e.kind, e.points]), [['laser', 500], ['bomb', 500]]);
+  assert.deepEqual(swept.map((e) => [e.kind, e.points, e.nth]), [['laser', 500, 0], ['bomb', 500, 1]], 'in drop order');
   assert.ok(swept.every((e) => e.y < 400 && e.tick === ev.at(-1).tick), 'from where they were, on the clear tick');
   const [kill] = ofType(ev, 'kill');
   const [done] = ofType(ev, 'cleared');

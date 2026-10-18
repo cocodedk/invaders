@@ -30,7 +30,7 @@ export function dropPickup(world, from) {
 
 function collect(world, p) {
   const ship = world.ship;
-  awardPickup(world, p);
+  emit(world, 'pickup', awardPickup(world, p));
   if (p.kind === 'bomb') {
     ship.bombs = Math.min(BOMB_MAX, ship.bombs + 1);
   } else {
@@ -54,9 +54,10 @@ export function stepPickups(world, dt) {
 }
 
 // The level is cleared: every pickup still in the air is the ship's, in drop order. Its points count
-// (before the clear is announced), its power or bomb comes too late to use.
+// (before the clear is announced), its power or bomb comes too late to use. Each `sweep` says which of
+// the run it is (`nth`, 0 first) so that the sound and the ship's glow can build up along it.
 export function sweepPickups(world) {
-  for (const p of world.pickups) awardPickup(world, p, true);
+  world.pickups.forEach((p, nth) => emit(world, 'sweep', { ...awardPickup(world, p), nth }));
   world.pickups.length = 0;
 }
 
