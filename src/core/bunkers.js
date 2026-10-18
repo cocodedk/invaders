@@ -26,8 +26,15 @@ function solidAt(x, y, w, h) {
 
 export function createBunker(x, y, w, h) {
   const mask = new Uint8Array(w * h);
-  for (let iy = 0; iy < h; iy++) for (let ix = 0; ix < w; ix++) mask[iy * w + ix] = solidAt(ix, iy, w, h);
-  return { x, y, w, h, mask, solid: mask.reduce((n, v) => n + v, 0) };
+  let solid = 0;
+  for (let iy = 0; iy < h; iy++) {
+    for (let ix = 0; ix < w; ix++) {
+      const v = solidAt(ix, iy, w, h);
+      mask[iy * w + ix] = v;
+      solid += v;
+    }
+  }
+  return { x, y, w, h, mask, solid };
 }
 
 // The level's bunkers: evenly spread across the width.
