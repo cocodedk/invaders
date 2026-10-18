@@ -65,12 +65,15 @@ function launch(world, b, m) {
 }
 
 // Gunner minions shoot as gunners do in a wave, plain aimed shots (a boss level has no wave pattern);
-// the other roles only fly at the ship.
-const gunner = (a) => a.minion && a.role === 'gunner' && a.hp > 0;
+// the other roles only fly at the ship. A gunner diving at the ship holds its fire once it is within
+// POINT_BLANK of it, and once it is level with it or below: a shot from there could not be dodged.
+export const POINT_BLANK = 180; // px
+const gunnerOf = (ship) => (a) =>
+  a.minion && a.role === 'gunner' && a.hp > 0 && a.y < ship.y && (a.x - ship.x) ** 2 + (a.y - ship.y) ** 2 >= POINT_BLANK ** 2;
 
 export function stepMinions(world, b, def, dt) {
   if (world.scale.fireMult <= 0) return;
-  fire(world, dt, 'aimed', gunner);
+  fire(world, dt, 'aimed', gunnerOf(world.ship));
   const list = def.phases[b.phase].minions ?? [];
   list.forEach((m, i) => {
     b.mcd[i] -= dt;

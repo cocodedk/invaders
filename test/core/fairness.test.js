@@ -116,6 +116,29 @@ test('gunner minions shoot at the ship', () => {
   assert.equal(shots[0].role, 'gunner');
 });
 
+// A gunner minion held `dy` px above the ship (negative: below it) for 20 s: how often it fires.
+function minionShots(dy) {
+  const w = createWorld(levelById('w6-5'));
+  w.ship.invuln = Infinity;
+  while (w.state !== 'play' || w.boss.enter > 0) stepWorld(w, TICK, IDLE);
+  const m = { id: 999, role: 'gunner', x: 0, y: 0, hp: 2, maxHp: 2, slot: null, mode: 'dive', t: 0, dive: null, minion: true, vx: 0 };
+  w.aliens.push(m);
+  let n = 0;
+  for (let i = 0; i < 60 * 20; i++) {
+    Object.assign(m, { x: w.ship.x + 40, y: w.ship.y - dy, hp: 2 });
+    stepWorld(w, TICK, IDLE);
+    n += w.events.filter((e) => e.type === 'fire' && e.id === 999).length;
+    w.events.length = 0;
+  }
+  return n;
+}
+
+test('a gunner minion holds its fire inside 180 px of the ship, and once it is below the ship', () => {
+  assert.ok(minionShots(400) > 0, 'it fires from afar');
+  assert.equal(minionShots(150), 0, 'not point blank');
+  assert.equal(minionShots(-60), 0, 'not from below');
+});
+
 test('Iron Dawn: an armored alien shot down mid-dive stands up at its wreck and flies home, no snap', () => {
   const w = playing(level([wave({ roles: ['armored'], cols: 3 })], 0, { twist: 'reassemble' }));
   w.ship.x = 1700; // out of the way of the swoop

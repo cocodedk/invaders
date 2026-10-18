@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createWorld } from '../../src/core/world.js';
 import { hurtPart } from '../../src/core/boss-hit.js';
 import { BOSSES } from '../../src/core/kinds.js';
+import { bossDef } from '../../src/core/bosses-data.js';
 import { step, seconds, drain, ofType } from './world-kit.js';
 import { bossLevel, bossWorld, part, shotOn, leave } from './boss-kit.js';
 
@@ -139,9 +140,10 @@ test('damage crossing two thresholds in one tick emits two bossPhase events in o
 
 test('a phase change fires when one hit carries the boss over a threshold, not before', () => {
   const w = bossWorld('mothership');
-  hurtPart(w, part(w, 'gunL'), 20);
-  assert.equal(w.boss.phase, 0, 'hp is 70 of 90, above the first threshold');
-  hurtPart(w, part(w, 'eye'), 12);
+  const line = bossDef('mothership').phases[0].until * w.boss.maxHp; // phase 1 begins at this hp
+  hurtPart(w, part(w, 'eye'), w.boss.hp - line - 1);
+  assert.equal(w.boss.phase, 0, 'one point above the first threshold');
+  hurtPart(w, part(w, 'gunL'), 2);
   assert.equal(w.boss.phase, 1);
   assert.deepEqual(ofType(drain(w), 'bossPhase').map((e) => e.phase), [1]);
 });

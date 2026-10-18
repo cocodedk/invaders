@@ -7,15 +7,16 @@ import { makeRun, decodeRun, replay, stateHash, TICK } from '../../src/core/repl
 
 // Real runs, as the game saves them: the autopilot flies a level with its three lives (no invulnerable
 // ship), the inputs go through makeRun, JSON and decodeRun, and the replay must end on the same
-// state, score and events. One level per world, picked so that the world's twist actually happens
-// in the run, and the log is checked for the proof of it, so that this test cannot quietly stop
-// covering a twist when levels are retuned. The two bosses are fought to the end.
+// state, score and events. One level per world (two for world 6), picked so that the world's twist
+// actually happens in the run, and the log is checked for the proof of it, so that this test cannot
+// quietly stop covering a twist when levels are retuned. The three bosses are fought to the end.
 //   w1 bunkers      a saucer crosses every 20 s: a level longer than that
 //   w2 darkness     lightning every 6-10 s
 //   w3 gusts        the wind re-rolled every 4-7 s
 //   w4 shuriken     a shot cuts a star (the boss throws them)
 //   w5 acid         an armored death drips
-//   w6 glitch       an alien blinks to a free slot, and a near miss slows enemy time
+//   w6 glitch       an alien blinks to a free slot (a wave level), and a near miss slows enemy
+//                   time (the boss: the autopilot's wave runs keep too far from every bullet)
 //   w7 reassemble   a wreck hangs in the formation, and breaks or stands up again
 //   w8 gravity      the well swallows bullets and shots
 const FLIGHTS = [
@@ -24,7 +25,8 @@ const FLIGHTS = [
   ['w3-3', 'gust'],
   ['w4-5', 'cut', 'bossPhase', 'bossDeath'],
   ['w5-3', 'acid'],
-  ['w6-3', 'teleport', 'bulletTime'],
+  ['w6-3', 'teleport'],
+  ['w6-5', 'bulletTime', 'bossPhase', 'bossDeath'],
   ['w7-1', 'wreck', 'wreckDown', 'reassemble'],
   ['w8-5', 'absorb', 'bossPhase', 'bossDeath'],
 ];

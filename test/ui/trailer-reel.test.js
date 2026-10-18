@@ -71,8 +71,10 @@ test('a clip steps its snapshot on through the inputs exactly, effects on their 
   assert.ok(heard.length > 0, 'its events were handed on (sound)');
 });
 
+// A boss level: its last clip is the kill, which always runs to the end of the run (a wave level's
+// last clip may be any late combo).
 test('the clip that ends the run holds on the aftermath; the blooper plays at 0.3x', () => {
-  const { level, inputs } = flown('w1-1');
+  const { level, inputs } = flown('w1-5');
   const pass = drain(fastForward(level, level.seed, inputs, starts));
   const end = cutClips(pass.events, inputs.length).at(-1);
   assert.equal(end.end, inputs.length);

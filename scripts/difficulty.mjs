@@ -62,7 +62,7 @@ const pain = (runs) => mean(runs.map((r) => r.lost + (r.result === 'clear' ? 0 :
 function rowText(row) {
   const cells = row.runs.map((runs) => {
     const clears = runs.filter((r) => r.result === 'clear').length;
-    return pad(`${clears}/${runs.length} ${mean(runs.map((r) => r.lost)).toFixed(1)}`, 8);
+    return pad(`${clears}/${runs.length} ${mean(runs.map((r) => r.lost)).toFixed(1)}`, 9);
   });
   const b = row.runs[0][0];
   const fights = row.runs[0].map((r) => r.fight).filter((f) => f !== null);
@@ -112,7 +112,7 @@ const rows = levels.map((level) => {
   row.pain = pain(runsOf(row, WEAK));
   return row;
 });
-const head = ['level', '   d', ...VARIANTS.map((v) => pad(v.name, 8)), ' pain', '   base t', ' **', '  score', '  bps', 'fight'].join(' ');
+const head = ['level', '   d', ...VARIANTS.map((v) => pad(v.name, 9)), ' pain', '   base t', ' **', '  score', '  bps', 'fight'].join(' ');
 const text = [
   `difficulty: ${levels.length} levels x ${VARIANTS.length} variants x ${opts.seeds} seeds; weak = ${WEAK.join(', ')}`,
   head, ...rows.map(rowText), '', ...checks(rows), '',

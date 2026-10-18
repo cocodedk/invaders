@@ -6,9 +6,9 @@ import { boss, weak, armor, atk, minion, phase } from './bosses-kit.js';
 const queen = boss('queen', 'Hive queen', 275, { w: 660, h: 360 }, [
   armor('crown', 0, -130, 200, 80, 6),
   armor('thorax', 0, -40, 260, 110, 8),
-  weak('head', 0, 80, 130, 110, 34),
-  weak('sacL', -200, 20, 110, 100, 18),
-  weak('sacR', 200, 20, 110, 100, 18),
+  weak('head', 0, 80, 130, 110, 83),
+  weak('sacL', -200, 20, 110, 100, 45),
+  weak('sacR', 200, 20, 110, 100, 45),
   armor('clawL', -290, 80, 70, 150, 6),
   armor('clawR', 290, 80, 70, 150, 6),
 ], [
@@ -34,9 +34,9 @@ const agent = boss('agent', 'Agent core', 250, { w: 560, h: 340 }, [
   armor('halo', 0, -120, 400, 40, 6),
   armor('nodeL', -220, -40, 80, 80, 6),
   armor('nodeR', 220, -40, 80, 80, 6),
-  weak('core', 0, 10, 130, 130, 32),
-  weak('lensL', -140, 80, 70, 60, 16),
-  weak('lensR', 140, 80, 70, 60, 16),
+  weak('core', 0, 10, 130, 130, 104),
+  weak('lensL', -140, 80, 70, 60, 54),
+  weak('lensR', 140, 80, 70, 60, 54),
 ], [
   phase(0.6, 'hover', [
     atk('fan', 1.9, 'core', { count: 3, spread: 0.2 }),
@@ -58,18 +58,18 @@ const agent = boss('agent', 'Agent core', 250, { w: 560, h: 340 }, [
 
 const titan = boss('titan', 'Endoskeleton titan', 285, { w: 620, h: 460 }, [
   armor('shoulders', 0, -150, 560, 60, 8),
-  weak('skull', 0, -50, 120, 110, 34),
+  weak('skull', 0, -50, 120, 110, 89),
   armor('ribL', -100, 40, 60, 150, 6),
   armor('ribR', 100, 40, 60, 150, 6),
   armor('armL', -230, 20, 70, 280, 8),
   armor('armR', 230, 20, 70, 280, 8),
-  weak('cannonL', -230, 175, 90, 60, 18),
-  weak('cannonR', 230, 175, 90, 60, 18),
+  weak('cannonL', -230, 175, 90, 60, 50),
+  weak('cannonR', 230, 175, 90, 60, 50),
 ], [
   phase(0.65, 'sway', [
     atk('fan', 2.4, 'cannonL', { count: 2, spread: 0.3 }),
     atk('fan', 2.4, 'cannonR', { count: 2, spread: 0.3 }),
-    atk('aimed', 2, 'skull'),
+    atk('aimed', 2.6, 'skull'),
   ], { rate: 0.9 }),
   phase(0.3, 'hover', [
     atk('homing', 2.8, 'skull'),
@@ -90,30 +90,30 @@ const titan = boss('titan', 'Endoskeleton titan', 285, { w: 620, h: 460 }, [
 // The well of this world's twist sits at (960, 300): at rest the black hole's core hangs over it.
 const singularity = boss('singularity', 'The Singularity', 290, { w: 700, h: 380 }, [
   armor('jetN', 0, -130, 50, 110, 6),
-  weak('core', 0, 10, 120, 120, 56),
+  weak('core', 0, 10, 120, 120, 96),
   armor('diskL', -190, 20, 230, 34, 8),
   armor('diskR', 190, 20, 230, 34, 8),
-  weak('jet', 0, 120, 50, 110, 26),
-  weak('moonL', -290, 70, 70, 70, 16),
-  weak('moonR', 290, 70, 70, 70, 16),
+  weak('jet', 0, 120, 50, 110, 46),
+  weak('moonL', -290, 70, 70, 70, 28),
+  weak('moonR', 290, 70, 70, 70, 28),
 ], [
   phase(0.66, 'hover', [
-    atk('spiral', 4.6, 'moonL', { count: 12 }),
-    atk('spiral', 4.6, 'moonR', { count: 12 }),
-    atk('aimed', 2, 'jet'),
+    atk('spiral', 4, 'moonL', { count: 12 }),
+    atk('spiral', 4, 'moonR', { count: 12 }),
+    atk('fan', 2, 'jet', { count: 3, spread: 0.3 }),
   ]),
   phase(0.33, 'orbit', [
     atk('laser', 6.5, 'moonL'),
     atk('laser', 7.5, 'moonR'),
-    atk('fan', 2.6, 'jet', { count: 5, spread: 0.7 }),
+    atk('fan', 2.2, 'jet', { count: 5, spread: 0.7 }),
     atk('ring', 5.4, 'diskL', { count: 12 }),
     atk('ring', 5.8, 'diskR', { count: 12 }),
   ], { rate: 1.1, minions: [minion('diver', 2, 10, 'diskL')] }),
   phase(0, 'charge', [
-    atk('rain', 3.4, 'diskL', { count: 6, spread: 440 }),
-    atk('rain', 3.4, 'diskR', { count: 6, spread: 440 }),
+    atk('rain', 3, 'diskL', { count: 6, spread: 440 }),
+    atk('rain', 3, 'diskR', { count: 6, spread: 440 }),
     atk('spiral', 4.8, 'jet', { count: 16 }),
-    atk('homing', 3, 'jet'),
+    atk('homing', 2.4, 'jet'),
     atk('laser', 7.5, 'moonL'),
   ], { rate: 1.4, minions: [minion('diver', 3, 8, 'diskR'), minion('carrier', 1, 18, 'diskL')] }),
 ]);

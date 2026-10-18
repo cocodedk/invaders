@@ -11,9 +11,9 @@ const mothership = boss('mothership', 'Mothership', 240, { w: 640, h: 220 }, [
   armor('dome', 0, -60, 240, 80, 8),
   armor('wingL', -240, 10, 150, 70, 6),
   armor('wingR', 240, 10, 150, 70, 6),
-  weak('gunL', -110, 50, 80, 60, 20),
-  weak('gunR', 110, 50, 80, 60, 20),
-  weak('eye', 0, 70, 90, 70, 30),
+  weak('gunL', -110, 50, 80, 60, 44),
+  weak('gunR', 110, 50, 80, 60, 44),
+  weak('eye', 0, 70, 90, 70, 70),
 ], [
   phase(0.65, 'sway', [
     atk('aimed', 2.2, 'eye'),
@@ -37,35 +37,35 @@ const mothership = boss('mothership', 'Mothership', 240, { w: 640, h: 220 }, [
 // The tiers are split by a shaft down the middle: the eye hangs in it at the bottom, the spire sits
 // at its top, so the spire opens to the player's fire as soon as the eye is gone.
 const pyramid = boss('pyramid', 'Corporate pyramid', 250, { w: 560, h: 300 }, [
-  weak('spire', 0, -105, 60, 60, 16),
+  weak('spire', 0, -105, 60, 60, 36),
   armor('capL', -75, -55, 60, 50, 3),
   armor('capR', 75, -55, 60, 50, 3),
   armor('midL', -100, 0, 110, 56, 4),
   armor('midR', 100, 0, 110, 56, 4),
   armor('baseL', -133, 60, 176, 56, 4),
   armor('baseR', 133, 60, 176, 56, 4),
-  weak('eye', 0, 105, 80, 44, 28),
-  weak('signL', -150, 100, 90, 40, 14),
-  weak('signR', 150, 100, 90, 40, 14),
+  weak('eye', 0, 105, 80, 44, 62),
+  weak('signL', -150, 100, 90, 40, 32),
+  weak('signR', 150, 100, 90, 40, 32),
 ], [
   phase(0.6, 'hover', [
-    atk('rain', 3.2, 'baseL', { count: 3, spread: 300 }),
-    atk('rain', 3.2, 'baseR', { count: 3, spread: 300 }),
-    atk('fan', 3.6, 'eye', { count: 3, spread: 0.5 }),
+    atk('rain', 2.6, 'baseL', { count: 3, spread: 300 }),
+    atk('rain', 2.6, 'baseR', { count: 3, spread: 300 }),
+    atk('fan', 3, 'eye', { count: 5, spread: 0.7 }),
   ]),
   phase(0.25, 'sway', [
-    atk('rain', 3, 'baseL', { count: 4, spread: 340 }),
-    atk('rain', 3, 'baseR', { count: 4, spread: 340 }),
-    atk('homing', 3.4, 'signL'),
-    atk('homing', 3.4, 'signR'),
-    atk('laser', 8, 'eye'),
+    atk('rain', 2.6, 'baseL', { count: 4, spread: 340 }),
+    atk('rain', 2.6, 'baseR', { count: 4, spread: 340 }),
+    atk('homing', 3, 'signL'),
+    atk('homing', 3, 'signR'),
+    atk('laser', 7, 'eye'),
   ], { rate: 1.1, minions: [minion('gunner', 2, 12, 'signL')] }),
   phase(0, 'orbit', [
-    atk('rain', 2.6, 'baseL', { count: 5, spread: 380 }),
-    atk('rain', 2.6, 'baseR', { count: 5, spread: 380 }),
-    atk('spiral', 4.8, 'spire', { count: 14 }),
-    atk('fan', 3, 'eye', { count: 5, spread: 0.9 }),
-    atk('laser', 7, 'signR'),
+    atk('rain', 2.2, 'baseL', { count: 5, spread: 380 }),
+    atk('rain', 2.2, 'baseR', { count: 5, spread: 380 }),
+    atk('spiral', 4.2, 'spire', { count: 14 }),
+    atk('fan', 2.6, 'eye', { count: 5, spread: 0.9 }),
+    atk('laser', 6, 'signR'),
   ], { rate: 1.2, minions: [minion('gunner', 2, 10, 'signR'), minion('carrier', 1, 18, 'capL')] }),
 ]);
 
@@ -74,24 +74,24 @@ const fortress = boss('fortress', 'Star fortress', 235, { w: 760, h: 280 }, [
   armor('dish', -190, -70, 160, 120, 8),
   armor('plateL', -120, 40, 150, 110, 6),
   armor('plateR', 120, 40, 150, 110, 6),
-  weak('turretL', -250, 70, 90, 60, 24),
-  weak('turretR', 250, 70, 90, 60, 24),
-  hull('core', 0, 60, 70, 90, 40),
+  weak('turretL', -250, 70, 90, 60, 49),
+  weak('turretR', 250, 70, 90, 60, 49),
+  hull('core', 0, 60, 70, 90, 62),
 ], [
   phase(0.7, 'sway', [
-    atk('aimed', 2.2, 'turretL'),
-    atk('aimed', 2.2, 'turretR'),
-    atk('fan', 5, 'dish', { count: 3, spread: 0.5 }),
+    atk('fan', 2, 'turretL', { count: 3, spread: 0.3 }),
+    atk('fan', 2, 'turretR', { count: 3, spread: 0.3 }),
+    atk('fan', 4, 'dish', { count: 5, spread: 0.6 }),
   ], { rate: 0.8 }),
   phase(0.4, 'hover', [
-    atk('laser', 6.5, 'dish'),
-    atk('fan', 3.4, 'turretL', { count: 3, spread: 0.6 }),
-    atk('fan', 3.4, 'turretR', { count: 3, spread: 0.6 }),
+    atk('laser', 5.5, 'dish'),
+    atk('fan', 2.8, 'turretL', { count: 5, spread: 0.7 }),
+    atk('fan', 2.8, 'turretR', { count: 5, spread: 0.7 }),
   ], { minions: [minion('diver', 3, 9, 'plateR')] }),
   phase(0, 'charge', [
-    atk('ring', 3.8, 'core', { count: 14 }),
-    atk('rain', 4.4, 'core', { count: 7, spread: 420 }),
-    atk('laser', 7, 'dish'),
+    atk('ring', 3.2, 'core', { count: 14 }),
+    atk('rain', 3.6, 'core', { count: 7, spread: 420 }),
+    atk('laser', 6, 'dish'),
   ], { open: ['core'], minions: [minion('carrier', 1, 18, 'plateL')] }),
 ]);
 
@@ -101,11 +101,11 @@ const shogun = boss('shogun', 'Shogun mecha', 320, { w: 600, h: 440 }, [
   armor('torso', 0, -40, 200, 150, 10),
   armor('pauldronL', -160, -70, 110, 110, 6),
   armor('pauldronR', 160, -70, 110, 110, 6),
-  weak('core', 0, 70, 90, 90, 36),
+  weak('core', 0, 70, 90, 90, 70),
   armor('legL', -130, 130, 90, 170, 6),
   armor('legR', 130, 130, 90, 170, 6),
-  weak('bladeL', -270, 60, 40, 230, 18),
-  weak('bladeR', 270, 60, 40, 230, 18),
+  weak('bladeL', -270, 60, 40, 230, 34),
+  weak('bladeR', 270, 60, 40, 230, 34),
 ], [
   phase(0.6, 'sway', [
     atk('shuriken', 2.4, 'bladeL'),
