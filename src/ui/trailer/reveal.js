@@ -4,20 +4,18 @@
 // time. Each is (ctx, art, style, t, out, y0, secs): art from draw.js bakeCard, t seconds in, out
 // the fade-out factor, y0 the art's top. The light sprites they share are cached once.
 //   REVEAL[style.reveal](...)      bloom(color): a soft radial light sprite
-import { W, H, cached, hash, lin, rad } from '../sprites.js';
+import { W, H, byColor, cached, hash, lin, radial } from '../sprites.js';
 import { clamp, smooth, easeOut } from '../../core/math.js';
 
-const radial = (key, color, stops) => cached(key + color, 256, 256, (g) => {
-  g.fillStyle = rad(g, 128, 128, 0, 128, stops.map(([at, a]) => [at, a < 0 ? 'rgba(0,0,0,0)' : color]));
-  g.globalAlpha = 1;
-  g.fillRect(0, 0, 256, 256);
-});
-export const bloom = (color) => radial('bloom', color, [[0, 1], [1, -1]]);
-const moon = () => radial('moon', '#b3151d', [[0, 1], [0.62, 1], [1, -1]]);
-const streak = (color) => cached('streak' + color, 512, 16, (g) => {
-  g.fillStyle = lin(g, 0, 0, 512, 0, [[0, 'rgba(0,0,0,0)'], [0.5, color], [1, 'rgba(0,0,0,0)']]);
+const CLEAR = 'rgba(0,0,0,0)';
+const MOON = '#b3151d';
+export const bloom = byColor((c) => cached('bloom' + c, 256, 256, radial([[0, c], [1, CLEAR]])));
+const paintMoon = radial([[0, MOON], [0.62, MOON], [1, CLEAR]]);
+const moon = () => cached('moon', 256, 256, paintMoon);
+const streak = byColor((c) => cached('streak' + c, 512, 16, (g) => {
+  g.fillStyle = lin(g, 0, 0, 512, 0, [[0, CLEAR], [0.5, c], [1, CLEAR]]);
   g.fillRect(0, 6, 512, 4);
-});
+}));
 
 // Draw the art at y0, scaled about the frame's centre, at alpha a.
 function put(ctx, art, y0, a, sx = 1, sy = sx, dx = 0) {
