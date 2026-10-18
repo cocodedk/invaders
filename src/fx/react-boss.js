@@ -9,7 +9,7 @@ const CRACK = ['#ffffff', '#fff6c8', '#ffd24a'];
 
 // The warned part glows brighter until it fires (ev.warn s later), and a ring closes in on it.
 function bossWarn(fx, ev) {
-  addFlash(fx, { x: ev.x, y: ev.y, r: 90, color: CHARGE, ramp: true, life: ev.warn, tag: 'charge' });
+  addFlash(fx, { x: ev.x, y: ev.y, r: 90, color: CHARGE, ramp: 1, life: ev.warn, tag: 'charge' });
   addRing(fx, { x: ev.x, y: ev.y, r0: 120, maxR: 10, width: 3, color: '#ff5a4a', kind: 'charge', life: ev.warn });
 }
 

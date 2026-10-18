@@ -6,6 +6,7 @@ import { between } from '../core/rng.js';
 import { clamp, TAU } from '../core/math.js';
 import { HEIGHT } from '../core/kinds.js';
 import { count, debris, dust, FIRE, METAL, smoke, sparks } from './emit.js';
+import { BONUS_Y } from './react-fight.js';
 
 const POWER_COLORS = { spread: '#ffd24a', laser: '#ff4fd8', rapid: '#6ad6ff', shield: '#5cf0ff', bomb: '#ff8a3a' };
 const GLYPH = ['#5dff9a', '#b8ffd0', '#ffffff'];
@@ -16,6 +17,12 @@ const POINTS = '#fff6c8'; // a pickup's points, in the score's pale gold
 const STREAK = 0.5; // s a pickup swept up at the clear takes to fly into the ship
 const TAIL = 5; // glows behind its head
 const LAG = 0.03; // s between two of them
+const FADE = 0.35; // s the ship's glow takes to fade once they have landed
+const BONUS_GAP = 64; // px a swept pickup's points keep from the "+N BONUS" row, above or below it
+
+// Where a swept pickup's points pop up: where it was, unless that is on the bonus row (the two pop-ups
+// rise at the same speed, so clear at the start is clear throughout).
+const offBonus = (y) => (Math.abs(y - BONUS_Y) >= BONUS_GAP ? y : y < BONUS_Y ? BONUS_Y - BONUS_GAP : BONUS_Y + BONUS_GAP);
 
 // A pickup caught: a ring and sparks in its colour, its name and, above it, its points.
 function pickup(fx, ev, rng) {
@@ -32,7 +39,7 @@ function pickup(fx, ev, rng) {
 // and live longer by as much, so every one of them lands on the ship.
 function sweep(fx, ev, rng, world) {
   const color = POWER_COLORS[ev.kind] ?? '#ffffff';
-  addPopup(fx, { x: ev.x, y: ev.y - 24, text: '+' + ev.points, color: POINTS, scale: 1.2, life: 1.4 });
+  addPopup(fx, { x: ev.x, y: offBonus(ev.y - 24), text: '+' + ev.points, color: POINTS, scale: 1.2, life: 1.4 });
   const ship = world?.ship;
   if (!ship) return;
   const vx = (ship.x - ev.x) / STREAK;
@@ -45,7 +52,21 @@ function sweep(fx, ev, rng, world) {
       color, kind: 'ember', additive: true,
     });
   }
-  addFlash(fx, { x: ship.x, y: ship.y, r: 70, color, ramp: true, life: STREAK, tag: 'sweep' });
+  shipGlow(fx, ship, color);
+}
+
+// The whole sweep lands on one tick, so the ship gets one glow (R52), a little bigger and brighter for
+// each pickup after the first: it brightens as the comets fly in, then fades. One not yet stepped is
+// this tick's.
+function shipGlow(fx, ship, color) {
+  const glow = fx.flashes.find((f) => f.tag === 'sweep' && f.life === f.max);
+  if (!glow) {
+    const life = STREAK + FADE;
+    addFlash(fx, { x: ship.x, y: ship.y, r: 70, alpha: 0.7, color, ramp: STREAK / life, life, tag: 'sweep' });
+    return;
+  }
+  glow.r = Math.min(105, glow.r + 7);
+  glow.alpha = Math.min(1, glow.alpha + 0.1);
 }
 
 // A power-up starting rings out from the ship; one running out fizzles into smoke.

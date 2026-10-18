@@ -5,7 +5,7 @@ import { kindsOf, ofKind, react, run } from './fx-kit.js';
 test('bossWarn: a charge glow on the firing part that builds until the shot, plus a closing ring', () => {
   const fx = react({ type: 'bossWarn', kind: 'mothership', part: 'gunL', pattern: 'aimed', x: 700, y: 250, warn: 0.7 });
   const glow = fx.flashes[0];
-  assert.deepEqual([glow.x, glow.y, glow.ramp], [700, 250, true]);
+  assert.deepEqual([glow.x, glow.y, glow.ramp], [700, 250, 1]);
   assert.equal(glow.max, 0.7);
   const ring = fx.rings[0];
   assert.ok(ring.r0 > ring.maxR, 'the ring closes in on the part');

@@ -34,7 +34,7 @@ test('flashes, pop-ups and slices carry defaults, fade and expire', () => {
   addPopup(fx, { x: 10, y: 100, text: '+100', life: 0.5 });
   addSlice(fx, { x: 0, y: 0, w: 40, h: 5, dx: 10, life: 0.2 });
   const [f] = fx.flashes;
-  assert.deepEqual([f.max, f.alpha, f.full, f.ramp], [0.1, 1, false, false]);
+  assert.deepEqual([f.max, f.alpha, f.full, f.ramp], [0.1, 1, false, 0]);
   assert.equal(fx.popups[0].max, 0.5);
   assert.equal(fx.slices[0].max, 0.2);
   run(fx, 0.25);

@@ -4,8 +4,9 @@
 //   rings     shockwaves   { x, y, r, r0, maxR, width, color, kind, life, max }
 //             r eases from r0 to maxR; r0 > maxR is an inward ring. kind 'ring'|'lens'|'charge'|'shield'
 //   flashes   glow flashes { x, y, r, color, alpha, full, ramp, tag, life, max }
-//             full: lights the whole frame (x, y, r unused); ramp: brightens toward the end (a
-//             charge) instead of fading; alpha is the peak; tag names the cause
+//             full: lights the whole frame (x, y, r unused); ramp: the share of its life spent
+//             brightening before it fades (0 fades from the start, 1 a charge that peaks at its end);
+//             alpha is the peak; tag names the cause
 //   popups    floating text { x, y, vy, text, color, scale, life, max }
 //   slices    glitch bands { x, y, w, h, dx, color, life, max }: shift the band of the frame by dx
 //   shake     screen-shake amplitude in px; shakeX/shakeY the offset to apply this frame
@@ -43,7 +44,7 @@ function push(list, e) {
 }
 
 export const addFlash = (fx, f) => push(fx.flashes, {
-  x: MID_X, y: MID_Y, r: 100, color: '#ffffff', alpha: 1, full: false, ramp: false, tag: 'glow', life: 0.15, ...f,
+  x: MID_X, y: MID_Y, r: 100, color: '#ffffff', alpha: 1, full: false, ramp: 0, tag: 'glow', life: 0.15, ...f,
 });
 
 export const addRing = (fx, r) => {
@@ -59,8 +60,12 @@ export const addSlice = (fx, s) => push(fx.slices, {
   x: 0, y: 0, w: 60, h: 6, dx: 16, color: '#5dff9a', life: 0.2, ...s,
 });
 
-// How strong a flash is now, 0..1: fading out, or for a ramp (a charge) brightening toward its end.
-export const flashK = (f) => (f.ramp ? 1 - f.life / f.max : f.life / f.max);
+// How strong a flash is now, 0..1: brightening through the first `ramp` of its life, fading after.
+export function flashK(f) {
+  const t = 1 - f.life / f.max;
+  if (t < f.ramp) return t / f.ramp;
+  return f.ramp < 1 ? (1 - t) / (1 - f.ramp) : 1; // a charge at its very end (life rounding) stays at its peak
+}
 
 // Count every entry's life down, drop the spent ones and step the rest.
 const stepTimed = (list, dt, onStep) => prune(list, (e) => {

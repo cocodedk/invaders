@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { kindsOf, ofKind, react, run } from './fx-kit.js';
+import { createFx, flashK } from '../../src/fx/fx.js';
+import { applyEvents } from '../../src/fx/react.js';
+import { makeRng } from '../../src/core/rng.js';
 
 const world = { ship: { x: 800, y: 900 } };
 
@@ -36,6 +39,49 @@ test('a swept-up pickup streaks into the ship and pops +500 where it was, with n
   run(fx, 1);
   assert.equal(fx.particles.length, 0, 'gone once it has landed');
   assert.doesNotThrow(() => react(ev), 'no world, no crash');
+});
+
+// R52: the clear's whole sweep, in one tick's events.
+const sweepOf = (events) => {
+  const fx = createFx();
+  applyEvents(fx, events, makeRng(1), world);
+  return fx;
+};
+const swept = (n) => Array.from({ length: n }, (_, i) => ({ type: 'sweep', kind: 'laser', x: 200 + 150 * i, y: 300, points: 500 }));
+const glows = (fx) => fx.flashes.filter((f) => f.x === 800 && f.y === 900);
+
+test('a sweep gives the ship one glow, a little stronger for each pickup, that fades out once they land', () => {
+  const [one] = glows(sweepOf(swept(1)));
+  const many = glows(sweepOf(swept(6)));
+  assert.equal(many.length, 1, 'one glow, not one per pickup');
+  assert.ok(many[0].alpha > one.alpha && many[0].r > one.r, 'stronger for more pickups');
+  const [most] = glows(sweepOf(swept(30)));
+  assert.ok(most.alpha <= 1 && most.r <= 1.6 * one.r, 'within a cap');
+  const at = (s) => {
+    const fx = sweepOf(swept(6));
+    run(fx, s);
+    return glows(fx).map(flashK)[0] ?? 0;
+  };
+  assert.ok(at(0.45) > at(0.2), 'it brightens as they fly in');
+  assert.ok(at(0.7) > 0 && at(0.7) < at(0.5), 'then fades once they have landed, instead of cutting off');
+  assert.equal(at(1.5), 0, 'and is gone');
+});
+
+test('a swept pickup\'s +500 keeps clear of the "+N BONUS" row; away from it, it pops where the pickup was', () => {
+  const fx = sweepOf([
+    { type: 'sweep', kind: 'laser', x: 960, y: 530, points: 500 }, // its +500 would land on the bonus
+    { type: 'sweep', kind: 'bomb', x: 1150, y: 480, points: 500 },
+    { type: 'sweep', kind: 'rapid', x: 400, y: 224, points: 500 },
+    { type: 'cleared', score: 9000, bonus: 5000, stars: 3 },
+  ]);
+  const bonus = fx.popups.find((p) => p.text.endsWith('BONUS'));
+  const points = fx.popups.filter((p) => p.text === '+500');
+  assert.equal(points.length, 3);
+  for (const p of points.slice(0, 2)) {
+    assert.ok(Math.abs(p.y - bonus.y) >= 60, `+500 at ${p.y}, the bonus at ${bonus.y}`); // clear even as both pop in
+    assert.equal(p.vy, bonus.vy, 'they rise together, so it stays clear');
+  }
+  assert.equal(points[2].y, 200, 'away from the row it stays where it was');
 });
 
 test('power on: a ring leaves the ship; off: it fizzles into smoke; no world, no crash', () => {

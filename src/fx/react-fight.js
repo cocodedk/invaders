@@ -102,9 +102,13 @@ function waveClear(fx, ev) {
   if (!ev.last) addPopup(fx, { x: MID_X, y: 420, text: 'WAVE CLEAR', color: '#9dffb0', scale: 2.2, life: 1.6 });
 }
 
+// The row the clear's "+N BONUS" pops up on; a pickup swept up on the same tick keeps its points off it
+// (react-world.js).
+export const BONUS_Y = 500;
+
 function cleared(fx, ev) {
   addFlash(fx, { full: true, alpha: 0.3, life: 0.5, tag: 'clear' });
-  addPopup(fx, { x: MID_X, y: 500, text: '+' + ev.bonus + ' BONUS', color: '#ffe14a', scale: 2, life: 2 });
+  addPopup(fx, { x: MID_X, y: BONUS_Y, text: '+' + ev.bonus + ' BONUS', color: '#ffe14a', scale: 2, life: 2 });
 }
 
 export const FIGHT = { kill, explode, hit, fire, shipHit, shieldHit, nearMiss, bomb, waveClear, cleared };
