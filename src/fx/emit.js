@@ -8,7 +8,8 @@ export const FIRE = ['#fff6c8', '#ffd24a', '#ff9a2e', '#ff6a1a'];
 const SMOKE = ['#3a3a3f', '#55555c', '#6e6e76'];
 export const METAL = ['#8d96a8', '#5b6478', '#c8d0e0'];
 
-// Each power's colour: its pickup, its muzzle flash and its flare are all this one.
+// Each power's colour for the fx reactions (pickup, sweep, muzzle, shield flare). Fixed here; the capsule,
+// HUD and shield bubble the screens draw take theirs from look.power.
 const POWER_COLORS = { spread: '#ffd24a', laser: '#ff4fd8', rapid: '#6ad6ff', shield: '#5cf0ff', bomb: '#ff8a3a' };
 export const powerColor = (kind) => POWER_COLORS[kind] ?? '#ffffff';
 

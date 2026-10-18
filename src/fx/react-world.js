@@ -22,9 +22,10 @@ const GLOW_R_MAX = 1.5 * GLOW_R;
 const GLOW_ALPHA = 0.7; // and brightens by GLOW_ALPHA_STEP, to a peak of 1
 const GLOW_ALPHA_STEP = 0.1;
 
+const BONUS_GAP = 64; // px
+
 // Where a swept pickup's points pop up: where it was, unless that is on the bonus row (the two pop-ups
-// rise at the same speed, so clear at the start is clear throughout).
-const BONUS_GAP = 64; // px a swept pickup's points keep from the "+N BONUS" row, above or below it
+// rise at the same speed, so clear at the start is clear throughout), in which case BONUS_GAP above or below it.
 const offBonus = (y) => (Math.abs(y - BONUS_Y) >= BONUS_GAP ? y : y < BONUS_Y ? BONUS_Y - BONUS_GAP : BONUS_Y + BONUS_GAP);
 
 // A pickup caught: a ring and sparks in its colour, its name and, above it, its points.
