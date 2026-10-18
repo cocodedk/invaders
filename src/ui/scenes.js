@@ -15,9 +15,10 @@ import { play, setBeam } from './audio.js';
 const seed = () => crypto.getRandomValues(new Uint32Array(1))[0];
 const BACKDROP_AGAIN = 2.5; // s after the backdrop battle ends before it starts over
 
-// A random world's wave level, flown by the autopilot behind the logo.
-export function pickBackdrop() {
-  const waves = LEVELS.filter((l) => l.waves);
+// A random world's wave level, flown by the autopilot behind the logo; never world `skip` (the one
+// the title showed last, so a return from a level brings another world: M5).
+export function pickBackdrop(skip = 0) {
+  const waves = LEVELS.filter((l) => l.waves && l.world !== skip);
   return waves[seed() % waves.length];
 }
 
