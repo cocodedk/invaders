@@ -1,18 +1,18 @@
 # Invaders
 
-A cinematic arcade shooter for the browser. Fly anywhere in the lower screen, shoot down formations
-and beat a boss at the end of each world: 8 worlds with 5 levels each, every world with its own look,
-music and one rule only it has. Power-ups, smart bombs and combos along the way. Clear a level and
-the game cuts a movie trailer from your own run; the Cinema on the title screen replays your best
-ones. Plain HTML and ES modules: no dependencies, no build step, no network.
+A cinematic arcade shooter for the browser. Fly anywhere in the lower half of the screen, shoot down
+alien formations and beat a boss at the end of every world: 8 worlds and 40 levels, each world with
+its own look, music and one rule only it has. Spread shot, laser, rapid fire, shield and smart bombs
+along the way, and combos for the score.
 
-## Run locally
+Clear a level and the game cuts a movie trailer from your own run, title cards and all. The Cinema
+on the title screen keeps your best run of every level. Lose one and you get the blooper instead.
 
-```
-python3 -m http.server 8000
-```
+[![Invaders: a boss fight in the Neon Rain world](og.png)](https://invaders.cocode.dk)
 
-Open http://localhost:8000/ in a browser. Any static file server works, at any sub-path.
+## Play
+
+**[invaders.cocode.dk](https://invaders.cocode.dk)**: free, nothing to install. Keyboard or mouse.
 
 ## Controls
 
@@ -25,12 +25,41 @@ Open http://localhost:8000/ in a browser. Any static file server works, at any s
 | Mute | M | |
 | Confirm in menus | Enter | click |
 
-Any key skips a trailer.
+Any key skips a trailer. "Watch, then try" on the title screen shows each move before you play.
 
-## Test
+## Run locally
 
+Plain HTML, CSS and JavaScript modules: no dependencies, no build step, no network requests at
+runtime. Every URL is relative, so the folder also works under a sub-path.
+
+```sh
+git clone https://github.com/cocodedk/invaders.git
+cd invaders
+python3 -m http.server 8000   # then open http://localhost:8000/
 ```
+
+Any static file server works. Opening `index.html` straight from disk does not, because browsers
+block ES modules on `file://`.
+
+## Tests
+
+```sh
 npm test
 ```
 
-The design is in `docs/superpowers/specs/`, the build plan in `docs/superpowers/plans/`.
+Node 22 or newer, nothing to install. The suites cover the simulation (formations, bosses, bullet
+patterns, replays that re-simulate a run exactly) and the effects state; a repo test keeps every
+code file under 200 lines and the game free of external URLs. The design spec and build plan are in
+`docs/superpowers/`.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go through [SECURITY.md](SECURITY.md).
+
+## Author
+
+**Babak Bandpey** — [https://cocode.dk](https://cocode.dk) | [LinkedIn](https://linkedin.com/in/babakbandpey) | [GitHub](https://github.com/cocodedk)
+
+## License
+
+Apache-2.0 | © 2026 [Cocode](https://cocode.dk) | Created by [Babak Bandpey](https://linkedin.com/in/babakbandpey)
