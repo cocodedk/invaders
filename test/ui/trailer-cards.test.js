@@ -3,16 +3,13 @@ import assert from 'node:assert/strict';
 import { VOICES, KEYS, statsOf, fillLine, cardsFor, finalCard } from '../../src/ui/trailer/cards.js';
 import { levelById, WORLDS } from '../../src/core/levels.js';
 import { bossDef } from '../../src/core/bosses-data.js';
+import { GUARDED, guardOf, borrowedIn } from './borrowed-kit.js';
 
 const ZERO = { kills: 0, near: 0, combo: 0, time: 0, bombs: 0, stars: 0, hits: 0, boss: null };
 const ONE = { kills: 1, near: 1, combo: 1, time: 1, bombs: 1, stars: 1, hits: 1 };
 const TYPICAL = { kills: 47, near: 9, combo: 6, time: 107.4, bombs: 2, stars: 3, hits: 0 };
 const LONG = { kills: 1234, near: 88, combo: 8, time: 1800, bombs: 3, stars: 2, hits: 2 };
 const ALL = [ZERO, ONE, TYPICAL, LONG];
-
-// Well-known lines of the films the worlds pay homage to: none may appear (original lines only).
-const BORROWED = ['FAR, FAR AWAY', 'GALAXY FAR', 'NO ONE CAN HEAR', 'TEARS IN RAIN', 'RED PILL', 'NO SPOON',
-  "I'LL BE BACK", 'HASTA LA VISTA', 'JUDGMENT DAY', 'GO GENTLE', 'THE FORCE', 'WHITE RABBIT', 'GAME OVER, MAN'];
 
 // A filled line reads well: no placeholder or junk left, no bare zero count, no "1 THINGS", no x0/x1 combo.
 function readsWell(line, where) {
@@ -23,8 +20,20 @@ function readsWell(line, where) {
   assert.doesNotMatch(line, /(^|\s)1 [A-Z]+S\b/, `${where}: singular/plural in "${line}"`);
   assert.doesNotMatch(line, /×[01]\b/, `${where}: a combo of nothing in "${line}"`);
   assert.doesNotMatch(line, /\s{2,}/, `${where}: double space in "${line}"`);
-  for (const b of BORROWED) assert.ok(!line.includes(b), `${where}: borrowed line "${b}"`);
+  assert.equal(borrowedIn(line), null, `${where}: borrows a guarded line: "${line}"`);
 }
+
+// R48: the guard knows its lines by hash alone. A harmless made-up line, guarded only here, shows that a
+// card holding a guarded line anywhere fails, whatever its case or spacing, and that a near miss passes.
+test('the borrowed-line guard finds a guarded line by its hash, anywhere in a card line', () => {
+  const guard = guardOf(['TOAST AT DAWN']);
+  assert.ok(borrowedIn('WE RAISE A TOAST AT DAWN.', guard));
+  assert.ok(borrowedIn('we raise a toast   at dawn', guard), 'case and spacing do not hide it');
+  assert.equal(borrowedIn('A TOAST AT NOON.', guard), null);
+  assert.equal(GUARDED.length, 13, 'all thirteen guarded lines are kept');
+  assert.equal(new Set(GUARDED.map(([, hash]) => hash)).size, 13);
+  for (const [n, hash] of GUARDED) assert.ok(n > 0 && /^[0-9a-f]{64}$/.test(hash), hash);
+});
 
 test('every world has three cards of one to three lines, and every placeholder is a known stat', () => {
   assert.equal(VOICES.length, 8);
