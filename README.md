@@ -1,23 +1,36 @@
 # Invaders
 
-A single-player 2D Space Invaders game for the browser. Fly freely, shoot down formations, beat
-a boss at the end of each world: 8 film-inspired worlds with 5 levels each, power-ups, smart
-bombs, and a trailer cut from your own run. Plain HTML and ES modules, no dependencies.
+A cinematic arcade shooter for the browser. Fly anywhere in the lower screen, shoot down formations
+and beat a boss at the end of each world: 8 worlds with 5 levels each, every world with its own look,
+music and one rule only it has. Power-ups, smart bombs and combos along the way. Clear a level and
+the game cuts a movie trailer from your own run; the Cinema on the title screen replays your best
+ones. Plain HTML and ES modules: no dependencies, no build step, no network.
 
-Work in progress: the rules, levels and tests come first; the screens follow.
-
-## Run
+## Run locally
 
 ```
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000/ in a browser.
+Open http://localhost:8000/ in a browser. Any static file server works, at any sub-path.
+
+## Controls
+
+| Action | Keyboard | Mouse |
+|---|---|---|
+| Move | Arrows or WASD | the ship follows the pointer |
+| Fire (hold for auto-fire) | Space | left button |
+| Smart bomb | B or Shift | right button |
+| Pause | P or Esc | |
+| Mute | M | |
+| Confirm in menus | Enter | click |
+
+Any key skips a trailer.
 
 ## Test
 
 ```
-node --test
+npm test
 ```
 
 The design is in `docs/superpowers/specs/`, the build plan in `docs/superpowers/plans/`.

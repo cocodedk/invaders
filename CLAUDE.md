@@ -1,6 +1,6 @@
 # Invaders — working notes
 
-A single-player 2D Space Invaders game for the browser and the Pi games menu: 8 film-inspired worlds
+A single-player cinematic arcade shooter for the browser and the Pi games menu: 8 cinematic worlds
 x 5 levels, free 2D flight, formations, bosses, power-ups, and a movie trailer cut from your own
 run. The design is `docs/superpowers/specs/2026-10-17-invaders-design.md` and the build plan is
 `docs/superpowers/plans/2026-10-17-invaders.md`; the spec is the authority. Barrage
@@ -11,7 +11,7 @@ import across repos.
 
 | What | Command |
 |---|---|
-| All tests | `node --test` (or `npm test`) |
+| All tests | `npm test` (`node --test "test/**/*.test.js"`) |
 | Play locally | `python3 -m http.server 8000`, then open http://localhost:8000/ |
 
 ## Layout
@@ -47,6 +47,6 @@ import across repos.
 
 `src/core/levels.js` and `levels-2.js` hold the 40 levels in a shorthand: `w(formation, cols,
 'roles', pattern, speed)` is one wave, `roles` being one letter per row (g grunt, d diver, u gunner,
-a armored, c carrier). A carrier row holds `cols` carriers, so carrier waves stay narrow. The repo
-test enforces the data rules (3-5 waves, at most 40 aliens a wave, a carrier on every wave level,
-four formations a world).
+a armored, c carrier). A carrier row holds `cols` carriers, so carrier waves stay narrow.
+`test/core/levels.test.js` enforces the data rules (3-5 waves, at most 40 aliens a wave, a carrier
+on every wave level, four formations a world).

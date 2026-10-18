@@ -4,22 +4,22 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 
 ## Goal
 
-A single-player 2D Space Invaders game for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 8 film-inspired worlds × 5 levels = 40 levels, free 2D
+A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
+as beautiful as Barrage (`../artillery`): 8 cinematic worlds × 5 levels = 40 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
 ## Stated by the user
 
-- Space Invaders, new project in `../`, many levels and variations, as beautiful as Barrage.
+- A classic arcade shooter, new project in `../`, many levels and variations, as beautiful as Barrage.
 - 1 player only. Free 2D movement. Any level playable at any time (no unlocking).
 - Variations: themed worlds, formation patterns, boss fights, power-ups. Worlds drawn from action
-  and sci-fi films — "Star Wars, Blade Runner, samurai movies… think out of the box".
+  and sci-fi film genres — think out of the box.
 - Approved the 8 worlds and the level rules; asked to be surprised with something nobody has done.
 - Barrage runs okay on the Pi.
 
 Assumptions (not stated, chosen here): English only; keyboard + mouse, no gamepad; installed on the
-Pi like Barrage; worlds are homages with original names — no film titles, characters, logos or
+Pi like Barrage; worlds evoke film genres under original names — no film titles, characters, logos or
 quoted lines, so the repo can be public.
 
 ## Rules
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a power-up.
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
-  sideways, drop at the edge, speed up as it thins), `sway`, `dive` (Galaga swoops from the sides),
+  sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
   `escort` (armored ring around carriers), `rain` (falls in columns), `orbit` (circles a point).
 - **Enemy bullet patterns** (shared library, data-driven): `aimed`, `fan`, `ring`, `spiral`,
@@ -69,16 +69,16 @@ quoted lines, so the repo can be public.
 Each world = palette + sky + 3 parallax layers + ambient particles + 5 alien sprites + boss +
 bunker style + power-up skins + music mood + **one twist** (a small rule only that world has).
 
-| # | World | Homage | Look | Twist | Boss |
+| # | World | Genre | Look | Twist | Boss |
 |---|---|---|---|---|---|
-| 1 | Arcade Origin | classic invaders | deep space, glowing CRT scanlines, crisp pixel aliens rendered with glow | classic bunkers in every wave; a bonus saucer crosses the top | Mothership |
-| 2 | Neon Rain | Blade Runner | night megacity, rain, holo-billboards, flying cars | darkness: aliens are lit only by their neon; lightning flashes light the whole screen | Corporate pyramid |
-| 3 | Twin Suns | Star Wars | desert planet, two suns, imperial silhouettes | sandstorm gusts push all bullets sideways (Barrage's wind) | Star fortress with a trench to fly into |
-| 4 | Ronin Moon | samurai films | ink-brush mountains, red moon, falling blossoms | enemy shots are slow, large shuriken; the ship's shots cut them | Shogun mecha |
-| 5 | Hive | Alien | biomechanical caverns, mist, eggs | destroyed armored aliens leave acid that drips down for 2 s | Hive queen |
-| 6 | Code Rain | The Matrix | falling green glyphs, the frame glitches | aliens blink-teleport between formation slots; near misses trigger 0.5× bullet time (8 s cooldown) | Agent core |
-| 7 | Iron Dawn | Terminator | burning future war, chrome, red eyes | armored aliens reassemble once after 2 s unless their wreck is shot | Endoskeleton titan |
-| 8 | Event Horizon | Interstellar | black hole with lensing, bent starlight | a gravity well bends every bullet, yours included | The Singularity |
+| 1 | Arcade Origin | classic arcade | deep space, glowing CRT scanlines, crisp pixel aliens rendered with glow | classic bunkers in every wave; a bonus saucer crosses the top | Mothership |
+| 2 | Neon Rain | rain-soaked cyberpunk city | night megacity, rain, holo-billboards, flying cars | darkness: aliens are lit only by their neon; lightning flashes light the whole screen | Corporate pyramid |
+| 3 | Twin Suns | desert space opera | desert planet, two suns, imperial silhouettes | sandstorm gusts push all bullets sideways (Barrage's wind) | Star fortress with a trench to fly into |
+| 4 | Ronin Moon | samurai ink-and-moon | ink-brush mountains, red moon, falling blossoms | enemy shots are slow, large shuriken; the ship's shots cut them | Shogun mecha |
+| 5 | Hive | biomechanical horror | biomechanical caverns, mist, eggs | destroyed armored aliens leave acid that drips down for 2 s | Hive queen |
+| 6 | Code Rain | digital-rain simulation | falling green glyphs, the frame glitches | aliens blink-teleport between formation slots; near misses trigger 0.5× bullet time (8 s cooldown) | Agent core |
+| 7 | Iron Dawn | machine-war future | burning future war, chrome, red eyes | armored aliens reassemble once after 2 s unless their wreck is shot | Endoskeleton titan |
+| 8 | Event Horizon | black-hole space epic | black hole with lensing, bent starlight | a gravity well bends every bullet, yours included | The Singularity |
 
 ## Look and effects
 
@@ -162,22 +162,27 @@ sky painter, parallax shapes, synth audio, storage, input, the fullscreen-safe s
 world = {
   level,                      // { id: 'w3-2', world: 3, index: 2, seed, waves | boss, bunkers, twist }
   t, tick,                    // seconds and ticks since start
+  rng, scale, intro, gap, march, nextId, // a { s } rng state, scaled difficulty, the wave's march state
   ship: { x, y, vx, vy, lives, invuln, power: null | { kind, left }, bombs, cooldown, alive },
   aliens: [alien], shots: [shot], bullets: [bullet], pickups: [pickup],
   bunkers: [{ x, y, w, h, mask }],
-  boss: null | { kind, x, y, parts: [{ id, dx, dy, w, h, hp, weak }], phase, hp, maxHp },
+  boss: null | { kind, x, y, hp, maxHp, phase, parts: [{ id, dx, dy, w, h, hp, max, weak, armor, … }],
+                 clock, enter, dying, blast, cd, mcd, warns },   // warns: attacks in their telegraph
   wave, score, combo: { mult, timer }, hits,
   state,                      // 'intro' | 'play' | 'cleared' | 'failed'
   events: [],                 // core pushes; main drains into fx, audio and the highlight log
+  wind, slow, saucer, wrecks, well, twist, // the level's twist (twists.js)
 }
-alien  = { id, role, x, y, hp, slot, mode /* 'enter'|'hold'|'dive'|'return' */, t }
+alien  = { id, role, x, y, hp, maxHp, slot, mode /* 'enter'|'hold'|'dive'|'return' */, t,
+           dive /* null | { fx, fy, ax, ay } */, minion /* true: launched by a boss */ }
 bullet = { pattern, x, y, vx, vy, r, life }   // shot is the same shape, owned by the ship
 ```
 
 Events: `fire | hit | kill | explode | bunker | pickup | power | bomb | shipHit | nearMiss |
-waveClear | bossPhase | bossDeath | cleared | failed`, each with its fields.
+waveClear | bossPhase | bossDeath | cleared | failed`, each with its fields (more were added since:
+the code's file headers list them all).
 
-API: `createWorld(level, rng)`, `stepWorld(world, dt, input)` with
+API: `createWorld(level, seed = level.seed)`, `stepWorld(world, dt, input)` with
 `input = { dx, dy /* -1..1 */, fire, bomb, target: null | { x, y } }`, `autopilot(world) -> input`,
 `encodeInputs(list) / decodeInputs(str)`, `replay(level, seed, inputs, { snapshotsAt })`,
 `pickHighlights(events, duration) -> [{ start, end, peak, kind }]`.

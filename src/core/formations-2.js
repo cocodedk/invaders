@@ -47,7 +47,7 @@ const ENTRY = {
   escort: (s, u) => ({ x: lerp(side(s) < 0 ? -140 : 2060, s.sx, late(u, s.col, 0.05)), y: s.sy }),
   // Columns fall in from above one after another.
   rain: (s, u) => ({ x: s.sx, y: lerp(-100, s.sy, late(u, s.col, 0.09)) }),
-  // Galaga: stream in from alternate sides on a curve that dips low before climbing to the slot.
+  // A swooping dive: stream in from alternate sides on a curve that dips low before climbing to the slot.
   dive: (s, u) => {
     const left = (s.col + s.row) % 2 === 0;
     const from = { x: left ? -120 : 2040, y: 160 + s.row * 50 };
