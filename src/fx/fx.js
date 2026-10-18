@@ -56,10 +56,8 @@ export const addPopup = (fx, p) => push(fx.popups, {
   x: MID_X, y: MID_Y, vy: -60, text: '', color: '#ffffff', scale: 1, life: 1, ...p,
 });
 
-// The row the clear's "+N BONUS" pops up on, and how far the points of a pickup swept up on the same
-// tick keep from it, above or below (react-fight.js, react-world.js).
+// The row the clear's "+N BONUS" pops up on (react-fight.js; react-world.js keeps swept points off it).
 export const BONUS_Y = 500;
-export const BONUS_GAP = 64; // px
 
 export const addSlice = (fx, s) => push(fx.slices, {
   x: 0, y: 0, w: 60, h: 6, dx: 16, color: '#5dff9a', life: 0.2, ...s,

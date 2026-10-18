@@ -1,6 +1,6 @@
 // Reactions to pickups and to each world's twist: lightning, glitches, sand, acid, wrecks, the well.
 import { addShake } from './camera.js';
-import { addFlash, addPopup, addRing, addSlice, BONUS_GAP, BONUS_Y } from './fx.js';
+import { addFlash, addPopup, addRing, addSlice, BONUS_Y } from './fx.js';
 import { addParticle } from './particles.js';
 import { between } from '../core/rng.js';
 import { clamp, TAU } from '../core/math.js';
@@ -26,6 +26,7 @@ const GLOW_ALPHA_STEP = 0.1;
 
 // Where a swept pickup's points pop up: where it was, unless that is on the bonus row (the two pop-ups
 // rise at the same speed, so clear at the start is clear throughout).
+const BONUS_GAP = 64; // px a swept pickup's points keep from the "+N BONUS" row, above or below it
 const offBonus = (y) => (Math.abs(y - BONUS_Y) >= BONUS_GAP ? y : y < BONUS_Y ? BONUS_Y - BONUS_GAP : BONUS_Y + BONUS_GAP);
 
 // A pickup caught: a ring and sparks in its colour, its name and, above it, its points.
