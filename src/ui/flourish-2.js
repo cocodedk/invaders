@@ -1,10 +1,11 @@
 // More flourishes (contract in flourish.js): lightning bolts from the fx flashes, heat shimmer,
 // acid drips, the burning war's horizon (blasts, tracer fire, gunship searchlights) and the photon
 // ring that turns round the well.
-import { W, rgba, hash, glow, soft, lighter, normal, makeCanvas } from './sprites.js';
+import { W, rgba, hash, glow, soft, lighter, normal, makeCanvas, lin } from './sprites.js';
 import { makeRng } from '../core/rng.js';
 import { WELL } from '../core/kinds.js';
 import { wellLight } from './sky-bodies-2.js';
+import { TAU } from '../core/math.js';
 
 // A bolt for every lightning flash, seeded by its birth so it holds still while it lives.
 function bolt(ctx, { fx }) {
@@ -105,10 +106,7 @@ function tracers(ctx, { t }) {
 function cone(color) {
   const c = makeCanvas(420, 1100);
   const g = c.getContext('2d');
-  const gr = g.createLinearGradient(0, 0, 0, 1100);
-  gr.addColorStop(0, rgba(color, 0.5));
-  gr.addColorStop(1, rgba(color, 0));
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, 0, 0, 0, 1100, [[0, rgba(color, 0.5)], [1, rgba(color, 0)]]);
   g.beginPath();
   g.moveTo(200, 0);
   g.lineTo(0, 1100);
@@ -141,7 +139,7 @@ function lens(ctx, { world, t }) {
   lighter(ctx);
   ctx.lineCap = 'round';
   for (let i = 0; i < 12; i++) {
-    const a = (i / 12) * Math.PI * 2 + t * 0.7;
+    const a = (i / 12) * TAU + t * 0.7;
     const side = 0.55 + 0.45 * Math.cos(a + 0.6);
     ctx.strokeStyle = rgba(i % 3 ? '#ffe8c0' : '#ffffff', 0.5 * side * k);
     ctx.lineWidth = 2.5;
@@ -153,7 +151,7 @@ function lens(ctx, { world, t }) {
   ctx.strokeStyle = rgba('#b8a8ff', 0.25 * (1 - pulse) * k);
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.ellipse(c.x, c.y, 90 + pulse * 240, (90 + pulse * 240) * 0.9, 0, 0, Math.PI * 2);
+  ctx.ellipse(c.x, c.y, 90 + pulse * 240, (90 + pulse * 240) * 0.9, 0, 0, TAU);
   ctx.stroke();
   ctx.lineCap = 'butt';
   normal(ctx);

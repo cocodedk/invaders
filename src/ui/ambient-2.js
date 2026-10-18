@@ -1,8 +1,9 @@
 // More ambient kinds: falling glyph code (Code Rain), starlight bent round the well (Event
 // Horizon) and CRT scanlines over the whole frame (Arcade Origin). Same contract as ambient.js.
-import { W, H, hash, glow, soft, wrap, cached } from './sprites.js';
+import { W, H, hash, glow, soft, wrap, cached, rad } from './sprites.js';
 import { glyphAtlas, drawGlyph } from './glyphs.js';
 import { WELL } from '../core/kinds.js';
+import { TAU } from '../core/math.js';
 
 // Columns of glyphs falling, a white-hot head and a fading tail; the marks flip as they fall.
 function glyphs(ctx, a, t) {
@@ -34,7 +35,7 @@ function lensed(ctx, a, t, drift, wind, world) {
   for (let i = 0; i < a.n; i++) {
     const h = hash(i * 11 + 1);
     const rr = 90 + h ** 1.7 * 440;
-    const ang = hash(i * 11 + 2) * Math.PI * 2 + t * a.speed * (100 / rr) ** 1.5;
+    const ang = hash(i * 11 + 2) * TAU + t * a.speed * (100 / rr) ** 1.5;
     const span = Math.min(2.4, 0.9 * (125 / rr) ** 2.2 + 0.02);
     ctx.strokeStyle = a.colors[i % a.colors.length];
     ctx.lineWidth = a.size[0] + (a.size[1] - a.size[0]) * hash(i * 11 + 3);
@@ -51,10 +52,7 @@ function lensed(ctx, a, t, drift, wind, world) {
 const tube = () => cached('crt', W, H, (g) => {
   g.fillStyle = 'rgba(0,0,0,0.42)';
   for (let y = 0; y < H; y += 3) g.fillRect(0, y, W, 1);
-  const gr = g.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, H * 1.05);
-  gr.addColorStop(0, 'rgba(0,0,0,0)');
-  gr.addColorStop(1, 'rgba(0,0,0,0.6)');
-  g.fillStyle = gr;
+  g.fillStyle = rad(g, W / 2, H / 2, H * 0.45, H * 1.05, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,0.6)']]);
   g.fillRect(0, 0, W, H);
 });
 

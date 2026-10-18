@@ -1,17 +1,14 @@
 // The trailer's film look, drawn from the film state (src/fx/film.js): colour grade toward the
 // world's tint, vignette, grain (cached noise tiles, one per film frame) and letterbox bars.
 // quality: the view's auto-quality level; at 0.5 the grain is skipped (R46).
-import { W, H, cached, hash } from './sprites.js';
+import { W, H, cached, hash, rad } from './sprites.js';
 
 const BAR = 138; // px per bar at full letterbox: 1920 x 804 inside, about 2.39 : 1
 const TILES = 4;
 const TILE = 256;
 
 const vignette = () => cached('vignette', W, H, (g) => {
-  const gr = g.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.95);
-  gr.addColorStop(0, 'rgba(0,0,0,0)');
-  gr.addColorStop(1, 'rgba(0,0,0,0.95)');
-  g.fillStyle = gr;
+  g.fillStyle = rad(g, W / 2, H / 2, H * 0.35, H * 0.95, [[0, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,0.95)']]);
   g.fillRect(0, 0, W, H);
 });
 

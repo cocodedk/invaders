@@ -1,7 +1,7 @@
 // Silhouette painters for the parallax layers, one per layer kind (adapted from Barrage). Each fills
 // `g` (w x h, the band standing on the frame's bottom) in the layer colour; `rng` is seeded, `out`
 // collects lights ({ x, y, r, color, mode, ph, a? }) and sign frames for the flourishes.
-import { rgba, shade } from './sprites.js';
+import { rgba, shade, lin } from './sprites.js';
 import { pick } from '../core/rng.js';
 import { profile, waves, ridgeTop } from './parallax-kit.js';
 import { CITY } from './parallax-city.js';
@@ -62,11 +62,7 @@ function ground(g, w, h, rng, L, out) {
 // Ink-wash peaks: tall and sharp, fading into mist at their feet, with dry-brush streaks.
 function ink(g, w, h, rng, L) {
   const top = ridgeTop(rng, w, h, L.roughness, 0.25, 2.2);
-  const gr = g.createLinearGradient(0, 0, 0, h);
-  gr.addColorStop(0, L.color);
-  gr.addColorStop(0.55, L.color);
-  gr.addColorStop(1, rgba(L.color, L.mist ?? 0.25));
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, 0, 0, 0, h, [[0, L.color], [0.55, L.color], [1, rgba(L.color, L.mist ?? 0.25)]]);
   profile(g, w, h, top);
   g.globalCompositeOperation = 'source-atop';
   g.strokeStyle = rgba(shade(L.color, -0.5), 0.35);

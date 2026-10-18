@@ -4,6 +4,7 @@
 import { INK, cached, glow, rgba } from './sprites.js';
 import { FRAMES, ICONS, disc, ring } from './pickup-skins.js';
 import { FAN } from './pickup-icons.js';
+import { TAU } from '../core/math.js';
 
 // The icon for `kind` in world `world` (0: the default set), drawn centred on (0, 0) about 30 px across.
 export function drawIcon(g, kind, color, world = 0) {
@@ -44,7 +45,7 @@ export function drawIcon(g, kind, color, world = 0) {
     }
     g.stroke();
   } else { // bomb
-    g.arc(-2, 3, 11, 0, Math.PI * 2);
+    g.arc(-2, 3, 11, 0, TAU);
     g.fill();
     g.beginPath();
     g.moveTo(5, -6);

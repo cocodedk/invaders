@@ -1,8 +1,9 @@
 // Sky painters for worlds 5-8 (see sky-bodies.js).
-import { W, H, glow, hash, rgba, shade, addGlow } from './sprites.js';
+import { W, H, glow, hash, rgba, shade, addGlow, lin } from './sprites.js';
 import { blobs, stars, sun, horizonGlow } from './sky-paint.js';
 import { glyphAtlas, drawGlyph } from './glyphs.js';
 import { WELL } from '../core/kinds.js';
+import { TAU } from '../core/math.js';
 
 // A tapered band along points `pts`, `w0` wide at the first and `w1` at the last.
 export function taper(g, pts, w0, w1) {
@@ -52,7 +53,7 @@ function hive(g) {
   for (let x = 120; x < W - 100; x += 46) {
     g.fillStyle = '#1c2a24';
     g.beginPath();
-    g.ellipse(x, 18 + Math.sin(x * 0.01) * 6, 22, 16, 0, 0, Math.PI * 2);
+    g.ellipse(x, 18 + Math.sin(x * 0.01) * 6, 22, 16, 0, 0, TAU);
     g.fill();
     g.fillStyle = rgba('#8ab8a0', 0.22);
     g.fillRect(x - 10, 10 + Math.sin(x * 0.01) * 6, 20, 3);
@@ -129,24 +130,21 @@ function blackhole(g, look, level) {
     g.strokeStyle = rgba(i < 8 ? '#fff4e0' : '#ffb868', (0.08 + (i < 8 ? 0.07 : 0)) * k);
     g.lineWidth = 3;
     g.beginPath();
-    g.ellipse(x, y + 4, r + 8 + i * 2.2, r * 0.9 + i * 2.6, 0, 0, Math.PI * 2);
+    g.ellipse(x, y + 4, r + 8 + i * 2.2, r * 0.9 + i * 2.6, 0, 0, TAU);
     g.stroke();
   }
   g.globalCompositeOperation = 'source-over';
   g.fillStyle = rgba('#000000', k);
   g.beginPath();
-  g.arc(x, y, r, 0, Math.PI * 2);
+  g.arc(x, y, r, 0, TAU);
   g.fill();
   g.globalCompositeOperation = 'lighter';
   g.globalAlpha = k;
   for (let i = 0; i < 18; i++) { // the near disk, edge-on
-    const gr = g.createLinearGradient(x - 470, 0, x + 470, 0);
-    gr.addColorStop(0, rgba('#ff9a4a', 0));
-    gr.addColorStop(0.3, rgba('#fff2d8', 0.2));
-    gr.addColorStop(0.5, rgba('#ffe0a8', 0.12));
-    gr.addColorStop(0.75, rgba('#ff9a4a', 0.08));
-    gr.addColorStop(1, rgba('#ff6a2a', 0));
-    g.strokeStyle = gr;
+    g.strokeStyle = lin(g, x - 470, 0, x + 470, 0, [
+      [0, rgba('#ff9a4a', 0)], [0.3, rgba('#fff2d8', 0.2)], [0.5, rgba('#ffe0a8', 0.12)],
+      [0.75, rgba('#ff9a4a', 0.08)], [1, rgba('#ff6a2a', 0)],
+    ]);
     g.lineWidth = 2;
     g.beginPath();
     g.ellipse(x, y + 6, 150 + i * 18, 10 + i * 1.6, 0, 0, Math.PI);

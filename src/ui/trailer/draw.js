@@ -5,7 +5,7 @@
 //   TYPE[world - 1]      the world's style          FONTS: the font stacks
 //   bakeCard(lines, style, scale?) -> art { canvas, rows, h, size }
 //   drawCard(ctx, art, style, t, secs)   t: seconds into the card
-import { W, H, makeCanvas } from '../sprites.js';
+import { W, H, makeCanvas, lin } from '../sprites.js';
 import { smooth } from '../../core/math.js';
 import { REVEAL, bloom } from './reveal.js';
 
@@ -53,9 +53,9 @@ export function begin(ctx, canvas) {
 
 function inkOf(g, style, row, size) {
   if (style.ink !== 'chrome') return style.ink;
-  const gr = g.createLinearGradient(0, row.y - size * 0.5, 0, row.y + size * 0.5);
-  [[0, '#ffffff'], [0.42, '#cfd8e2'], [0.5, '#46505c'], [0.6, '#98a6b4'], [1, '#f4f8fc']].forEach(([at, c]) => gr.addColorStop(at, c));
-  return gr;
+  return lin(g, 0, row.y - size * 0.5, 0, row.y + size * 0.5, [
+    [0, '#ffffff'], [0.42, '#cfd8e2'], [0.5, '#46505c'], [0.6, '#98a6b4'], [1, '#f4f8fc'],
+  ]);
 }
 
 export function bakeCard(lines, style, scale = 1) {

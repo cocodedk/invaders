@@ -4,24 +4,18 @@
 // time. Each is (ctx, art, style, t, out, y0, secs): art from draw.js bakeCard, t seconds in, out
 // the fade-out factor, y0 the art's top. The light sprites they share are cached once.
 //   REVEAL[style.reveal](...)      bloom(color): a soft radial light sprite
-import { W, H, cached, hash } from '../sprites.js';
+import { W, H, cached, hash, lin, rad } from '../sprites.js';
 import { clamp, smooth, easeOut } from '../../core/math.js';
 
 const radial = (key, color, stops) => cached(key + color, 256, 256, (g) => {
-  const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
-  for (const [at, a] of stops) gr.addColorStop(at, a < 0 ? 'rgba(0,0,0,0)' : color);
-  g.fillStyle = gr;
+  g.fillStyle = rad(g, 128, 128, 0, 128, stops.map(([at, a]) => [at, a < 0 ? 'rgba(0,0,0,0)' : color]));
   g.globalAlpha = 1;
   g.fillRect(0, 0, 256, 256);
 });
 export const bloom = (color) => radial('bloom', color, [[0, 1], [1, -1]]);
 const moon = () => radial('moon', '#b3151d', [[0, 1], [0.62, 1], [1, -1]]);
 const streak = (color) => cached('streak' + color, 512, 16, (g) => {
-  const gr = g.createLinearGradient(0, 0, 512, 0);
-  gr.addColorStop(0, 'rgba(0,0,0,0)');
-  gr.addColorStop(0.5, color);
-  gr.addColorStop(1, 'rgba(0,0,0,0)');
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, 0, 0, 512, 0, [[0, 'rgba(0,0,0,0)'], [0.5, color], [1, 'rgba(0,0,0,0)']]);
   g.fillRect(0, 6, 512, 4);
 });
 

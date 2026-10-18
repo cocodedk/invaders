@@ -2,7 +2,7 @@
 // hp), exposed (a plate cracked wide open, fissures burning in the weak colour) and wreck (the part
 // destroyed: charred dark, cracks glowing like embers). Baked once, ahead of the fight (warmBoss),
 // or on first use for a boss that is only drawn (posters); never per frame.
-import { makeCanvas, hash, rgba, shade, INK } from '../sprites.js';
+import { makeCanvas, hash, rgba, shade, INK, rad } from '../sprites.js';
 import { path, line, bloom, TAU } from './kit.js';
 import { clamp } from '../../core/math.js';
 
@@ -102,10 +102,7 @@ export function wreck(set, open = false) {
     const x = (hash(set.seed * 13 + i) - 0.5) * set.w * 0.8;
     const y = (hash(set.seed * 17 + i) - 0.5) * set.h * 0.8;
     const r = Math.min(set.w, set.h) * (0.25 + 0.2 * hash(set.seed + i * 7));
-    const gr = g.createRadialGradient(x, y, 0, x, y, r);
-    gr.addColorStop(0, 'rgba(0,0,0,0.7)');
-    gr.addColorStop(1, 'rgba(0,0,0,0)');
-    g.fillStyle = gr;
+    g.fillStyle = rad(g, x, y, 0, r, [[0, 'rgba(0,0,0,0.7)'], [1, 'rgba(0,0,0,0)']]);
     g.fillRect(x - r, y - r, r * 2, r * 2);
   }
   for (const pts of crackPaths(set.seed + 3, set.w, set.h, count(set, 2))) {

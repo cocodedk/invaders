@@ -1,6 +1,6 @@
 // Barren silhouettes: dunes over a half-buried hull and domed huts (Twin Suns), a frozen planet's
 // limb and ice crags (Event Horizon). See parallax-shapes.js for the painter contract.
-import { rgba, shade } from './sprites.js';
+import { rgba, shade, lin } from './sprites.js';
 import { profile, waves } from './parallax-kit.js';
 
 // Dunes, and the wedge of a giant ship sunk nose-first in the sand long ago.
@@ -51,11 +51,7 @@ function huts(g, w, h, rng, L, out) {
 // The curved limb of a frozen planet far below: lit at its edge, banded with cloud.
 function limb(g, w, h, rng, L) {
   const top = (x) => h * 0.3 + ((x - w / 2) / w) ** 2 * h * 1.3;
-  const gr = g.createLinearGradient(0, 0, 0, h);
-  gr.addColorStop(0, shade(L.color, 0.35));
-  gr.addColorStop(0.35, L.color);
-  gr.addColorStop(1, shade(L.color, -0.75));
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, 0, 0, 0, h, [[0, shade(L.color, 0.35)], [0.35, L.color], [1, shade(L.color, -0.75)]]);
   profile(g, w, h, top);
   g.globalCompositeOperation = 'source-atop';
   for (let k = 0; k < 7; k++) {

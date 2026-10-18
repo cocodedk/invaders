@@ -3,16 +3,13 @@
 //   layers, 'front' over the playfield, 'screen' over everything but the HUD.
 // f(ctx, env, x0, top): env = { v, world, fx, t, quality }; x0/top: the layer just drawn (far/mid).
 // Pure functions of t (and fx for lightning); cached sprites live in v.cache.
-import { W, H, rgba, hash, glow, soft, wrap, makeCanvas, lighter, normal } from './sprites.js';
+import { W, H, rgba, hash, glow, soft, wrap, makeCanvas, lighter, normal, lin } from './sprites.js';
 import { FLOURISH2 } from './flourish-2.js';
 
 function beam(color, len = 1000, top = 240) {
   const c = makeCanvas(top, len);
   const g = c.getContext('2d');
-  const gr = g.createLinearGradient(0, len, 0, 0);
-  gr.addColorStop(0, rgba(color, 0.5));
-  gr.addColorStop(1, rgba(color, 0));
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, 0, len, 0, 0, [[0, rgba(color, 0.5)], [1, rgba(color, 0)]]);
   g.beginPath();
   g.moveTo(top / 2 - 8, len);
   g.lineTo(0, 0);

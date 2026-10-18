@@ -4,6 +4,7 @@
 import { INK, rgba, glow, soft } from './sprites.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { flashK } from '../fx/fx.js';
+import { TAU } from '../core/math.js';
 
 function plain(ctx, p) {
   const f = p.life / p.max;
@@ -49,7 +50,7 @@ function rings(ctx, fx) {
     ctx.strokeStyle = rgba(r.color, 0.25 * a);
     ctx.lineWidth = r.width * 1.5 + 18 * a;
     ctx.beginPath();
-    ctx.arc(r.x, r.y, Math.max(1, r.r), 0, Math.PI * 2);
+    ctx.arc(r.x, r.y, Math.max(1, r.r), 0, TAU);
     ctx.stroke();
     ctx.strokeStyle = rgba(r.kind === 'lens' ? '#ffffff' : r.color, 0.9 * a);
     ctx.lineWidth = Math.max(1.5, r.width * a);

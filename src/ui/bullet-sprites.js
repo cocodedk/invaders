@@ -1,22 +1,18 @@
 // Cached bullet sprites. Every enemy bullet has a dark rim and a bright core so it reads on any sky
 // (spec); the colour between is the world's enemy colour. Glow is a separate additive sprite.
-import { INK, cached, rgba, roundRect } from './sprites.js';
+import { INK, cached, rgba, roundRect, lin, rad } from './sprites.js';
+import { TAU } from '../core/math.js';
 
 // A round bullet of radius r: dark rim, coloured ring, white-hot core.
 export const orb = (color, rim, r) => cached(`orb${color}${rim}${r}`, r * 2 + 6, r * 2 + 6, (g, w) => {
   const c = w / 2;
   g.fillStyle = rgba(rim, 0.92);
   g.beginPath();
-  g.arc(c, c, r + 2, 0, Math.PI * 2);
+  g.arc(c, c, r + 2, 0, TAU);
   g.fill();
-  const gr = g.createRadialGradient(c, c, 0, c, c, r);
-  gr.addColorStop(0, '#ffffff');
-  gr.addColorStop(0.42, '#ffffff');
-  gr.addColorStop(0.62, color);
-  gr.addColorStop(1, color);
-  g.fillStyle = gr;
+  g.fillStyle = rad(g, c, c, 0, r, [[0, '#ffffff'], [0.42, '#ffffff'], [0.62, color], [1, color]]);
   g.beginPath();
-  g.arc(c, c, r, 0, Math.PI * 2);
+  g.arc(c, c, r, 0, TAU);
   g.fill();
 });
 
@@ -61,11 +57,7 @@ export const shuriken = (glowColor) => cached('shu' + glowColor, 48, 48, (g) => 
     g.lineTo(Math.cos(a + 0.25 * (i % 2)) * r, Math.sin(a + 0.25 * (i % 2)) * r);
   }
   g.closePath();
-  const gr = g.createLinearGradient(-20, -20, 20, 20);
-  gr.addColorStop(0, '#f4f6ff');
-  gr.addColorStop(0.5, '#8a8e9e');
-  gr.addColorStop(1, '#3a3c48');
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, -20, -20, 20, 20, [[0, '#f4f6ff'], [0.5, '#8a8e9e'], [1, '#3a3c48']]);
   g.fill();
   g.lineWidth = 2;
   g.strokeStyle = INK;
@@ -75,7 +67,7 @@ export const shuriken = (glowColor) => cached('shu' + glowColor, 48, 48, (g) => 
   g.stroke();
   g.fillStyle = INK;
   g.beginPath();
-  g.arc(0, 0, 4, 0, Math.PI * 2);
+  g.arc(0, 0, 4, 0, TAU);
   g.fill();
 });
 
@@ -97,14 +89,9 @@ export function bulletKit(look) {
 
 // A horizontal cross-section of a beam (transparent edges, colour, white centre): stretch it.
 export const strip = (color) => cached('strip' + color, 64, 4, (g, w, h) => {
-  const gr = g.createLinearGradient(0, 0, w, 0);
-  gr.addColorStop(0, rgba(color, 0));
-  gr.addColorStop(0.25, rgba(color, 0.35));
-  gr.addColorStop(0.4, rgba(color, 0.95));
-  gr.addColorStop(0.5, '#ffffff');
-  gr.addColorStop(0.6, rgba(color, 0.95));
-  gr.addColorStop(0.75, rgba(color, 0.35));
-  gr.addColorStop(1, rgba(color, 0));
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, 0, 0, w, 0, [
+    [0, rgba(color, 0)], [0.25, rgba(color, 0.35)], [0.4, rgba(color, 0.95)], [0.5, '#ffffff'],
+    [0.6, rgba(color, 0.95)], [0.75, rgba(color, 0.35)], [1, rgba(color, 0)],
+  ]);
   g.fillRect(0, 0, w, h);
 });

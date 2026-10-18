@@ -4,7 +4,7 @@
 // Every panel sits in the band y 16..HUD_BOTTOM (96), above the formation's top row.
 // hud = the view's HUD state { lag } (the boss bar's trailing damage).
 import { W, rgba, shade, glow } from './sprites.js';
-import { approach, clamp } from '../core/math.js';
+import { approach, clamp, TAU } from '../core/math.js';
 import { COMBO_WINDOW, COMBO_MAX } from '../core/scoring.js';
 import { POWER_TIME, BOMB_MAX } from '../core/powerups.js';
 import { LIVES } from '../core/ship.js';
@@ -101,17 +101,17 @@ function ring(ctx, s, look, cx, cy, t) {
   const k = clamp(s.power.left / POWER_TIME, 0, 1);
   const warn = s.power.left < 2 && Math.floor(t * 8) % 2;
   ctx.beginPath();
-  ctx.arc(cx, cy, 39, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 39, 0, TAU);
   ctx.fillStyle = 'rgba(8,10,18,0.7)';
   ctx.fill();
   ctx.lineWidth = 7;
   ctx.strokeStyle = 'rgba(255,255,255,0.12)';
   ctx.beginPath();
-  ctx.arc(cx, cy, 33, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 33, 0, TAU);
   ctx.stroke();
   ctx.strokeStyle = warn ? '#ffffff' : color;
   ctx.beginPath();
-  ctx.arc(cx, cy, 33, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * k);
+  ctx.arc(cx, cy, 33, -Math.PI / 2, -Math.PI / 2 + TAU * k);
   ctx.stroke();
   ctx.save();
   ctx.translate(cx, cy);

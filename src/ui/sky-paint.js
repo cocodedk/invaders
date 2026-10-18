@@ -1,6 +1,6 @@
 // Painting helpers shared by the sky bodies and the flourishes (adapted from Barrage).
-import { W, H, mix, rgba, shade, hash, glow, soft, addGlow } from './sprites.js';
-import { clamp } from '../core/math.js';
+import { W, H, mix, rgba, shade, hash, glow, soft, addGlow, lin, rad } from './sprites.js';
+import { clamp, TAU } from '../core/math.js';
 
 // Soft blobs `[x, y, r, colour, alpha, squash?]` laid over the sky: nebulae, smog, smoke banks.
 export function blobs(g, list) {
@@ -36,30 +36,22 @@ export function stars(g, n, seed, maxY, bright = 1, pixel = false, avoid = null)
 export function sun(g, x, y, r, color, halo, haloScale = 7, haloAlpha = 0.9) {
   addGlow(g, glow(halo), x, y, r * haloScale, haloAlpha);
   addGlow(g, glow(color), x, y, r * 2.2, 0.9);
-  const gr = g.createRadialGradient(x, y, 0, x, y, r);
-  gr.addColorStop(0, '#ffffff');
-  gr.addColorStop(0.6, shade(color, 0.5));
-  gr.addColorStop(1, color);
-  g.fillStyle = gr;
+  g.fillStyle = rad(g, x, y, 0, r, [[0, '#ffffff'], [0.6, shade(color, 0.5)], [1, color]]);
   g.beginPath();
-  g.arc(x, y, r, 0, Math.PI * 2);
+  g.arc(x, y, r, 0, TAU);
   g.fill();
 }
 
 // A body lit from the upper left: radial gradient from `lit` to `dark`, plus darker mottles.
 export function moon(g, x, y, r, lit, dark, mottle, seed = 1) {
-  const gr = g.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.1, x, y, r);
-  gr.addColorStop(0, lit);
-  gr.addColorStop(0.7, mix(lit, dark, 0.55));
-  gr.addColorStop(1, dark);
-  g.fillStyle = gr;
+  g.fillStyle = rad(g, x, y, r * 0.1, r, [[0, lit], [0.7, mix(lit, dark, 0.55)], [1, dark]], x - r * 0.35, y - r * 0.35);
   g.beginPath();
-  g.arc(x, y, r, 0, Math.PI * 2);
+  g.arc(x, y, r, 0, TAU);
   g.fill();
   g.save();
   g.clip();
   for (let i = 0; i < 16; i++) {
-    const a = hash(seed + i * 5) * Math.PI * 2;
+    const a = hash(seed + i * 5) * TAU;
     const d = Math.sqrt(hash(seed + i * 5 + 1)) * r * 0.85;
     const s = r * (0.08 + hash(seed + i * 5 + 2) * 0.22);
     g.globalAlpha = 0.18 + hash(seed + i * 5 + 3) * 0.25;
@@ -91,9 +83,6 @@ export function brush(g, x, y, len, w, color, seed) {
 
 // Glow along the bottom of the frame, as a city or a fire lights the low sky.
 export function horizonGlow(g, color, a, y0 = H * 0.55) {
-  const gr = g.createLinearGradient(0, y0, 0, H);
-  gr.addColorStop(0, rgba(color, 0));
-  gr.addColorStop(1, rgba(color, a));
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, 0, y0, 0, H, [[0, rgba(color, 0)], [1, rgba(color, a)]]);
   g.fillRect(0, y0, W, H - y0);
 }

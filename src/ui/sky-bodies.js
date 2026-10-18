@@ -2,7 +2,7 @@
 // sky-bodies-2.js has 5-8). Painted once per level into the sky canvas; nothing here animates.
 import { W, glow, hash, rgba, noise2, addGlow } from './sprites.js';
 import { blobs, stars, sun, moon, brush, horizonGlow } from './sky-paint.js';
-import { clamp } from '../core/math.js';
+import { clamp, TAU } from '../core/math.js';
 import { BODIES2 } from './sky-bodies-2.js';
 
 const BAYER = [0, 2, 3, 1]; // 2x2 ordered dither
@@ -37,7 +37,7 @@ function arcade(g) {
   // a tilted ring of blocks round the planet; its far half hides behind the disc
   g.fillStyle = 'rgba(255,170,230,0.8)';
   const tilt = -0.32;
-  for (let a = 0; a < Math.PI * 2; a += 0.03) {
+  for (let a = 0; a < TAU; a += 0.03) {
     const px = Math.cos(a) * 236;
     const py = Math.sin(a) * 52;
     const x = px * Math.cos(tilt) - py * Math.sin(tilt);

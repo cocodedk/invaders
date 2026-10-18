@@ -112,10 +112,7 @@ export function muzzle(b, l, x, y, r, c, a = 1) {
 // A soft cone of light, narrow end at the bottom centre, cached once per colour (the one helper here
 // a live() extra may call per frame: it only paints on first use).
 export const cone = (color) => cached('bossCone' + color, 120, 600, (g, w, h) => {
-  const gr = g.createLinearGradient(0, h, 0, 0);
-  gr.addColorStop(0, rgba(color, 0.55));
-  gr.addColorStop(1, rgba(color, 0));
-  g.fillStyle = gr;
+  g.fillStyle = lin(g, 0, h, 0, 0, [[0, rgba(color, 0.55)], [1, rgba(color, 0)]]);
   g.beginPath();
   g.moveTo(w / 2 - 5, h);
   g.lineTo(0, 0);
