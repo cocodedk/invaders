@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  createQuality, sampleFrame, DROP_MS, RESTORE_MS, INTERVAL_DROP_MS, INTERVAL_RESTORE_MS,
+  createQuality, sampleFrame, DROP_MS, RESTORE_MS, DROP_RATIO, RESTORE_RATIO, BASE_MIN_MS, BASE_MAX_MS,
 } from '../../src/ui/quality.js';
 
 // Feed `secs` seconds of frames that each take `ms`.
@@ -91,24 +91,55 @@ test('a stall (hidden tab, GC pause) or a bad sample is ignored', () => {
 });
 
 // Ruling R23: a GPU-bound Pi shows up in the display's pace, not in the work measured on the CPU.
-test('a slow display pace drops quality even when the work is light (1 s average interval > 22 ms)', () => {
-  assert.equal(INTERVAL_DROP_MS, 22);
-  assert.equal(INTERVAL_RESTORE_MS, 18);
+// M1: the pace is judged against the display's own period, the quickest 1 s average interval seen
+// (never below 60 Hz's 16.7 ms nor above 50 Hz's 20 ms): drop above 1.3 x it, restore below 1.1 x it.
+const HZ60 = 1000 / 60;
+
+test('the base period is the quickest second seen, judged between 60 Hz and 50 Hz', () => {
+  assert.equal(DROP_RATIO, 1.3);
+  assert.equal(RESTORE_RATIO, 1.1);
   const q = createQuality();
-  assert.equal(runAt(q, 5, 22, 2), 1, 'exactly 22 ms does not drop');
-  assert.equal(runAt(q, 5, 33.4, 1.05), 0.5, 'light work at 30 fps drops');
-  assert.ok(q.interval > 33 && q.interval < 34, `the window's average interval is kept: ${q.interval}`);
+  assert.equal(q.base, BASE_MAX_MS, 'until a second is measured, the slowest display it allows');
+  runAt(q, 5, 17.5, 2);
+  assert.ok(Math.abs(q.base - 17.5) < 0.01, `base ${q.base}`);
+  runAt(q, 5, 30, 2);
+  assert.ok(Math.abs(q.base - 17.5) < 0.01, 'a slow second does not raise it');
+  runAt(q, 5, 7, 2);
+  assert.equal(q.base, BASE_MIN_MS, 'a 144 Hz display is judged as 60 Hz: the game ticks at 60');
 });
 
-test('restoring needs light work AND a quick pace (work < 14 ms and interval < 18 ms)', () => {
+test('60 Hz: light work at a pace above 1.3 x 16.7 ms drops; restoring needs both lines', () => {
+  const q = createQuality();
+  assert.equal(runAt(q, 5, HZ60, 2), 1);
+  assert.equal(runAt(q, 5, 21, 2), 1, '21 ms is under 21.7 ms: holds');
+  assert.equal(runAt(q, 5, 23, 1.05), 0.5, 'light work at 43 fps drops');
+  assert.ok(q.interval > 22.9 && q.interval < 23.1, `the window's average interval is kept: ${q.interval}`);
   const dropped = () => {
-    const q = createQuality();
-    runAt(q, 25, 25, 1); // exactly one window: nothing carried into the next
-    assert.equal(q.level, 0.5);
-    return q;
+    const d = createQuality();
+    runAt(d, 5, 20, 1); // exactly one window at 50 fps: the base is 20 ms
+    runAt(d, 5, HZ60, 1.0001); // one window at 60 Hz: the base is 16.7 ms
+    runAt(d, 25, 25, 1); // exactly one heavy window: nothing carried into the next
+    assert.equal(d.level, 0.5);
+    assert.ok(d.base < 16.7, `base ${d.base}`);
+    return d;
   };
-  assert.equal(runAt(dropped(), 5, 20, 2), 0.5, 'light work at 50 fps: the pace still holds it down');
-  assert.equal(runAt(dropped(), 15, 16.7, 2), 0.5, 'a 60 fps pace with 15 ms of work holds it down');
-  assert.equal(runAt(dropped(), 5, 18, 2), 0.5, 'exactly 18 ms does not restore');
-  assert.equal(runAt(dropped(), 5, 16.7, 1.05), 1, 'both under their lines restores');
+  assert.equal(runAt(dropped(), 5, 20, 3), 0.5, 'a 50 fps pace on a 60 Hz display holds it down');
+  assert.equal(runAt(dropped(), 15, HZ60, 2), 0.5, 'a 60 fps pace with 15 ms of work holds it down');
+  assert.equal(runAt(dropped(), 5, HZ60, 1.05), 1, 'both under their lines restores');
+});
+
+test('50 Hz: steady 20 ms frames stay full, and a heavy second no longer sticks at half (M1)', () => {
+  const q = createQuality();
+  assert.equal(runAt(q, 5, 20, 3), 1, 'the display\'s own pace is not a slow pace');
+  assert.equal(runAt(q, 25, 25, 1), 0.5, 'one heavy second drops');
+  assert.equal(runAt(q, 5, 20, 1.05), 1, 'light work at the display\'s 20 ms restores');
+  assert.equal(runAt(q, 5, 25, 2), 1, '25 ms is under 1.3 x 20 ms: holds');
+  assert.equal(runAt(q, 5, 27, 1.1), 0.5, 'a pace above 26 ms drops');
+});
+
+test('a GPU-bound start cannot pass for a slow display: the base never rises above 20 ms (R23)', () => {
+  const q = createQuality();
+  assert.equal(runAt(q, 5, 33.4, 1.05), 0.5, 'light work at 30 fps from the first second drops');
+  assert.equal(q.base, BASE_MAX_MS);
+  assert.equal(runAt(q, 5, 22, 2), 0.5, 'and 22 ms (over 1.1 x 20) does not restore it');
 });

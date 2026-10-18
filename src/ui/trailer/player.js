@@ -5,7 +5,8 @@
 // under every card, a riser into the title and its impact. Any key (or a click) skips, and the
 // skip (or the end) fades every sound the trailer started within 0.1 s (R34).
 // A stage screen that draws on the game canvas from its update(dt): the screen it runs under
-// ('trailer') is one the game loop neither steps nor draws.
+// ('trailer') is one the game loop neither steps nor draws. quality() hands main the view's auto
+// quality while the cut plays (R46: main feeds it the frame's work; not during the leader's bakes).
 //   trailerScreen({ canvas, view?, level, seed, inputs, result: { stars, score, newBest }, onDone }) -> screen
 //   view: the level's baked view after play; Cinema passes none and it is baked in the leader.
 import { W, H } from '../sprites.js';
@@ -118,7 +119,7 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
     n = num;
     begin(ctx, canvas);
     drawLeader(ctx, n, (shown * 6) % 1, frame);
-    drawFilm(ctx, film);
+    drawFilm(ctx, film, view?.quality.level);
     if (!gen && clock >= LEADER_MIN) {
       sfx('pop');
       phase = 'play';
@@ -136,6 +137,7 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
   function drawClip(s, dt) {
     stepClip(clip, dt, (events, world) => eventSounds(events, world, quiet));
     anim += dt * clip.fx.slow;
+    clip.fx.density = view.quality.level;
     const w = clip.world;
     if (!riser && s === segs.findLast((x) => x.type === 'clip') && left(s) <= RISER) {
       riser = true;
@@ -159,6 +161,7 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
   return {
     el,
     onKey: (code, e) => (!e?.repeat && ready() && finish(), true), // an arrow still held from play repeats: not a skip
+    quality: () => (phase === 'play' ? view.quality : null),
     status: () => ({
       kind: 'trailer', phase, seg, type: segs?.[seg]?.type ?? null, cut: segs?.map((s) => s.type) ?? null,
       tick: clip?.world.tick ?? null, line: segs?.[seg]?.lines?.join(' ') ?? null,
@@ -175,7 +178,7 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
       begin(ctx, canvas);
       if (s.type === 'card') drawCard(ctx, arts.get(s), style, segT, s.secs);
       else drawFinal(ctx, fin, finArt, style, segT, s.secs);
-      drawFilm(ctx, film);
+      drawFilm(ctx, film, view.quality.level);
       if (segT >= s.secs) next();
     },
   };

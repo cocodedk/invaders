@@ -3,7 +3,7 @@
 // timecode); the moment the ship is hit a clapperboard slides in over the wreck and snaps shut:
 // CUT! (about 1 s). About 5 s in all (R32), then the failed card (Retry). Any key skips, and a
 // skip fades every sound of the blooper at once (R34). Drawn on the game canvas from the screen's
-// update(dt), like the trailer.
+// update(dt), like the trailer, and hands main its view's quality while the outtake rolls (R46).
 //   blooperScreen({ canvas, view, level, seed, inputs, take, onDone }) -> screen
 import { W, H, hash } from '../sprites.js';
 import { WORLDS } from '../../core/levels.js';
@@ -101,6 +101,7 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
   return {
     el,
     onKey: (code, e) => (!e?.repeat && ready() && finish(), true), // a held arrow's repeats are not a skip
+    quality: () => (phase === 'roll' || phase === 'clap' ? view.quality : null),
     status: () => ({ kind: 'blooper', phase, tick: clip?.world.tick ?? null, hit: span?.hit ?? null, clap: clapped }),
     update(dt) {
       if (phase === 'done') return;
@@ -119,6 +120,7 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
       stepFilm(film, dt, true);
       stepClip(clip, dt, (events, world) => eventSounds(events, world, quiet));
       anim += dt * SPEED * clip.fx.slow;
+      clip.fx.density = view.quality.level;
       const w = clip.world;
       view.showHud = false;
       frameClip(view, film);

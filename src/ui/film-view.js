@@ -1,5 +1,6 @@
 // The trailer's film look, drawn from the film state (src/fx/film.js): colour grade toward the
 // world's tint, vignette, grain (cached noise tiles, one per film frame) and letterbox bars.
+// quality: the view's auto-quality level; at 0.5 the grain is skipped (R46).
 import { W, H, cached, hash } from './sprites.js';
 
 const BAR = 138; // px per bar at full letterbox: 1920 x 804 inside, about 2.39 : 1
@@ -26,7 +27,7 @@ const grainTile = (i) => cached('grain' + i, TILE, TILE, (g) => {
   g.putImageData(img, 0, 0);
 });
 
-export function drawFilm(ctx, film) {
+export function drawFilm(ctx, film, quality = 1) {
   if (!film || film.k <= 0) return;
   if (film.grade > 0) {
     ctx.globalCompositeOperation = 'soft-light';
@@ -34,7 +35,7 @@ export function drawFilm(ctx, film) {
     ctx.fillStyle = film.tint;
     ctx.fillRect(0, 0, W, H);
   }
-  if (film.grain > 0) {
+  if (film.grain > 0 && quality >= 1) {
     const tile = grainTile((film.seed + film.frame) % TILES);
     ctx.globalCompositeOperation = 'overlay';
     ctx.globalAlpha = film.grain;

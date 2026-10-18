@@ -129,6 +129,6 @@ export function drawFrame(v, world, fx, t = 0, film = null) {
   drawFlourishes(ctx, env, 'screen');
   drawSlices(ctx, v.canvas, f, fx);
   if (v.showHud) drawHud(ctx, world, v.look, v.hud, t);
-  drawFilm(ctx, film);
+  drawFilm(ctx, film, v.quality.level);
   ctx.restore();
 }
