@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  createQuality, sampleFrame, DROP_MS, RESTORE_MS, DROP_RATIO, RESTORE_RATIO, BASE_MIN_MS, BASE_MAX_MS,
+  createQuality, sampleFrame, DROP_MS, RESTORE_MS, DROP_RATIO, DROP_CAP_MS, RESTORE_RATIO, BASE_MIN_MS, BASE_MAX_MS,
 } from '../../src/ui/quality.js';
 
 // Feed `secs` seconds of frames that each take `ms`.
@@ -92,7 +92,8 @@ test('a stall (hidden tab, GC pause) or a bad sample is ignored', () => {
 
 // Ruling R23: a GPU-bound Pi shows up in the display's pace, not in the work measured on the CPU.
 // M1: the pace is judged against the display's own period, the quickest 1 s average interval seen
-// (never below 60 Hz's 16.7 ms nor above 50 Hz's 20 ms): drop above 1.3 x it, restore below 1.1 x it.
+// (never below 60 Hz's 16.7 ms nor above 50 Hz's 20 ms): drop above min(22, 1.3 x it) (R49), restore
+// below 1.1 x it.
 const HZ60 = 1000 / 60;
 
 test('the base period is the quickest second seen, judged between 60 Hz and 50 Hz', () => {
@@ -133,8 +134,8 @@ test('50 Hz: steady 20 ms frames stay full, and a heavy second no longer sticks 
   assert.equal(runAt(q, 5, 20, 3), 1, 'the display\'s own pace is not a slow pace');
   assert.equal(runAt(q, 25, 25, 1), 0.5, 'one heavy second drops');
   assert.equal(runAt(q, 5, 20, 1.05), 1, 'light work at the display\'s 20 ms restores');
-  assert.equal(runAt(q, 5, 25, 2), 1, '25 ms is under 1.3 x 20 ms: holds');
-  assert.equal(runAt(q, 5, 27, 1.1), 0.5, 'a pace above 26 ms drops');
+  assert.equal(runAt(q, 5, 22, 2), 1, '22 ms is on the line, min(22, 1.3 x 20): holds');
+  assert.equal(runAt(q, 5, 23, 1.1), 0.5, 'a pace above 22 ms drops (R49)');
 });
 
 test('a GPU-bound start cannot pass for a slow display: the base never rises above 20 ms (R23)', () => {
@@ -142,4 +143,13 @@ test('a GPU-bound start cannot pass for a slow display: the base never rises abo
   assert.equal(runAt(q, 5, 33.4, 1.05), 0.5, 'light work at 30 fps from the first second drops');
   assert.equal(q.base, BASE_MAX_MS);
   assert.equal(runAt(q, 5, 22, 2), 0.5, 'and 22 ms (over 1.1 x 20) does not restore it');
+});
+
+// R49: the base starts at 20 ms, so 1.3 x base alone (26 ms) let a renderer stuck at 40 to 43 fps from
+// its first second pass for a slow display. The pace line is capped: drop above min(22, 1.3 x base).
+test('a fresh scaler at a steady 23 to 25 ms interval drops (R49)', () => {
+  assert.equal(DROP_CAP_MS, 22);
+  for (const interval of [23, 24, 25]) {
+    assert.equal(runAt(createQuality(), 5, interval, 1.05), 0.5, `${interval} ms from the first second`);
+  }
 });
