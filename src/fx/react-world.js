@@ -5,10 +5,8 @@ import { addParticle } from './particles.js';
 import { between } from '../core/rng.js';
 import { clamp, TAU } from '../core/math.js';
 import { HEIGHT } from '../core/kinds.js';
-import { count, debris, dust, FIRE, METAL, smoke, sparks } from './emit.js';
+import { count, debris, dust, FIRE, METAL, powerColor, smoke, sparks } from './emit.js';
 
-const POWER_COLORS = { spread: '#ffd24a', laser: '#ff4fd8', rapid: '#6ad6ff', shield: '#5cf0ff', bomb: '#ff8a3a' };
-const powerColor = (kind) => POWER_COLORS[kind] ?? '#ffffff';
 const GLYPH = ['#5dff9a', '#b8ffd0', '#ffffff'];
 const RED_EYE = ['#ff3a2a', '#ff7a3a', '#ffd0a0'];
 const clampX = (x) => clamp(x, 30, 1890);

@@ -1,7 +1,7 @@
 // Reactions to the fight itself: shots, hits, kills, blasts, bombs, the wave and the level ending.
 import { addShake } from './camera.js';
 import { addFlash, addPopup, addRing, BONUS_Y, startSlowMo } from './fx.js';
-import { debris, FIRE, sparks, smoke } from './emit.js';
+import { debris, FIRE, powerColor, sparks, smoke } from './emit.js';
 import { clamp } from '../core/math.js';
 import { MID_X } from '../core/kinds.js';
 
@@ -12,7 +12,7 @@ const ROLE_COLORS = {
 const GOLD = ['#fff6c8', '#ffe14a', '#ffc21a'];
 const PALE = ['#ffffff', '#dfe8ff', '#b8c4e0'];
 const HURT = ['#ff5a4a', '#ff9a8a', '#ffffff'];
-const SHIELD = ['#5cf0ff', '#b8fbff', '#ffffff'];
+const SHIELD = [powerColor('shield'), '#b8fbff', '#ffffff'];
 const SHIELD_GAP = 0.15; // s between shield flares: a burning beam sends one hit per tick
 
 // Per explode size (1 alien or part, 2 the ship, 3 the last blast of a boss).
@@ -61,8 +61,9 @@ function fire(fx, ev) {
   if (ev.side !== 'ship') {
     addFlash(fx, { x: ev.x, y: ev.y, r: 34, color: '#ff6a4a', alpha: 0.8, life: 0.07, tag: 'muzzle' });
   } else if (ev.power === 'laser') {
-    addFlash(fx, { x: ev.x, y: ev.y, r: 110, color: '#ff4fd8', life: 0.2, tag: 'muzzle' });
-    addRing(fx, { x: ev.x, y: ev.y, maxR: 80, color: '#ff4fd8', life: 0.25 });
+    const color = powerColor('laser');
+    addFlash(fx, { x: ev.x, y: ev.y, r: 110, color, life: 0.2, tag: 'muzzle' });
+    addRing(fx, { x: ev.x, y: ev.y, maxR: 80, color, life: 0.25 });
   } else {
     addFlash(fx, { x: ev.x, y: ev.y, r: 28, color: '#bff4ff', life: 0.05, tag: 'muzzle' });
   }
@@ -78,8 +79,9 @@ function shipHit(fx, ev, rng) {
 function shieldHit(fx, ev, rng) {
   if (fx.time - fx.shieldT < SHIELD_GAP) return;
   fx.shieldT = fx.time;
-  addRing(fx, { x: ev.x, y: ev.y, r0: 34, maxR: 62, width: 3, color: '#5cf0ff', kind: 'shield', life: 0.25 });
-  addFlash(fx, { x: ev.x, y: ev.y, r: 80, color: '#5cf0ff', alpha: 0.7, life: 0.12, tag: 'shield' });
+  const color = powerColor('shield');
+  addRing(fx, { x: ev.x, y: ev.y, r0: 34, maxR: 62, width: 3, color, kind: 'shield', life: 0.25 });
+  addFlash(fx, { x: ev.x, y: ev.y, r: 80, color, alpha: 0.7, life: 0.12, tag: 'shield' });
   sparks(fx, rng, ev.x, ev.y, 3, 220, SHIELD);
 }
 
