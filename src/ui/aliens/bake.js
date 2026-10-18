@@ -23,7 +23,7 @@ import w6 from './w6.js';
 import w7 from './w7.js';
 import w8 from './w8.js';
 
-export const SIZE = 96; // px, a sprite canvas's edge at scale 1; the alien's centre is its centre
+const SIZE = 96; // px, a sprite canvas's edge at scale 1; the alien's centre is its centre
 export const ROLE_LIST = ['grunt', 'diver', 'gunner', 'armored', 'carrier'];
 const ART = [w1, w2, w3, w4, w5, w6, w7, w8];
 const DEFAULTS = { rate: 2, sync: false, bob: 0, halo: 0.25, crack: null };
@@ -60,7 +60,7 @@ function white(body) {
 
 // seed picks the crack pattern; crackColor is the world's hot line inside a crack (or null).
 // cracks and crackGlow hold the damage canvases cracks.js bakes.
-function bakeSet(paint, color, scale, seed, crackColor) {
+function bakeSet(paint, color, scale, seed, crackColor, flash) {
   const size = paint.size ?? SIZE;
   const body = [];
   const lights = [];
@@ -71,14 +71,14 @@ function bakeSet(paint, color, scale, seed, crackColor) {
     body.push(bc);
     lights.push(lc);
   }
-  return { body, lights, flash: body.map(white), size, scale, seed, color, crackColor, cracks: {}, crackGlow: {} };
+  return { body, lights, flash: flash ? body.map(white) : null, size, scale, seed, color, crackColor, cracks: {}, crackGlow: {} };
 }
 
-function get(look, key, paint, color, scale, seed) {
+function get(look, key, paint, color, scale, seed, flash = false) {
   const k = `${look.world}:${key}:${scale}`;
   let s = sets.get(k);
   if (!s) {
-    s = bakeSet(paint, color, scale, seed, art(look).crack);
+    s = bakeSet(paint, color, scale, seed, art(look).crack, flash);
     sets.set(k, s);
   }
   return s;
@@ -86,7 +86,7 @@ function get(look, key, paint, color, scale, seed) {
 
 export function roleSprites(look, role, scale = 1) {
   const i = ROLE_LIST.indexOf(role);
-  return get(look, role, art(look)[role], look.palette.alien[role], scale, i + 1);
+  return get(look, role, art(look)[role], look.palette.alien[role], scale, i + 1, true);
 }
 
 export function extraSprites(look, name, scale = 1) {

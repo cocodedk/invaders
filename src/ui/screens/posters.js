@@ -79,7 +79,7 @@ function* bake(world) {
 }
 
 let current = null;
-export function bakeStep() {
+function bakeStep() {
   if (!current) {
     const world = [1, 2, 3, 4, 5, 6, 7, 8].find((wd) => !posters.has(wd));
     if (!world) return false;

@@ -170,7 +170,7 @@ export default {
     bloom(l, 0, 10, 300, GREEN, 0.22);
   }],
   // Code falling through the frame, and a scan of light running along the crown bar.
-  live(ctx, b, S, t, k) {
+  live(ctx, b, t, k) {
     for (let i = 0; i < 10; i++) {
       const x = -250 + i * 55;
       const y = -140 + (((t * (60 + 30 * hash(i)) + hash(i * 5) * 280) % 280));

@@ -7,8 +7,8 @@ import { emit } from './util.js';
 // 0 hp is gone and no longer blocks. Every change re-adds the boss's hp (syncBoss), which is where
 // phases change, plates crack open when no weak point is left, and the boss dies.
 
-export const ARMOR = 0.25;
-export const BOMB_BOSS_SHARE = 0.08; // of the boss's max hp, per bomb, as raw damage
+const ARMOR = 0.25;
+const BOMB_BOSS_SHARE = 0.08; // of the boss's max hp, per bomb, as raw damage
 
 // The parts that can be hit right now: none while the boss flies in or once it is dying.
 export function liveParts(world) {

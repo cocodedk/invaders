@@ -15,7 +15,7 @@ const FIRE = '#ffb04a';
 const lacquer = (g, c, top, bot) => lin(g, 0, top, 0, bot, [[0, shade(c, 0.35)], [0.3, c], [1, shade(c, -0.6)]]);
 
 // Rows of laced lames filling a box: each a lacquered strip, gold lacing in pairs between.
-function lames(b, l, x, y, w, h, rows, c = LACQUER) {
+function lames(b, x, y, w, h, rows, c = LACQUER) {
   const rh = h / rows;
   for (let i = 0; i < rows; i++) {
     rrect(b, x, y + i * rh, w, rh + 1, 3);
@@ -45,7 +45,7 @@ function hull(b, l) {
     ink(b, lacquer(b, IRON, -56, -26), 3);
     path(b, [[s * 263, -48], [s * 277, -48]], true);
     line(b, GOLD, 2);
-    lames(b, l, s > 0 ? 46 : -122, 34, 76, 66, 3);
+    lames(b, s > 0 ? 46 : -122, 34, 76, 66, 3);
   });
   for (const s of [-1, 1]) for (let i = 0; i < 4; i++) eye(l, s * (182 + i * 18), -50, 1.4, FIRE, 2.2);
 }
@@ -94,7 +94,7 @@ function torso(b, l) {
   b.save();
   path(b, sym([[0, -76], [92, -70], [100, -20], [88, 76], [0, 80]]));
   b.clip();
-  lames(b, l, -100, -10, 200, 90, 4);
+  lames(b, -100, -10, 200, 90, 4);
   b.restore();
   path(b, sym([[0, -70], [70, -64], [76, -16], [0, -10]]));
   ink(b, lacquer(b, LACQUER, -70, -10), 3);
@@ -114,7 +114,7 @@ function pauldron(b, l) {
   b.rotate(0.12);
   rrect(b, -52, -54, 104, 18, 5);
   ink(b, lacquer(b, '#3a1418', -54, -36), 3);
-  lames(b, l, -50, -38, 100, 92, 5);
+  lames(b, -50, -38, 100, 92, 5);
   path(b, [[-50, -36], [50, -36]], true);
   line(b, GOLD, 2.5);
   b.restore();
@@ -135,7 +135,7 @@ function core(b, l) {
 
 // A leg (drawn as the left one): a laced thigh skirt, an iron knee, a lacquered shin, a broad foot.
 function leg(b, l) {
-  lames(b, l, -40, -84, 80, 70, 4);
+  lames(b, -40, -84, 80, 70, 4);
   rrect(b, -16, -16, 32, 24, 8);
   ink(b, lacquer(b, IRON, -16, 8), 3);
   path(b, [[-30, 8], [30, 8], [24, 64], [-24, 64]]);
@@ -182,7 +182,7 @@ export default {
   parts: { helm, torso, pauldron, core, leg, blade },
   rage: [null, aura(0.22, false), aura(0.32, true)],
   // Embers flickering up off the armour once it fights in earnest.
-  live(ctx, b, S, t, k) {
+  live(ctx, b, t, k) {
     if (!b.phase) return;
     for (let i = 0; i < 8; i++) {
       const life = (t * 0.6 + hash(i * 7)) % 1;

@@ -168,7 +168,7 @@ export default {
     bloom(l, 0, -40, 320, RED, 0.18);
   }],
   // The reactor beating, heat shimmering off the stacks.
-  live(ctx, b, S, t, k) {
+  live(ctx, b, t, k) {
     const beat = Math.max(0, Math.sin(t * (3 + b.phase * 2))) ** 4;
     ctx.globalAlpha = k * (0.3 + 0.5 * beat);
     ctx.drawImage(glow(RED), -60, -20, 120, 120);

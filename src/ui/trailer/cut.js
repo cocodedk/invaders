@@ -56,14 +56,14 @@ export function blooperSpan(events, ticks) {
 }
 
 // How long a card holds: long enough to read, never long enough to stall the cut.
-export const CARD_SECS = (lines) => clamp(1.15 + 0.008 * lines.join(' ').length, 1.2, 1.6);
+export const cardSecs = (lines) => clamp(1.15 + 0.008 * lines.join(' ').length, 1.2, 1.6);
 
 // Four clips open cold on the first clip; a shorter trailer opens on its first card instead.
 export function timeline(clips, cards) {
   const segs = [];
   let next = 0;
   const card = () => {
-    if (next < cards.length) segs.push({ type: 'card', lines: cards[next], secs: CARD_SECS(cards[next++]) });
+    if (next < cards.length) segs.push({ type: 'card', lines: cards[next], secs: cardSecs(cards[next++]) });
   };
   if (clips.length < MAX_CLIPS) card();
   clips.forEach((c, i) => {

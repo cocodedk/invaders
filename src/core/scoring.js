@@ -6,8 +6,8 @@ import { emit } from './util.js';
 
 export const COMBO_WINDOW = 1.5;
 export const COMBO_MAX = 8;
-export const CLEAR_BONUS = 2000;
-export const FLAWLESS_BONUS = 3000; // on top of CLEAR_BONUS when the ship was never hit
+const CLEAR_BONUS = 2000;
+const FLAWLESS_BONUS = 3000; // on top of CLEAR_BONUS when the ship was never hit
 
 // An alien is dead (its hp is already 0). `scored` false is a ram: no points, the combo untouched.
 // The caller removes it from world.aliens.

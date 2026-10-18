@@ -78,7 +78,7 @@ function halos(ctx, list, look, A, t) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-function wreck(ctx, w, look, A, t) {
+function wreck(ctx, w, look, t) {
   const hurry = WRECK_TIME - w.left; // 0 just fell .. 2 about to rise
   const pulse = 0.5 + 0.5 * Math.sin(t * (5 + hurry * 9));
   const own = extraSprites(look, 'wreck');
@@ -102,7 +102,7 @@ function saucer(ctx, s, look, t) {
   ctx.globalAlpha = 0.5 + 0.15 * Math.sin(t * 9);
   ctx.drawImage(glow(look.palette.alien.carrier), s.x - 90, s.y - 50, 180, 100);
   ctx.globalCompositeOperation = 'source-over';
-  blit(ctx, flashing(s, t) ? set.flash[f] : set.body[f], set, s.x, s.y);
+  blit(ctx, set.body[f], set, s.x, s.y); // 1 hp: it never lives to flash
   ctx.globalCompositeOperation = 'lighter';
   blit(ctx, set.lights[f], set, s.x, s.y);
   ctx.globalAlpha = 1;
@@ -112,7 +112,7 @@ function saucer(ctx, s, look, t) {
 export function drawAliens(ctx, world, look, t) {
   const A = art(look);
   halos(ctx, world.aliens, look, A, t);
-  for (const w of world.wrecks) wreck(ctx, w, look, A, t);
+  for (const w of world.wrecks) wreck(ctx, w, look, t);
   for (const a of world.aliens) {
     const set = roleSprites(look, a.role);
     const f = frameOf(A, a, t);

@@ -14,7 +14,7 @@ export const POWER_TIME = 10; // s
 export const BOMB_MAX = 3;
 export const PICKUP_R = 22;
 export const FALL = 160; // px/s
-export const BOMB_SHARE = 0.2; // of drops: a bomb instead of a power
+const BOMB_SHARE = 0.2; // of drops: a bomb instead of a power
 
 // A carrier died at `from`: 20 % a bomb, 80 % one of the four powers.
 export function dropPickup(world, from) {

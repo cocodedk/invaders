@@ -4,7 +4,7 @@ import { emit } from './util.js';
 // A boss's health and the story it tells: phases begin as hp falls through their thresholds, and
 // at 0 hp the boss dies. Everything here runs after anything that can change a part's hp.
 
-export const BOSS_SCORE = 10000;
+const BOSS_SCORE = 10000;
 export const CHAIN = 3; // s of destruction chain between the death and the clear
 
 // Begin phase `i`: fresh attack and minion countdowns, and the parts it opens (those become weak).

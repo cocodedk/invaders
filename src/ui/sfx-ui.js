@@ -58,10 +58,6 @@ export const UI = {
     tone(a, { type: 'triangle', f0: noteHz(a.kit, 4, 5), f1: noteHz(a.kit, 0, 5), dur: 0.12, peak: 0.08 });
     return 0.15;
   },
-  denied(a) {
-    tone(a, { type: 'square', f0: 190, f1: 150, dur: 0.15, peak: 0.05, cut: 1100 });
-    return 0.18;
-  },
   pause(a) {
     tone(a, { f0: 320, f1: 140, dur: 0.22, peak: 0.12, cut: 900 });
     hiss(a, { type: 'lowpass', f0: 700, dur: 0.1, peak: 0.05 });

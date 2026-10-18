@@ -39,7 +39,6 @@ test('best score and best stars are kept apart, each the highest so far', () => 
   assert.deepEqual(r.best, { score: 15000, stars: 3 });
   assert.deepEqual(r.prev, { score: 9000, stars: 3 });
   assert.equal(r.newBest, true);
-  assert.equal(r.newStars, false);
   const again = s.recordResult('w1-1', { score: 15000, stars: 3 });
   assert.equal(again.newBest, false, 'a tie is not a new best');
   assert.deepEqual(s.allBest(), { 'w1-1': { score: 15000, stars: 3 } });

@@ -17,7 +17,7 @@ export { TICK };
 // the reborn armored; 3: task 13b's tuning: level waves, boss hp and attacks, gunner minions that
 // hold their fire at point blank; 4: formations kept clear of the HUD, R41, and a gentler
 // mothership, R42).
-export const RUN_V = 4;
+const RUN_V = 4;
 
 // The storable form of a finished run. `level` is a level or its id; `result` is { score, stars }.
 export const makeRun = (level, seed, inputs, result) => ({

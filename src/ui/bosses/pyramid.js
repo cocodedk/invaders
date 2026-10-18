@@ -148,7 +148,7 @@ export default {
   parts: { cap: tier, mid: tier, base: tier, spire, eye: lens, sign },
   rage: [null, (l) => bloom(l, 0, 0, 120, PINK, 0.25), strobes],
   // Two searchlights sweeping from the crown, a lift car riding the shaft, strobes blinking.
-  live(ctx, b, S, t, k) {
+  live(ctx, b, t, k) {
     const img = cone('#c8f8ff');
     for (const s of [-1, 1]) {
       ctx.save();

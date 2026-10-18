@@ -15,7 +15,7 @@
 //   parts: { [id | base]: (b, l, p, S) } (margin: px of canvas round a part's rect for art that
 //   overhangs it, 34 by default; margins overrides it per part id),
 //   opened?: { [id]: painter } (art once a phase opens the part), rage?: [(l, S) | null per phase]
-//   (extra hull lights that fade in with that phase), live?(ctx, boss, S, t, k) (per-frame extras
+//   (extra hull lights that fade in with that phase), live?(ctx, boss, t, k) (per-frame extras
 //   in boss coordinates, 'lighter', cached sprites only; k is the light strength) }.
 // S = { def, pal: look.palette.boss, look, W, H, pad }; b, l are the body and lights contexts.
 import { makeCanvas } from '../sprites.js';

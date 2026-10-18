@@ -2,13 +2,13 @@
 //   failedScreen({ label, score, progress }, { retry, select }) -> screen
 import { h, button, shell, armed, endKeys } from './dom.js';
 
-const SETTLE = 1100; // ms the fire key and held-key repeats are ignored: a cleared card's count-up
+const SETTLE = 1100; // ms the fire key and held-key repeats are ignored once the card is up
 
 export function failedScreen(o, act) {
   const ready = armed();
   const go = (fn) => () => ready() && fn();
   const el = shell('results dim lost');
-  const items = [button('Retry', go(act.retry), 'btn btn-big'), button(act.selectLabel ?? 'Select', go(act.select), 'btn btn-big')];
+  const items = [button('Retry', go(act.retry), 'btn btn-big'), button('Select', go(act.select), 'btn btn-big')];
   el.append(
     h('div', 'banner',
       h('p', 'banner-kicker', o.label),

@@ -173,7 +173,7 @@ export default {
   parts: { core, disk, jetN: jetOf(BLUE, '#e8f0ff'), jet: jetOf(GOLD, HOT), moon },
   rage: [null, flare(0.18, GOLD), flare(0.28, BLUE)],
   // The disk turning (faster each phase), and bent starlight sliding round the ring.
-  live(ctx, b, S, t, k) {
+  live(ctx, b, t, k) {
     ctx.save();
     ctx.translate(0, 14);
     ctx.scale(1, 0.2);

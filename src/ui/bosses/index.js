@@ -55,7 +55,7 @@ function lights(ctx, b, B, look, t, k) {
     ctx.save();
     ctx.translate(b.x, b.y);
     ctx.globalAlpha = 1;
-    B.mod.live(ctx, b, B.S, t, k);
+    B.mod.live(ctx, b, t, k);
     ctx.restore();
   }
   warns(ctx, b, B, look, t, k);

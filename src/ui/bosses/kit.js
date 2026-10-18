@@ -7,8 +7,7 @@ import { path, pixels, ink, lin, rad, line, circle, eye, bloom, rgba, shade } fr
 import { cached } from '../sprites.js';
 
 export {
-  INK, TAU, path, sym, both, ink, lin, rad, chrome, gloss, bloom, eye, neon, phosphor, line, circle,
-  ellipse, pixels, rgba, shade, mix,
+  TAU, path, sym, both, ink, lin, rad, chrome, gloss, bloom, eye, neon, phosphor, line, ellipse, rgba, shade,
 } from '../aliens/kit.js';
 
 export function rrect(g, x, y, w, h, r) {

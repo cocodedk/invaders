@@ -7,7 +7,7 @@ import { path, line, bloom, TAU } from './kit.js';
 import { clamp } from '../../core/math.js';
 
 // n jagged cracks inside a w x h rect (centred), seeded: each starts inside the rect and wanders.
-export function crackPaths(seed, w, h, n, reach = 1) {
+function crackPaths(seed, w, h, n, reach = 1) {
   const out = [];
   const step = Math.max(7, (Math.min(w, h) / 6) * reach);
   for (let k = 0; k < n; k++) {

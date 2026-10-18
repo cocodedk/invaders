@@ -5,8 +5,8 @@ import { emit } from './util.js';
 
 // The two weapons that are not shots: the laser power's beam and the smart bomb.
 
-export const BEAM_W = 26; // px wide
-export const BEAM_DPS = 8; // damage a second to every target in the column
+const BEAM_W = 26; // px wide
+const BEAM_DPS = 8; // damage a second to every target in the column
 
 // The beam runs from the muzzle to the top of the screen while the laser power is active and fire
 // is held. It pierces: every target in the column burns, and the bunkers in the column lose a

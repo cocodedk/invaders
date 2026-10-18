@@ -9,9 +9,9 @@ import { emit, prune } from './util.js';
 // twist that touches bullets uses. They run once per tick, after collisions and before the dead
 // are pruned: a dead alien is still in world.aliens then, which is how acid and reassemble see it.
 
-export const SLOW = 0.5; // bullet time: enemy bullets, aliens and boss step at this fraction of real time
-export const SLOW_TIME = 2; // s it lasts
-export const SLOW_COOL = 8; // s from its start until a near miss can start it again
+const SLOW = 0.5; // bullet time: enemy bullets, aliens and boss step at this fraction of real time
+const SLOW_TIME = 2; // s it lasts
+const SLOW_COOL = 8; // s from its start until a near miss can start it again
 
 // The time an enemy bullet, an alien or the boss moves in this tick.
 export const enemyDt = (world, dt) => (world.slow > 0 ? dt * SLOW : dt);

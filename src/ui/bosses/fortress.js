@@ -173,7 +173,7 @@ export default {
   rage: [null, (l) => bloom(l, -190, -74, 120, GREEN, 0.35), trenchLights],
   // The run: lights racing down each trench wall toward the open port, and the port venting a cone
   // of reactor light down at the player while it lives.
-  live(ctx, b, S, t, k) {
+  live(ctx, b, t, k) {
     if (b.phase !== 2) return;
     const core = b.parts.find((p) => p.id === 'core');
     if (core && core.hp > 0) {

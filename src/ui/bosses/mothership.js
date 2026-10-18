@@ -128,7 +128,7 @@ export default {
     },
   ],
   // A light sweeping along the window band, quicker as the fight goes on.
-  live(ctx, b, S, t, k) {
+  live(ctx, b, t, k) {
     const span = 600;
     const x = ((t * (300 + b.phase * 160)) % span) - span / 2;
     ctx.globalAlpha = 0.5 * k;

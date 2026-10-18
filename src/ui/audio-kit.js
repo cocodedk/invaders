@@ -1,7 +1,7 @@
 // Synth building blocks for the sound patches (adapted and extended from Barrage's audio-sfx.js).
 // A patch gets a voice `a` = { ctx, t, out, noise, kit }: `out` is the sound's own input node
 // (already panned and sent to the reverb by audio.js), `t` the start time, `kit` its world's
-// flavour (sfx-kits.js). Every node made here is short-lived: oscillators and sources stop by
+// flavour (sound-data.js kitFor). Every node made here is short-lived: oscillators and sources stop by
 // themselves a few ms after their envelope ends, so a patch leaves nothing running.
 //   env     gain that rises to `peak` in `attack` and falls to silence over `decay`
 //   tone    an oscillator gliding f0 -> f1 (exponential, or in steps for chiptune)

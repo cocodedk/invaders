@@ -1,10 +1,12 @@
 // Screen routing: title (over the backdrop battle) -> lobby -> title card -> play -> pause ->
 // results / failed, and "watch, then try". `app` is the one piece of state the loop reads.
-//   app = { screen, scene, backdrop, shown, demo, lastLevel }
+//   app = { screen, scene, backdrop, shown, demo, lastLevel, token, film }
 //   screen 'title' | 'lobby' | 'loading' | 'play' | 'demo' | 'paused' | 'results' | 'failed' |
 //          'trailer' (the trailer or the blooper draws the canvas) | 'cinema'
 //   backdrop: the title's battle, kept across menu visits; starting a level drops it, so the title
 //   bakes another world's battle (shown: the world it showed last) on the menu, never mid-level (M5)
+//   token: counts the routes taken, so a deferred bake can tell its screen was left; film: the
+//   trailer or blooper screen while one rolls (trailer/routes.js)
 // The end of a level goes through flow.js; trailer/routes.js puts the trailer and the blooper there
 // and adds r.goCinema (it uses r.leave).
 // Every route away from a level goes through leave(): the old scene stops stepping at once (the

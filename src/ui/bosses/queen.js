@@ -174,7 +174,7 @@ export default {
   parts: { crown, thorax, head, sac, claw },
   rage: [null, glowVeins(0.45, 1.4), glowVeins(0.8, 2)],
   // Acid dripping from the jaws while the head lives, quicker as she rages.
-  live(ctx, b, S, t, k) {
+  live(ctx, b, t, k) {
     const h = b.parts.find((p) => p.id === 'head');
     if (!h || h.hp <= 0) return;
     for (let i = 0; i < 3; i++) {

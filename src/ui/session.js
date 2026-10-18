@@ -8,7 +8,7 @@
 // accumulator, and the core always steps a whole TICK (fewer ticks per frame), so a recording
 // replays exactly. Ruling R6: every tick keeps the quantized input it ran on and its events (each
 // carries `tick`). The core stops once the level is cleared or failed, so inputs.length === world.tick.
-import { createWorld, stepWorld } from '../core/world.js';
+import { createWorld, stepWorld, stars } from '../core/world.js';
 import { quantizeInput, makeRun, TICK } from '../core/replay.js';
 import { levelById } from '../core/levels.js';
 import { advance } from '../core/loop.js';
@@ -50,16 +50,11 @@ export function stepSession(s, frameDt, source, onEvents) {
   if (finished(world)) s.over += frameDt;
 }
 
-const starsOf = (s) => {
-  const ev = s.events.findLast?.((e) => e.type === 'cleared');
-  return ev ? ev.stars : 0;
-};
-
 export function recording(s) {
   const { world } = s;
   return {
     level: s.level, seed: s.seed, inputs: s.inputs, events: s.events, ticks: s.inputs.length,
-    score: world.score, stars: world.state === 'cleared' ? starsOf(s) : 0, state: world.state, tainted: s.tainted,
+    score: world.score, stars: stars(world), state: world.state, tainted: s.tainted,
   };
 }
 

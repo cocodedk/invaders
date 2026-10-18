@@ -47,10 +47,9 @@ export function createFlow(r, stage) {
       const rec = recording(s);
       const o = {
         level: scene.level, mode: scene.mode, cleared, score: s.world.score, stars: rec.stars,
-        best: res.best, prev: res.prev, newBest: res.newBest, recording: rec, saved: scene.saved ?? 'skip',
+        best: res.best, newBest: res.newBest, recording: rec, saved: scene.saved ?? 'skip',
         session: s, view: scene.view,
       };
-      app.screen = cleared ? 'results' : 'failed';
       flow[cleared ? 'cleared' : 'failed'](o);
     },
 

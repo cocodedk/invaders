@@ -65,7 +65,7 @@ function launch(world, b, m) {
 // Gunner minions shoot as gunners do in a wave, plain aimed shots (a boss level has no wave pattern);
 // the other roles only fly at the ship. A gunner diving at the ship holds its fire once it is within
 // POINT_BLANK of it, and once it is level with it or below: a shot from there could not be dodged.
-export const POINT_BLANK = 180; // px
+const POINT_BLANK = 180; // px
 const gunnerOf = (ship) => (a) =>
   a.minion && a.role === 'gunner' && a.hp > 0 && a.y < ship.y && dist2(ship, a) >= POINT_BLANK ** 2;
 

@@ -1,5 +1,5 @@
-// Sound patches of the boss fights and the big blasts, each landed on a moment the art stages
-// (task 10): the charge-up that peaks as the attack fires, weak points that crunch against plates
+// Sound patches of the boss fights and the big blasts, each landed on a moment the art stages:
+// the charge-up that peaks as the attack fires, weak points that crunch against plates
 // that clank and hull that swallows the hit, plates cracking open, parts torn off, a roar per
 // phase (harsher each time; the fortress's trench slides open into a reactor hum), and the death:
 // a scream, a groan as the hull snaps, blasts rising through the chain to the white-out.

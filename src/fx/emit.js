@@ -5,7 +5,7 @@ import { between, pick } from '../core/rng.js';
 import { TAU } from '../core/math.js';
 
 export const FIRE = ['#fff6c8', '#ffd24a', '#ff9a2e', '#ff6a1a'];
-export const SMOKE = ['#3a3a3f', '#55555c', '#6e6e76'];
+const SMOKE = ['#3a3a3f', '#55555c', '#6e6e76'];
 export const METAL = ['#8d96a8', '#5b6478', '#c8d0e0'];
 
 export const count = (fx, k) => Math.max(1, Math.round(k * fx.density));

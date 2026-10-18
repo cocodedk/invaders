@@ -6,7 +6,6 @@ import { h, shell, replayClass } from '../screens/dom.js';
 import { CAPTIONS } from './script.js';
 
 const TRY_SHOW = 5.5; // s the "your turn" card stays
-const KEYS = { Space: 'Space', B: 'B' };
 
 const cap = (label) => {
   const k = h('kbd', 'key', label);
@@ -29,8 +28,8 @@ function litKeys(world, input) {
   if (s.vx > 120) out.push('→', 'D');
   if (s.vy < -120) out.push('↑', 'W');
   if (s.vy > 120) out.push('↓', 'S');
-  if (input?.fire) out.push(KEYS.Space);
-  if (input?.bomb || world.ship.bombHeld) out.push(KEYS.B, 'Shift');
+  if (input?.fire) out.push('Space');
+  if (input?.bomb || world.ship.bombHeld) out.push('B', 'Shift');
   return out;
 }
 

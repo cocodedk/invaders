@@ -30,6 +30,7 @@ export const CAPTIONS = [
   { id: 'stars', on: 'cleared', title: 'Stars',
     text: 'Clear a level: ★. Lose one life at most: ★★. No hits at all: ★★★.' },
 ];
+const POWER = CAPTIONS.findIndex((c) => c.id === 'power'); // the bomb waits on this caption
 
 export const createDirector = () => ({
   caption: 0, shown: 0, seen: [], done: false, carrierDown: false, bombed: false, powerShown: -1, stars: 0,
@@ -49,7 +50,7 @@ export function noteEvents(d, events) {
 
 export function stepDirector(d, dt) {
   d.shown += dt;
-  if (d.caption === 2 && d.powerShown < 0) d.powerShown = 0;
+  if (d.caption === POWER && d.powerShown < 0) d.powerShown = 0;
   if (d.powerShown >= 0) d.powerShown += dt;
   const last = d.caption === CAPTIONS.length - 1;
   if (last) {
@@ -69,7 +70,7 @@ export function directInput(d, world) {
   if (carrier) input.fire = input.fire && world.shots.length === 0;
   if (!d.carrierDown || d.bombed) return input;
   input.fire = false; // the last aliens wait for the bomb
-  if (d.caption >= 2 && d.powerShown >= BOMB_AFTER && world.state === 'play' && !world.ship.bombHeld) {
+  if (d.caption >= POWER && d.powerShown >= BOMB_AFTER && world.state === 'play' && !world.ship.bombHeld) {
     input.bomb = true;
     d.bombed = true;
   }

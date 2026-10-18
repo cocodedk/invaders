@@ -7,7 +7,7 @@ import { clamp } from '../core/math.js';
 import { AMBIENT2 } from './ambient-2.js';
 
 const P = {}; // one scratch particle, refilled per index: no per-frame garbage
-export function each(a, fn) {
+function each(a, fn) {
   const [s0, s1] = a.size;
   for (let i = 0; i < a.n; i++) {
     P.i = i;

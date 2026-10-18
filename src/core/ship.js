@@ -8,11 +8,11 @@ export const SHIP_SPEED = 720; // px/s
 export const ZONE = { x0: 40, x1: 1880, y0: 620, y1: 1040 };
 export const LIVES = 3;
 export const INVULN = 1.5; // s of blinking after a hit
-export const COOLDOWN = 0.18; // s between base shots
+const COOLDOWN = 0.18; // s between base shots
 export const SHOT_SPEED = 1400;
-export const RAPID_COOLDOWN = 0.07; // s between shots under the rapid power
+const RAPID_COOLDOWN = 0.07; // s between shots under the rapid power
 export const MUZZLE = 22; // px above the ship's centre where shots (and the beam) start
-export const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spread power
+const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spread power
 
 const ACCEL = 7200; // px/s^2: from rest to full speed in 0.1 s, the same to stop (a short ease)
 export const FOLLOW = 12; // 1/s: how hard a pointer target pulls; speed is FOLLOW * distance, capped at max

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cutClips, blooperSpan, timeline, CLIP_TICKS, BOSS_TICKS, BLOOPER_TICKS, CARD_SECS, FINAL_SECS } from '../../src/ui/trailer/cut.js';
+import { cutClips, blooperSpan, timeline, CLIP_TICKS, BOSS_TICKS, BLOOPER_TICKS, cardSecs, FINAL_SECS } from '../../src/ui/trailer/cut.js';
 
 const kill = (tick, mult = 1) => ({ type: 'kill', tick, mult, scored: true });
 const clip = (start) => ({ start, end: start + CLIP_TICKS, peak: start + 90, kind: 'combo' });
@@ -71,5 +71,5 @@ test('the timeline: a cold open, a card between clips, the final card; about twe
   const two = timeline([clip(0), clip(400)], cards);
   assert.deepEqual(two.map((s) => s.type), ['card', 'clip', 'card', 'clip', 'final'], 'an opening card leads a short trailer');
   assert.deepEqual(timeline([], cards).map((s) => s.type), ['card', 'final']);
-  assert.ok(CARD_SECS(['A LONG LONG LONG LONG LONG LONG LONG LINE', 'AND ANOTHER ONE HERE']) <= 1.6);
+  assert.ok(cardSecs(['A LONG LONG LONG LONG LONG LONG LONG LINE', 'AND ANOTHER ONE HERE']) <= 1.6);
 });

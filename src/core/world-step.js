@@ -19,7 +19,7 @@ import { WIDTH, HEIGHT } from './kinds.js';
 // is fired and collisions run after every kill and hit is possible, so a shot in flight still kills
 // the last alien on the tick the ship loses its last life, and settle() then favours the player.
 
-export const WAVE_GAP = 1.2; // s between a wave's last death and the next wave
+const WAVE_GAP = 1.2; // s between a wave's last death and the next wave
 
 const MARGIN = 60; // how far off screen a projectile may fly before it is dropped
 const inside = (b) => b.x > -MARGIN && b.x < WIDTH + MARGIN && b.y > -MARGIN && b.y < HEIGHT + MARGIN;
