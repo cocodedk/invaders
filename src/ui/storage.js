@@ -69,9 +69,10 @@ export function createStorage(getBackend = () => globalThis.localStorage) {
     const prev = all[id] ?? NONE;
     const s = validScore(score) ? score : 0;
     const st = validStars(stars) ? stars : 0;
-    all[id] = { score: Math.max(prev.score, s), stars: Math.max(prev.stars, st) };
+    const kept = { score: Math.max(prev.score, s), stars: Math.max(prev.stars, st) };
+    all[id] = kept;
     write('best', JSON.stringify(all));
-    return { best: { ...all[id] }, newBest: s > prev.score };
+    return { best: kept, newBest: s > prev.score };
   }
 
   return {
