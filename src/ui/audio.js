@@ -170,7 +170,7 @@ export function play(name, o = {}) {
   last[name] = now;
   try {
     const a = voice(o);
-    const secs = (o.delay ?? 0) + (SFX[name](a, o) ?? 1);
+    const secs = a.t - now + (SFX[name](a, o) ?? 1); // from now to its end, a delayed start included
     voices.push(now + secs);
     stats.played += 1;
     const group = o.group ? groupOf(o.group) : null;
