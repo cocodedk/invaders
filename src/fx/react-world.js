@@ -1,14 +1,14 @@
 // Reactions to pickups and to each world's twist: lightning, glitches, sand, acid, wrecks, the well.
 import { addShake } from './camera.js';
-import { addFlash, addPopup, addRing, addSlice } from './fx.js';
+import { addFlash, addPopup, addRing, addSlice, BONUS_GAP, BONUS_Y } from './fx.js';
 import { addParticle } from './particles.js';
 import { between } from '../core/rng.js';
 import { clamp, TAU } from '../core/math.js';
 import { HEIGHT } from '../core/kinds.js';
 import { count, debris, dust, FIRE, METAL, smoke, sparks } from './emit.js';
-import { BONUS_Y } from './react-fight.js';
 
 const POWER_COLORS = { spread: '#ffd24a', laser: '#ff4fd8', rapid: '#6ad6ff', shield: '#5cf0ff', bomb: '#ff8a3a' };
+const powerColor = (kind) => POWER_COLORS[kind] ?? '#ffffff';
 const GLYPH = ['#5dff9a', '#b8ffd0', '#ffffff'];
 const RED_EYE = ['#ff3a2a', '#ff7a3a', '#ffd0a0'];
 const clampX = (x) => clamp(x, 30, 1890);
@@ -18,7 +18,6 @@ const STREAK = 0.5; // s a pickup swept up at the clear takes to fly into the sh
 const TAIL = 5; // glows behind its head
 const LAG = 0.03; // s between two of them
 const FADE = 0.35; // s the ship's glow takes to fade once they have landed
-const BONUS_GAP = 64; // px a swept pickup's points keep from the "+N BONUS" row, above or below it
 
 // Where a swept pickup's points pop up: where it was, unless that is on the bonus row (the two pop-ups
 // rise at the same speed, so clear at the start is clear throughout).
@@ -26,7 +25,7 @@ const offBonus = (y) => (Math.abs(y - BONUS_Y) >= BONUS_GAP ? y : y < BONUS_Y ? 
 
 // A pickup caught: a ring and sparks in its colour, its name and, above it, its points.
 function pickup(fx, ev, rng) {
-  const color = POWER_COLORS[ev.kind] ?? '#ffffff';
+  const color = powerColor(ev.kind);
   addRing(fx, { x: ev.x, y: ev.y, maxR: 90, color, life: 0.4 });
   sparks(fx, rng, ev.x, ev.y, 8, 260, [color, '#ffffff']);
   const text = ev.kind === 'bomb' ? '+1 BOMB' : String(ev.kind).toUpperCase();
@@ -38,7 +37,7 @@ function pickup(fx, ev, rng) {
 // there into the ship, which glows as it lands. The tail glows start further back on the same line
 // and live longer by as much, so every one of them lands on the ship.
 function sweep(fx, ev, rng, world) {
-  const color = POWER_COLORS[ev.kind] ?? '#ffffff';
+  const color = powerColor(ev.kind);
   addPopup(fx, { x: ev.x, y: offBonus(ev.y - 24), text: '+' + ev.points, color: POINTS, scale: 1.2, life: 1.4 });
   const ship = world?.ship;
   if (!ship) return;
@@ -73,7 +72,7 @@ function shipGlow(fx, ship, color) {
 function power(fx, ev, rng, world) {
   const ship = world?.ship;
   if (!ship) return;
-  if (ev.on) addRing(fx, { x: ship.x, y: ship.y, maxR: 140, color: POWER_COLORS[ev.kind] ?? '#ffffff', life: 0.5 });
+  if (ev.on) addRing(fx, { x: ship.x, y: ship.y, maxR: 140, color: powerColor(ev.kind), life: 0.5 });
   else smoke(fx, rng, ship.x, ship.y, 3, 14, 10);
 }
 

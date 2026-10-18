@@ -1,6 +1,6 @@
 // Reactions to the fight itself: shots, hits, kills, blasts, bombs, the wave and the level ending.
 import { addShake } from './camera.js';
-import { addFlash, addPopup, addRing, startSlowMo } from './fx.js';
+import { addFlash, addPopup, addRing, BONUS_Y, startSlowMo } from './fx.js';
 import { debris, FIRE, sparks, smoke } from './emit.js';
 import { clamp } from '../core/math.js';
 import { MID_X } from '../core/kinds.js';
@@ -101,10 +101,6 @@ function waveClear(fx, ev) {
   addFlash(fx, { full: true, alpha: 0.25, life: 0.3, tag: 'clear' });
   if (!ev.last) addPopup(fx, { x: MID_X, y: 420, text: 'WAVE CLEAR', color: '#9dffb0', scale: 2.2, life: 1.6 });
 }
-
-// The row the clear's "+N BONUS" pops up on; a pickup swept up on the same tick keeps its points off it
-// (react-world.js).
-export const BONUS_Y = 500;
 
 function cleared(fx, ev) {
   addFlash(fx, { full: true, alpha: 0.3, life: 0.5, tag: 'clear' });
