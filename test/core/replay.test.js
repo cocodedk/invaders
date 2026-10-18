@@ -148,3 +148,17 @@ test('stateHash is a string that ignores float dust and sees every part of the s
   assert.ok(changed((w) => { w.bunkers[0].mask[500] ^= 1; }), 'one byte of a bunker mask');
   assert.ok(!changed((w) => { w.ship.x += 1e-6; w.aliens[0].y += 1e-6; }), 'positions are rounded');
 });
+
+test('stateHash sees the wave\'s march clock and the boss\'s position and clock', () => {
+  const sees = (world, edit, what) => {
+    const w = structuredClone(world);
+    edit(w);
+    assert.notEqual(stateHash(w), stateHash(world), what);
+  };
+  sees(liveRun('w1-1', randomInputs(6, 400)).world, (w) => { w.march.clock += 0.5; }, 'march clock');
+  const fight = liveRun('w1-5', randomInputs(7, 300)).world;
+  assert.ok(fight.boss, 'a boss level');
+  sees(fight, (w) => { w.boss.x += 1; }, 'boss x');
+  sees(fight, (w) => { w.boss.y += 1; }, 'boss y');
+  sees(fight, (w) => { w.boss.clock += 0.5; }, 'boss clock');
+});

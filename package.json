@@ -1,2 +1,2 @@
 {"name":"invaders","private":true,"type":"module",
-"scripts":{"test":"node --test"}}
+"scripts":{"test":"node --test \"test/**/*.test.js\""}}

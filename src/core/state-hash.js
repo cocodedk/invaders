@@ -38,10 +38,11 @@ export function stateHash(world) {
     world.pickups.length, ...world.pickups.map((p) => `${p.kind},${round(p.x)},${round(p.y)}`),
     ...world.bunkers.map((b) => maskSum(b.mask)),
     world.wrecks.length, round(world.slow), round(world.wind), world.saucer ? round(world.saucer.x) : '-',
+    world.march ? round(world.march.clock) : '-',
   ];
   if (boss) {
-    parts.push(round(boss.hp), boss.phase, round(boss.enter), boss.dying === null ? '-' : round(boss.dying),
-      ...boss.parts.map((p) => round(p.hp)));
+    parts.push(round(boss.x), round(boss.y), round(boss.clock), round(boss.hp), boss.phase, round(boss.enter),
+      boss.dying === null ? '-' : round(boss.dying), ...boss.parts.map((p) => round(p.hp)));
   }
   return `${world.tick}:${world.score}:${digest(parts.join(';'))}`;
 }
