@@ -11,8 +11,9 @@ import { step } from './world-kit.js';
 // `tau` ahead, then really step that long and compare.
 
 const TAUS = [0.2, 0.5, 0.8];
-const near = (a, b, what, within = 0.01) =>
-  assert.ok(Math.hypot(a.x - b.x, a.y - b.y) < within, `${what}: forecast ${a.x},${a.y} but was ${b.x},${b.y}`);
+const near = (a, b, what, within = 0.01) => { // the message is built only on a miss
+  if (!(Math.hypot(a.x - b.x, a.y - b.y) < within)) assert.fail(`${what}: forecast ${a.x},${a.y} but was ${b.x},${b.y}`);
+};
 
 // An undisturbed copy of the level: quiet, and the ship cannot be rammed off its spot.
 function still(level) {

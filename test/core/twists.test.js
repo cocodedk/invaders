@@ -5,11 +5,11 @@ import { carveRect } from '../../src/core/bunkers.js';
 import { TWISTS } from '../../src/core/kinds.js';
 import { levelById } from '../../src/core/levels.js';
 import {
-  TICK, IDLE, level, wave, step, seconds, playing, drain, ofType, shotAt, bulletAt,
+  TICK, IDLE, level, wave, step, seconds, playing, drain, ofType, shotAt, bulletAt, solid,
 } from './world-kit.js';
 
 const lv = (twist, extra = {}, waves = [wave()]) => level(waves, 0, { twist, ...extra });
-const solid = (w) => w.bunkers.reduce((n, b) => n + b.mask.reduce((m, v) => m + v, 0), 0);
+const cover = (w) => w.bunkers.reduce((n, b) => n + solid(b), 0); // every bunker's solid pixels
 
 test('every world has the twist state, plain data, and keeps it identical on a re-run', () => {
   for (const twist of TWISTS) {
@@ -34,13 +34,13 @@ test('every world has the twist state, plain data, and keeps it identical on a r
 
 test('bunkers: fresh cover in every wave, and none where the level has none', () => {
   const w = playing(lv('bunkers', { bunkers: true }, [wave(), wave()]));
-  const whole = solid(w);
+  const whole = cover(w);
   carveRect(w.bunkers[0], 0, 1920, 0, 2000);
-  assert.ok(solid(w) < whole);
+  assert.ok(cover(w) < whole);
   for (const a of [...w.aliens]) shotAt(w, a);
   seconds(w, 1.6);
   assert.equal(w.wave, 2);
-  assert.equal(solid(w), whole, 'the second wave comes with whole bunkers');
+  assert.equal(cover(w), whole, 'the second wave comes with whole bunkers');
   assert.equal(playing(lv('bunkers', { bunkers: false }, [wave(), wave()])).bunkers.length, 0);
 });
 

@@ -2,21 +2,18 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { setMusic, updateMusic, startLoop, fillLoop, stopLoop } from '../../src/ui/music.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
-import { param } from './audio-kit.js';
-
+import { node } from './audio-kit.js';
 
 // A stand-in AudioContext that records every node and its outgoing connections.
 function fakeAudio() {
   const ctx = { currentTime: 0, nodes: [] };
   const make = (kind) => () => {
-    const n = {
+    const n = node({
       kind, out: new Set(), stopAt: null,
-      gain: param(1), frequency: param(), detune: param(), Q: param(), delayTime: param(), playbackRate: param(1),
       connect(target) { this.out.add(target); return target; },
       disconnect() { this.out.clear(); },
-      start() {},
       stop(t) { this.stopAt = t; },
-    };
+    });
     ctx.nodes.push(n);
     return n;
   };

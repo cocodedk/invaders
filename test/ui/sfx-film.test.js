@@ -4,18 +4,13 @@ import { FILM } from '../../src/ui/sfx-film.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { kitFor } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
-import { param } from './audio-kit.js';
-
+import { node } from './audio-kit.js';
 
 // A stand-in AudioContext: every node it makes, and whether each source was started and stopped.
 function fakeVoice(kit) {
   const nodes = [];
   const make = (kind) => () => {
-    const n = {
-      kind, started: false, stopAt: null, curve: null,
-      gain: param(), frequency: param(), detune: param(), Q: param(), playbackRate: param(),
-      connect: (t) => t, disconnect() {}, start() { this.started = true; }, stop(t) { this.stopAt = t; },
-    };
+    const n = node({ kind, started: false, stopAt: null, curve: null, start() { this.started = true; }, stop(t) { this.stopAt = t; } });
     nodes.push(n);
     return n;
   };

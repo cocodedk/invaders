@@ -4,7 +4,6 @@ import { inColumn } from '../../src/core/damage.js';
 import { FIRE, input, step, seconds, drain, ofType, bulletAt } from './world-kit.js';
 import { bossWorld, part, shotOn, leave } from './boss-kit.js';
 
-
 test('the laser beam burns a weak part for 8 a second and an armour plate for 2', () => {
   const w = bossWorld('mothership');
   w.ship.power = { kind: 'laser', left: 10 };
