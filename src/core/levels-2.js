@@ -114,7 +114,7 @@ export const LATE = [
     lv(81209, [
       w('rain', 10, 'ugg', 'spiral', 1.35),
       w('orbit', 6, 'gag', 'laser', 1.35),
-      w('dive', 8, 'dug', 'fan', 1.35),
+      w('dive', 6, 'dug', 'fan', 1.35),
       w('escort', 4, 'gca', 'homing', 1.4),
     ]),
     lv(81795, [

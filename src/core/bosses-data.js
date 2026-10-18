@@ -16,7 +16,7 @@ const mothership = boss('mothership', 'Mothership', 240, { w: 640, h: 220 }, [
   weak('eye', 0, 70, 90, 70, 70),
 ], [
   phase(0.65, 'sway', [
-    atk('aimed', 2.2, 'eye'),
+    atk('aimed', 2.2, 'eye', { speed: 0.8 }),
     atk('fan', 4.2, 'gunL', { count: 3, spread: 0.6 }),
     atk('fan', 4.2, 'gunR', { count: 3, spread: 0.6 }),
   ]),

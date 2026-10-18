@@ -13,7 +13,7 @@
 // then it drops the smart bomb on the last aliens (the ship starts every level with one).
 import { autopilot } from '../../core/autopilot.js';
 
-export const DEMO_SEED = 7;
+export const DEMO_SEED = 8; // its carrier drops a power-up, not a bomb (demo-script.test.js holds it to that)
 export const DWELL = 3.4; // s a caption stays up at least
 const LAST_DWELL = 4.6; // s for the stars, before the hand-over
 const BOMB_AFTER = DWELL + 0.3; // s of the power-up caption before the bomb drops (its caption follows at once)

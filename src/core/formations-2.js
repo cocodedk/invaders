@@ -30,12 +30,13 @@ const ENTRY = {
     const th = (u * 1.5 + s.col * 0.5) * Math.PI * 2;
     return { x: s.sx + 100 * (1 - e) * Math.cos(th), y: lerp(-160, s.sy, e) + 100 * (1 - e) * Math.sin(th) };
   },
-  // Wind in along a spiral that tightens onto the slot, arriving from straight above.
+  // Corkscrew down onto the slot: fall from above while winding two turns from side to side, the
+  // swing tightening to nothing on arrival. It only ever descends, so it crosses the HUD band once
+  // and never loops back up behind it (R41).
   spiral: (s, u) => {
     const e = late(u, s.col + s.row, 0.03);
-    const th = -Math.PI / 2 + 4 * Math.PI * (1 - e) * (s.col % 2 ? 1 : -1); // two turns, start straight up
-    const rad = (700 + 60 * s.row) * (1 - e);
-    return { x: s.sx + rad * Math.cos(th), y: s.sy + rad * Math.sin(th) };
+    const th = 4 * Math.PI * (1 - e) * (s.col % 2 ? 1 : -1); // two turns
+    return { x: s.sx + (700 + 60 * s.row) * (1 - e) * Math.sin(th), y: lerp(-160 - 60 * s.row, s.sy, e) };
   },
   // One column drops in down the middle, then fans out to the slots.
   split: (s, u) => {

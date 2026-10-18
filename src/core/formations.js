@@ -20,6 +20,11 @@ const CENTER = 960;
 const COL_GAP = 120;
 const ROW_GAP = 84;
 const TOP = 140;
+// The HUD band ends at y 96 and a sprite reaches about 26 px from its centre, so no alien centre may
+// rise above HUD_CLEAR (R41). REACH is the most each formation's hold motion lifts a slot above its
+// home (the amplitudes below); a wave's top row starts low enough that even its highest point clears.
+export const HUD_CLEAR = 122;
+const REACH = { grid: 0, rain: 0, spiral: 16, dive: 28, sway: 44, orbit: 64, split: 70, escort: 80 };
 const HALF_MAX = 560; // widest half-width of a wave: the rest is the grid's sideways room
 const SPAN_Y = 3 * ROW_GAP; // tallest block of rows, so even a deep wave stays above the floor
 
@@ -30,15 +35,17 @@ const GRID_SLIDE = 24; // px of sideways travel a drop is spread over, so it sli
 const FLOOR = 560;
 const MAX_DROP = FLOOR - (TOP + SPAN_Y);
 
-// Home positions, row by row, centred; `roles` gives each row its role.
+// Home positions, row by row, centred; `roles` gives each row its role. The top row sits at TOP, or
+// lower for a formation that lifts its aliens (REACH), so that none rises above HUD_CLEAR.
 export function makeSlots(wave) {
   const { rows, cols, roles } = wave;
   const gx = cols > 1 ? Math.min(COL_GAP, (2 * HALF_MAX) / (cols - 1)) : 0;
   const gy = rows > 1 ? Math.min(ROW_GAP, SPAN_Y / (rows - 1)) : 0;
+  const top = Math.max(TOP, HUD_CLEAR + (REACH[wave.formation] ?? 0));
   const slots = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      slots.push({ row, col, role: roles[row], sx: CENTER + (col - (cols - 1) / 2) * gx, sy: TOP + row * gy });
+      slots.push({ row, col, role: roles[row], sx: CENTER + (col - (cols - 1) / 2) * gx, sy: top + row * gy });
     }
   }
   return slots;
