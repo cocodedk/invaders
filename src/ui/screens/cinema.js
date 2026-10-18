@@ -6,6 +6,7 @@
 import { reelName, worldName } from '../../core/levels.js';
 import { TICK } from '../../core/kinds.js';
 import { fmt, clock } from '../format.js';
+import { prune } from '../../core/util.js';
 import { MOVE, isConfirm, isBack } from '../keys.js';
 import { lookFor } from '../looks/index.js';
 import { play as sound } from '../audio.js';
@@ -52,6 +53,7 @@ export function cinemaScreen({ reels, play, back, focusId = null }) {
     play(reel);
   };
   const tiles = reels.map((r) => showing(r, pick));
+  const waiting = tiles.filter((t) => !t.art.querySelector('canvas')); // posters still baking
   const items = tiles.map((t) => t.el);
   const backBtn = button('Back', () => { sound('back'); back(); }, 'btn');
   const body = items.length
@@ -87,13 +89,13 @@ export function cinemaScreen({ reels, play, back, focusId = null }) {
       return true;
     },
     update() { // a poster that has just been baked develops in
-      for (const t of tiles) {
-        if (t.art.querySelector('canvas')) continue;
+      prune(waiting, (t) => {
         const c = thumb(t.world);
-        if (!c) continue;
+        if (!c) return true;
         t.art.prepend(c);
         t.art.classList.add('develop');
-      }
+        return false;
+      });
     },
   };
 }

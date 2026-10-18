@@ -11,6 +11,7 @@ import { lookFor } from '../looks/index.js';
 import { play } from '../audio.js';
 import { h, button, focusItem, shell, starRow, skyCss } from './dom.js';
 import { fmt } from '../format.js';
+import { prune } from '../../core/util.js';
 import { MOVE, isConfirm, isBack } from '../keys.js';
 import { TAGLINES, posterFor } from './posters.js';
 
@@ -45,6 +46,7 @@ function poster(world, best, start) {
 export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
   const el = shell('lobby');
   const cols = WORLDS.map((w) => poster(w, best, start));
+  const waiting = cols.filter((c) => !c.art.querySelector('canvas')); // posters still baking
   const total = Object.values(best).reduce((n, b) => n + b.stars, 0);
   const backBtn = button('Back', () => { play('back'); back(); }, 'btn');
   el.append(
@@ -85,13 +87,13 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
       return false;
     },
     update() { // a poster that has just been baked develops in
-      for (const c of cols) {
-        if (c.art.querySelector('canvas')) continue;
+      prune(waiting, (c) => {
         const canvas = posterFor(c.world);
-        if (!canvas) continue;
+        if (!canvas) return true;
         c.art.prepend(canvas);
         c.art.classList.add('develop');
-      }
+        return false;
+      });
     },
   };
 }

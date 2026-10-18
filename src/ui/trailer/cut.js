@@ -6,7 +6,7 @@
 // The highlight picker (core/highlights.js) chooses the moments; each clip is trimmed to about three
 // seconds round its peak (the boss kill keeps its whole destruction chain), and a run with fewer than
 // four moments is filled from other good events: a boss phase, a part torn off, a bomb, a kill.
-import { pickHighlights } from '../../core/highlights.js';
+import { pickHighlights, overlaps } from '../../core/highlights.js';
 import { clamp } from '../../core/math.js';
 
 export const CLIP_TICKS = 160; // 2.7 s of play; the slow motion on the peak makes it about 3.2 s
@@ -31,7 +31,6 @@ const around = (peak, kind, ticks) => {
   return { start, end: start + len, peak: clamp(peak, start, start + len), kind };
 };
 
-const overlaps = (clips, c) => clips.some((o) => c.start < o.end && o.start < c.end);
 
 export function cutClips(events, ticks) {
   if (ticks <= 0) return [];

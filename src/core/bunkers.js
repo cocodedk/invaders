@@ -1,9 +1,10 @@
 import { WIDTH } from './kinds.js';
 
 // Destructible cover: a pixel mask per bunker, carved by shots of both sides (Barrage's carve
-// technique). bunker = { x, y, w, h, mask }: (x, y) is the top-left corner in world px and mask is a
-// Uint8Array of w * h bytes, one per world pixel, row by row from the top, 1 = solid. Pixel (ix, iy)
-// sits at the point (ix + 0.5, iy + 0.5). Plain data, so it survives structuredClone.
+// technique). bunker = { x, y, w, h, mask, solid }: (x, y) is the top-left corner in world px and mask
+// is a Uint8Array of w * h bytes, one per world pixel, row by row from the top, 1 = solid; solid
+// counts the 1s (kept by hitBunker and carveRect, the only writers). Pixel (ix, iy) sits at the point
+// (ix + 0.5, iy + 0.5). Plain data, so it survives structuredClone.
 
 export const BUNKER = { w: 160, h: 60, y: 560, count: 4 }; // h 60 puts the floor on the player zone
 
@@ -26,7 +27,7 @@ function solidAt(x, y, w, h) {
 export function createBunker(x, y, w, h) {
   const mask = new Uint8Array(w * h);
   for (let iy = 0; iy < h; iy++) for (let ix = 0; ix < w; ix++) mask[iy * w + ix] = solidAt(ix, iy, w, h);
-  return { x, y, w, h, mask };
+  return { x, y, w, h, mask, solid: mask.reduce((n, v) => n + v, 0) };
 }
 
 // The level's bunkers: evenly spread across the width.
@@ -61,6 +62,7 @@ export function hitBunker(b, x, y, r) {
   if (!eachSolid(b, lx, ly, r, () => true)) return false;
   eachSolid(b, lx, ly, r + PAD, (i) => {
     b.mask[i] = 0;
+    b.solid -= 1;
   });
   return true;
 }
@@ -78,6 +80,7 @@ export function carveRect(b, x0, x1, y0, y1) {
       }
     }
   }
+  b.solid -= removed;
   return removed;
 }
 

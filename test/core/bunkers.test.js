@@ -77,6 +77,14 @@ test('carveRect clears exactly the pixels whose centres lie inside, and counts t
   assert.equal(carveRect(b, 0, 50, 0, 50), 0, 'outside the bunker');
 });
 
+test('a bunker keeps count of its solid pixels through hits and carves (the view reads it)', () => {
+  const b = fresh();
+  assert.equal(b.solid, solid(b));
+  for (const x of [100, 130, 160, 190]) hitBunker(b, x, 575, 8);
+  carveRect(b, 200, 230, 560, 620);
+  assert.ok(b.solid < b.w * b.h && b.solid === solid(b), `counted ${b.solid}, mask has ${solid(b)}`);
+});
+
 test('sweepBunkers follows the whole path, so a 12000 px/s bullet cannot tunnel', () => {
   const b = fresh();
   const p = { x: 130, y: 650, vx: 0, vy: 12000, r: 5 };

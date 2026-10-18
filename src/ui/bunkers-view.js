@@ -7,12 +7,6 @@ import { SKINS } from './bunker-skins.js';
 
 const baked = new WeakMap(); // bunker -> { canvas, count, look }
 
-function solidCount(mask) {
-  let n = 0;
-  for (let i = 0; i < mask.length; i++) n += mask[i];
-  return n;
-}
-
 function bake(b, look, count, canvas) {
   const { w, h, mask } = b;
   const g = canvas.getContext('2d');
@@ -45,7 +39,7 @@ function bake(b, look, count, canvas) {
 
 export function drawBunkers(ctx, world, look) {
   for (const b of world.bunkers) {
-    const count = solidCount(b.mask);
+    const count = b.solid;
     if (!count) continue;
     const e = baked.get(b);
     const canvas = e && e.count === count && e.look === look ? e.canvas : bake(b, look, count, e?.canvas ?? makeCanvas(b.w, b.h));

@@ -74,6 +74,9 @@ function clipOf(m, total) {
 
 const boss = (m) => (m.kind === 'bossDeath' ? 1 : 0);
 
+// Does clip c overlap any clip of `clips` (each { start, end }, end exclusive)?
+export const overlaps = (clips, c) => clips.some((o) => c.start < o.end && o.start < c.end);
+
 export function pickHighlights(events, totalTicks) {
   const seen = events.filter((e) => e.tick >= 0 && e.tick <= totalTicks).sort((a, b) => a.tick - b.tick);
   if (totalTicks <= 0) return [];
@@ -81,7 +84,7 @@ export function pickHighlights(events, totalTicks) {
   const chosen = [];
   for (const m of ranked) {
     const clip = clipOf(m, totalTicks);
-    if (chosen.length < MAX_CLIPS && !chosen.some((c) => clip.start < c.end && c.start < clip.end)) chosen.push(clip);
+    if (chosen.length < MAX_CLIPS && !overlaps(chosen, clip)) chosen.push(clip);
   }
   return chosen.sort((a, b) => a.start - b.start);
 }
