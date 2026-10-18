@@ -23,7 +23,7 @@ export const VARIANTS = [
   { name: 'near', delay: 0, sight: 120, hand: 420 },
 ];
 
-export const LIMIT = 300; // simulated seconds before a run counts as stuck
+const LIMIT = 300; // simulated seconds before a run counts as stuck
 const IDLE = { dx: 0, dy: 0, fire: false, bomb: false, target: null };
 
 // What the pilot sees: the world, or a shallow copy without the bullets it cannot see yet.
