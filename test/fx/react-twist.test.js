@@ -1,9 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { kindsOf, ofKind, react, run } from './fx-kit.js';
-import { createFx, flashK } from '../../src/fx/fx.js';
-import { applyEvents } from '../../src/fx/react.js';
-import { makeRng } from '../../src/core/rng.js';
+import { flashK } from '../../src/fx/fx.js';
 
 const world = { ship: { x: 800, y: 900 } };
 
@@ -42,23 +40,18 @@ test('a swept-up pickup streaks into the ship and pops +500 where it was, with n
 });
 
 // R52: the clear's whole sweep, in one tick's events.
-const sweepOf = (events) => {
-  const fx = createFx();
-  applyEvents(fx, events, makeRng(1), world);
-  return fx;
-};
 const swept = (n) => Array.from({ length: n }, (_, i) => ({ type: 'sweep', kind: 'laser', x: 200 + 150 * i, y: 300, points: 500, nth: i }));
 const glows = (fx) => fx.flashes.filter((f) => f.x === 800 && f.y === 900);
 
 test('a sweep gives the ship one glow, a little stronger for each pickup, that fades out once they land', () => {
-  const [one] = glows(sweepOf(swept(1)));
-  const many = glows(sweepOf(swept(6)));
+  const [one] = glows(react(swept(1), world));
+  const many = glows(react(swept(6), world));
   assert.equal(many.length, 1, 'one glow, not one per pickup');
   assert.ok(many[0].alpha > one.alpha && many[0].r > one.r, 'stronger for more pickups');
-  const [most] = glows(sweepOf(swept(30)));
+  const [most] = glows(react(swept(30), world));
   assert.deepEqual([most.alpha, most.r], [1, 1.5 * one.r], 'up to a cap');
   const at = (s) => {
-    const fx = sweepOf(swept(6));
+    const fx = react(swept(6), world);
     run(fx, s);
     return glows(fx).map(flashK)[0] ?? 0;
   };
@@ -68,12 +61,12 @@ test('a sweep gives the ship one glow, a little stronger for each pickup, that f
 });
 
 test('a swept pickup\'s +500 keeps clear of the "+N BONUS" row; away from it, it pops where the pickup was', () => {
-  const fx = sweepOf([
+  const fx = react([
     { type: 'sweep', kind: 'laser', x: 960, y: 530, points: 500, nth: 0 }, // its +500 would land on the bonus
     { type: 'sweep', kind: 'bomb', x: 1150, y: 480, points: 500, nth: 1 },
     { type: 'sweep', kind: 'rapid', x: 400, y: 224, points: 500, nth: 2 },
     { type: 'cleared', score: 9000, bonus: 5000, stars: 3 },
-  ]);
+  ], world);
   const bonus = fx.popups.find((p) => p.text.endsWith('BONUS'));
   const points = fx.popups.filter((p) => p.text === '+500');
   assert.equal(points.length, 3);
