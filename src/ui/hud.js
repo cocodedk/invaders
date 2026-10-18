@@ -19,6 +19,11 @@ const PH = 80; // panel height
 export const HUD_BOTTOM = TOP + PH;
 const CAP = TOP + 22; // caption row
 const MAIN = TOP + 55; // big number row
+// The combo number: its ink centre (0.07 em above the 'middle' line it is drawn on) sits halfway
+// between the caption's ink (to y 41) and the timer bar (from y 88), so at the x8 pulse (x1.14) it
+// keeps 8 px clear of each.
+const COMBO_MID = 64.5;
+const COMBO_SIZE = 36;
 
 function score(ctx, world) {
   panel(ctx, 32, TOP, 360, PH);
@@ -45,9 +50,9 @@ function combo(ctx, world, t) {
   label(ctx, 'COMBO', x + 75, CAP, 'center');
   const pulse = hotK ? 1 + (hotK === 2 ? 0.14 : 0.09) * Math.abs(Math.sin(t * (hotK === 2 ? 12 : 8))) : 1;
   ctx.save();
-  ctx.translate(x + 75, MAIN - 5); // 4 px up, and the timer bar 1 px down: clear of the x8 at its pulse
-  ctx.scale(pulse, pulse);
-  text(ctx, `×${mult}`, 0, 0, 40, color, 'center', 900);
+  ctx.translate(x + 75, COMBO_MID);
+  ctx.scale(pulse, pulse); // about the number's own centre, so it grows toward both neighbours alike
+  text(ctx, `×${mult}`, 0, COMBO_SIZE * 0.07, COMBO_SIZE, color, 'center', 900);
   ctx.restore();
   const f = clamp(timer / COMBO_WINDOW, 0, 1);
   if (mult > 1 && f > 0) {

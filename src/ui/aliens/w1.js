@@ -34,12 +34,12 @@ const ROWS = {
     '.hhhhhhhhhh.', 'hXXXXXXXXXXh', 'hXddddddddXh', 'hdoodddoodXh', 'hXddddddddXh', 'hXXXXXXXXXXh',
     '.hXXhXXhXXh.', '..XX.XX.XX..', '...XX..XX...',
   ]],
-  carrier: [[ // a burning core in a tilted ring
-    '.....XXX.....', '...XXhhhXX...', '..XXXcccXXX..', 'rrXXccoccXXrr', '.rrXXcccXXrr.', '...rXXXXXr...',
-    '.....XXX.....',
+  carrier: [[ // a burning core in a tilted ring (11 cells: no wider than its hit)
+    '....XXX....', '..XXhhhXX..', '.XXXcccXXX.', 'rXXccoccXXr', '.rXXcccXXr.', '..rXXXXXr..',
+    '....XXX....',
   ], [
-    '.....XXX.....', '...XXhhhXX...', 'rrXXXcccXXXrr', '.rrXccoccXrr.', '...XXcccXX...', '....XXXXX....',
-    '.....XXX.....',
+    '....XXX....', '..XXhhhXX..', 'rXXXcccXXXr', '.rXccoccXr.', '..XXcccXX..', '...XXXXX...',
+    '....XXX....',
   ]],
 };
 

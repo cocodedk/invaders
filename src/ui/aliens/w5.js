@@ -27,10 +27,11 @@ function leg(b, x, y, kx, ky, fx, fy, c) {
 
 // A crawler: plated abdomen behind, small head with mandibles in front, six legs that step.
 function grunt(b, l, f, c) {
-  // three legs a side: [hip y, knee x, foot y]; alternate legs step between the frames
-  both((s) => [[-12, 16, -24], [-2, 26, -2], [8, 22, 18]].forEach(([y, kx, fy], i) => {
+  // three legs a side: [hip y, knee x, foot y]; alternate legs step between the frames. The feet
+  // stay inside x +-28 (+-30 with the ooze), no wider than the hit circle and a little.
+  both((s) => [[-12, 15, -24], [-2, 22, -2], [8, 20, 18]].forEach(([y, kx, fy], i) => {
     const step = (i + f) % 2 ? 4 : -2;
-    leg(b, 0, y, s * kx, y - 4 + step * 0.5, s * (kx + 6), fy + step, c);
+    leg(b, 0, y, s * kx, y - 4 + step * 0.5, s * (kx + 5), fy + step, c);
   }));
   ellipse(b, 0, -9, 15, 15);
   ink(b, chitin(b, c, 0, -9, 15), 2.6);

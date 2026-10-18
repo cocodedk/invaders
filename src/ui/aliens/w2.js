@@ -110,10 +110,10 @@ function armored(b, l, f, c) {
 // A holo-billboard drone: four rotors carrying a glowing screen whose pattern flips each frame.
 function carrier(b, l, f, c) {
   both((s) => {
-    for (const y of [-19, 19]) {
-      path(b, [[s * 14, y * 0.7], [s * 24, y]], true);
+    for (const y of [-19, 19]) { // rotors kept inside x +-30, the hit circle and a little
+      path(b, [[s * 14, y * 0.7], [s * 20, y]], true);
       line(b, '#0c0b16', 4);
-      ellipse(b, s * 25, y, 8, 2.6);
+      ellipse(b, s * 21, y, 7, 2.6);
       ink(b, rgba('#8a88a8', 0.6), 2);
     }
   });
@@ -139,7 +139,7 @@ function carrier(b, l, f, c) {
   }
   b.fillStyle = rgba('#000000', 0.45);
   for (let y = -11; y < 12; y += 3) b.fillRect(-15, y, 30, 1);
-  both((s) => both((t) => eye(l, s * 25, t * 19, 1.2, '#ffffff', 2.5)));
+  both((s) => both((t) => eye(l, s * 21, t * 19, 1.2, '#ffffff', 2.5)));
 }
 
 export default { rate: 2.5, bob: 2.5, halo: 0.22, grunt, diver, gunner, armored, carrier };

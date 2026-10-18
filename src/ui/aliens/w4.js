@@ -86,11 +86,11 @@ function gunner(b, l, f, c) {
   ellipse(b, 0, -6, 10, 7);
   ink(b, '#0a0608', 2);
   slitEyes(b, l, -5, 2, EMBER, 1.5);
-  const hat = sym([[0, -26], [7, -22], [31, -10], [27, -7], [0, -8]]);
+  const hat = sym([[0, -26], [7, -22], [27, -10.5], [23.5, -7.5], [0, -8]]); // brim inside x +-29
   path(b, hat);
   ink(b, lin(b, 0, -26, 0, -7, [[0, shade(c, 0.35)], [0.7, c], [1, shade(c, -0.4)]]), 3);
   for (let i = -3; i <= 3; i++) {
-    path(b, [[i * 2, -24], [i * 8.5, -8.5]], true);
+    path(b, [[i * 2, -24], [i * 7.5, -8.5]], true);
     line(b, rgba('#5a4020', 0.45), 1);
   }
   b.save();
