@@ -13,6 +13,7 @@ import { reelName, worldName } from '../../core/levels.js';
 import { fmt, clock } from '../format.js';
 import { TICK } from '../../core/kinds.js';
 import { bossDef } from '../../core/bosses-data.js';
+import { MAX_STARS } from '../../core/scoring.js';
 
 
 // n of a thing: "NOT ONE INVADER" / "ONE INVADER" / "47 INVADERS"
@@ -113,7 +114,7 @@ export function finalCard({ level, stats, stars, score, newBest }) {
   return {
     kicker: `WORLD ${level.world} · ${reel}`,
     title: worldName(level).toUpperCase(),
-    stars: clamp(stars | 0, 0, 3),
+    stars: clamp(stars | 0, 0, MAX_STARS),
     label: newBest ? 'RECORD BOX OFFICE' : 'BOX OFFICE',
     score: fmt(Math.max(0, score)),
     value: Math.max(0, score),

@@ -34,8 +34,10 @@ export function tickCombo(world, dt) {
 
 export const clearBonus = (world) => CLEAR_BONUS + (world.hits === 0 ? FLAWLESS_BONUS : 0);
 
+export const MAX_STARS = 3;
+
 // 0 unless cleared; 3 with no hits, 2 after losing one life, 1 after more.
 export function stars(world) {
   if (world.state !== 'cleared') return 0;
-  return world.hits === 0 ? 3 : world.hits === 1 ? 2 : 1;
+  return world.hits === 0 ? MAX_STARS : world.hits === 1 ? 2 : 1;
 }

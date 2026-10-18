@@ -22,9 +22,12 @@ export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', '
 export const WIDTH = 1920;
 export const HEIGHT = 1080;
 export const HUD_BOTTOM = 96;
+export const MID_X = WIDTH / 2;
+export const MID_Y = HEIGHT / 2;
+export const EDGE = 20; // px: the closest an alien flies to either side
 
 // The gravity world's well (a template: a world takes a copy, so it stays plain cloneable data).
-export const WELL = { x: 960, y: 300 };
+export const WELL = { x: MID_X, y: 300 };
 
 // Collision sizes shared by the collision code and by everything that must agree with it.
 export const ALIEN_R = 26; // hit radius of an alien

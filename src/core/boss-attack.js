@@ -1,4 +1,4 @@
-import { ROLES } from './kinds.js';
+import { ROLES, WIDTH, EDGE } from './kinds.js';
 import { addBullets, fire } from './aliens.js';
 import { emitPattern } from './patterns.js';
 import { bossDef } from './bosses-data.js';
@@ -19,7 +19,7 @@ const MINION_CAP = 8;
 const CARRIER_Y = 500;
 export const carrierY = (t) => CARRIER_Y + 18 * Math.sin(t * 2);
 export const minionSpeed = (d) => 150 + 120 * d;
-export const minionX = (x, shipX, t, id, h) => clamp(x + (clamp((shipX - x) / 40, -1, 1) * 90 + Math.cos(t * 3 + id) * 60) * h, 20, 1900);
+export const minionX = (x, shipX, t, id, h) => clamp(x + (clamp((shipX - x) / 40, -1, 1) * 90 + Math.cos(t * 3 + id) * 60) * h, EDGE, WIDTH - EDGE);
 
 function release(world, b, w) {
   const a = bossDef(b.kind).phases[w.phase].attacks[w.i];

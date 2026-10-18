@@ -1,11 +1,10 @@
 import { clamp, lerp, TAU, smooth, easeOut } from './math.js';
-import { WIDTH } from './kinds.js';
+import { WIDTH, MID_X, EDGE } from './kinds.js';
 
 // How aliens arrive (entryPosition, 1.5 s) and how a diver swoops (diveCurve, 2.2 s). Both are pure
 // functions of u in 0..1 and both end exactly on the position they are given.
 
-const CENTER = WIDTH / 2;
-const side = (slot) => (slot.sx < CENTER ? -1 : 1);
+const side = (slot) => (slot.sx < MID_X ? -1 : 1);
 
 // Progress of one alien: later places in line start later but all finish at u = 1.
 const late = (u, k, step) => easeOut((u - Math.min(k, 5) * step) / (1 - 5 * step));
@@ -40,7 +39,7 @@ const ENTRY = {
   // One column drops in down the middle, then fans out to the slots.
   split: (s, u) => {
     const e = late(u, s.row, 0.05);
-    return { x: lerp(CENTER, s.sx, easeOut(u * 1.3 - 0.3)), y: lerp(-120 - 40 * s.row, s.sy, e) };
+    return { x: lerp(MID_X, s.sx, easeOut(u * 1.3 - 0.3)), y: lerp(-120 - 40 * s.row, s.sy, e) };
   },
   // Slide in from the left or right edge, level with the slot.
   escort: (s, u) => ({ x: lerp(side(s) < 0 ? -140 : 2060, s.sx, late(u, s.col, 0.05)), y: s.sy }),
@@ -73,5 +72,5 @@ export function diveCurve(from, target, u, home = from) {
   const depth = clamp(target.y - from.y, 200, 900);
   const back = smooth(2 * u - 1);
   const x = from.x + (home.x - from.x) * back + (target.x - from.x) * arc + 70 * Math.sin(4 * Math.PI * u) * arc;
-  return { x: clamp(x, 20, 1900), y: from.y + (home.y - from.y) * back + depth * arc ** 1.5 };
+  return { x: clamp(x, EDGE, WIDTH - EDGE), y: from.y + (home.y - from.y) * back + depth * arc ** 1.5 };
 }

@@ -3,6 +3,7 @@ import { addShake } from './camera.js';
 import { addFlash, addPopup, addRing, startSlowMo } from './fx.js';
 import { debris, FIRE, sparks, smoke } from './emit.js';
 import { clamp } from '../core/math.js';
+import { MID_X } from '../core/kinds.js';
 
 const ROLE_COLORS = {
   grunt: ['#7dff7a', '#2fbf4a'], diver: ['#6ad6ff', '#2f8fd6'], gunner: ['#ff9a4a', '#d6502f'],
@@ -98,12 +99,12 @@ function bomb(fx, ev, rng) {
 function waveClear(fx, ev) {
   startSlowMo(fx);
   addFlash(fx, { full: true, alpha: 0.25, life: 0.3, tag: 'clear' });
-  if (!ev.last) addPopup(fx, { x: 960, y: 420, text: 'WAVE CLEAR', color: '#9dffb0', scale: 2.2, life: 1.6 });
+  if (!ev.last) addPopup(fx, { x: MID_X, y: 420, text: 'WAVE CLEAR', color: '#9dffb0', scale: 2.2, life: 1.6 });
 }
 
 function cleared(fx, ev) {
   addFlash(fx, { full: true, alpha: 0.3, life: 0.5, tag: 'clear' });
-  addPopup(fx, { x: 960, y: 500, text: '+' + ev.bonus + ' BONUS', color: '#ffe14a', scale: 2, life: 2 });
+  addPopup(fx, { x: MID_X, y: 500, text: '+' + ev.bonus + ' BONUS', color: '#ffe14a', scale: 2, life: 2 });
 }
 
 export const FIGHT = { kill, explode, hit, fire, shipHit, shieldHit, nearMiss, bomb, waveClear, cleared };

@@ -2,6 +2,7 @@
 // arrow-key navigation over a list or grid that keeps mouse hover and keyboard focus in step.
 import { play } from '../audio.js';
 import { MOVE, isConfirm } from '../keys.js';
+import { MAX_STARS } from '../../core/scoring.js';
 
 export function h(tag, cls, ...kids) {
   const el = document.createElement(tag);
@@ -59,9 +60,9 @@ export function shell(cls, title) {
   return el;
 }
 
-// Stars as glyphs: n filled of 3, each a span the CSS lights.
+// Stars as glyphs: n filled of MAX_STARS, each a span the CSS lights.
 export function starRow(n, cls = 'stars') {
-  return h('span', cls, ...[0, 1, 2].map((i) => h('i', i < n ? 'on' : null, '★')));
+  return h('span', cls, ...Array.from({ length: MAX_STARS }, (_, i) => h('i', i < n ? 'on' : null, '★')));
 }
 
 // A guard for end-of-level cards: fire-button mashing at the end must not skip them.

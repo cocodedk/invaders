@@ -13,6 +13,7 @@ import { h, button, focusItem, shell, starRow, skyCss } from './dom.js';
 import { fmt } from '../format.js';
 import { prune } from '../../core/util.js';
 import { MOVE, isConfirm, isBack } from '../keys.js';
+import { MAX_STARS } from '../../core/scoring.js';
 import { TAGLINES, posterFor } from './posters.js';
 
 
@@ -51,7 +52,7 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
   const backBtn = button('Back', () => { play('back'); back(); }, 'btn');
   el.append(
     h('header', 'marquee', h('span', 'bulbs'), h('h2', 'marquee-title', 'Now showing'), h('span', 'bulbs')),
-    h('p', 'sub', `${WORLDS.length} worlds, ${LEVELS.length} reels. Every one is open. `, h('span', 'lobby-total', `★ ${total} / ${LEVELS.length * 3}`)),
+    h('p', 'sub', `${WORLDS.length} worlds, ${LEVELS.length} reels. Every one is open. `, h('span', 'lobby-total', `★ ${total} / ${LEVELS.length * MAX_STARS}`)),
     h('div', 'posters', ...cols.map((c) => c.el)),
     h('div', 'row', backBtn, h('span', 'hint', '← → world · ↑ ↓ reel · Enter play · Esc back')));
   const grid = cols.map((c) => c.reels);

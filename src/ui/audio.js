@@ -14,6 +14,7 @@ import { store } from './storage.js';
 import { kitFor } from './sound-data.js';
 import { SFX } from './sfx.js';
 import { panOf } from './audio-kit.js';
+import { MID_X } from '../core/kinds.js';
 
 let ctx = null;
 let master = null;
@@ -186,7 +187,7 @@ export function play(name, o = {}) {
 
 // The laser power burns as long as fire is held: one sustained voice, panned with the ship.
 let beam = null;
-export function setBeam(on, x = 960) {
+export function setBeam(on, x = MID_X) {
   if (!running() || muted) on = false;
   if (on && !beam) beam = SFX.beamHum(voice({ x, wet: kit.wet * 0.6 }), {});
   if (beam) beam.pan(x);

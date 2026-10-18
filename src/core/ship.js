@@ -1,5 +1,6 @@
 import { approach, clamp } from './math.js';
 import { emit } from './util.js';
+import { MID_X } from './kinds.js';
 
 // The player's ship: movement, the gun (and how spread and rapid change it), and what a hit does.
 
@@ -19,7 +20,7 @@ export const FOLLOW = 12; // 1/s: how hard a pointer target pulls; speed is FOLL
 
 // bombHeld / bombPressed turn the bomb key into an edge (stepShip); beam is whether the laser burns.
 export const createShip = () => ({
-  x: 960, y: 1000, vx: 0, vy: 0, lives: LIVES, invuln: 0, power: null, bombs: 1, cooldown: 0, alive: true,
+  x: MID_X, y: 1000, vx: 0, vy: 0, lives: LIVES, invuln: 0, power: null, bombs: 1, cooldown: 0, alive: true,
   beam: false, bombHeld: false, bombPressed: false,
 });
 

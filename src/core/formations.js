@@ -1,5 +1,5 @@
 import { clamp, TAU, smooth } from './math.js';
-import { WIDTH, HUD_BOTTOM, ALIEN_R } from './kinds.js';
+import { HUD_BOTTOM, ALIEN_R, MID_X } from './kinds.js';
 
 // Where aliens hold, as pure functions of time. Every formation moves a slot around its home
 // (sx, sy) by an offset that is exactly zero at t = 0, so the entry (formations-2.js) joins the hold
@@ -16,7 +16,6 @@ import { WIDTH, HUD_BOTTOM, ALIEN_R } from './kinds.js';
 
 export { entryPosition, diveCurve } from './formations-2.js';
 
-const CENTER = WIDTH / 2;
 const COL_GAP = 120;
 const ROW_GAP = 84;
 const TOP = 140;
@@ -54,7 +53,7 @@ export function makeSlots(wave) {
   const slots = [];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      slots.push({ row, col, role: roles[row], sx: CENTER + (col - (cols - 1) / 2) * gx, sy: top + row * gy });
+      slots.push({ row, col, role: roles[row], sx: MID_X + (col - (cols - 1) / 2) * gx, sy: top + row * gy });
     }
   }
   return slots;
@@ -72,7 +71,7 @@ const swing = (a, w, t, phase) => a * (Math.sin(w * t + phase) - Math.sin(phase)
 // slot starts.
 const loop = (rx, ry, th, phase) =>
   ({ x: rx * (Math.cos(th + phase) - Math.cos(phase)), y: ry * (Math.sin(th + phase) - Math.sin(phase)) });
-const sideOf = (slot) => (slot.sx < CENTER ? -1 : slot.sx > CENTER ? 1 : slot.row % 2 ? 1 : -1);
+const sideOf = (slot) => (slot.sx < MID_X ? -1 : slot.sx > MID_X ? 1 : slot.row % 2 ? 1 : -1);
 
 // The classic march: sweep to an edge, drop 24 px while turning, sweep back. The drop is spread over
 // GRID_SLIDE px of travel and capped, so the lowest row of any wave never goes below y 560.

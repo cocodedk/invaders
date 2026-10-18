@@ -3,6 +3,7 @@ import { levelById } from './levels.js';
 import { TICK } from './kinds.js';
 import { decodeInputs, encodeInputs, MAX_TICKS } from './input-codec.js';
 import { isRecord, isCount, validScore } from './util.js';
+import { MAX_STARS } from './scoring.js';
 
 export { stateHash } from './state-hash.js';
 export { quantizeInput, encodeInputs, decodeInputs, MAX_TICKS } from './input-codec.js';
@@ -32,7 +33,7 @@ export function decodeRun(obj) {
   if (!isRecord(obj) || obj.v !== RUN_V) return null;
   const { level, seed, ticks, score, stars } = obj;
   if (typeof level !== 'string' || !levelById(level)) return null;
-  if (!isCount(seed, 2 ** 32 - 1) || !isCount(ticks, MAX_TICKS) || !isCount(stars, 3)) return null;
+  if (!isCount(seed, 2 ** 32 - 1) || !isCount(ticks, MAX_TICKS) || !isCount(stars, MAX_STARS)) return null;
   if (!validScore(score)) return null;
   const inputs = decodeInputs(obj.inputs, ticks);
   return inputs && inputs.length === ticks ? { v: RUN_V, level, seed, ticks, inputs, score, stars } : null;

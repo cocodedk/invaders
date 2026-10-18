@@ -2,7 +2,7 @@ import { chooseAim, HOME_Y } from './aim.js';
 import { steer } from './dodge.js';
 import { SHIP_SPEED, ZONE } from './ship.js';
 import { clamp, dist2 } from './math.js';
-import { WIDTH } from './kinds.js';
+import { MID_X } from './kinds.js';
 import { IDLE } from './input-codec.js';
 import { finished } from './util.js';
 
@@ -49,7 +49,7 @@ function shouldBomb(world) {
 
 export function autopilot(world) {
   if (finished(world)) return { ...IDLE };
-  const want = pickupSpot(world) ?? chooseAim(world) ?? { x: WIDTH / 2, y: HOME_Y };
+  const want = pickupSpot(world) ?? chooseAim(world) ?? { x: MID_X, y: HOME_Y };
   const to = steer(world, want);
   return { dx: 0, dy: 0, fire: true, bomb: shouldBomb(world), target: { x: Math.round(to.x), y: Math.round(to.y) } };
 }

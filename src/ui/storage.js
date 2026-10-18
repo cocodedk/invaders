@@ -7,13 +7,13 @@
 //         invaders.muted       '1' | '0'      invaders.demoSeen  '1'
 // createStorage(getBackend) takes a function returning the backend (the getter itself may throw);
 // `store` is the game's instance over globalThis.localStorage.
+import { isRecord, isCount, validScore } from '../core/util.js';
+import { MAX_STARS } from '../core/scoring.js';
 
 export const PREFIX = 'invaders.';
 const NONE = Object.freeze({ score: 0, stars: 0 });
 
-const validScore = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
-const validStars = (v) => Number.isInteger(v) && v >= 0 && v <= 3;
-const isRecord = (v) => typeof v === 'object' && v !== null && !Array.isArray(v);
+const validStars = (v) => isCount(v, MAX_STARS);
 
 // The saved best map with every malformed entry dropped.
 function cleanBest(raw) {

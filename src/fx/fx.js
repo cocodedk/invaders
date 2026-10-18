@@ -18,6 +18,7 @@
 import { stepParticles } from './particles.js';
 import { stepShake } from './camera.js';
 import { prune } from '../core/util.js';
+import { MID_X, MID_Y } from '../core/kinds.js';
 
 const SLOW_FACTOR = 0.3;
 const SLOWMO_SECS = 0.8; // real seconds
@@ -42,16 +43,16 @@ function push(list, e) {
 }
 
 export const addFlash = (fx, f) => push(fx.flashes, {
-  x: 960, y: 540, r: 100, color: '#ffffff', alpha: 1, full: false, ramp: false, tag: 'glow', life: 0.15, ...f,
+  x: MID_X, y: MID_Y, r: 100, color: '#ffffff', alpha: 1, full: false, ramp: false, tag: 'glow', life: 0.15, ...f,
 });
 
 export const addRing = (fx, r) => {
-  const ring = { x: 960, y: 540, r0: 0, maxR: 100, width: 4, color: '#ffffff', kind: 'ring', life: 0.5, ...r };
+  const ring = { x: MID_X, y: MID_Y, r0: 0, maxR: 100, width: 4, color: '#ffffff', kind: 'ring', life: 0.5, ...r };
   push(fx.rings, { ...ring, r: ring.r0 });
 };
 
 export const addPopup = (fx, p) => push(fx.popups, {
-  x: 960, y: 540, vy: -60, text: '', color: '#ffffff', scale: 1, life: 1, ...p,
+  x: MID_X, y: MID_Y, vy: -60, text: '', color: '#ffffff', scale: 1, life: 1, ...p,
 });
 
 export const addSlice = (fx, s) => push(fx.slices, {
