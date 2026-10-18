@@ -82,10 +82,30 @@ test('the purity check flags real uses and lets prose and identifiers through', 
   for (const text of dirty) assert.notDeepEqual(impureUses(text), [], text);
 });
 
+// index.html may name its own public address in metadata the browser never fetches: name/property
+// <meta> tags, rel="canonical" and the JSON-LD block (as Barrage). Any other external URL is a request.
+const INERT = [
+  /<meta (?:name|property)="[^"]*" content="[^"]*">/g,
+  /<link rel="canonical" href="[^"]*">/g,
+  /<script type="application\/ld\+json">[\s\S]*?<\/script>/g,
+];
+const externalUrls = (text, html) => {
+  const live = html ? INERT.reduce((t, re) => t.replace(re, ''), text) : text;
+  return SCHEME.filter((s) => live.includes(s));
+};
+
 test('index.html and src contain no external URLs', () => {
   const files = [...walk(join(root, 'src')), join(root, 'index.html')];
-  for (const f of files) {
-    const text = readFileSync(f, 'utf8');
-    for (const s of SCHEME) assert.ok(!text.includes(s), `${f} contains ${s}`);
-  }
+  for (const f of files) assert.deepEqual(externalUrls(readFileSync(f, 'utf8'), f.endsWith('.html')), [], f);
+});
+
+test('the URL check lets head metadata through and still flags anything the browser would fetch', () => {
+  const inert = ['<meta property="og:image" content="https://x.dk/og.png">', '<link rel="canonical" href="https://x.dk/">',
+    '<script type="application/ld+json">{ "url": "https://x.dk/" }</script>'];
+  for (const html of inert) assert.deepEqual(externalUrls(html, true), [], html);
+  const live = ['<script src="https://x.dk/a.js"></script>', '<link rel="stylesheet" href="https://x.dk/a.css">',
+    '<link rel="icon" href="http://x.dk/f.svg">', '<meta http-equiv="refresh" content="0;url=https://x.dk/">',
+    '<img src="https://x.dk/a.png">', '<meta name="a" content="b"><script>fetch("https://x.dk/")</script>'];
+  for (const html of live) assert.notDeepEqual(externalUrls(html, true), [], html);
+  assert.notDeepEqual(externalUrls('// <meta name="a" content="https://x.dk/">', false), [], 'src gets no pass');
 });

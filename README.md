@@ -8,7 +8,7 @@ along the way, and combos for the score.
 Clear a level and the game cuts a movie trailer from your own run, title cards and all. The Cinema
 on the title screen keeps your best run of every level. Lose one and you get the blooper instead.
 
-[![Invaders: a boss fight in the Neon Rain world](og.png)](https://invaders.cocode.dk)
+[![Invaders: a pyramid-shaped boss firing down on the player's ship over a neon city at night](og.png)](https://invaders.cocode.dk)
 
 ## Play
 
