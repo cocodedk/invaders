@@ -2,11 +2,15 @@
 // stats, and the final card (the world as a film title, stars as the critics', the score as box
 // office). DOM-free. Every line is original, and every placeholder has a form for zero, so a card
 // still reads like a trailer when a stat is 0 ("NO NEAR MISSES", "NO COMBO NEEDED", "AN INSTANT").
-//   statsOf(events, ticks) -> { kills, near, combo, time (s), bombs, stars, hits }
+// On a boss level the stat card names the boss that fell (its name from the boss data) where the
+// other levels count the invaders: "THE HIVE QUEEN.", never "NOT ONE INVADER." (M4).
+//   statsOf(events, ticks) -> { kills (scored: a ram is none), near, combo, time (s), bombs, stars,
+//     hits, boss (the kind of the boss that died, or null) }
 //   cardsFor(world, stats) -> [[line, ...] x 3]       fillLine(template, stats) -> line
 //   finalCard({ level, stats, stars, score, newBest }) -> { kicker, title, stars, label, score, value, record, billing }
 import { WORLDS } from '../../core/levels.js';
 import { TICK } from '../../core/kinds.js';
+import { bossDef } from '../../core/bosses-data.js';
 
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
 
@@ -76,17 +80,26 @@ export const VOICES = [
   ],
 ];
 
-export const fillLine = (template, stats) => template.replace(/\{(\w+)\}/g, (_, k) => PHRASE[k](stats[k] ?? 0));
+// "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.
+const bossName = (kind) => {
+  const name = bossDef(kind).name.toUpperCase();
+  return name.startsWith('THE ') ? name : `THE ${name}`;
+};
+const phrase = (k, stats) => (k === 'kills' && stats.boss ? bossName(stats.boss) : PHRASE[k](stats[k] ?? 0));
+
+export const fillLine = (template, stats) => template.replace(/\{(\w+)\}/g, (_, k) => phrase(k, stats));
 
 export const cardsFor = (world, stats) => VOICES[(world - 1) % VOICES.length].map((card) => card.map((l) => fillLine(l, stats)));
 
 export function statsOf(events, ticks) {
-  const s = { kills: 0, near: 0, combo: 0, time: Math.max(0, ticks) * TICK, bombs: 0, stars: 0, hits: 0 };
+  const s = { kills: 0, near: 0, combo: 0, time: Math.max(0, ticks) * TICK, bombs: 0, stars: 0, hits: 0, boss: null };
   for (const e of events) {
     if (e.type === 'kill') {
+      if (!e.scored) continue; // a ram: the ship's loss, not a kill
       s.kills += 1;
-      if (e.scored) s.combo = Math.max(s.combo, e.mult);
-    } else if (e.type === 'nearMiss') s.near += 1;
+      s.combo = Math.max(s.combo, e.mult);
+    } else if (e.type === 'bossDeath') s.boss = e.kind;
+    else if (e.type === 'nearMiss') s.near += 1;
     else if (e.type === 'bomb') s.bombs += 1;
     else if (e.type === 'shipHit') s.hits += 1;
     else if (e.type === 'cleared') s.stars = e.stars;

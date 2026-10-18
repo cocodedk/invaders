@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { VOICES, KEYS, statsOf, fillLine, cardsFor, finalCard } from '../../src/ui/trailer/cards.js';
-import { levelById } from '../../src/core/levels.js';
+import { levelById, WORLDS } from '../../src/core/levels.js';
+import { bossDef } from '../../src/core/bosses-data.js';
 
-const ZERO = { kills: 0, near: 0, combo: 0, time: 0, bombs: 0, stars: 0, hits: 0 };
+const ZERO = { kills: 0, near: 0, combo: 0, time: 0, bombs: 0, stars: 0, hits: 0, boss: null };
 const ONE = { kills: 1, near: 1, combo: 1, time: 1, bombs: 1, stars: 1, hits: 1 };
 const TYPICAL = { kills: 47, near: 9, combo: 6, time: 107.4, bombs: 2, stars: 3, hits: 0 };
 const LONG = { kills: 1234, near: 88, combo: 8, time: 1800, bombs: 3, stars: 2, hits: 2 };
@@ -78,15 +79,33 @@ test('each phrase has its zero form', () => {
   assert.equal(fillLine('{kills}', LONG), '1,234 INVADERS');
 });
 
-test('stats come from the event log: kills, near misses, the top combo, bombs, hits, stars and time', () => {
+test('stats come from the event log: scored kills, near misses, the top combo, bombs, hits, stars and time', () => {
   const events = [
     { type: 'kill', tick: 10, mult: 1, scored: true }, { type: 'kill', tick: 20, mult: 2, scored: true },
     { type: 'kill', tick: 30, mult: 3, scored: true }, { type: 'kill', tick: 40, mult: 1, scored: false },
     { type: 'nearMiss', tick: 50 }, { type: 'nearMiss', tick: 60 }, { type: 'bomb', tick: 70 },
     { type: 'shipHit', tick: 80, lives: 2 }, { type: 'cleared', tick: 600, stars: 2 },
   ];
-  assert.deepEqual(statsOf(events, 600), { kills: 4, near: 2, combo: 3, time: 10, bombs: 1, stars: 2, hits: 1 });
+  const stats = { kills: 3, near: 2, combo: 3, time: 10, bombs: 1, stars: 2, hits: 1, boss: null };
+  assert.deepEqual(statsOf(events, 600), stats, 'a ram (scored: false) is no kill');
   assert.deepEqual(statsOf([], 0), ZERO);
+  const fight = [{ type: 'kill', tick: 5, mult: 1, scored: false }, { type: 'bossDeath', tick: 900, kind: 'queen' }];
+  assert.deepEqual(statsOf(fight, 960), { ...ZERO, time: 16, boss: 'queen' });
+});
+
+// M4: a boss victory names the boss where the other levels count invaders, never "NOT ONE INVADER".
+test('on a boss level the stat card names the boss that fell, in every world', () => {
+  assert.deepEqual(cardsFor(1, { ...ZERO, boss: 'mothership' })[1], ['THE MOTHERSHIP.', 'NO NEAR MISSES.', 'ONE PILOT.']);
+  assert.deepEqual(cardsFor(2, { ...TYPICAL, boss: 'pyramid' })[1], ['THE CORPORATE PYRAMID WENT DARK.', '9 NEAR MISSES IN THE NEON.']);
+  assert.deepEqual(cardsFor(8, { ...ZERO, boss: 'singularity' })[2], ['THE SINGULARITY.', 'NO NEAR MISSES.', 'ONE WAY HOME.']);
+  for (const [i, w] of WORLDS.entries()) {
+    for (const stats of ALL) {
+      const lines = cardsFor(w.id, { ...stats, boss: w.boss }).flat();
+      for (const line of lines) readsWell(line, `world ${w.id} boss ${line}`);
+      assert.ok(!lines.some((l) => l.includes('INVADER')), `world ${i + 1}: ${lines}`);
+      assert.ok(lines.some((l) => l.includes(bossDef(w.boss).name.toUpperCase())), `world ${i + 1} names its boss: ${lines}`);
+    }
+  }
 });
 
 test('the final card: the world as a film title, stars as critics, the score as box office or a record', () => {
