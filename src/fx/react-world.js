@@ -12,12 +12,43 @@ const GLYPH = ['#5dff9a', '#b8ffd0', '#ffffff'];
 const RED_EYE = ['#ff3a2a', '#ff7a3a', '#ffd0a0'];
 const clampX = (x) => clamp(x, 30, 1890);
 
-function pickup(fx, ev, rng) {
+const POINTS = '#fff6c8'; // a pickup's points, in the score's pale gold
+const STREAK = 0.5; // s a pickup swept up at the clear takes to fly into the ship
+const TAIL = 5; // glows behind its head
+const LAG = 0.03; // s between two of them
+
+// A pickup caught: a ring and sparks in its colour, its name and, above it, its points.
+function pickup(fx, ev, rng, world) {
   const color = POWER_COLORS[ev.kind] ?? '#ffffff';
+  if (ev.auto) {
+    sweep(fx, ev, world, color);
+    return;
+  }
   addRing(fx, { x: ev.x, y: ev.y, maxR: 90, color, life: 0.4 });
   sparks(fx, rng, ev.x, ev.y, 8, 260, [color, '#ffffff']);
   const text = ev.kind === 'bomb' ? '+1 BOMB' : String(ev.kind).toUpperCase();
   addPopup(fx, { x: ev.x, y: ev.y - 24, text, color, scale: 1.3, life: 1.2 });
+  if (ev.points > 0) addPopup(fx, { x: ev.x, y: ev.y - 70, text: '+' + ev.points, color: POINTS, life: 1.2 });
+}
+
+// Swept up at the clear (R51): its points pop up where it was, and a comet in its colour flies from
+// there into the ship, which glows as it lands. The tail glows start further back on the same line
+// and live longer by as much, so every one of them lands on the ship.
+function sweep(fx, ev, world, color) {
+  addPopup(fx, { x: ev.x, y: ev.y - 24, text: '+' + ev.points, color: POINTS, scale: 1.2, life: 1.4 });
+  const ship = world?.ship;
+  if (!ship) return;
+  const vx = (ship.x - ev.x) / STREAK;
+  const vy = (ship.y - ev.y) / STREAK;
+  addParticle(fx, { x: ev.x, y: ev.y, vx, vy, life: STREAK, size: 4, color: '#ffffff', kind: 'spark', additive: true });
+  for (let i = 0, m = count(fx, TAIL); i < m; i++) {
+    const lag = (i + 1) * LAG;
+    addParticle(fx, {
+      x: ev.x - vx * lag, y: ev.y - vy * lag, vx, vy, life: STREAK + lag, size: 3.4 - i * 0.5,
+      color, kind: 'ember', additive: true,
+    });
+  }
+  addFlash(fx, { x: ship.x, y: ship.y, r: 70, color, ramp: true, life: STREAK, tag: 'sweep' });
 }
 
 // A power-up starting rings out from the ship; one running out fizzles into smoke.

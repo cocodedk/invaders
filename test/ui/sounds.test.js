@@ -49,6 +49,19 @@ test('an alien death sounds once (its kill), the boss chain swells, the white-ou
   assert.equal(names([{ ...sample('fire'), side: 'enemy', pattern: 'laser' }])[0].name, 'laserWarn');
 });
 
+test('the pickups swept up at the clear chime one after another, a caught one at once', () => {
+  const swept = (kind) => ({ ...sample('pickup'), kind, auto: true });
+  const sounds = names([sample('kill'), swept('laser'), swept('bomb'), swept('rapid'), sample('cleared')]);
+  const chimes = sounds.filter((s) => s.name === 'pickup');
+  assert.deepEqual(chimes.map((s) => s.kind), ['laser', 'bomb', 'rapid'], 'each its own pickup sound');
+  assert.equal(chimes[0].delay, 0);
+  for (let i = 1; i < chimes.length; i++) {
+    const gap = chimes[i].delay - chimes[i - 1].delay;
+    assert.ok(gap >= 0.03 && gap <= 0.1, `a run of chimes, ${gap} s apart`);
+  }
+  assert.equal(names([sample('pickup')])[0].delay ?? 0, 0, 'a caught pickup sounds at once');
+});
+
 test('each world has its own sound style, root and scale from its look', () => {
   const styles = LOOKS.map((l) => kitFor(l.music).style);
   assert.equal(new Set(styles).size, 8, styles.join());

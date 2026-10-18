@@ -6,7 +6,7 @@
 // (setWorldSound(look) -> sound-data.js kitFor). Bursts are thinned per sound (GAP) and a voice
 // budget drops the small stuff when too much is ringing (cheap on a Pi 4).
 //   unlockAudio()  call from a keydown / pointerdown; toggleMute() (M; saved)
-//   play(name, { x, gain, wet, group, ... })   names: sfx-*.js   audioNodes() -> { ctx, music } | null (muted)
+//   play(name, { x, gain, wet, group, delay, ... })   names: sfx-*.js   audioNodes() -> { ctx, music } | null (muted)
 //   hush(group)     fade every voice played with that group within 0.1 s (a skipped trailer)
 //   setBeam(on, x)  the laser power's sustained hum             duck(level)  music under menus
 //   audioStats()    sounds played and failed (the ?debug hooks report it)
@@ -140,7 +140,7 @@ export function hush(name, secs = 0.1) {
   set.clear();
 }
 
-// The voice a patch plays into: { ctx, t, out, noise, kit }.
+// The voice a patch plays into: { ctx, t, out, noise, kit }; t is o.delay s from now (a run of chimes).
 function voice(o) {
   const out = ctx.createGain();
   out.gain.value = o.gain ?? 1;
@@ -158,7 +158,7 @@ function voice(o) {
     send.gain.value = wet;
     tail.connect(send).connect(reverb);
   }
-  return { ctx, t: ctx.currentTime + 0.005, out, tail, noise, kit };
+  return { ctx, t: ctx.currentTime + 0.005 + (o.delay ?? 0), out, tail, noise, kit };
 }
 
 export function play(name, o = {}) {
@@ -170,7 +170,7 @@ export function play(name, o = {}) {
   last[name] = now;
   try {
     const a = voice(o);
-    const secs = SFX[name](a, o) ?? 1;
+    const secs = (o.delay ?? 0) + (SFX[name](a, o) ?? 1);
     voices.push(now + secs);
     stats.played += 1;
     const group = o.group ? groupOf(o.group) : null;

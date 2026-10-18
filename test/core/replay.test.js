@@ -17,7 +17,7 @@ const sample = () => {
 test('makeRun builds the storable run and decodeRun gives the playable one back', () => {
   const { inputs, run } = sample();
   assert.deepEqual(Object.keys(run).sort(), ['inputs', 'level', 'score', 'seed', 'stars', 'ticks', 'v']);
-  assert.equal(run.v, 4);
+  assert.equal(run.v, 5);
   assert.equal(run.level, 'w3-2');
   assert.equal(run.ticks, 900);
   assert.equal(typeof run.inputs, 'string');
@@ -30,7 +30,7 @@ test('decodeRun rejects the wrong version, bad shapes and bad encodings', () => 
   const { run } = sample();
   const bad = [
     null, undefined, 'garbage', 42, [], true, {},
-    { ...run, v: 0 }, { ...run, v: 1 }, { ...run, v: 2 }, { ...run, v: 3 }, { ...run, v: 5 }, { ...run, v: '4' }, { ...run, v: undefined },
+    { ...run, v: 0 }, { ...run, v: 1 }, { ...run, v: 2 }, { ...run, v: 3 }, { ...run, v: 4 }, { ...run, v: 6 }, { ...run, v: '5' }, { ...run, v: undefined },
     { ...run, level: 'w9-9' }, { ...run, level: 3 }, { ...run, level: undefined },
     { ...run, seed: -1 }, { ...run, seed: 1.5 }, { ...run, seed: 2 ** 32 }, { ...run, seed: '7' },
     { ...run, ticks: 899 }, { ...run, ticks: -1 }, { ...run, ticks: MAX_TICKS + 1 }, { ...run, ticks: 'x' },
@@ -44,11 +44,12 @@ test('decodeRun rejects the wrong version, bad shapes and bad encodings', () => 
 // R38: the rule changes of task 13a (bullets spent on a blinking ship, near misses, the shuriken cut,
 // minions, reborn armored) re-simulate a version 1 run differently, and task 13b's tuning (level
 // waves, boss hp and attacks, gunner minions holding fire at point blank) a version 2 run, and
-// the formations kept clear of the HUD (R41) a version 3 run, so none is replayed at all.
-test('a version 1, 2 or 3 run, saved under older rules, decodes to null', () => {
+// the formations kept clear of the HUD (R41) a version 3 run, and pickups worth points and swept up
+// at the clear (R51) a version 4 run, so none is replayed at all.
+test('a version 1, 2, 3 or 4 run, saved under older rules, decodes to null', () => {
   const { run } = sample();
-  for (const v of [1, 2, 3]) assert.equal(decodeRun(JSON.parse(JSON.stringify({ ...run, v }))), null, `v ${v}`);
-  assert.notEqual(decodeRun(JSON.parse(JSON.stringify(run))), null, 'the same run as version 4 is fine');
+  for (const v of [1, 2, 3, 4]) assert.equal(decodeRun(JSON.parse(JSON.stringify({ ...run, v }))), null, `v ${v}`);
+  assert.notEqual(decodeRun(JSON.parse(JSON.stringify(run))), null, 'the same run as version 5 is fine');
 });
 
 test('decodeRun rejects every truncation of a valid run', () => {

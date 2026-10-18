@@ -3,7 +3,7 @@ import { stepAliens, spawnWave } from './aliens.js';
 import { stepBoss } from './boss.js';
 import { applyTwist } from './twists.js';
 import { enemyDt } from './twists-2.js';
-import { stepPickups, tickPower } from './powerups.js';
+import { stepPickups, sweepPickups, tickPower } from './powerups.js';
 import { stepBeam, stepBomb } from './weapons.js';
 import { collide } from './collide.js';
 import { stepBullet } from './patterns.js';
@@ -58,9 +58,11 @@ function won(world) {
   return Boolean(waves) && world.wave >= waves.length && world.gap === null && empty(world);
 }
 
-// Cleared beats failed: the last wave gone is a clear even if the ship died that same tick.
+// Cleared beats failed: the last wave gone is a clear even if the ship died that same tick. A clear
+// first sweeps up the pickups still falling (their pickup events, then `cleared` with every point in).
 function settle(world) {
   if (won(world)) {
+    sweepPickups(world);
     const bonus = clearBonus(world);
     world.score += bonus;
     world.state = 'cleared';

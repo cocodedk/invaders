@@ -3,12 +3,14 @@ import { rand, randPick } from './rng.js';
 import { POWERS, HEIGHT } from './kinds.js';
 import { SHIP_R, ZONE } from './ship.js';
 import { emit, prune } from './util.js';
+import { awardPickup } from './scoring.js';
 
 // What carriers drop, and what the ship does with it.
 //   pickup = { kind, x, y, vy, r }  kind is one of POWERS or 'bomb'.
 //   ship.power = null | { kind, left }  one at a time; a new pickup replaces it and restarts `left`.
 // The effects live where they act: the gun in ship.js (spread, rapid), the shield in hitShip, the
-// beam and the bomb in weapons.js.
+// beam and the bomb in weapons.js. Every pickup collected scores (awardPickup), and the clear sweeps up
+// the ones still falling (sweepPickups).
 
 export const POWER_TIME = 10; // s
 export const BOMB_MAX = 3;
@@ -25,7 +27,7 @@ export function dropPickup(world, from) {
 
 function collect(world, p) {
   const ship = world.ship;
-  emit(world, 'pickup', { kind: p.kind, x: p.x, y: p.y });
+  emit(world, 'pickup', { kind: p.kind, x: p.x, y: p.y, points: awardPickup(world) });
   if (p.kind === 'bomb') {
     ship.bombs = Math.min(BOMB_MAX, ship.bombs + 1);
   } else {
@@ -46,6 +48,15 @@ export function stepPickups(world, dt) {
     }
     return p.y - p.r < HEIGHT;
   });
+}
+
+// The level is cleared: every pickup still in the air is the ship's, in drop order. Its points count
+// (before the clear is announced), its power or bomb comes too late to use.
+export function sweepPickups(world) {
+  for (const p of world.pickups) {
+    emit(world, 'pickup', { kind: p.kind, x: p.x, y: p.y, points: awardPickup(world), auto: true });
+  }
+  world.pickups.length = 0;
 }
 
 export function tickPower(world, dt) {

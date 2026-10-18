@@ -2,10 +2,13 @@ import { ROLES } from './kinds.js';
 import { emit } from './util.js';
 
 // Points, the combo and stars. world.combo = { mult, timer }: every kill within COMBO_WINDOW of the
-// last raises mult by 1 (up to COMBO_MAX); timer counts down and mult falls back to 1 at 0.
+// last raises mult by 1 (up to COMBO_MAX); timer counts down and mult falls back to 1 at 0. A pickup
+// is worth a flat PICKUP_POINTS, caught or swept up at the clear (R51): no multiplier, the combo
+// untouched, so it reads the same every time.
 
 export const COMBO_WINDOW = 1.5;
 export const COMBO_MAX = 8;
+export const PICKUP_POINTS = 500;
 const CLEAR_BONUS = 2000;
 const FLAWLESS_BONUS = 3000; // on top of CLEAR_BONUS when the ship was never hit
 
@@ -23,6 +26,12 @@ export function awardKill(world, alien, scored = true) {
   const { id, role, x, y } = alien;
   emit(world, 'kill', { id, role, x, y, score: points, mult: c.mult, scored });
   emit(world, 'explode', { x, y, size: 1 });
+}
+
+// A pickup collected: its points go on the score; returns them for the pickup event.
+export function awardPickup(world) {
+  world.score += PICKUP_POINTS;
+  return PICKUP_POINTS;
 }
 
 export function tickCombo(world, dt) {

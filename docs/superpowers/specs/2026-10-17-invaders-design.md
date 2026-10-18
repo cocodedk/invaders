@@ -57,7 +57,9 @@ quoted lines, so the repo can be public.
   20 % of the time instead of a power-up.
 - **Scoring:** grunt 100, diver 150, gunner 200, armored 300, carrier 250, boss 10 000. Combo: each
   kill within 1.5 s of the last raises the multiplier by 1 (max ×8); 1.5 s without a kill resets it.
-  Clear bonus 2 000 + 3 000 if no hits.
+  Clear bonus 2 000 + 3 000 if no hits. Every pickup collected is worth a flat 500 (no multiplier);
+  when the level clears, every pickup still falling is collected at once and streaks into the ship:
+  its 500 counts toward the clear's score, its power or bomb does not (R51).
 - **Stars:** ★ cleared · ★★ cleared losing ≤ 1 life · ★★★ cleared with no hits. Best score and best
   stars per level are saved in `localStorage`.
 - **Difficulty** is a property of the level, not of progress: bullet speed, fire rate, formation

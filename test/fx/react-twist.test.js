@@ -14,6 +14,30 @@ test('pickup: a ring and sparks in the power-up colour, and its name floats up',
   assert.notEqual(bomb.rings[0].color, fx.rings[0].color);
 });
 
+test('a caught pickup also pops its points, above its name', () => {
+  const fx = react({ type: 'pickup', kind: 'laser', x: 500, y: 700, points: 500 });
+  const [name, points] = ['LASER', '+500'].map((t) => fx.popups.find((p) => p.text === t));
+  assert.ok(name && points, fx.popups.map((p) => p.text).join());
+  assert.ok(name.y - points.y >= 40, 'the two do not overlap');
+});
+
+// R51: swept up at the clear, a pickup streaks from where it was into the ship and its +500 pops up.
+test('a swept-up pickup streaks into the ship and pops +500 where it was, with no name or ring', () => {
+  const ev = { type: 'pickup', kind: 'spread', x: 300, y: 200, points: 500, auto: true };
+  const fx = react(ev, world);
+  assert.deepEqual(fx.popups.map((p) => [p.text, p.x]), [['+500', 300]]);
+  assert.equal(fx.rings.length, 0);
+  assert.ok(fx.particles.length >= 3, 'a head and a tail');
+  for (const p of fx.particles) {
+    assert.ok(Math.hypot(p.x + p.vx * p.life - 800, p.y + p.vy * p.life - 900) < 1, 'each lands on the ship');
+    assert.equal(p.gravity + p.drag, 0, 'on a straight line');
+  }
+  assert.ok(fx.flashes.some((f) => f.ramp && f.x === 800 && f.y === 900), 'the ship glows as it arrives');
+  run(fx, 1);
+  assert.equal(fx.particles.length, 0, 'gone once it has landed');
+  assert.doesNotThrow(() => react(ev), 'no world, no crash');
+});
+
 test('power on: a ring leaves the ship; off: it fizzles into smoke; no world, no crash', () => {
   const on = react({ type: 'power', kind: 'shield', on: true }, world);
   assert.deepEqual([on.rings[0].x, on.rings[0].y], [800, 900]);
