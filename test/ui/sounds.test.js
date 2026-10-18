@@ -50,7 +50,7 @@ test('an alien death sounds once (its kill), the boss chain swells, the white-ou
 });
 
 test('the pickups swept up at the clear chime one after another, a caught one at once', () => {
-  const swept = (kind) => ({ ...sample('pickup'), kind, auto: true });
+  const swept = (kind) => ({ ...sample('sweep'), kind });
   const sounds = names([sample('kill'), swept('laser'), swept('bomb'), swept('rapid'), sample('cleared')]);
   const chimes = sounds.filter((s) => s.name === 'pickup');
   assert.deepEqual(chimes.map((s) => s.kind), ['laser', 'bomb', 'rapid'], 'each its own pickup sound');

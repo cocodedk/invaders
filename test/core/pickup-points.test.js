@@ -1,19 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PICKUP_POINTS } from '../../src/core/scoring.js';
 import {
   level, wave, step, seconds, playing, drain, ofType, shotAt, pickupAt, pickupOnShip, bulletOnShip,
 } from './world-kit.js';
 import { bossWorld, leave } from './boss-kit.js';
 
 // R51: a pickup is worth a flat 500 however it is collected, and the clear sweeps up every pickup
-// still in the air (worth its points, too late for its power or bomb) before `cleared` is sent.
+// still in the air (a `sweep` event: worth its points, too late for its power or bomb) before
+// `cleared` is sent.
 
 const one = () => playing(level([wave({ rows: 1, cols: 1 })]));
 const types = (ev) => ev.map((e) => e.type);
 
 test('a caught pickup scores a flat 500: no combo multiplier, the combo untouched', () => {
-  assert.equal(PICKUP_POINTS, 500);
   const w = playing(level([wave({ rows: 1, cols: 3 })]));
   w.combo.mult = 5;
   w.combo.timer = 1.4;
@@ -23,12 +22,12 @@ test('a caught pickup scores a flat 500: no combo multiplier, the combo untouche
     step(w);
     assert.equal(w.score - before, 500, kind);
     const [e] = ofType(drain(w), 'pickup');
-    assert.deepEqual([e.kind, e.points, Boolean(e.auto)], [kind, 500, false]);
+    assert.deepEqual([e.kind, e.points], [kind, 500]);
   }
   assert.equal(w.combo.mult, 5, 'a pickup is not a kill');
 });
 
-test('the clear sweeps up every pickup in the air: auto, scored before `cleared`, none left', () => {
+test('the clear sweeps up every pickup in the air: scored before `cleared`, none left', () => {
   const w = one();
   const bombs = w.ship.bombs;
   pickupAt(w, 'laser', 200, 150);
@@ -38,9 +37,9 @@ test('the clear sweeps up every pickup in the air: auto, scored before `cleared`
   step(w);
   assert.equal(w.state, 'cleared');
   const ev = drain(w);
-  assert.deepEqual(types(ev).slice(-4), ['waveClear', 'pickup', 'pickup', 'cleared'], 'the order on the clear tick');
-  const swept = ofType(ev, 'pickup');
-  assert.deepEqual(swept.map((e) => [e.kind, e.auto, e.points]), [['laser', true, 500], ['bomb', true, 500]]);
+  assert.deepEqual(types(ev).slice(-4), ['waveClear', 'sweep', 'sweep', 'cleared'], 'the order on the clear tick');
+  const swept = ofType(ev, 'sweep');
+  assert.deepEqual(swept.map((e) => [e.kind, e.points]), [['laser', 500], ['bomb', 500]]);
   assert.ok(swept.every((e) => e.y < 400 && e.tick === ev.at(-1).tick), 'from where they were, on the clear tick');
   const [kill] = ofType(ev, 'kill');
   const [done] = ofType(ev, 'cleared');
@@ -49,7 +48,7 @@ test('the clear sweeps up every pickup in the air: auto, scored before `cleared`
   assert.equal(w.pickups.length, 0);
   assert.equal(w.ship.power, null, 'no power after the level');
   assert.equal(w.ship.bombs, bombs, 'no bomb after the level');
-  assert.equal(ofType(ev, 'power').length, 0);
+  assert.equal(ofType(ev, 'power').length + ofType(ev, 'pickup').length, 0, 'none of them caught');
 });
 
 test('a level cleared with no pickup in the air ends as before', () => {
@@ -58,7 +57,7 @@ test('a level cleared with no pickup in the air ends as before', () => {
   const before = w.score;
   step(w);
   const ev = drain(w);
-  assert.equal(ofType(ev, 'pickup').length, 0);
+  assert.equal(ofType(ev, 'sweep').length, 0);
   assert.equal(ev.at(-1).type, 'cleared');
   const [kill] = ofType(ev, 'kill');
   assert.equal(w.score, before + kill.score + ev.at(-1).bonus);
@@ -69,8 +68,8 @@ test('a pickup the ship touches on the clear tick is caught as usual, not swept'
   pickupOnShip(w, 'rapid');
   shotAt(w, w.aliens[0]);
   step(w);
-  const [e] = ofType(drain(w), 'pickup');
-  assert.equal(Boolean(e.auto), false);
+  const ev = drain(w);
+  assert.deepEqual([ofType(ev, 'pickup').length, ofType(ev, 'sweep').length], [1, 0]);
   assert.equal(w.ship.power.kind, 'rapid');
 });
 
@@ -82,7 +81,7 @@ test('a failed level sweeps nothing: the pickups in the air score nothing', () =
   const before = w.score;
   step(w);
   assert.equal(w.state, 'failed');
-  assert.equal(ofType(drain(w), 'pickup').length, 0);
+  assert.equal(ofType(drain(w), 'sweep').length, 0);
   assert.equal(w.score, before);
 });
 
@@ -97,8 +96,7 @@ test('a boss level: the destruction chain ends in the same sweep, before `cleare
   seconds(w, 1);
   assert.equal(w.state, 'cleared');
   const ev = drain(w);
-  assert.deepEqual(types(ev).slice(-2), ['pickup', 'cleared']);
-  assert.equal(ev.at(-2).auto, true);
+  assert.deepEqual(types(ev).slice(-2), ['sweep', 'cleared']);
   assert.equal(w.score, before + 500 + ev.at(-1).bonus);
   assert.equal(w.pickups.length, 0);
 });

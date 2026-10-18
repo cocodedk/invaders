@@ -8,7 +8,7 @@ import { emit } from './util.js';
 
 export const COMBO_WINDOW = 1.5;
 export const COMBO_MAX = 8;
-export const PICKUP_POINTS = 500;
+const PICKUP_POINTS = 500;
 const CLEAR_BONUS = 2000;
 const FLAWLESS_BONUS = 3000; // on top of CLEAR_BONUS when the ship was never hit
 
@@ -28,10 +28,13 @@ export function awardKill(world, alien, scored = true) {
   emit(world, 'explode', { x, y, size: 1 });
 }
 
-// A pickup collected: its points go on the score; returns them for the pickup event.
-export function awardPickup(world) {
+// A pickup collected: its points go on the score, and `pickup` (the ship caught it) or `sweep` (the clear
+// swept it up) announces it.
+export function awardPickup(world, p, swept = false) {
   world.score += PICKUP_POINTS;
-  return PICKUP_POINTS;
+  const fields = { kind: p.kind, x: p.x, y: p.y, points: PICKUP_POINTS };
+  if (swept) emit(world, 'sweep', fields);
+  else emit(world, 'pickup', fields);
 }
 
 export function tickCombo(world, dt) {

@@ -18,23 +18,20 @@ const TAIL = 5; // glows behind its head
 const LAG = 0.03; // s between two of them
 
 // A pickup caught: a ring and sparks in its colour, its name and, above it, its points.
-function pickup(fx, ev, rng, world) {
+function pickup(fx, ev, rng) {
   const color = POWER_COLORS[ev.kind] ?? '#ffffff';
-  if (ev.auto) {
-    sweep(fx, ev, world, color);
-    return;
-  }
   addRing(fx, { x: ev.x, y: ev.y, maxR: 90, color, life: 0.4 });
   sparks(fx, rng, ev.x, ev.y, 8, 260, [color, '#ffffff']);
   const text = ev.kind === 'bomb' ? '+1 BOMB' : String(ev.kind).toUpperCase();
   addPopup(fx, { x: ev.x, y: ev.y - 24, text, color, scale: 1.3, life: 1.2 });
-  if (ev.points > 0) addPopup(fx, { x: ev.x, y: ev.y - 70, text: '+' + ev.points, color: POINTS, life: 1.2 });
+  addPopup(fx, { x: ev.x, y: ev.y - 70, text: '+' + ev.points, color: POINTS, life: 1.2 });
 }
 
 // Swept up at the clear (R51): its points pop up where it was, and a comet in its colour flies from
 // there into the ship, which glows as it lands. The tail glows start further back on the same line
 // and live longer by as much, so every one of them lands on the ship.
-function sweep(fx, ev, world, color) {
+function sweep(fx, ev, rng, world) {
+  const color = POWER_COLORS[ev.kind] ?? '#ffffff';
   addPopup(fx, { x: ev.x, y: ev.y - 24, text: '+' + ev.points, color: POINTS, scale: 1.2, life: 1.4 });
   const ship = world?.ship;
   if (!ship) return;
@@ -162,6 +159,6 @@ function bunker(fx, ev, rng) {
 }
 
 export const WORLD = {
-  pickup, power, lightning, teleport, absorb, saucer, gust, acid, wreck, wreckDown, reassemble,
+  pickup, sweep, power, lightning, teleport, absorb, saucer, gust, acid, wreck, wreckDown, reassemble,
   bulletTime, cut, bunker,
 };

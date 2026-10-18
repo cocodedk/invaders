@@ -59,7 +59,7 @@ function won(world) {
 }
 
 // Cleared beats failed: the last wave gone is a clear even if the ship died that same tick. A clear
-// first sweeps up the pickups still falling (their pickup events, then `cleared` with every point in).
+// first sweeps up the pickups still falling (their sweep events, then `cleared` with every point in).
 function settle(world) {
   if (won(world)) {
     sweepPickups(world);

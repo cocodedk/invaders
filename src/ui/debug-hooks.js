@@ -12,7 +12,7 @@
 //                     untainted: recorded, replayable, saved as a best run, cut into a trailer.
 // With ?debug&level=w2-1 the game boots straight into that level.
 import { levelById } from '../core/levels.js';
-import { FALL, PICKUP_R } from '../core/powerups.js';
+import { makePickup } from '../core/powerups.js';
 import { syncBoss } from '../core/boss-phase.js';
 import { taint } from './session.js';
 import { audioStats } from './audio.js';
@@ -53,7 +53,7 @@ export function installDebug(r) {
       return Boolean(level);
     },
     grant: (kind = 'spread', x = null, y = null) => touch((w) => {
-      w.pickups.push({ kind, x: x ?? w.ship.x, y: y ?? w.ship.y, vy: FALL, r: PICKUP_R });
+      w.pickups.push(makePickup(kind, x ?? w.ship.x, y ?? w.ship.y));
     }),
     clear: (hits) => touch((w) => {
       if (Number.isInteger(hits)) w.hits = hits;

@@ -1,6 +1,7 @@
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { TICK } from '../../src/core/kinds.js';
 import { IDLE } from '../../src/core/input-codec.js';
+import { makePickup } from '../../src/core/powerups.js';
 
 export { TICK, IDLE };
 
@@ -40,7 +41,6 @@ export const bulletAt = (world, x, y, vx = 0, vy = 0, r = 8) =>
   world.bullets.push({ pattern: 'aimed', x, y, vx, vy, r, life: 6 });
 export const bulletOnShip = (world) => bulletAt(world, world.ship.x, world.ship.y);
 
-// A pickup placed anywhere (falls at the real 160 px/s, radius 22).
-export const pickupAt = (world, kind, x, y) =>
-  world.pickups.push({ kind, x, y, vy: 160, r: 22 });
+// A pickup placed anywhere, as a carrier drops it.
+export const pickupAt = (world, kind, x, y) => world.pickups.push(makePickup(kind, x, y));
 export const pickupOnShip = (world, kind) => pickupAt(world, kind, world.ship.x, world.ship.y);

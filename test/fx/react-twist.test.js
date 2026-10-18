@@ -5,11 +5,11 @@ import { kindsOf, ofKind, react, run } from './fx-kit.js';
 const world = { ship: { x: 800, y: 900 } };
 
 test('pickup: a ring and sparks in the power-up colour, and its name floats up', () => {
-  const fx = react({ type: 'pickup', kind: 'spread', x: 500, y: 700 });
+  const fx = react({ type: 'pickup', kind: 'spread', x: 500, y: 700, points: 500 });
   assert.equal(fx.rings.length, 1);
   assert.ok(fx.particles.length > 0);
   assert.equal(fx.popups[0].text, 'SPREAD');
-  const bomb = react({ type: 'pickup', kind: 'bomb', x: 500, y: 700 });
+  const bomb = react({ type: 'pickup', kind: 'bomb', x: 500, y: 700, points: 500 });
   assert.equal(bomb.popups[0].text, '+1 BOMB');
   assert.notEqual(bomb.rings[0].color, fx.rings[0].color);
 });
@@ -23,7 +23,7 @@ test('a caught pickup also pops its points, above its name', () => {
 
 // R51: swept up at the clear, a pickup streaks from where it was into the ship and its +500 pops up.
 test('a swept-up pickup streaks into the ship and pops +500 where it was, with no name or ring', () => {
-  const ev = { type: 'pickup', kind: 'spread', x: 300, y: 200, points: 500, auto: true };
+  const ev = { type: 'sweep', kind: 'spread', x: 300, y: 200, points: 500 };
   const fx = react(ev, world);
   assert.deepEqual(fx.popups.map((p) => [p.text, p.x]), [['+500', 300]]);
   assert.equal(fx.rings.length, 0);
