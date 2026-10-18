@@ -73,6 +73,41 @@ test('a pickup the ship touches on the clear tick is caught as usual, not swept'
   assert.equal(w.ship.power.kind, 'rapid');
 });
 
+// R52: the two ties settle() and collide() decide on the clear tick.
+test('the clear and the ship\'s last life on one tick: cleared wins, and the pickup in the air is swept', () => {
+  const w = one();
+  w.ship.lives = 1;
+  pickupAt(w, 'laser', 200, 150);
+  shotAt(w, w.aliens[0]);
+  bulletOnShip(w);
+  const before = w.score;
+  step(w);
+  assert.deepEqual([w.state, w.ship.lives], ['cleared', 0]);
+  const ev = drain(w);
+  const ends = types(ev).filter((t) => ['shipHit', 'sweep', 'cleared', 'failed'].includes(t));
+  assert.deepEqual(ends, ['shipHit', 'sweep', 'cleared']);
+  const [kill] = ofType(ev, 'kill');
+  assert.equal(w.score, before + kill.score + 500 + ev.at(-1).bonus, 'its 500 counts');
+  assert.equal(w.pickups.length, 0);
+});
+
+test('a carrier killed on the clear tick drops its pickup, and the sweep takes it at once', () => {
+  const w = playing(level([wave({ rows: 1, cols: 1, roles: ['carrier'] })]));
+  const [carrier] = w.aliens;
+  shotAt(w, carrier);
+  const before = w.score;
+  step(w);
+  assert.equal(w.state, 'cleared');
+  const ev = drain(w);
+  assert.deepEqual(types(ev).slice(-2), ['sweep', 'cleared']);
+  const [swept] = ofType(ev, 'sweep');
+  assert.deepEqual([swept.x, swept.y], [carrier.x, carrier.y], 'from where the carrier died');
+  assert.equal(ofType(ev, 'pickup').length, 0, 'not caught');
+  const [kill] = ofType(ev, 'kill');
+  assert.equal(w.score, before + kill.score + 500 + ev.at(-1).bonus);
+  assert.equal(w.pickups.length, 0);
+});
+
 test('a failed level sweeps nothing: the pickups in the air score nothing', () => {
   const w = one();
   w.ship.lives = 1;
