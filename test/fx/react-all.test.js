@@ -10,6 +10,7 @@ import { createWorld, stepWorld } from '../../src/core/world.js';
 import { autopilot } from '../../src/core/autopilot.js';
 import { levelById } from '../../src/core/levels.js';
 import { TICK, react } from './fx-kit.js';
+import { sampleEvent } from '../event-sample.js';
 
 // Events the core emits that fx deliberately leaves to the screens.
 const SILENT = ['failed'];
@@ -45,7 +46,7 @@ test('fx never draws from the world rng', () => {
   const before = world.rng.s;
   const fx = createFx();
   const rng = makeRng(1);
-  for (const type of REACTS) applyEvent(fx, { type, kind: 'queen', parts: [], x: 500, y: 300, size: 2, wind: 100, on: true, warn: 0.7, nth: 0 }, rng, world);
+  for (const type of REACTS) applyEvent(fx, sampleEvent(type, { kind: 'queen', parts: [] }), rng, world);
   assert.equal(world.rng.s, before);
 });
 

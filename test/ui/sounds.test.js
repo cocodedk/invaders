@@ -6,16 +6,12 @@ import { eventSounds, SILENT } from '../../src/ui/sounds.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { STYLES, SCALES, NOTES, kitFor, degreeMidi, midiHz } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
+import { sampleEvent as sample } from '../event-sample.js';
 
 const coreDir = fileURLToPath(new URL('../../src/core/', import.meta.url));
 // Every event type the core emits, read from its emit(world, '<type>', ...) calls.
 const EMITTED = [...new Set(readdirSync(coreDir).flatMap((f) =>
   [...readFileSync(coreDir + f, 'utf8').matchAll(/emit\(world, '(\w+)'/g)].map((m) => m[1])))];
-
-const sample = (type) => ({
-  type, tick: 1, x: 500, y: 300, side: 'ship', power: null, pattern: 'aimed', role: 'grunt', mult: 3, size: 2,
-  on: true, kind: 'spread', lives: 2, wind: 120, strength: 0.8, dir: 1, warn: 0.7, phase: 1, open: ['core'], last: false, nth: 0,
-});
 
 test('every event the core emits makes a sound that exists, or is silent on purpose', () => {
   assert.ok(EMITTED.length >= 25, `found ${EMITTED.length} event types`);
