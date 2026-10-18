@@ -1,15 +1,17 @@
-// The end of a level: the best is saved the moment the level is cleared, and once the slow motion
-// has played out the outcome goes to `flow.cleared` or `flow.failed`, which show the results or
-// failed card. trailer/routes.js replaces those two to run the trailer or the blooper first; each ends by
-// calling flow.showResults(outcome) / flow.showFailed(outcome).
+// The end of a level: the best and the run (trailer/runs.js decides whether the run is kept) are
+// saved the moment the level is cleared, so leaving through the pause menu during the slow motion
+// loses neither (M10); once it has played out the outcome goes to `flow.cleared` or `flow.failed`,
+// which show the results or failed card. trailer/routes.js replaces those two to run the trailer or
+// the blooper first; each ends by calling flow.showResults(outcome) / flow.showFailed(outcome).
 //   outcome = { level, mode ('play' | 'try'), cleared, score, stars, best, prev, newBest,
 //               recording: { level, seed, inputs, events, ticks, score, stars, state, tainted },
-//               run: makeRun(...) | null (null for the demo or a debug-tainted run), session,
+//               saved: saveBestRun's answer at the clear ('saved' | 'unsaved' | 'skip'), session,
 //               view (the level's baked view: replay clips can draw on it without a bake) }
 import { LEVELS, WORLDS } from '../core/levels.js';
 import { store } from './storage.js';
 import { play, setBeam } from './audio.js';
 import { finished, recording, runOf } from './session.js';
+import { saveBestRun } from './trailer/runs.js';
 import { resultsScreen } from './screens/results.js';
 import { failedScreen } from './screens/failed.js';
 
@@ -26,7 +28,10 @@ export function createFlow(r, stage) {
   const { app } = r;
   const flow = {
     onEvent(scene, e) {
-      if (e.type === 'cleared' && scene.mode === 'play') scene.result = store.recordResult(scene.level.id, e);
+      if (e.type !== 'cleared' || scene.mode !== 'play') return;
+      scene.result = store.recordResult(scene.level.id, e);
+      const { level, mode, session } = scene;
+      scene.saved = saveBestRun(store, { level, mode, cleared: true, score: e.score, run: runOf(session) });
     },
 
     // Once a frame while a level is up: has it ended, and has its moment played out?
@@ -41,7 +46,8 @@ export function createFlow(r, stage) {
       const rec = recording(s);
       const o = {
         level: scene.level, mode: scene.mode, cleared, score: s.world.score, stars: rec.stars,
-        best: res.best, prev: res.prev, newBest: res.newBest, recording: rec, run: runOf(s), session: s, view: scene.view,
+        best: res.best, prev: res.prev, newBest: res.newBest, recording: rec, saved: scene.saved ?? 'skip',
+        session: s, view: scene.view,
       };
       app.screen = cleared ? 'results' : 'failed';
       flow[cleared ? 'cleared' : 'failed'](o);

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createStorage } from '../../src/ui/storage.js';
-import { saveBestRun, cinemaReels } from '../../src/ui/trailer/runs.js';
+import { saveBestRun, cinemaReels, MAX_RUN_CHARS } from '../../src/ui/trailer/runs.js';
 import { levelById } from '../../src/core/levels.js';
 import { makeRun } from '../../src/core/replay.js';
 
@@ -108,4 +108,20 @@ test('cinema lists the levels with a playable saved run, in level order, skippin
   assert.equal(reels[0].run.score, 7000);
   assert.equal(reels[0].run.inputs.length, 120, 'decoded, ready to replay');
   assert.deepEqual(cinemaReels(createStorage(() => backend())), [], 'nothing saved, nothing listed');
+});
+
+// M9: the Pi's games share one origin's ~5 MB of localStorage; a run too long to keep is not
+// stored at all (the best score still is: recordResult), and Cinema simply lacks it.
+test('a run whose encoded inputs pass the cap is not stored; the score and the saved run stay', () => {
+  assert.equal(MAX_RUN_CHARS, 96 * 1024);
+  const back = backend();
+  const store = createStorage(() => back);
+  saveBestRun(store, outcome(store, 'w5-5', { score: 4000 }));
+  const huge = { ...runFor('w5-5', 60000), inputs: 'A'.repeat(MAX_RUN_CHARS + 1) };
+  assert.equal(saveBestRun(store, outcome(store, 'w5-5', { score: 60000, run: huge })), 'skip');
+  assert.equal(createStorage(() => back).bestRun('w5-5').score, 4000, 'the saved run is kept');
+  assert.deepEqual(createStorage(() => back).best('w5-5'), { score: 60000, stars: 2 }, 'the score was kept');
+  assert.deepEqual(cinemaReels(store).map((r) => r.run.score), [4000]);
+  const fits = { ...runFor('w6-5', 7000), inputs: 'A'.repeat(MAX_RUN_CHARS) }; // at the cap: stored
+  assert.equal(saveBestRun(store, outcome(store, 'w6-5', { score: 7000, run: fits })), 'saved');
 });

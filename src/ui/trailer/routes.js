@@ -1,6 +1,6 @@
 // Where the trailer, the blooper and Cinema join the game (installed once by main). The end of a
-// level (flow.js) goes through here: a clear saves the run when it beats the level's saved run (or
-// there is none: runs.js), plays its trailer and then the results; a failure plays the blooper and
+// level (flow.js) goes through here: a clear (whose run flow.js saved at the clear when it beats the
+// level's saved run, or there is none: runs.js) plays its trailer and then the results; a failure plays the blooper and
 // then the failed card. A run a ?debug hook changed (tainted) no longer replays to what was seen, so
 // it goes straight to its card. Cinema hangs off the title menu: its listing, then a trailer in its
 // world's sound and music, then back to the listing with the menu's music again (R34).
@@ -11,7 +11,7 @@ import { setWorldSound } from '../audio.js';
 import { setMusic, musicLook } from '../music.js';
 import { toast } from '../screens/stage.js';
 import { cinemaScreen } from '../screens/cinema.js';
-import { saveBestRun, cinemaReels } from './runs.js';
+import { cinemaReels } from './runs.js';
 import { trailerScreen } from './player.js';
 import { blooperScreen } from './blooper.js';
 
@@ -36,10 +36,9 @@ export function installTrailers(r, { stage, canvas }) {
   };
 
   flow.cleared = (o) => {
-    const saved = saveBestRun(store, o);
     const results = after(() => {
       flow.showResults(o);
-      if (saved === 'saved') toast('Your trailer is now showing in the Cinema');
+      if (o.saved === 'saved') toast('Your trailer is now showing in the Cinema');
     });
     const rec = o.recording;
     if (rec.tainted || !rec.ticks) return results();
