@@ -15,6 +15,7 @@
 import { glow } from '../sprites.js';
 import { clamp } from '../../core/math.js';
 import { WRECK_TIME } from '../../core/twists-2.js';
+import { isSwooping } from '../../core/aliens.js';
 import { art, roleSprites, extraSprites } from './bake.js';
 import { cracked, crackLights } from './cracks.js';
 
@@ -46,7 +47,7 @@ const bobOf = (A, a, t) => (A.bob ? Math.sin(t * 2.3 + a.id * 1.7) * A.bob : 0);
 // A swooping alien leans into its swoop (sprites face down): toward its aim on the way out, a little
 // back the other way on the return; a boss minion leans toward the ship it is falling on.
 function lean(world, a) {
-  if (a.mode !== 'dive' && a.mode !== 'return') return 0;
+  if (!isSwooping(a)) return 0;
   const dx = a.dive ? a.dive.ax - a.dive.fx : a.minion ? world.ship.x - a.x : 0;
   return clamp(-dx / 500, -0.55, 0.55) * (a.mode === 'return' ? -0.6 : 1);
 }

@@ -3,7 +3,7 @@
 // world reskins the capsule's rim and some icons (pickup-skins.js, keyed by look.world).
 import { INK, cached, glow, rgba } from './sprites.js';
 import { FRAMES, ICONS, disc, ring } from './pickup-skins.js';
-import { FAN } from './pickup-icons-2.js';
+import { FAN } from './pickup-icons.js';
 
 // The icon for `kind` in world `world` (0: the default set), drawn centred on (0, 0) about 30 px across.
 export function drawIcon(g, kind, color, world = 0) {

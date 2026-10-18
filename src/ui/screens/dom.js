@@ -3,6 +3,7 @@
 import { play } from '../audio.js';
 import { MOVE, isConfirm } from '../keys.js';
 import { MAX_STARS } from '../../core/scoring.js';
+import { prune } from '../../core/util.js';
 
 export function h(tag, cls, ...kids) {
   const el = document.createElement(tag);
@@ -77,6 +78,19 @@ export function armed(ms = 450) {
 // the focus. Enter confirms as soon as the card is armed. -> the screen's onKey
 export function endKeys(items, ready, settled) {
   return (code, e) => !ready() || (!settled() && (code === 'Space' || Boolean(e?.repeat))) || navigate(items, code);
+}
+
+// A screen's update() for poster tiles ({ art, world }) that may still be baking (posters.js): each
+// canvas goes in, and develops, once canvasOf(world) has one.
+export function developer(tiles, canvasOf) {
+  const waiting = tiles.filter((t) => !t.art.querySelector('canvas'));
+  return () => prune(waiting, (t) => {
+    const canvas = canvasOf(t.world);
+    if (!canvas) return true;
+    t.art.prepend(canvas);
+    t.art.classList.add('develop');
+    return false;
+  });
 }
 
 // A world's sky as a CSS background: its gradient stops, top to bottom.

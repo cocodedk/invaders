@@ -1,6 +1,8 @@
 // Pickup icons of worlds 1-4 (see pickup-skins.js): plain paths, drawn by the HUD every frame too.
 import { INK, rgba } from './sprites.js';
-import { FAN } from './pickup-icons-2.js';
+
+// The spread's three prongs, in rad from straight up (every spread icon draws these).
+export const FAN = [-0.55, 0, 0.55];
 
 // A four-point throwing star at (x, y), radius r.
 function shuriken(g, x, y, r, rot) {

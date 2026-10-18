@@ -14,7 +14,6 @@ import { cinemaReels } from './runs.js';
 import { trailerScreen } from './player.js';
 import { blooperScreen } from './blooper.js';
 
-
 export function installTrailers(r, { stage, canvas }) {
   const { app, flow } = r;
   const takes = new Map(); // level id -> failures this session: the blooper's TAKE

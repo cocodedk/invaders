@@ -19,7 +19,6 @@ const OPEN = 1.6; // s a part takes to slide open (the fortress trench)
 const CRACK = 0.6; // s a plate takes to split open
 const NEVER = -1e9;
 
-
 export function partStage(p) {
   if (p.hp >= p.max) return 0;
   return (p.max - p.hp) / p.max > 0.5 ? 2 : 1;

@@ -102,6 +102,15 @@ export function rad(g, x, y, r0, r1, stops, fx = x, fy = y) {
   return gr;
 }
 
+// Stroke the current path in colour c, w px wide, with round caps and joins.
+export function line(g, c, w = 2) {
+  g.lineCap = 'round';
+  g.lineJoin = 'round';
+  g.lineWidth = w;
+  g.strokeStyle = c;
+  g.stroke();
+}
+
 const radial = (stops) => (g, w) => {
   const h = w / 2;
   g.fillStyle = rad(g, h, h, 0, h, stops);

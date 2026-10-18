@@ -28,7 +28,6 @@ import { DEMO_SEED, createDirector, directInput, noteEvents } from './demo/scrip
 
 const MIN_CARD = 0.9; // s the title card stays, so it reads as a moment, not a flicker
 
-
 const labelOf = (level) => (level === DEMO_LEVEL ? 'Watch, then try' : `${worldName(level)} · ${reelName(level)}`);
 
 export function createRouter({ canvas, stage, input }) {

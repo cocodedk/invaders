@@ -31,7 +31,6 @@ const around = (peak, kind, ticks) => {
   return { start, end: start + len, peak: clamp(peak, start, start + len), kind };
 };
 
-
 export function cutClips(events, ticks) {
   if (ticks <= 0) return [];
   const clips = pickHighlights(events, ticks).map(trim);

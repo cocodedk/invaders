@@ -3,7 +3,7 @@
 // loses neither (M10); once it has played out the outcome goes to `flow.cleared` or `flow.failed`,
 // which show the results or failed card. trailer/routes.js replaces those two to run the trailer or
 // the blooper first; each ends by calling flow.showResults(outcome) / flow.showFailed(outcome).
-//   outcome = { level, mode ('play' | 'try'), cleared, score, stars, best, prev, newBest,
+//   outcome = { level, mode ('play' | 'try'), cleared, score, stars, best, newBest,
 //               recording: { level, seed, inputs, events, ticks, score, stars, state, tainted },
 //               saved: saveBestRun's answer at the clear ('saved' | 'unsaved' | 'skip'), session,
 //               view (the level's baked view: replay clips can draw on it without a bake) }
@@ -43,7 +43,7 @@ export function createFlow(r, stage) {
       if (s.over < (cleared ? CLEAR_WAIT : FAIL_WAIT)) return;
       scene.ended = true;
       setBeam(false);
-      const res = scene.result ?? { best: { score: s.world.score, stars: 0 }, prev: null, newBest: false };
+      const res = scene.result ?? { best: { score: s.world.score, stars: 0 }, newBest: false };
       const rec = recording(s);
       const o = {
         level: scene.level, mode: scene.mode, cleared, score: s.world.score, stars: rec.stars,

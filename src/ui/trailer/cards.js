@@ -15,7 +15,6 @@ import { TICK } from '../../core/kinds.js';
 import { bossDef } from '../../core/bosses-data.js';
 import { MAX_STARS } from '../../core/scoring.js';
 
-
 // n of a thing: "NOT ONE INVADER" / "ONE INVADER" / "47 INVADERS"
 const count = (none, one, many) => (n) => (n <= 0 ? none : n === 1 ? one : `${fmt(n)} ${many}`);
 
