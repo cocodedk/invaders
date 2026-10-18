@@ -1,13 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installCanvas } from './dom-kit.js';
 
 // The title's backdrop battle (M5): a random world's wave level, and on a return to the title from a
 // level, another world than the one just shown (the router passes it), so a kiosk cycles worlds.
-const sink = new Proxy(() => sink, { get: (f, k) => (k === Symbol.toPrimitive ? () => 0 : sink), apply: () => sink });
-globalThis.document = {
-  createElement: () => ({ width: 1, height: 1, getContext: () => sink }),
-  addEventListener() {},
-};
+installCanvas();
 const { pickBackdrop } = await import('../../src/ui/scenes.js');
 
 test('the backdrop is a wave level of any world, and never the world it is told to skip', () => {

@@ -1,15 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installElements } from './dom-kit.js';
 
 // M10: the run is saved the moment the level is cleared, as the best score is, so leaving through
 // the pause menu during the 2.4 s of slow motion after a clear (Restart, Select, Title) no longer
 // loses it from Cinema. Still only a real, untainted play session (runs.js, R33).
-const element = () => ({
-  className: '', children: [], textContent: '', style: {},
-  classList: { add() {}, remove() {}, toggle() {}, contains: () => false },
-  append() {}, addEventListener() {}, setAttribute() {}, focus() {},
-});
-globalThis.document = { createElement: element, addEventListener() {}, activeElement: null, hidden: false };
+installElements();
 const backing = new Map();
 globalThis.localStorage = { getItem: (k) => backing.get(k) ?? null, setItem: (k, v) => backing.set(k, String(v)) };
 

@@ -24,9 +24,12 @@ function still(level) {
 
 function checkAliens(world, what) {
   const checked = { enter: 0, hold: 0, dive: 0 };
+  const later = structuredClone(world);
+  let ticks = 0;
   for (const tau of TAUS) {
-    const later = structuredClone(world);
-    step(later, Math.round(tau * 60));
+    const n = Math.round(tau * 60);
+    step(later, n - ticks); // the same copy, stepped on to each look-ahead in turn
+    ticks = n;
     for (const a of world.aliens) {
       const b = later.aliens.find((x) => x.id === a.id);
       const mode = a.mode === 'return' ? 'dive' : a.mode;

@@ -4,8 +4,8 @@ import { FILM } from '../../src/ui/sfx-film.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { kitFor } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
+import { param } from './audio-kit.js';
 
-const param = () => ({ value: 0, setValueAtTime() {}, exponentialRampToValueAtTime() {}, linearRampToValueAtTime() {} });
 
 // A stand-in AudioContext: every node it makes, and whether each source was started and stopped.
 function fakeVoice(kit) {

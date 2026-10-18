@@ -3,13 +3,11 @@ import assert from 'node:assert/strict';
 import { createBunker } from '../../src/core/bunkers.js';
 import { createWorld } from '../../src/core/world.js';
 import {
-  IDLE, level, wave, input, step, seconds, playing, drain, ofType, bulletAt, pickupOnShip,
+  FIRE, solid, IDLE, level, wave, input, step, seconds, playing, drain, ofType, bulletAt, pickupOnShip,
 } from './world-kit.js';
 
-const FIRE = input({ fire: true });
 const BOMB = input({ bomb: true });
 const lv = (roles, extra) => level([wave({ rows: roles.length, cols: 3, roles })], 0, extra);
-const solid = (b) => b.mask.reduce((n, v) => n + v, 0);
 
 // The laser's column is 26 px wide: an alien (radius 26) is hit within 13 + 26 = 39 px of the ship.
 function beamWorld(offset) {

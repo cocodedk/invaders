@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, stepWorld, stars } from '../../src/core/world.js';
+import { finished } from '../../src/core/util.js';
 import { levelById } from '../../src/core/levels.js';
 import { autopilot } from '../../src/core/autopilot.js';
 import { makeRun, decodeRun, replay, stateHash, TICK } from '../../src/core/replay.js';
@@ -35,7 +36,7 @@ function fly(level) {
   const world = createWorld(level, level.seed);
   const inputs = [];
   const events = [];
-  while (world.state !== 'cleared' && world.state !== 'failed' && world.t < 180) {
+  while (!finished(world) && world.t < 180) {
     const input = autopilot(world);
     inputs.push(input);
     stepWorld(world, TICK, input);

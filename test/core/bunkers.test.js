@@ -3,9 +3,8 @@ import assert from 'node:assert/strict';
 import { createBunker, hitBunker, carveRect, sweepBunkers, BUNKER } from '../../src/core/bunkers.js';
 import { emitPattern } from '../../src/core/patterns.js';
 import { createWorld } from '../../src/core/world.js';
-import { level, wave, step, playing, drain, ofType, bulletAt } from './world-kit.js';
+import { solid, level, wave, step, playing, drain, ofType, bulletAt } from './world-kit.js';
 
-const solid = (b) => b.mask.reduce((n, v) => n + v, 0);
 const at = (b, lx, ly) => b.mask[ly * b.w + lx];
 const fresh = () => createBunker(100, 560, 160, 60);
 const lv = () => level([wave()], 0, { bunkers: true });

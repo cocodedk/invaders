@@ -1,9 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { level, wave, input, step, seconds, playing, drain, ofType, shotAt, bulletAt } from './world-kit.js';
+import { FIRE, level, wave, input, step, seconds, playing, drain, ofType, shotAt, bulletAt } from './world-kit.js';
 
 const armored = (twist) => level([wave({ roles: ['armored'], cols: 3 })], 0, { twist });
-const FIRE = input({ fire: true });
 
 // Shoot the first armored alien dead (its hp is 3 at d = 0).
 function killOne(w) {

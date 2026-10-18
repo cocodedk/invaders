@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
+import { finished } from '../../src/core/util.js';
 import { LEVELS } from '../../src/core/levels.js';
 import { autopilot } from '../../src/core/autopilot.js';
 import { TICK } from '../../src/core/replay.js';
@@ -31,7 +32,7 @@ export const LIMIT = 180;
 
 // Fly `world` with the autopilot until it is cleared or failed, or `limit` s have passed.
 export function fly(world, limit = LIMIT) {
-  while (world.state !== 'cleared' && world.state !== 'failed' && world.t < limit) {
+  while (!finished(world) && world.t < limit) {
     stepWorld(world, TICK, autopilot(world));
     world.events.length = 0;
   }

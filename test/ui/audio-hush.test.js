@@ -1,40 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installAudio } from './audio-kit.js';
 
 // A stand-in AudioContext, enough for audio.js to build its graph and play patches. Every param
 // records its automation, so the test can see which voices were faded and how fast.
 const gains = [];
-function param(value = 0) {
-  return {
-    value, calls: [],
-    setValueAtTime(v, t) { this.calls.push(['set', v, t]); },
-    exponentialRampToValueAtTime(v, t) { this.calls.push(['exp', v, t]); },
-    linearRampToValueAtTime(v, t) { this.calls.push(['lin', v, t]); },
-    setTargetAtTime(v, t, k) { this.calls.push(['target', v, t, k]); },
-    cancelScheduledValues(t) { this.calls.push(['cancel', t]); },
-  };
-}
-const node = (extra = {}) => ({
-  connect: (t) => t, disconnect() {}, start() {}, stop() {},
-  gain: param(1), frequency: param(), detune: param(), Q: param(), playbackRate: param(1), pan: param(),
-  threshold: param(), knee: param(), ratio: param(), attack: param(), release: param(), ...extra,
-});
-class FakeContext {
-  constructor() {
-    this.state = 'running';
-    this.currentTime = 10;
-    this.sampleRate = 8000;
-    this.destination = node();
-  }
-  resume() {}
-  suspend() {}
-  createGain() { const g = node(); gains.push(g); return g; }
-  createBuffer(ch, n) { const d = Array.from({ length: ch }, () => new Float32Array(n)); return { getChannelData: (i) => d[i] }; }
-}
-for (const kind of ['DynamicsCompressor', 'Convolver', 'StereoPanner', 'Oscillator', 'BiquadFilter', 'BufferSource', 'WaveShaper']) {
-  FakeContext.prototype[`create${kind}`] = () => node();
-}
-globalThis.AudioContext = FakeContext;
+installAudio({ currentTime: 10, onNode: (kind, n) => kind === 'Gain' && gains.push(n) });
 
 const faded = (g, by) => g.gain.calls.some(([k, v, t]) => (k === 'lin' || k === 'target') && v === 0 && t <= by);
 

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { BOSS_DEFS, bossDef } from '../../src/core/bosses-data.js';
-import { BOSSES, PATTERNS, ROLES } from '../../src/core/kinds.js';
+import { BOSSES, PATTERNS, ROLES, HUD_BOTTOM } from '../../src/core/kinds.js';
 import { WARN } from '../../src/core/boss-attack.js';
 
 const sum = (parts) => parts.reduce((n, p) => n + p.hp, 0);
@@ -33,12 +33,12 @@ test('each definition is plain data: maxHp is the sum of its parts, ids are uniq
 });
 
 // Ruling R28: at its resting place (before any sway, hover or charge) no part is under the HUD,
-// which ends at y 96 (ui/hud.js HUD_BOTTOM), so every silhouette is seen whole.
+// which ends at HUD_BOTTOM (y 96), so every silhouette is seen whole.
 test('at rest every part of every boss is below the HUD (no rect top above y 100)', () => {
   for (const def of BOSS_DEFS) {
     for (const p of def.parts) {
       const top = def.y + p.dy - p.h / 2;
-      assert.ok(top >= 100, `${def.kind}/${p.id} top at y ${top}`);
+      assert.ok(top >= HUD_BOTTOM + 4, `${def.kind}/${p.id} top at y ${top}`);
     }
   }
 });

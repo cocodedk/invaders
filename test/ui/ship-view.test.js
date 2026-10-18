@@ -1,13 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installCanvas, sink } from './dom-kit.js';
 
 // drawShip against a context that records the alpha of every sprite it draws: while the ship blinks
 // (invulnerable, every other 1/14 s) nothing of it, the engine flames included, burns at full alpha.
-const sink = new Proxy(() => sink, { get: (f, k) => (k === Symbol.toPrimitive ? () => 0 : sink), apply: () => sink });
-globalThis.document = {
-  createElement: () => ({ width: 1, height: 1, getContext: () => sink }),
-  addEventListener() {},
-};
+installCanvas();
 const { drawShip } = await import('../../src/ui/ship-view.js');
 const { LOOKS } = await import('../../src/ui/looks/index.js');
 

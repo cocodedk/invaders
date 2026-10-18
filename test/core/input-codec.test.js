@@ -1,10 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { encodeInputs, decodeInputs, quantizeInput, MAX_TICKS } from '../../src/core/input-codec.js';
+import { encodeInputs, decodeInputs, quantizeInput, MAX_TICKS, IDLE } from '../../src/core/input-codec.js';
 import { makeRng } from '../../src/core/rng.js';
 import { randomInputs } from './replay-kit.js';
 
-const IDLE = { dx: 0, dy: 0, fire: false, bomb: false, target: null };
 const at = (x, y, o = {}) => ({ ...IDLE, ...o, target: { x, y } });
 const roundTrip = (list) => decodeInputs(encodeInputs(list));
 

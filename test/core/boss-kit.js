@@ -1,4 +1,5 @@
 import { createWorld, stepWorld } from '../../src/core/world.js';
+import { finished } from '../../src/core/util.js';
 import { levelById } from '../../src/core/levels.js';
 import { BOSSES } from '../../src/core/kinds.js';
 import { level, playing, input, step, TICK } from './world-kit.js';
@@ -49,7 +50,7 @@ export function botFight(kind, limit = 120, onTick = () => {}) {
   world.ship.invuln = Infinity;
   const prev = {};
   const log = [];
-  while (world.state !== 'cleared' && world.state !== 'failed' && world.t < limit) {
+  while (!finished(world) && world.t < limit) {
     const weak = world.boss.parts.filter((p) => p.hp > 0 && p.weak);
     let aim = world.ship.x;
     if (weak.length) {

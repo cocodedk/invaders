@@ -1,13 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installCanvas, sink } from './dom-kit.js';
 
 // The film look on a stand-in context that logs its calls: at half quality (R46) the grain pass is
 // skipped, while the grade, the vignette and the letterbox bars still draw.
-const sink = new Proxy(() => sink, { get: (f, k) => (k === Symbol.toPrimitive ? () => 0 : sink), apply: () => sink });
-globalThis.document = {
-  createElement: () => ({ width: 1, height: 1, getContext: () => sink }),
-  addEventListener() {},
-};
+installCanvas();
 const { drawFilm } = await import('../../src/ui/film-view.js');
 
 function recorder() {

@@ -4,8 +4,8 @@ import { createStorage } from '../../src/ui/storage.js';
 import { saveBestRun, cinemaReels, MAX_RUN_CHARS } from '../../src/ui/trailer/runs.js';
 import { levelById } from '../../src/core/levels.js';
 import { makeRun } from '../../src/core/replay.js';
+import { IDLE } from '../../src/core/input-codec.js';
 
-const IDLE = { dx: 0, dy: 0, fire: false, bomb: false, target: null };
 const runFor = (id, score = 9000, n = 120) => makeRun(levelById(id), levelById(id).seed, Array.from({ length: n }, () => ({ ...IDLE })), { score, stars: 2 });
 
 function backend({ refuseRuns = false } = {}) {

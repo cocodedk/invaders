@@ -1,14 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installElements } from './dom-kit.js';
 
 // The results card built on a few stand-in elements: which lines it shows.
-const element = (tag) => ({
-  tag, className: '', children: [], textContent: '',
-  classList: { add() {}, remove() {}, contains: () => false },
-  append(...kids) { this.children.push(...kids); },
-  addEventListener() {},
-});
-globalThis.document = { createElement: element, addEventListener() {}, activeElement: null };
+installElements();
 const { resultsScreen } = await import('../../src/ui/screens/results.js');
 
 const all = (el) => [el, ...el.children.filter((k) => typeof k === 'object').flatMap(all)];

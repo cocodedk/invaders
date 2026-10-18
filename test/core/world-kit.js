@@ -1,10 +1,14 @@
 import { createWorld, stepWorld } from '../../src/core/world.js';
+import { TICK } from '../../src/core/kinds.js';
+import { IDLE } from '../../src/core/input-codec.js';
+
+export { TICK, IDLE };
 
 // Shared by the world tests: tiny levels, a quiet world, and injected shots and bullets, so each
 // test exercises one rule without waiting for the real thing to line up.
-export const TICK = 1 / 60;
-export const IDLE = { dx: 0, dy: 0, fire: false, bomb: false, target: null };
 export const input = (o) => ({ ...IDLE, ...o });
+export const FIRE = input({ fire: true });
+export const solid = (b) => b.mask.reduce((n, v) => n + v, 0); // a bunker's solid pixels
 
 export const wave = (o = {}) =>
   ({ formation: 'grid', rows: 1, cols: 3, roles: ['grunt'], pattern: 'aimed', speed: 1, ...o });

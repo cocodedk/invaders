@@ -4,10 +4,9 @@ import { POWERS } from '../../src/core/kinds.js';
 import { hurtAlien } from '../../src/core/aliens.js';
 import { createWorld } from '../../src/core/world.js';
 import {
-  level, wave, input, step, seconds, playing, drain, ofType, shotAt, bulletOnShip, pickupAt, pickupOnShip,
+  FIRE, level, wave, input, step, seconds, playing, drain, ofType, shotAt, bulletOnShip, pickupAt, pickupOnShip,
 } from './world-kit.js';
 
-const FIRE = input({ fire: true });
 const lv = (roles = ['grunt']) => level([wave({ rows: roles.length, cols: 3, roles })]);
 
 test('a carrier that dies drops a pickup: radius 22, falling at 160 px/s, where it died', () => {

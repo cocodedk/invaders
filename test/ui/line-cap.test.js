@@ -1,13 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installCanvas, sink } from './dom-kit.js';
 
 // The round-capped strokes of the sky (W7 tracers, W8 lensed stars and photon ring) must leave the
 // context's lineCap as they found it, or later strokes (the HUD's power ring) inherit round caps.
-const sink = new Proxy(() => sink, { get: (f, k) => (k === Symbol.toPrimitive ? () => 0 : sink), apply: () => sink });
-globalThis.document = {
-  createElement: () => ({ width: 1, height: 1, getContext: () => sink }),
-  addEventListener() {},
-};
+installCanvas();
 const { FLOURISH2 } = await import('../../src/ui/flourish-2.js');
 const { AMBIENT2 } = await import('../../src/ui/ambient-2.js');
 

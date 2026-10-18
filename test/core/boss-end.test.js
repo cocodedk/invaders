@@ -1,10 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { inColumn } from '../../src/core/damage.js';
-import { input, step, seconds, drain, ofType, bulletAt } from './world-kit.js';
+import { FIRE, input, step, seconds, drain, ofType, bulletAt } from './world-kit.js';
 import { bossWorld, part, shotOn, leave } from './boss-kit.js';
 
-const FIRE = input({ fire: true });
 
 test('the laser beam burns a weak part for 8 a second and an armour plate for 2', () => {
   const w = bossWorld('mothership');

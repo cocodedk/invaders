@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
+import { finished } from '../../src/core/util.js';
 import { LEVELS } from '../../src/core/levels.js';
 import { autopilot } from '../../src/core/autopilot.js';
 import { TICK } from '../../src/core/replay.js';
@@ -22,7 +23,7 @@ function shotShare(level) {
   let before = new Set();
   let ended = 0;
   let landed = 0;
-  while (world.state !== 'cleared' && world.state !== 'failed' && world.t < 120) {
+  while (!finished(world) && world.t < 120) {
     stepWorld(world, TICK, autopilot(world));
     world.pickups.length = 0;
     const now = new Set(world.shots);

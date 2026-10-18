@@ -1,13 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installCanvas } from './dom-kit.js';
 
 // drawBullets against a recording context: which transform each sprite is drawn under, and the
 // angle a star is turned by. Sprites are baked into stand-in canvases that swallow every call.
-const sink = new Proxy(() => sink, { get: (f, k) => (k === Symbol.toPrimitive ? () => 0 : sink), apply: () => sink });
-globalThis.document = {
-  createElement: () => ({ width: 1, height: 1, getContext: () => sink }),
-  addEventListener() {},
-};
+installCanvas();
 const { drawBullets } = await import('../../src/ui/bullets-view.js');
 const { LOOKS } = await import('../../src/ui/looks/index.js');
 

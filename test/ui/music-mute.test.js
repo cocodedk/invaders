@@ -1,35 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { LOOKS } from '../../src/ui/looks/index.js';
+import { installAudio } from './audio-kit.js';
 
 // A stand-in AudioContext that counts the oscillators made: the music's notes are oscillators, so
 // a loop that keeps scheduling notes keeps making them.
 let oscillators = 0;
-const param = (value = 0) => ({
-  value, setValueAtTime() {}, exponentialRampToValueAtTime() {}, linearRampToValueAtTime() {},
-  setTargetAtTime() {}, cancelScheduledValues() {},
-});
-const node = () => ({
-  connect: (t) => t, disconnect() {}, start() {}, stop() {},
-  gain: param(1), frequency: param(), detune: param(), Q: param(), playbackRate: param(1), pan: param(),
-  delayTime: param(), threshold: param(), knee: param(), ratio: param(), attack: param(), release: param(),
-});
-class FakeContext {
-  constructor() {
-    this.state = 'running';
-    this.currentTime = 1;
-    this.sampleRate = 8000;
-    this.destination = node();
-  }
-  resume() {}
-  suspend() {}
-  createOscillator() { oscillators += 1; return node(); }
-  createBuffer(ch, n) { const d = Array.from({ length: ch }, () => new Float32Array(n)); return { getChannelData: (i) => d[i] }; }
-}
-for (const kind of ['Gain', 'DynamicsCompressor', 'Convolver', 'StereoPanner', 'BiquadFilter', 'BufferSource', 'WaveShaper', 'Delay']) {
-  FakeContext.prototype[`create${kind}`] = () => node();
-}
-globalThis.AudioContext = FakeContext;
+installAudio({ currentTime: 1, onNode: (kind) => { if (kind === 'Oscillator') oscillators += 1; } });
 
 test('muted, the music schedules no notes; unmuted, it picks up again', async (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });

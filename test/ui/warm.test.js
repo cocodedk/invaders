@@ -1,12 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { installCanvas } from './dom-kit.js';
 
 // What is baked when (Pi 4: at load, never mid-fight). Canvases are stand-ins that swallow every call.
-const sink = new Proxy(() => sink, { get: (f, k) => (k === Symbol.toPrimitive ? () => 0 : sink), apply: () => sink });
-globalThis.document = {
-  createElement: () => ({ width: 64, height: 64, getContext: () => sink }),
-  addEventListener() {},
-};
+installCanvas(64);
 const { warmAliens, roleSprites } = await import('../../src/ui/aliens/bake.js');
 const { CRACKABLE } = await import('../../src/ui/aliens/cracks.js');
 const { bossArt, warmBoss } = await import('../../src/ui/bosses/bake.js');

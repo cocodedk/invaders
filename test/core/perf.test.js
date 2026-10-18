@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
+import { finished } from '../../src/core/util.js';
 import { levelById } from '../../src/core/levels.js';
 import { autopilot } from '../../src/core/autopilot.js';
 import { TICK } from '../../src/core/replay.js';
@@ -17,7 +18,7 @@ test('stepWorld on the busiest level stays under 2 ms per tick at the 95th perce
   const steps = [];
   const pilots = [];
   let peak = 0;
-  while (world.state !== 'cleared' && world.state !== 'failed' && world.t < 60) {
+  while (!finished(world) && world.t < 60) {
     const t0 = performance.now();
     const input = autopilot(world);
     const t1 = performance.now();

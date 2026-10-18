@@ -1,9 +1,10 @@
 import { makeRng } from '../../src/core/rng.js';
+import { TICK } from '../../src/core/kinds.js';
 import { createFx, stepFx } from '../../src/fx/fx.js';
 import { applyEvent } from '../../src/fx/react.js';
 
 // Shared by the fx tests: a fresh fx, one event applied, and time moved forward.
-export const TICK = 1 / 60;
+export { TICK };
 export const run = (fx, secs) => { for (let i = 0; i < Math.round(secs * 60); i++) stepFx(fx, TICK); };
 
 // A fresh fx with `ev` applied through a seeded rng. world is optional, as it is in the game.

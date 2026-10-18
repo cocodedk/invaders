@@ -39,9 +39,8 @@ test('every formation keeps every slot inside x 0..1920, y 0..600 for 60 s', () 
         for (const ctx of CTXS) {
           for (let t = 0; t <= 60; t += 0.1) {
             const p = slotPosition(f, slot, t, ctx);
-            const at = `${f} ${key} r${slot.row}c${slot.col} t${t.toFixed(1)}`;
-            assert.ok(p.x >= 0 && p.x <= 1920, `${at} x ${p.x}`);
-            assert.ok(p.y >= 0 && p.y <= 600, `${at} y ${p.y}`);
+            if (p.x >= 0 && p.x <= 1920 && p.y >= 0 && p.y <= 600) continue; // the message only on failure
+            assert.fail(`${f} ${key} r${slot.row}c${slot.col} t${t.toFixed(1)}: x ${p.x} y ${p.y}`);
           }
         }
       }

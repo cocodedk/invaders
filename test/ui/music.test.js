@@ -2,11 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { setMusic, updateMusic, startLoop, fillLoop, stopLoop } from '../../src/ui/music.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
+import { param } from './audio-kit.js';
 
-const param = (value = 0) => ({
-  value, setValueAtTime() {}, exponentialRampToValueAtTime() {}, linearRampToValueAtTime() {},
-  setTargetAtTime() {}, cancelScheduledValues() {},
-});
 
 // A stand-in AudioContext that records every node and its outgoing connections.
 function fakeAudio() {
