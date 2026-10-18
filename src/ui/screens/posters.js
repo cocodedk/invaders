@@ -11,7 +11,7 @@ import { LEVELS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
 import { autopilot } from '../../core/autopilot.js';
 import { TICK } from '../../core/kinds.js';
-import { makeRng } from '../../core/rng.js';
+import { fxRng } from '../session.js';
 import { createFx, stepFx } from '../../fx/fx.js';
 import { applyEvents } from '../../fx/react.js';
 import { lookFor } from '../looks/index.js';
@@ -32,8 +32,6 @@ export const TAGLINES = [
   'Even light bends here.',
 ];
 
-export const reelName = (level) => (level.boss ? 'Finale' : `Reel ${level.index}`);
-
 const FRAME_W = 768;
 const FRAME_H = 432;
 const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8]; // s into each boss fight: in place, mid-attack
@@ -50,7 +48,7 @@ function* bake(world) {
   const secs = AT[world - 1];
   const w = createWorld(level, level.seed);
   const fx = createFx();
-  const rng = makeRng((level.seed ^ 0x5eed) >>> 0);
+  const rng = fxRng(level.seed);
   const n = Math.round(secs / TICK);
   const lit = n - Math.round(LIT / TICK);
   for (let i = 0; i < n; i++) {

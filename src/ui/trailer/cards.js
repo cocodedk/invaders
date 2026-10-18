@@ -9,11 +9,11 @@
 //   cardsFor(world, stats) -> [[line, ...] x 3]       fillLine(template, stats) -> line
 //   finalCard({ level, stats, stars, score, newBest }) -> { kicker, title, stars, label, score, value, record, billing }
 import { clamp } from '../../core/math.js';
-import { WORLDS } from '../../core/levels.js';
+import { reelName, worldName } from '../../core/levels.js';
+import { fmt, clock } from '../format.js';
 import { TICK } from '../../core/kinds.js';
 import { bossDef } from '../../core/bosses-data.js';
 
-const fmt = (n) => Math.round(n).toLocaleString('en-US');
 
 // n of a thing: "NOT ONE INVADER" / "ONE INVADER" / "47 INVADERS"
 const count = (none, one, many) => (n) => (n <= 0 ? none : n === 1 ? one : `${fmt(n)} ${many}`);
@@ -108,21 +108,16 @@ export function statsOf(events, ticks) {
   return s;
 }
 
-const runningTime = (secs) => {
-  const s = Math.max(0, Math.floor(secs));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-};
-
 export function finalCard({ level, stats, stars, score, newBest }) {
-  const reel = level.boss ? 'FINALE' : `REEL ${level.index}`;
+  const reel = reelName(level).toUpperCase();
   return {
     kicker: `WORLD ${level.world} · ${reel}`,
-    title: WORLDS[level.world - 1].name.toUpperCase(),
+    title: worldName(level).toUpperCase(),
     stars: clamp(stars | 0, 0, 3),
     label: newBest ? 'RECORD BOX OFFICE' : 'BOX OFFICE',
     score: fmt(Math.max(0, score)),
     value: Math.max(0, score),
     record: Boolean(newBest),
-    billing: `STARRING YOU · RUNNING TIME ${runningTime(stats.time)} · NOW SHOWING`,
+    billing: `STARRING YOU · RUNNING TIME ${clock(stats.time)} · NOW SHOWING`,
   };
 }

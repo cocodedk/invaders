@@ -12,7 +12,7 @@
 // A painter is (b, l, frame, colour): it draws centred on (0, 0) in world px into the body context
 // b and the lights context l (see kit.js), colour = look.palette.alien[role] (the carrier's for
 // extras). painter.size overrides the canvas edge (SIZE).
-import { makeCanvas } from '../sprites.js';
+import { makeCanvas, white } from '../sprites.js';
 import { CRACKABLE, cracked, crackLights } from './cracks.js';
 import w1 from './w1.js';
 import w2 from './w2.js';
@@ -46,16 +46,6 @@ function canvasAt(size, scale) {
   g.translate((size * scale) / 2, (size * scale) / 2);
   g.scale(scale, scale);
   return [c, g];
-}
-
-function white(body) {
-  const c = makeCanvas(body.width, body.height);
-  const g = c.getContext('2d');
-  g.drawImage(body, 0, 0);
-  g.globalCompositeOperation = 'source-in';
-  g.fillStyle = '#ffffff';
-  g.fillRect(0, 0, c.width, c.height);
-  return c;
 }
 
 // seed picks the crack pattern; crackColor is the world's hot line inside a crack (or null).

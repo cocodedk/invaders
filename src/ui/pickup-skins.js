@@ -10,13 +10,13 @@ import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
 import { ICONS2 } from './pickup-icons-2.js';
 
-const disc = (g, r) => {
+export const disc = (g, r) => {
   g.fillStyle = 'rgba(8,10,20,0.88)';
   g.beginPath();
   g.arc(0, 0, r, 0, TAU);
   g.fill();
 };
-const ring = (g, r, color, w) => {
+export const ring = (g, r, color, w) => {
   g.lineWidth = w;
   g.strokeStyle = color;
   g.beginPath();

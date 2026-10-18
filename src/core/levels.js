@@ -14,6 +14,10 @@ const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon',
 
 export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i] }));
 
+// A level's world name, and its place in the world: 'Reel 3', or the boss level's 'Finale'.
+export const worldName = (level) => WORLDS[level.world - 1]?.name ?? '';
+export const reelName = (level) => (level.boss ? 'Finale' : `Reel ${level.index}`);
+
 const EARLY = [
   // 1 Arcade Origin: the classic march with plain shots, then fans and rings. Bunkers throughout.
   [

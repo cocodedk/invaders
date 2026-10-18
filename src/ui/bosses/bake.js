@@ -18,9 +18,9 @@
 //   (extra hull lights that fade in with that phase), live?(ctx, boss, t, k) (per-frame extras
 //   in boss coordinates, 'lighter', cached sprites only; k is the light strength) }.
 // S = { def, pal: look.palette.boss, look, W, H, pad }; b, l are the body and lights contexts.
-import { makeCanvas } from '../sprites.js';
+import { makeCanvas, white } from '../sprites.js';
 import { bossDef } from '../../core/bosses-data.js';
-import { white, cracked, exposed, wreck } from './cracks.js';
+import { cracked, exposed, wreck } from './cracks.js';
 import mothership from './mothership.js';
 import pyramid from './pyramid.js';
 import fortress from './fortress.js';

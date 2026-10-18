@@ -3,6 +3,8 @@
 //   a 1:1 strip     per role: frame 0, frame 1, the hit flash, cracked 1, cracked 2, as in the game
 //   the last row    a bunker fresh and carved, the five pickups, the saucer and the wreck (if any)
 import { clamp } from '../../core/math.js';
+import { WORLDS } from '../../core/levels.js';
+import { W, H } from '../sprites.js';
 import { createBunker, hitBunker, BUNKER } from '../../core/bunkers.js';
 import { LOOKS } from '../looks/index.js';
 import { buildSky } from '../sky.js';
@@ -13,7 +15,6 @@ import { roleSprites, extraSprites, ROLE_LIST } from './bake.js';
 import { cracked } from './cracks.js';
 
 const BIG = 2.6;
-const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon', 'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon'];
 
 function put(g, set, img, f, x, y, lights = true) {
   const s = set.size * set.scale;
@@ -36,11 +37,11 @@ function bunkers(g, look) {
 export function drawSheet(canvas, id) {
   const n = clamp(parseInt(String(id).replace(/\D/g, ''), 10) || 1, 1, 8);
   const look = LOOKS[n - 1];
-  canvas.width = 1920;
-  canvas.height = 1080;
+  canvas.width = W;
+  canvas.height = H;
   const g = canvas.getContext('2d');
   g.drawImage(buildSky(look), 0, 0);
-  label(g, `W${n} · ${NAMES[n - 1].toUpperCase()} · ALIEN SHEET`, 40, 44, 'left', look.palette.accent);
+  label(g, `W${n} · ${WORLDS[n - 1].name.toUpperCase()} · ALIEN SHEET`, 40, 44, 'left', look.palette.accent);
   ROLE_LIST.forEach((role, i) => {
     const cx = 192 + i * 384;
     const big = roleSprites(look, role, BIG);

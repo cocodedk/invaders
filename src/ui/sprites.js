@@ -88,11 +88,23 @@ export function cached(key, w, h, paint) {
   return c;
 }
 
+// Gradients from [[at, colour], ...] stops: linear from (x0, y0) to (x1, y1); radial from r0 at the
+// focus (fx, fy) to r1 round (x, y).
+export function lin(g, x0, y0, x1, y1, stops) {
+  const gr = g.createLinearGradient(x0, y0, x1, y1);
+  for (const [at, c] of stops) gr.addColorStop(at, c);
+  return gr;
+}
+
+export function rad(g, x, y, r0, r1, stops, fx = x, fy = y) {
+  const gr = g.createRadialGradient(fx, fy, r0, x, y, r1);
+  for (const [at, c] of stops) gr.addColorStop(at, c);
+  return gr;
+}
+
 const radial = (stops) => (g, w) => {
   const h = w / 2;
-  const gr = g.createRadialGradient(h, h, 0, h, h, h);
-  for (const [at, c] of stops) gr.addColorStop(at, c);
-  g.fillStyle = gr;
+  g.fillStyle = rad(g, h, h, 0, h, stops);
   g.fillRect(0, 0, w, w);
 };
 
@@ -129,6 +141,17 @@ export const star = byColor((color) => cached('t' + color, 64, 64, (g) => {
   }
   g.fill();
 }));
+
+// The white hit-flash silhouette of a canvas.
+export function white(body) {
+  const c = makeCanvas(body.width, body.height);
+  const g = c.getContext('2d');
+  g.drawImage(body, 0, 0);
+  g.globalCompositeOperation = 'source-in';
+  g.fillStyle = '#ffffff';
+  g.fillRect(0, 0, c.width, c.height);
+  return c;
+}
 
 // Draw a sprite centred on (x, y) with radius r (squashed to r * sy tall), additively.
 export function addGlow(ctx, sprite, x, y, r, a = 1, sy = 1) {

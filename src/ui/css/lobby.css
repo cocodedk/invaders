@@ -1,6 +1,8 @@
 /* The level select as a cinema lobby: a marquee with chasing bulbs, eight posters in lightboxes,
    and under each the five reels (its showtimes) with stars and best score. */
-.lobby { gap: 1rem; padding: 1.6rem 2rem 1.4rem;
+.lobby, .cinema { gap: 1rem; padding: 1.6rem 2rem 1.4rem; }
+.lobby .sub, .cinema .sub { font-size: 1.3rem; }
+.lobby {
   background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(60, 24, 70, 0.55), rgba(0, 0, 0, 0) 70%),
     radial-gradient(ellipse at center, rgba(10, 10, 22, 0.93), rgba(3, 3, 8, 0.98)); }
 .marquee { display: flex; align-items: center; gap: 1.6rem; }
@@ -11,7 +13,6 @@
   background: radial-gradient(circle, #fff1c2 0 0.22rem, rgba(255, 190, 80, 0.35) 0.3rem, transparent 0.42rem) 0 50% / 1.4rem 1rem repeat-x;
   filter: drop-shadow(0 0 0.4rem rgba(255, 180, 60, 0.9)); animation: chase 0.9s steps(2) infinite; }
 @keyframes chase { to { background-position: 1.4rem 50%; } }
-.lobby .sub { font-size: 1.3rem; }
 .lobby-total { color: var(--gold); margin-left: 0.8rem; letter-spacing: 0.06em; }
 
 .posters { display: grid; grid-template-columns: repeat(8, 10.6rem); gap: 0.9rem; margin-top: 0.4rem; }
@@ -22,8 +23,8 @@
   box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.6), inset 0 0 0 0.1rem rgba(0, 0, 0, 0.5);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
-.poster-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.poster-art.develop .poster-canvas { animation: develop 0.9s ease-out both; }
+.poster-canvas, .showing-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.poster-art.develop .poster-canvas, .showing-art.develop .showing-canvas { animation: develop 0.9s ease-out both; }
 @keyframes develop { from { opacity: 0; filter: brightness(2.2) saturate(0); } }
 .poster-art::after { /* the print's grade: a top vignette and a dark foot for the type */
   content: ""; position: absolute; inset: 0; pointer-events: none;

@@ -3,20 +3,16 @@
 // Arrows move through the grid, down from the last row reaches Back.
 //   cinemaScreen({ reels: [{ level, run }], play(reel), back(), focusId }) -> screen
 // Posters not baked yet show their sky and develop in once they are (posters.js, as the lobby).
-import { WORLDS } from '../../core/levels.js';
+import { reelName, worldName } from '../../core/levels.js';
 import { TICK } from '../../core/kinds.js';
+import { fmt, clock } from '../format.js';
+import { MOVE, isConfirm, isBack } from '../keys.js';
 import { lookFor } from '../looks/index.js';
 import { play as sound } from '../audio.js';
-import { h, button, focusItem, shell, starRow } from './dom.js';
-import { posterFor, reelName } from './posters.js';
+import { h, button, focusItem, shell, starRow, skyCss } from './dom.js';
+import { posterFor } from './posters.js';
 
 const COLS = 3;
-const fmt = (n) => n.toLocaleString('en-US');
-const runtime = (ticks) => {
-  const s = Math.floor(ticks * TICK);
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-};
-const skyCss = (look) => `linear-gradient(180deg, ${look.sky.map(([s, c]) => `${c} ${s * 100}%`).join(', ')})`;
 
 // A copy of the world's poster: the lobby keeps the original canvas.
 function thumb(world) {
@@ -41,11 +37,11 @@ function showing(reel, pick) {
   b.dataset.id = level.id;
   b.style.setProperty('--accent', look.palette.accent);
   b.append(art, h('span', 'showing-info',
-    h('span', 'showing-world', WORLDS[level.world - 1].name),
-    h('span', 'showing-reel', `${reelName(level)} · ${runtime(run.ticks)}`),
+    h('span', 'showing-world', worldName(level)),
+    h('span', 'showing-reel', `${reelName(level)} · ${clock(run.ticks * TICK)}`),
     starRow(run.stars),
     h('span', 'showing-box', h('small', null, 'Box office'), fmt(run.score))));
-  b.setAttribute('aria-label', `${WORLDS[level.world - 1].name}, ${reelName(level)}: play the trailer`);
+  b.setAttribute('aria-label', `${worldName(level)}, ${reelName(level)}: play the trailer`);
   return { el: b, art, world: level.world };
 }
 
@@ -72,12 +68,13 @@ export function cinemaScreen({ reels, play, back, focusId = null }) {
   return {
     el, focus: first,
     onKey(code) {
-      if (code === 'Escape' || code === 'Backspace') return backBtn.click(), true;
+      if (isBack(code)) return backBtn.click(), true;
       const at = document.activeElement;
-      if (code === 'Enter' || code === 'NumpadEnter' || code === 'Space') return (items.includes(at) || at === backBtn ? at : first).click(), true;
+      if (isConfirm(code)) return (items.includes(at) || at === backBtn ? at : first).click(), true;
       const i = items.indexOf(at);
-      const step = { ArrowLeft: -1, KeyA: -1, ArrowRight: 1, KeyD: 1, ArrowUp: -COLS, KeyW: -COLS, ArrowDown: COLS, KeyS: COLS }[code];
-      if (step === undefined) return false;
+      const mv = MOVE[code];
+      if (!mv) return false;
+      const step = mv[0] + COLS * mv[1];
       if (at === backBtn) {
         if (step < 0 && items.length) focusItem(items[Math.min(items.length - 1, items.length - 1 - ((items.length - 1) % COLS))]);
         return true;

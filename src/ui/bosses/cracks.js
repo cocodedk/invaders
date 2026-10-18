@@ -116,14 +116,3 @@ export function wreck(set, open = false) {
   set[key] = c;
   return c;
 }
-
-// The white hit-flash silhouette of a canvas.
-export function white(body) {
-  const c = makeCanvas(body.width, body.height);
-  const g = c.getContext('2d');
-  g.drawImage(body, 0, 0);
-  g.globalCompositeOperation = 'source-in';
-  g.fillStyle = '#ffffff';
-  g.fillRect(0, 0, c.width, c.height);
-  return c;
-}

@@ -24,20 +24,20 @@ import { LEVELS, levelById } from './src/core/levels.js';
 import { createWorld, stepWorld } from './src/core/world.js';
 import { autopilot } from './src/core/autopilot.js';
 import { TICK } from './src/core/kinds.js';
-import { makeRng } from './src/core/rng.js';
 import { createFx, stepFx } from './src/fx/fx.js';
 import { applyEvents } from './src/fx/react.js';
 import { createFilm, stepFilm } from './src/fx/film.js';
 import { createView, drawFrame } from './src/ui/view.js';
 import { sampleFrame } from './src/ui/quality.js';
 import { createDebug } from './src/ui/debug.js';
+import { fxRng } from './src/ui/session.js';
 import { drawSheet } from './src/ui/aliens/sheet.js';
 
 const q = new URLSearchParams(location.search);
 const level = levelById(q.get('level') || 'w1-1') ?? LEVELS[0];
 const world = createWorld(level, q.has('seed') ? Number(q.get('seed')) : level.seed);
 const fx = createFx();
-const rng = makeRng(level.seed ^ 0x5eed);
+const rng = fxRng(level.seed);
 const film = q.get('film') === '1' ? createFilm(world) : null;
 
 function tick() {

@@ -1,9 +1,9 @@
 /* Cinema (the best runs, each a showing with its poster, reel, stars and box office) and the
    trailer's own screen, which only carries the skip hint: the film is drawn on the canvas. */
-.cinema { gap: 1rem; padding: 1.6rem 2rem 1.4rem; justify-content: flex-start;
+/* Its gap, padding, subtitle and poster canvas are the lobby's (lobby.css). */
+.cinema { justify-content: flex-start;
   background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(70, 18, 28, 0.6), rgba(0, 0, 0, 0) 70%),
     radial-gradient(ellipse at center, rgba(10, 8, 14, 0.95), rgba(3, 2, 5, 0.99)); }
-.cinema .sub { font-size: 1.3rem; }
 /* at most three columns (the keys move by three); fewer showings stay centred. The padding leaves
    room for the focused showing's glow inside the scrolling box. */
 .showings { display: grid; grid-template-columns: repeat(auto-fit, 27rem); justify-content: center; align-content: start;
@@ -18,8 +18,6 @@
   transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease; }
 .showing-art { position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 0.4rem;
   border: 0.1rem solid rgba(255, 230, 180, 0.3); }
-.showing-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.showing-art.develop .showing-canvas { animation: develop 0.9s ease-out both; }
 .showing-info { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
 .showing-world { font: 900 1.9rem/1 var(--display); font-stretch: condensed; letter-spacing: 0.04em; text-transform: uppercase;
   color: #fff; text-shadow: 0 0 0.8rem var(--accent); white-space: nowrap; }

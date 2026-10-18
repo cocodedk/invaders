@@ -16,22 +16,21 @@ import { createFilm, stepFilm } from '../../fx/film.js';
 import { lookFor } from '../looks/index.js';
 import { warmAliens } from '../aliens/bake.js';
 import { warmBoss } from '../bosses/bake.js';
-import { createView, drawFrame } from '../view.js';
+import { createView } from '../view.js';
 import { drawFilm } from '../film-view.js';
-import { play, hush, setBeam, duck } from '../audio.js';
-import { eventSounds } from '../sounds.js';
-import { h, armed } from '../screens/dom.js';
-import { fastForward, startClip, stepClip, clipDone, HOLD } from './reel.js';
+import { setBeam, duck } from '../audio.js';
+import { armed } from '../screens/dom.js';
+import { fastForward, startClip, clipDone, HOLD } from './reel.js';
 import { cutClips, timeline } from './cut.js';
 import { statsOf, cardsFor, finalCard } from './cards.js';
-import { TYPE, begin, bakeCard, drawCard, frameClip } from './draw.js';
+import { TYPE, begin, bakeCard, drawCard } from './draw.js';
 import { drawLeader, drawFinal } from './draw-final.js';
+import { filmSfx, skipScreen, endFilm, playClip } from './film-kit.js';
 
 const LEADER_MIN = 1.2; // s: the leader counts 8 to 3 at least this slowly
 const FLASH = 0.12; // s of white cutting into a clip
 const RISER = 1.3; // s the riser builds before the final card
-const sfx = (name, o = {}) => play(name, { ...o, group: 'film' }); // hushed together on a skip
-const quiet = (name, o) => sfx(name, { ...o, gain: 0.8 });
+const { sfx, quiet } = filmSfx(0.8);
 
 export function trailerScreen({ canvas, view: given = null, level, seed, inputs, result, onDone }) {
   const ctx = canvas.getContext('2d');
@@ -83,10 +82,7 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
   function finish() {
     if (phase === 'done') return;
     phase = 'done';
-    hush('film');
-    setBeam(false);
-    duck(1);
-    if (view) Object.assign(view, { showHud: hud, lift: 0 });
+    endFilm(view, hud);
     onDone();
   }
 
@@ -135,17 +131,12 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
   }
 
   function drawClip(s, dt) {
-    stepClip(clip, dt, (events, world) => eventSounds(events, world, quiet));
-    anim += dt * clip.fx.slow;
-    clip.fx.density = view.quality.level;
+    anim = playClip(view, film, clip, dt, anim, quiet);
     const w = clip.world;
     if (!riser && s === segs.findLast((x) => x.type === 'clip') && left(s) <= RISER) {
       riser = true;
       sfx('riser');
     }
-    view.showHud = false;
-    frameClip(view, film);
-    drawFrame(view, w, clip.fx, anim, film);
     setBeam(Boolean(w.ship.beam) && w.state === 'play', w.ship.x);
     if (segT < FLASH) {
       ctx.globalAlpha = 0.45 * (1 - segT / FLASH);
@@ -156,11 +147,8 @@ export function trailerScreen({ canvas, view: given = null, level, seed, inputs,
     if (clipDone(clip)) next();
   }
 
-  const el = h('section', 'screen film', h('p', 'film-skip', 'Any key skips'));
-  el.addEventListener('pointerdown', () => ready() && finish());
   return {
-    el,
-    onKey: (code, e) => (!e?.repeat && ready() && finish(), true), // an arrow still held from play repeats: not a skip
+    ...skipScreen(ready, finish),
     quality: () => (phase === 'play' ? view.quality : null),
     status: () => ({
       kind: 'trailer', phase, seg, type: segs?.[seg]?.type ?? null, cut: segs?.map((s) => s.type) ?? null,

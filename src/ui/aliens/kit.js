@@ -3,10 +3,10 @@
 // any sky), and `l`, the lights (eyes, neon, cores), which are drawn additively over the body and are
 // all that survives Neon Rain's darkness. Paint-time only (sprites are baked once), so gradients and
 // many strokes are fine here; nothing in this file runs per frame.
-import { INK, rgba, shade, mix } from '../sprites.js';
+import { INK, rgba, shade, mix, lin, rad } from '../sprites.js';
 import { TAU } from '../../core/math.js';
 
-export { INK, rgba, shade, mix, TAU };
+export { INK, rgba, shade, mix, TAU, lin, rad };
 
 // Path through [[x, y], ...]; closed unless open is set.
 export function path(g, pts, open = false) {
@@ -35,17 +35,6 @@ export function ink(g, fill, lw = 3) {
   g.stroke();
 }
 
-export function lin(g, x0, y0, x1, y1, stops) {
-  const gr = g.createLinearGradient(x0, y0, x1, y1);
-  for (const [at, c] of stops) gr.addColorStop(at, c);
-  return gr;
-}
-
-export function rad(g, x, y, r0, r1, stops, fx = x, fy = y) {
-  const gr = g.createRadialGradient(fx, fy, r0, x, y, r1);
-  for (const [at, c] of stops) gr.addColorStop(at, c);
-  return gr;
-}
 
 // Polished metal across x: dark edge, a bright band left of centre, the colour, a dark edge.
 export const chrome = (g, c, x0, x1) => lin(g, x0, 0, x1, 0, [

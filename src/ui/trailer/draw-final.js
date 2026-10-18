@@ -7,6 +7,7 @@
 import { W, H, hash, glow } from '../sprites.js';
 import { clamp, smooth, TAU } from '../../core/math.js';
 import { FONTS } from './draw.js';
+import { fmt } from '../format.js';
 import { REVEAL, bloom } from './reveal.js';
 
 const STAR_AT = [1.0, 1.18, 1.36];
@@ -114,7 +115,7 @@ export function drawFinal(ctx, fin, art, style, t, secs) {
   }
   text(ctx, 'THE CRITICS', 720, 768, 24, { color: 'rgba(255,255,255,0.7)', alpha: smooth((t - 0.9) / 0.3) * out });
   const c = smooth((t - COUNT[0]) / (COUNT[1] - COUNT[0]));
-  if (t >= COUNT[0]) text(ctx, Math.round(fin.value * c).toLocaleString('en-US'), 1200, 692, 84, { weight: 800, track: 0.04, alpha: out });
+  if (t >= COUNT[0]) text(ctx, fmt(fin.value * c), 1200, 692, 84, { weight: 800, track: 0.04, alpha: out });
   text(ctx, fin.label, 1200, 768, 24, { color: fin.record ? '#ffd24a' : 'rgba(255,255,255,0.7)', alpha: smooth((t - 1.1) / 0.3) * out });
   if (fin.record) stamp(ctx, 1290, 596, t);
   text(ctx, fin.billing, W / 2, 884, 22, { weight: 600, track: 0.32, color: 'rgba(255,255,255,0.55)', alpha: smooth((t - 1.6) / 0.6) * out });

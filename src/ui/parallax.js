@@ -2,7 +2,7 @@
 // frame, baked once per level, and shifted sideways against the ship's x so the world has depth as
 // the ship flies. A layer may carry lights (windows, signs, fires, eyes) that animate on top.
 //   look.layers[i] = { kind, color, height, speed 0 far .. 1 near, roughness, rim?, haze? }
-import { W, H, makeCanvas, rgba, shade, glow } from './sprites.js';
+import { W, H, makeCanvas, rgba, shade, glow, lin } from './sprites.js';
 import { makeRng } from '../core/rng.js';
 import { paintLayer } from './parallax-shapes.js';
 
@@ -21,11 +21,7 @@ export function buildLayers(look, seed) {
     // atmospheric haze: far layers fade toward the horizon colour at their tops
     const hazeAmt = L.haze ?? Math.max(0.06, 0.4 - L.speed * 0.7);
     g.globalCompositeOperation = 'source-atop';
-    const gr = g.createLinearGradient(0, 0, 0, h);
-    gr.addColorStop(0, rgba(look.haze, hazeAmt));
-    gr.addColorStop(0.7, rgba(look.haze, hazeAmt * 0.2));
-    gr.addColorStop(1, rgba(look.haze, 0));
-    g.fillStyle = gr;
+    g.fillStyle = lin(g, 0, 0, 0, h, [[0, rgba(look.haze, hazeAmt)], [0.7, rgba(look.haze, hazeAmt * 0.2)], [1, rgba(look.haze, 0)]]);
     g.fillRect(0, 0, w, h);
     // a thin lit rim along every top edge gives the silhouettes definition
     const rim = makeCanvas(w, h);

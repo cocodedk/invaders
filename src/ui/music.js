@@ -7,7 +7,7 @@
 //   startLoop(nodes, look) / fillLoop(loop, until) / stopLoop(loop)   the same loop on any context
 // A world change fades the old loop out, stops its sources and then disconnects every node it
 // made (the echo's feedback loop included), so a kiosk that cycles worlds for days stays flat.
-import { audioNodes } from './audio.js';
+import { audioNodes, setWorldSound } from './audio.js';
 import { tone, hiss } from './audio-kit.js';
 import { STYLES, kitFor, degreeMidi, midiHz } from './sound-data.js';
 
@@ -20,6 +20,12 @@ let cur = null;
 
 export function setMusic(look) {
   want = look ?? null;
+}
+
+// A world's sound effects and its music loop (null: the default kit, silence).
+export function setWorld(look) {
+  setWorldSound(look);
+  setMusic(look);
 }
 
 export const musicLook = () => want; // what plays now: a Cinema trailer hands the menu's music back

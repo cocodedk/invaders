@@ -6,29 +6,26 @@
 // update(dt), like the trailer, and hands main its view's quality while the outtake rolls (R46).
 //   blooperScreen({ canvas, view, level, seed, inputs, take, onDone }) -> screen
 import { W, H, hash } from '../sprites.js';
-import { WORLDS } from '../../core/levels.js';
+import { reelName, worldName } from '../../core/levels.js';
 import { createFilm, stepFilm } from '../../fx/film.js';
-import { drawFrame } from '../view.js';
-import { play, hush, setBeam, duck } from '../audio.js';
-import { eventSounds } from '../sounds.js';
-import { reelName } from '../screens/posters.js';
-import { h, armed } from '../screens/dom.js';
-import { fastForward, startClip, stepClip } from './reel.js';
+import { setBeam, duck } from '../audio.js';
+import { armed } from '../screens/dom.js';
+import { fastForward, startClip } from './reel.js';
 import { blooperSpan } from './cut.js';
-import { begin, frameClip, FONTS } from './draw.js';
+import { begin, FONTS } from './draw.js';
 import { drawClapper } from './clapper.js';
+import { filmSfx, skipScreen, endFilm, playClip } from './film-kit.js';
+import { pad2 } from '../format.js';
 
 const SPEED = 0.3;
 const CLAP = { slide: 0.25, shut: 0.42, close: 0.08, hold: 1.0 }; // s from the hit: the wreck burns on behind it
 const REWIND = 0.4; // s of rewind lines at the start
 const OUTTAKE = '#d9a35f'; // the outtake's warm grade
-const sfx = (name, o = {}) => play(name, { ...o, group: 'film' }); // hushed together on a skip
-const quiet = (name, o) => sfx(name, { ...o, gain: 0.7 });
+const { sfx, quiet } = filmSfx(0.7);
 
-const p = (n) => String(n).padStart(2, '0');
 const timecode = (t) => { // hours:minutes:seconds:frames at 24 frames a second
   const f = Math.floor(t * 24);
-  return `${p(Math.floor(f / 86400))}:${p(Math.floor(f / 1440) % 60)}:${p(Math.floor(f / 24) % 60)}:${p(f % 24)}`;
+  return `${pad2(Math.floor(f / 86400))}:${pad2(Math.floor(f / 1440) % 60)}:${pad2(Math.floor(f / 24) % 60)}:${pad2(f % 24)}`;
 };
 
 // VHS-like rewind lines across the frame.
@@ -52,7 +49,7 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
   film.tint = OUTTAKE;
   const ready = armed(600);
   const hud = view.showHud;
-  const info = { scene: WORLDS[level.world - 1].name.toUpperCase(), take, roll: reelName(level).toUpperCase() };
+  const info = { scene: worldName(level).toUpperCase(), take, roll: reelName(level).toUpperCase() };
   let span = null;
   let gen = fastForward(level, seed, inputs, (events, ticks) => {
     span = blooperSpan(events, ticks);
@@ -68,10 +65,7 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
   function finish() {
     if (phase === 'done') return;
     phase = 'done';
-    hush('film');
-    setBeam(false);
-    duck(1);
-    Object.assign(view, { showHud: hud, lift: 0 });
+    endFilm(view, hud);
     onDone();
   }
 
@@ -96,11 +90,8 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
     if (clock < REWIND) rewind(ctx, frame, 1 - clock / REWIND);
   }
 
-  const el = h('section', 'screen film', h('p', 'film-skip', 'Any key skips'));
-  el.addEventListener('pointerdown', () => ready() && finish());
   return {
-    el,
-    onKey: (code, e) => (!e?.repeat && ready() && finish(), true), // a held arrow's repeats are not a skip
+    ...skipScreen(ready, finish),
     quality: () => (phase === 'roll' || phase === 'clap' ? view.quality : null),
     status: () => ({ kind: 'blooper', phase, tick: clip?.world.tick ?? null, hit: span?.hit ?? null, clap: clapped }),
     update(dt) {
@@ -118,13 +109,8 @@ export function blooperScreen({ canvas, view, level, seed, inputs, take = 1, onD
       }
       clock += dt;
       stepFilm(film, dt, true);
-      stepClip(clip, dt, (events, world) => eventSounds(events, world, quiet));
-      anim += dt * SPEED * clip.fx.slow;
-      clip.fx.density = view.quality.level;
+      anim = playClip(view, film, clip, dt, anim, quiet, SPEED);
       const w = clip.world;
-      view.showHud = false;
-      frameClip(view, film);
-      drawFrame(view, w, clip.fx, anim, film);
       setBeam(phase === 'roll' && Boolean(w.ship.beam) && w.state === 'play', w.ship.x);
       overlay(frame);
       if (phase === 'roll' && clip.after > 0) phase = 'clap'; // the hit: no hold, the clapper is the hold

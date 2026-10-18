@@ -7,12 +7,11 @@
 import { h, button, shell, starRow, armed, endKeys } from './dom.js';
 import { play } from '../audio.js';
 import { easeOut } from '../../core/math.js';
+import { fmt } from '../format.js';
 
 const COUNT_TIME = 1.1; // s the score takes to count up
 const STAR_AT = [0.55, 0.85, 1.15]; // s each star stamps in
 const STAMP = 0.5; // s a star's stamp animation lasts (screens.css)
-
-const fmt = (n) => Math.round(n).toLocaleString('en-US');
 
 export function resultsScreen(o, act) {
   const ready = armed();

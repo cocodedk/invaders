@@ -2,7 +2,8 @@
 // glow and turning dashes so it reads as "catch me" on any sky. Icons are shared by the HUD. Each
 // world reskins the capsule's rim and some icons (pickup-skins.js, keyed by look.world).
 import { INK, cached, glow, rgba } from './sprites.js';
-import { FRAMES, ICONS } from './pickup-skins.js';
+import { FRAMES, ICONS, disc, ring } from './pickup-skins.js';
+import { FAN } from './pickup-icons-2.js';
 
 // The icon for `kind` in world `world` (0: the default set), drawn centred on (0, 0) about 30 px across.
 export function drawIcon(g, kind, color, world = 0) {
@@ -20,7 +21,7 @@ export function drawIcon(g, kind, color, world = 0) {
   g.lineJoin = 'round';
   g.beginPath();
   if (kind === 'spread') {
-    for (const a of [-0.55, 0, 0.55]) {
+    for (const a of FAN) {
       g.moveTo(0, 12);
       g.lineTo(Math.sin(a) * 26, 12 - Math.cos(a) * 26);
     }
@@ -57,18 +58,9 @@ export function drawIcon(g, kind, color, world = 0) {
 }
 
 function plainFrame(g, color) {
-  g.fillStyle = 'rgba(8,10,20,0.88)';
-  g.beginPath();
-  g.arc(0, 0, 24, 0, Math.PI * 2);
-  g.fill();
-  g.lineWidth = 4;
-  g.strokeStyle = color;
-  g.stroke();
-  g.lineWidth = 2;
-  g.strokeStyle = INK;
-  g.beginPath();
-  g.arc(0, 0, 27, 0, Math.PI * 2);
-  g.stroke();
+  disc(g, 24);
+  ring(g, 24, color, 4);
+  ring(g, 27, INK, 2);
 }
 
 const capsule = (kind, color, world) => cached(`pick${kind}${color}${world}`, 60, 60, (g) => {

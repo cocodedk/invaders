@@ -7,7 +7,7 @@
 //               recording: { level, seed, inputs, events, ticks, score, stars, state, tainted },
 //               saved: saveBestRun's answer at the clear ('saved' | 'unsaved' | 'skip'), session,
 //               view (the level's baked view: replay clips can draw on it without a bake) }
-import { LEVELS, WORLDS } from '../core/levels.js';
+import { LEVELS, worldName } from '../core/levels.js';
 import { store } from './storage.js';
 import { play, setBeam } from './audio.js';
 import { recording, runOf } from './session.js';
@@ -21,7 +21,7 @@ const FAIL_WAIT = 1.6; // s after the last life
 
 function progress(world) {
   const b = world.boss;
-  if (b) return `${WORLDS[world.level.world - 1].name}'s boss held at ${Math.ceil((100 * b.hp) / b.maxHp)} %`;
+  if (b) return `${worldName(world.level)}'s boss held at ${Math.ceil((100 * b.hp) / b.maxHp)} %`;
   return `Wave ${world.wave} of ${world.level.waves.length}`;
 }
 

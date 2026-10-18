@@ -17,11 +17,14 @@ import { makeRng } from '../core/rng.js';
 import { createFx, stepFx } from '../fx/fx.js';
 import { applyEvents } from '../fx/react.js';
 
-const FX_SALT = 0x5eed; // effects draw from their own stream, never world.rng
+const FX_SALT = 0x5eed;
+
+// The effects' own rng for a run's seed: they never draw from world.rng.
+export const fxRng = (seed) => makeRng((seed ^ FX_SALT) >>> 0);
 
 export function createSession(level, seed = level.seed, { record = true } = {}) {
   return {
-    level, seed, world: createWorld(level, seed), fx: createFx(), fxRng: makeRng((seed ^ FX_SALT) >>> 0),
+    level, seed, world: createWorld(level, seed), fx: createFx(), fxRng: fxRng(seed),
     acc: 0, record, inputs: [], events: [],
     tainted: false, // a ?debug hook changed the world: the inputs no longer replay to it
     over: 0, // real seconds since the level finished (results wait for the slow motion)

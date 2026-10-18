@@ -6,7 +6,7 @@
 //   bakeCard(lines, style, scale?) -> art { canvas, rows, h, size }
 //   drawCard(ctx, art, style, t, secs)   t: seconds into the card
 import { W, H, makeCanvas } from '../sprites.js';
-import { clamp, smooth } from '../../core/math.js';
+import { smooth } from '../../core/math.js';
 import { REVEAL, bloom } from './reveal.js';
 
 export const FONTS = {

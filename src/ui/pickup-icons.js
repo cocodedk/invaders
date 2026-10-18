@@ -1,5 +1,6 @@
 // Pickup icons of worlds 1-4 (see pickup-skins.js): plain paths, drawn by the HUD every frame too.
 import { INK, rgba } from './sprites.js';
+import { FAN } from './pickup-icons-2.js';
 
 // A four-point throwing star at (x, y), radius r.
 function shuriken(g, x, y, r, rot) {
@@ -49,7 +50,7 @@ export const ICONS1 = {
     spread(g, color) {
       g.lineCap = 'round';
       g.beginPath();
-      for (const a of [-0.55, 0, 0.55]) {
+      for (const a of FAN) {
         g.moveTo(0, 12);
         g.lineTo(Math.sin(a) * 24, 12 - Math.cos(a) * 24);
       }

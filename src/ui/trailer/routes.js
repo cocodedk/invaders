@@ -7,19 +7,13 @@
 //   installTrailers(router, { stage, canvas })   sets flow.cleared, flow.failed and router.goCinema
 import { store } from '../storage.js';
 import { lookFor } from '../looks/index.js';
-import { setWorldSound } from '../audio.js';
-import { setMusic, musicLook } from '../music.js';
+import { setWorld, musicLook } from '../music.js';
 import { toast } from '../screens/stage.js';
 import { cinemaScreen } from '../screens/cinema.js';
 import { cinemaReels } from './runs.js';
 import { trailerScreen } from './player.js';
 import { blooperScreen } from './blooper.js';
 
-// A world's sound effects and its music loop (null: the default kit, silence).
-function music(look) {
-  setWorldSound(look);
-  setMusic(look);
-}
 
 export function installTrailers(r, { stage, canvas }) {
   const { app, flow } = r;
@@ -66,12 +60,12 @@ export function installTrailers(r, { stage, canvas }) {
       play({ level, run }) {
         r.leave('trailer');
         const menu = musicLook();
-        music(lookFor(level));
+        setWorld(lookFor(level));
         roll(trailerScreen({
           canvas, level, seed: run.seed, inputs: run.inputs,
           result: { stars: run.stars, score: run.score, newBest: false },
           onDone: after(() => {
-            music(menu); // the listing plays what the menu played
+            setWorld(menu); // the listing plays what the menu played
             r.goCinema(level.id);
           }),
         }));

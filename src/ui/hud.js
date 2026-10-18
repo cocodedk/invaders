@@ -10,7 +10,8 @@ import { POWER_TIME, BOMB_MAX } from '../core/powerups.js';
 import { LIVES } from '../core/ship.js';
 import { ENTER } from '../core/boss-move.js';
 import { bossDef } from '../core/bosses-data.js';
-import { WORLDS } from '../core/levels.js';
+import { worldName } from '../core/levels.js';
+import { fmt } from './format.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { panel, text, label, shipIcon, bombIcon } from './hud-kit.js';
 import { drawIcon } from './pickups-view.js';
@@ -27,7 +28,7 @@ const COMBO_SIZE = 36;
 
 let shown = { n: NaN, text: '' }; // the score as last formatted
 function score(ctx, world) {
-  if (world.score !== shown.n) shown = { n: world.score, text: world.score.toLocaleString('en-US') };
+  if (world.score !== shown.n) shown = { n: world.score, text: fmt(world.score) };
   panel(ctx, 32, TOP, 360, PH);
   label(ctx, 'SCORE', 56, CAP);
   text(ctx, shown.text, 54, MAIN, 46, '#ffffff', 'left', 900);
@@ -65,7 +66,7 @@ function combo(ctx, world, t) {
 
 function wave(ctx, world, look) {
   const total = world.level.waves?.length ?? 0;
-  const name = WORLDS[world.level.world - 1]?.name ?? '';
+  const name = worldName(world.level);
   panel(ctx, W / 2 - 150, TOP, 300, PH);
   label(ctx, name.toUpperCase(), W / 2, CAP, 'center', look.palette.accent);
   text(ctx, `WAVE ${Math.max(1, world.wave)} / ${total}`, W / 2, MAIN, 32, '#ffffff', 'center', 900);

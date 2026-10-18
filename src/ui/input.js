@@ -9,14 +9,11 @@
 //   readInput(input, view) -> raw  { dx, dy, fire, bomb, target } for quantizeInput
 //   resetInput(input)              forget held keys and buttons (a screen took over)
 // Keys with Alt, Ctrl or Meta held are left alone: Alt+Left must stay the browser's Back.
-const MOVE = {
-  ArrowLeft: [-1, 0], KeyA: [-1, 0], ArrowRight: [1, 0], KeyD: [1, 0],
-  ArrowUp: [0, -1], KeyW: [0, -1], ArrowDown: [0, 1], KeyS: [0, 1],
-};
+import { MOVE } from './keys.js';
+
 const FIRE = ['Space'];
 const BOMB = ['KeyB', 'ShiftLeft', 'ShiftRight'];
 const GAME_KEYS = new Set([...Object.keys(MOVE), 'Space', 'Enter', 'NumpadEnter', 'Escape', 'Tab']);
-const REPEATS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'KeyW', 'KeyA', 'KeyS', 'KeyD']);
 
 export function createInput(canvas) {
   const input = {
@@ -32,7 +29,7 @@ export function createInput(canvas) {
     gesture();
     if (GAME_KEYS.has(e.code)) e.preventDefault();
     if (e.repeat) {
-      if (REPEATS.has(e.code)) input.onKey?.(e.code, e); // menus scroll on a held arrow
+      if (MOVE[e.code]) input.onKey?.(e.code, e); // menus scroll on a held arrow
       return;
     }
     input.down.add(e.code);

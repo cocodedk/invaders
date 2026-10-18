@@ -1,17 +1,11 @@
 // Pickup icons of worlds 5-8 (see pickup-skins.js): plain paths, drawn by the HUD every frame too.
 import { TAU } from '../core/math.js';
+import { line as stroke } from './aliens/kit.js';
 
-function stroke(g, color, w) {
-  g.lineCap = 'round';
-  g.lineJoin = 'round';
-  g.lineWidth = w;
-  g.strokeStyle = color;
-  g.stroke();
-}
-
-// Three of draw(a) fanned at -0.55, 0, 0.55 rad from straight up.
+// The spread's three prongs, in rad from straight up; fan(draw) draws one at each.
+export const FAN = [-0.55, 0, 0.55];
 const fan = (draw) => {
-  for (const a of [-0.55, 0, 0.55]) draw(a);
+  for (const a of FAN) draw(a);
 };
 
 export const ICONS2 = {

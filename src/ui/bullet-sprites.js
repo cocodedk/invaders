@@ -1,6 +1,6 @@
 // Cached bullet sprites. Every enemy bullet has a dark rim and a bright core so it reads on any sky
 // (spec); the colour between is the world's enemy colour. Glow is a separate additive sprite.
-import { INK, cached, rgba } from './sprites.js';
+import { INK, cached, rgba, roundRect } from './sprites.js';
 
 // A round bullet of radius r: dark rim, coloured ring, white-hot core.
 export const orb = (color, rim, r) => cached(`orb${color}${rim}${r}`, r * 2 + 6, r * 2 + 6, (g, w) => {
@@ -23,12 +23,7 @@ export const orb = (color, rim, r) => cached(`orb${color}${rim}${r}`, r * 2 + 6,
 // A capsule pointing up, `len` long and `wd` wide: a blaster bolt or a falling drop.
 export const capsule = (color, rim, len, wd) => cached(`cap${color}${rim}${len}${wd}`, wd + 6, len + 6, (g, w, h) => {
   const pill = (x, y, cw, ch) => {
-    g.beginPath();
-    g.moveTo(x + cw / 2, y);
-    g.arcTo(x + cw, y, x + cw, y + ch, cw / 2);
-    g.arcTo(x + cw, y + ch, x, y + ch, cw / 2);
-    g.arcTo(x, y + ch, x, y, cw / 2);
-    g.arcTo(x, y, x + cw, y, cw / 2);
+    roundRect(g, x, y, cw, ch, cw / 2);
     g.fill();
   };
   g.fillStyle = rgba(rim, 0.92);

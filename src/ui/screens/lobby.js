@@ -5,22 +5,22 @@
 //   lobbyScreen({ best, start(level), back(), focusId }) -> screen   best: storage allBest()
 // Posters not baked yet (posters.js bakes them in idle slices) show their sky, and develop in as
 // soon as they are ready (update).
-import { LEVELS, WORLDS } from '../../core/levels.js';
+import { LEVELS, WORLDS, reelName, worldName } from '../../core/levels.js';
 import { bossDef } from '../../core/bosses-data.js';
 import { lookFor } from '../looks/index.js';
 import { play } from '../audio.js';
-import { h, button, focusItem, shell, starRow } from './dom.js';
+import { h, button, focusItem, shell, starRow, skyCss } from './dom.js';
+import { fmt } from '../format.js';
+import { MOVE, isConfirm, isBack } from '../keys.js';
 import { TAGLINES, posterFor } from './posters.js';
 
-const fmt = (n) => n.toLocaleString('en-US');
-const skyCss = (look) => `linear-gradient(180deg, ${look.sky.map(([s, c]) => `${c} ${s * 100}%`).join(', ')})`;
 
 function reel(level, best, start) {
   const b = best[level.id];
   const r = button(null, () => { play('select'); start(level); }, `reel${level.boss ? ' finale' : ''}${b ? ' played' : ''}`);
   r.dataset.id = level.id;
   r.append(h('span', 'reel-n', String(level.index)), starRow(b?.stars ?? 0), h('span', 'reel-best', b ? fmt(b.score) : '—'));
-  r.setAttribute('aria-label', `${WORLDS[level.world - 1].name}, ${level.boss ? 'finale' : `reel ${level.index}`}`);
+  r.setAttribute('aria-label', `${worldName(level)}, ${reelName(level).toLowerCase()}`);
   return r;
 }
 
@@ -65,23 +65,23 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
   return {
     el, focus: first,
     onKey(code) {
-      if (code === 'Escape' || code === 'Backspace') return backBtn.click(), true;
+      if (isBack(code)) return backBtn.click(), true;
       const at = where(document.activeElement);
       if (document.activeElement === backBtn) {
-        if (code === 'ArrowUp' || code === 'KeyW') focusItem(lastReel);
-        else if (code === 'Enter' || code === 'NumpadEnter' || code === 'Space') backBtn.click();
+        if (MOVE[code]?.[1] < 0) focusItem(lastReel);
+        else if (isConfirm(code)) backBtn.click();
         return true;
       }
       if (!at) return focusItem(lastReel), true;
       const [w, r] = at;
-      const move = { ArrowLeft: [-1, 0], KeyA: [-1, 0], ArrowRight: [1, 0], KeyD: [1, 0], ArrowUp: [0, -1], KeyW: [0, -1], ArrowDown: [0, 1], KeyS: [0, 1] }[code];
+      const move = MOVE[code];
       if (move) {
         lastReel = document.activeElement;
         if (r + move[1] >= grid[0].length) return focusItem(backBtn), true;
         focusItem(grid[(w + move[0] + grid.length) % grid.length][Math.max(0, r + move[1])]);
         return true;
       }
-      if (code === 'Enter' || code === 'NumpadEnter' || code === 'Space') return document.activeElement.click(), true;
+      if (isConfirm(code)) return document.activeElement.click(), true;
       return false;
     },
     update() { // a poster that has just been baked develops in

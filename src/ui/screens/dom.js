@@ -1,6 +1,7 @@
 // Tiny DOM helpers shared by the screens (from Barrage): element building, focusable buttons, and
 // arrow-key navigation over a list or grid that keeps mouse hover and keyboard focus in step.
 import { play } from '../audio.js';
+import { MOVE, isConfirm } from '../keys.js';
 
 export function h(tag, cls, ...kids) {
   const el = document.createElement(tag);
@@ -35,15 +36,15 @@ export function button(label, onPick, cls = 'btn') {
 // Enter / Space pick the focused item. Returns true when the key was handled.
 export function navigate(items, code, cols = 1) {
   const i = items.indexOf(document.activeElement);
-  const step = { ArrowUp: -cols, ArrowDown: cols, KeyW: -cols, KeyS: cols, ArrowLeft: -1, ArrowRight: 1, KeyA: -1, KeyD: 1 };
-  if (code in step) {
+  const mv = MOVE[code];
+  if (mv) {
     if (i < 0) return focusItem(items[0]), true; // focus went astray: start over at the top
-    let j = i + step[code];
+    let j = i + mv[0] + mv[1] * cols;
     if (cols === 1) j = (j + items.length) % items.length;
     if (j >= 0 && j < items.length) focusItem(items[j]);
     return true;
   }
-  if (code === 'Enter' || code === 'NumpadEnter' || code === 'Space') {
+  if (isConfirm(code)) {
     const el = items.includes(document.activeElement) ? document.activeElement : items[0];
     el.click();
     return true;
@@ -76,3 +77,6 @@ export function armed(ms = 450) {
 export function endKeys(items, ready, settled) {
   return (code, e) => !ready() || (!settled() && (code === 'Space' || Boolean(e?.repeat))) || navigate(items, code);
 }
+
+// A world's sky as a CSS background: its gradient stops, top to bottom.
+export const skyCss = (look) => `linear-gradient(180deg, ${look.sky.map(([s, c]) => `${c} ${s * 100}%`).join(', ')})`;

@@ -11,31 +11,25 @@
 // and adds r.goCinema (it uses r.leave).
 // Every route away from a level goes through leave(): the old scene stops stepping at once (the
 // loop only runs app.scene) and the level's own sounds (the laser hum) stop with it.
-import { DEMO_LEVEL, WORLDS } from '../core/levels.js';
+import { DEMO_LEVEL, reelName, worldName } from '../core/levels.js';
 import { lookFor } from './looks/index.js';
 import { store } from './storage.js';
-import { play, duck, setBeam, setWorldSound } from './audio.js';
-import { setMusic } from './music.js';
+import { play, duck, setBeam } from './audio.js';
+import { setWorld } from './music.js';
 import { resetInput } from './input.js';
 import { backdropScene, pickBackdrop, playScene } from './scenes.js';
 import { titleScreen } from './screens/title.js';
 import { lobbyScreen } from './screens/lobby.js';
 import { cardScreen } from './screens/card.js';
 import { pauseScreen } from './screens/pause.js';
-import { reelName, warmPosters } from './screens/posters.js';
+import { warmPosters } from './screens/posters.js';
 import { demoScreen } from './demo/demo-screen.js';
 import { DEMO_SEED, createDirector, directInput, noteEvents } from './demo/script.js';
 
 const MIN_CARD = 0.9; // s the title card stays, so it reads as a moment, not a flicker
 
-// The world's sound effects and its music loop.
-function sound(level) {
-  const look = lookFor(level);
-  setWorldSound(look);
-  setMusic(look);
-}
 
-const labelOf = (level) => (level === DEMO_LEVEL ? 'Watch, then try' : `${WORLDS[level.world - 1].name} · ${reelName(level)}`);
+const labelOf = (level) => (level === DEMO_LEVEL ? 'Watch, then try' : `${worldName(level)} · ${reelName(level)}`);
 
 export function createRouter({ canvas, stage, input }) {
   const app = { screen: 'boot', scene: null, backdrop: null, shown: 0, demo: null, lastLevel: 'w1-1', token: 0 };
@@ -62,8 +56,8 @@ export function createRouter({ canvas, stage, input }) {
     ];
     const level = app.backdrop?.level ?? pickBackdrop(app.shown);
     app.shown = level.world;
-    sound(level);
-    stage.show(titleScreen({ items, nowShowing: WORLDS[level.world - 1].name }));
+    setWorld(lookFor(level));
+    stage.show(titleScreen({ items, nowShowing: worldName(level) }));
     warmPosters(menus);
     if (app.backdrop) {
       app.scene = app.backdrop;
@@ -89,7 +83,7 @@ export function createRouter({ canvas, stage, input }) {
     leave('loading');
     app.backdrop = null; // back on the title, another world's battle (M5)
     const token = app.token;
-    sound(level);
+    setWorld(lookFor(level));
     stage.show(cardScreen(level, kicker));
     play('start');
     const t0 = performance.now();
