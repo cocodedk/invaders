@@ -1,14 +1,6 @@
 // Painting helpers shared by the sky bodies and the flourishes (adapted from Barrage).
-import { W, H, mix, rgba, shade, hash, glow, soft } from './sprites.js';
+import { W, H, mix, rgba, shade, hash, glow, soft, addGlow } from './sprites.js';
 import { clamp } from '../core/math.js';
-
-export function add(g, sprite, x, y, r, a = 1, sy = 1) {
-  g.globalCompositeOperation = 'lighter';
-  g.globalAlpha = a;
-  g.drawImage(sprite, x - r, y - r * sy, r * 2, r * 2 * sy);
-  g.globalAlpha = 1;
-  g.globalCompositeOperation = 'source-over';
-}
 
 // Soft blobs `[x, y, r, colour, alpha, squash?]` laid over the sky: nebulae, smog, smoke banks.
 export function blobs(g, list) {
@@ -36,14 +28,14 @@ export function stars(g, n, seed, maxY, bright = 1, pixel = false, avoid = null)
       y = Math.round(y / 2) * 2;
     }
     g.fillRect(x, y, s, s);
-    if (m > 0.965) add(g, glow(tints[i % 4]), x, y, pixel ? 10 : 9, 0.55 * bright);
+    if (m > 0.965) addGlow(g, glow(tints[i % 4]), x, y, pixel ? 10 : 9, 0.55 * bright);
   }
 }
 
 // A sun: wide additive halo, then a solid disc with a hot centre.
 export function sun(g, x, y, r, color, halo, haloScale = 7, haloAlpha = 0.9) {
-  add(g, glow(halo), x, y, r * haloScale, haloAlpha);
-  add(g, glow(color), x, y, r * 2.2, 0.9);
+  addGlow(g, glow(halo), x, y, r * haloScale, haloAlpha);
+  addGlow(g, glow(color), x, y, r * 2.2, 0.9);
   const gr = g.createRadialGradient(x, y, 0, x, y, r);
   gr.addColorStop(0, '#ffffff');
   gr.addColorStop(0.6, shade(color, 0.5));

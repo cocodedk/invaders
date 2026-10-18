@@ -17,6 +17,7 @@ export function buildLayers(look, seed) {
     const g = c.getContext('2d');
     const out = { lights: [], signs: [] };
     paintLayer(g, w, h, makeRng(seed * 101 + i * 7), L, out);
+    for (const p of out.lights) p.sprite = glow(p.color);
     // atmospheric haze: far layers fade toward the horizon colour at their tops
     const hazeAmt = L.haze ?? Math.max(0.06, 0.4 - L.speed * 0.7);
     g.globalCompositeOperation = 'source-atop';
@@ -53,8 +54,10 @@ const MODES = {
 export function drawLights(ctx, L, x0, t, alpha = 1) {
   ctx.globalCompositeOperation = 'lighter';
   for (const p of L.lights) {
+    const x = x0 + p.x;
+    if (x + p.r < 0 || x - p.r > W) continue; // the layer is wider than the frame
     ctx.globalAlpha = Math.max(0, MODES[p.mode](t, p)) * (p.a ?? 1) * alpha;
-    ctx.drawImage(glow(p.color), x0 + p.x - p.r, L.top + p.y - p.r, p.r * 2, p.r * 2);
+    ctx.drawImage(p.sprite, x - p.r, L.top + p.y - p.r, p.r * 2, p.r * 2);
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';

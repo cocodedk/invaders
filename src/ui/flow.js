@@ -59,15 +59,16 @@ export function createFlow(r, stage) {
     showResults(o) {
       app.screen = 'results';
       play('cleared');
+      const { level } = o; // the buttons close over this, not over o (its session and view)
       const demo = o.mode === 'try';
-      const i = LEVELS.indexOf(o.level);
+      const i = LEVELS.indexOf(level);
       const next = demo ? r.goLobby : LEVELS[i + 1] && (() => r.startLevel(LEVELS[i + 1]));
       stage.show(resultsScreen({
-        label: r.labelOf(o.level), title: demo ? 'You’re ready!' : o.level.boss ? 'Victory' : 'Cleared',
+        label: r.labelOf(level), title: demo ? 'You’re ready!' : level.boss ? 'Victory' : 'Cleared',
         score: o.score, stars: o.stars, best: demo ? null : o.best, newBest: o.newBest && !demo, // the demo has no best
       }, {
         next, nextLabel: demo ? 'Pick a level' : 'Next',
-        retry: demo ? r.startTry : () => r.startLevel(o.level), retryLabel: demo ? 'Again' : 'Retry',
+        retry: demo ? r.startTry : () => r.startLevel(level), retryLabel: demo ? 'Again' : 'Retry',
         select: demo ? r.goTitle : r.goLobby, selectLabel: demo ? 'Title' : 'Select',
       }));
     },
@@ -75,9 +76,10 @@ export function createFlow(r, stage) {
     showFailed(o) {
       app.screen = 'failed';
       play('failed');
+      const { level } = o;
       const demo = o.mode === 'try';
-      stage.show(failedScreen({ label: r.labelOf(o.level), score: o.score, progress: progress(o.session.world) }, {
-        retry: demo ? r.startTry : () => r.startLevel(o.level),
+      stage.show(failedScreen({ label: r.labelOf(level), score: o.score, progress: progress(o.session.world) }, {
+        retry: demo ? r.startTry : () => r.startLevel(level),
         select: r.goLobby,
       }));
     },

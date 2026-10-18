@@ -1,7 +1,7 @@
 // What each world bakes into its sky beyond the gradient, one painter per look.body (worlds 1-4;
 // sky-bodies-2.js has 5-8). Painted once per level into the sky canvas; nothing here animates.
-import { W, glow, hash, rgba, noise2 } from './sprites.js';
-import { add, blobs, stars, sun, moon, brush, horizonGlow } from './sky-paint.js';
+import { W, glow, hash, rgba, noise2, addGlow } from './sprites.js';
+import { blobs, stars, sun, moon, brush, horizonGlow } from './sky-paint.js';
 import { clamp } from '../core/math.js';
 import { BODIES2 } from './sky-bodies-2.js';
 
@@ -32,7 +32,7 @@ function arcade(g) {
     [900, 760, 900, '#6a1a7a', 0.12, 0.45], [1700, 600, 500, '#1a2a8a', 0.1],
   ]);
   stars(g, 300, 11, 1000, 1, true);
-  add(g, glow('#3affc8'), 1540, 250, 260, 0.35);
+  addGlow(g, glow('#3affc8'), 1540, 250, 260, 0.35);
   pixelPlanet(g, 1540, 250, 128, 8, ['#06202a', '#0a3a44', '#127060', '#22b088', '#6affc0', '#d8ffe8'], 3);
   // a tilted ring of blocks round the planet; its far half hides behind the disc
   g.fillStyle = 'rgba(255,170,230,0.8)';
@@ -57,9 +57,9 @@ function megacity(g) {
     [600, 420, 700, '#4a1440', 0.35, 0.25], [1400, 470, 760, '#5a1a48', 0.35, 0.25],
     [960, 640, 1100, '#8a2a5a', 0.3, 0.25],
   ]);
-  add(g, glow('#ff3a8a'), 960, 1180, 1250, 0.55);
-  add(g, glow('#ff8a3a'), 1500, 1120, 700, 0.35);
-  add(g, glow('#2ae0ff'), 380, 1120, 600, 0.22);
+  addGlow(g, glow('#ff3a8a'), 960, 1180, 1250, 0.55);
+  addGlow(g, glow('#ff8a3a'), 1500, 1120, 700, 0.35);
+  addGlow(g, glow('#2ae0ff'), 380, 1120, 600, 0.22);
   horizonGlow(g, '#ff4f9a', 0.3);
 }
 
@@ -78,13 +78,13 @@ function twinsuns(g) {
   g.globalAlpha = 1;
   sun(g, 925, 612, 70, '#ffe8a8', '#ff8a3a', 5, 0.55);
   sun(g, 1068, 548, 38, '#ffc080', '#ff5a2a', 4.5, 0.55);
-  for (let i = 0; i < 4; i++) add(g, glow('#ffd8a8'), 960, 620 + i * 30, 1100, 0.05, 0.04);
+  for (let i = 0; i < 4; i++) addGlow(g, glow('#ffd8a8'), 960, 620 + i * 30, 1100, 0.05, 0.04);
 }
 
 function redmoon(g) {
   stars(g, 70, 41, 520, 0.45);
-  add(g, glow('#ff2a1a'), 640, 360, 640, 0.65);
-  add(g, glow('#ff6a4a'), 640, 360, 300, 0.5);
+  addGlow(g, glow('#ff2a1a'), 640, 360, 640, 0.65);
+  addGlow(g, glow('#ff6a4a'), 640, 360, 300, 0.5);
   moon(g, 640, 360, 205, '#ff7a5a', '#a01818', '#6a0a0a', 17);
   // brush strokes of cloud across the moon and the dusk
   const strokes = [

@@ -25,10 +25,12 @@ const MAIN = TOP + 55; // big number row
 const COMBO_MID = 64.5;
 const COMBO_SIZE = 36;
 
+let shown = { n: NaN, text: '' }; // the score as last formatted
 function score(ctx, world) {
+  if (world.score !== shown.n) shown = { n: world.score, text: world.score.toLocaleString('en-US') };
   panel(ctx, 32, TOP, 360, PH);
   label(ctx, 'SCORE', 56, CAP);
-  text(ctx, world.score.toLocaleString('en-US'), 54, MAIN, 46, '#ffffff', 'left', 900);
+  text(ctx, shown.text, 54, MAIN, 46, '#ffffff', 'left', 900);
 }
 
 function combo(ctx, world, t) {

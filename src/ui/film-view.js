@@ -27,6 +27,13 @@ const grainTile = (i) => cached('grain' + i, TILE, TILE, (g) => {
   g.putImageData(img, 0, 0);
 });
 
+const patterns = new WeakMap(); // ctx -> [pattern per grain tile], made on first use
+function grainPattern(ctx, i) {
+  let list = patterns.get(ctx);
+  if (!list) patterns.set(ctx, (list = []));
+  return (list[i] ??= ctx.createPattern(grainTile(i), 'repeat'));
+}
+
 export function drawFilm(ctx, film, quality = 1) {
   if (!film || film.k <= 0) return;
   if (film.grade > 0) {
@@ -36,10 +43,9 @@ export function drawFilm(ctx, film, quality = 1) {
     ctx.fillRect(0, 0, W, H);
   }
   if (film.grain > 0 && quality >= 1) {
-    const tile = grainTile((film.seed + film.frame) % TILES);
     ctx.globalCompositeOperation = 'overlay';
     ctx.globalAlpha = film.grain;
-    ctx.fillStyle = ctx.createPattern(tile, 'repeat');
+    ctx.fillStyle = grainPattern(ctx, (film.seed + film.frame) % TILES);
     const ox = hash(film.frame) * TILE;
     ctx.translate(-ox, 0);
     ctx.fillRect(ox, 0, W, H);

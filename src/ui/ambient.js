@@ -3,19 +3,19 @@
 // is simulated and nothing allocates per frame.
 //   look.ambient = [{ kind, phase: 'sky'|'mid'|'front'|'screen', n, colors, size: [lo, hi], speed, alpha }]
 import { W, H, hash, glow, soft, star, wrap, cached } from './sprites.js';
-import { clamp } from '../core/math.js';
+import { clamp, TAU } from '../core/math.js';
 import { AMBIENT2 } from './ambient-2.js';
 
 const P = {}; // one scratch particle, refilled per index: no per-frame garbage
-function each(a, fn) {
+function each(a, fn, from = 0, step = 1) {
   const [s0, s1] = a.size;
-  for (let i = 0; i < a.n; i++) {
+  for (let i = from; i < a.n; i += step) {
     P.i = i;
     P.h = hash(i * 5 + 11);
     P.x0 = hash(i * 5 + 12) * (W + 200) - 100;
     P.y0 = hash(i * 5 + 13) * H;
     P.size = s0 + (s1 - s0) * hash(i * 5 + 14);
-    P.ph = hash(i * 5 + 15) * Math.PI * 2;
+    P.ph = hash(i * 5 + 15) * TAU;
     P.color = a.colors[i % a.colors.length];
     fn(P);
   }
@@ -43,12 +43,11 @@ const KINDS = {
       ctx.globalAlpha = a.alpha;
       ctx.beginPath();
       each(a, (p) => {
-        if (p.i % a.colors.length !== ci) return;
         const y = wrap(p.y0 + t * a.speed * (0.8 + 0.4 * p.h), -60, H + 60);
         const x = wrap(p.x0 + y * slant + drift * 0.2, -100, W + 100);
         ctx.moveTo(x, y);
         ctx.lineTo(x - slant * p.size, y - p.size);
-      });
+      }, ci, a.colors.length);
       ctx.stroke();
     });
   },

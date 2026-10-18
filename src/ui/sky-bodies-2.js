@@ -1,6 +1,6 @@
 // Sky painters for worlds 5-8 (see sky-bodies.js).
-import { W, H, glow, hash, rgba, shade } from './sprites.js';
-import { add, blobs, stars, sun, horizonGlow } from './sky-paint.js';
+import { W, H, glow, hash, rgba, shade, addGlow } from './sprites.js';
+import { blobs, stars, sun, horizonGlow } from './sky-paint.js';
 import { glyphAtlas, drawGlyph } from './glyphs.js';
 import { WELL } from '../core/kinds.js';
 
@@ -29,7 +29,7 @@ const quad = (x0, y0, cx, cy, x1, y1, n = 20) => Array.from({ length: n + 1 }, (
 
 // A cavern roof of bone: ribs curving down from a spine, wet sheen on their edges, drips.
 function hive(g) {
-  add(g, glow('#2a8a5a'), 960, 1220, 1200, 0.45);
+  addGlow(g, glow('#2a8a5a'), 960, 1220, 1200, 0.45);
   blobs(g, [[400, 700, 700, '#14382a', 0.35, 0.3], [1500, 760, 800, '#103024', 0.35, 0.3]]);
   for (let pass = 0; pass < 2; pass++) {
     for (let k = -6; k <= 6; k++) {
@@ -66,7 +66,7 @@ function hive(g) {
     g.moveTo(x, 30);
     g.quadraticCurveTo(x + 8, len * 0.5, x, len);
     g.stroke();
-    add(g, glow('#9ad67a'), x, len + 4, 7, 0.4);
+    addGlow(g, glow('#9ad67a'), x, len + 4, 7, 0.4);
   }
 }
 
@@ -86,14 +86,14 @@ function code(g) {
     }
   }
   g.globalAlpha = 1;
-  add(g, glow('#0aff5a'), 960, 1200, 1100, 0.25);
+  addGlow(g, glow('#0aff5a'), 960, 1200, 1100, 0.25);
   horizonGlow(g, '#0aff5a', 0.12);
 }
 
 // A war sky: smoke banks lit from beneath by fires, a red sun low in the murk.
 function warfire(g) {
-  add(g, glow('#ff5a1a'), 480, 1160, 1000, 0.6);
-  add(g, glow('#ff7a2a'), 1480, 1140, 900, 0.5);
+  addGlow(g, glow('#ff5a1a'), 480, 1160, 1000, 0.6);
+  addGlow(g, glow('#ff7a2a'), 1480, 1140, 900, 0.5);
   sun(g, 1450, 420, 58, '#ff6a3a', '#ff3a1a', 6, 0.5);
   for (let i = 0; i < 34; i++) {
     const x = hash(i + 90) * (W + 400) - 200;
@@ -104,7 +104,7 @@ function warfire(g) {
     g.drawImage(glow(shade('#1a1012', hash(i + 93) * 0.1)), x - r, y - r * 0.45, r * 2, r * 0.9);
     g.globalAlpha = 0.7;
     g.drawImage(glow('#140c0e'), x - r * 0.8, y - r * 0.4, r * 1.6, r * 0.7);
-    add(g, glow('#ff6a2a'), x, y + r * 0.32, r * 0.7, lit * 0.35, 0.25);
+    addGlow(g, glow('#ff6a2a'), x, y + r * 0.32, r * 0.7, lit * 0.35, 0.25);
   }
   horizonGlow(g, '#ff6a1a', 0.5, 600);
 }
@@ -122,8 +122,8 @@ function blackhole(g, look, level) {
   stars(g, 520, 61, H, 0.95, false, { x: HOLE.x, y: HOLE.y, r: 210 });
   const { x, y, r } = HOLE;
   const k = wellLight(level);
-  add(g, glow('#ffb060'), x, y, 520, 0.35 * k);
-  add(g, glow('#ffd8a0'), x, y, 240, 0.55 * k);
+  addGlow(g, glow('#ffb060'), x, y, 520, 0.35 * k);
+  addGlow(g, glow('#ffd8a0'), x, y, 240, 0.55 * k);
   g.globalCompositeOperation = 'lighter';
   for (let i = 0; i < 26; i++) { // the lensed halo: the far side of the disk bent over and under
     g.strokeStyle = rgba(i < 8 ? '#fff4e0' : '#ffb868', (0.08 + (i < 8 ? 0.07 : 0)) * k);

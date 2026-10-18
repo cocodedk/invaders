@@ -38,21 +38,25 @@ export function drawBullets(ctx, world, look, t, quality = 1) {
   }
   const m = ctx.getTransform();
   const style = look.bullet;
-  const ball = orb(enemy, rim, 8);
+  let ball, star, drop, acid, seeker, bolt; // each sprite looked up on first use this frame
+  const zig = [null, null];
   for (const b of list) {
     const p = b.pattern;
     if (p === 'laser') continue;
-    if (p === 'shuriken') rotated(ctx, m, b.x, b.y, t * 9 + phaseOf(b), shuriken(enemy), 48 * (b.r / 18));
-    else if (p === 'rain') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), capsule(enemy, rim, 26, 9));
-    else if (p === 'acid') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy || 1), capsule('#a6ff3a', '#0a1a04', 22, 12));
+    if (p === 'shuriken') rotated(ctx, m, b.x, b.y, t * 9 + phaseOf(b), (star ??= shuriken(enemy)), 48 * (b.r / 18));
+    else if (p === 'rain') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), (drop ??= capsule(enemy, rim, 26, 9)));
+    else if (p === 'acid') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy || 1), (acid ??= capsule('#a6ff3a', '#0a1a04', 22, 12)));
     else if (p === 'homing') {
       const pulse = 1 + 0.18 * Math.sin(t * 12 + phaseOf(b));
-      const s = orb(enemy, rim, 10);
+      const s = (seeker ??= orb(enemy, rim, 10));
       ctx.drawImage(s, b.x - s.width / 2 * pulse, b.y - s.height / 2 * pulse, s.width * pulse, s.height * pulse);
-    } else if (style === 'bolt') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), capsule(enemy, rim, 28, 9));
+    } else if (style === 'bolt') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), (bolt ??= capsule(enemy, rim, 28, 9)));
     else if (style === 'pixel') {
-      const z = zigzag(enemy, rim, Math.floor(t * 10 + phaseOf(b)) & 1);
-      ctx.drawImage(z, b.x - 10, b.y - 18);
-    } else ctx.drawImage(ball, b.x - ball.width / 2, b.y - ball.height / 2);
+      const k = Math.floor(t * 10 + phaseOf(b)) & 1;
+      ctx.drawImage((zig[k] ??= zigzag(enemy, rim, k)), b.x - 10, b.y - 18);
+    } else {
+      ball ??= orb(enemy, rim, 8);
+      ctx.drawImage(ball, b.x - ball.width / 2, b.y - ball.height / 2);
+    }
   }
 }

@@ -96,18 +96,29 @@ const radial = (stops) => (g, w) => {
   g.fillRect(0, 0, w, w);
 };
 
+// One sprite per colour, made by make(color) on first use. The lookup is the hot path (hundreds of
+// calls a frame), so it is a bare Map get: no key string, no recipe built before the cache is asked.
+function byColor(make) {
+  const sprites = new Map();
+  return (color) => {
+    let c = sprites.get(color);
+    if (!c) sprites.set(color, (c = make(color)));
+    return c;
+  };
+}
+
 // Additive glow blob: hot centre fading out through `color`. Draw with 'lighter'.
-export const glow = (color) => cached('g' + color, 64, 64, radial([
+export const glow = byColor((color) => cached('g' + color, 64, 64, radial([
   [0, rgba(color, 1)], [0.2, rgba(color, 0.55)], [0.5, rgba(color, 0.16)], [1, rgba(color, 0)],
-]));
+])));
 
 // Soft-edged disc (smoke, dust, fog, petals of light): opaque middle, feathered rim.
-export const soft = (color) => cached('s' + color, 64, 64, radial([
+export const soft = byColor((color) => cached('s' + color, 64, 64, radial([
   [0, rgba(color, 1)], [0.45, rgba(color, 0.75)], [1, rgba(color, 0)],
-]));
+])));
 
 // Four-point twinkle star for sparkles and glints.
-export const star = (color) => cached('t' + color, 64, 64, (g) => {
+export const star = byColor((color) => cached('t' + color, 64, 64, (g) => {
   g.drawImage(glow(color), 16, 16, 32, 32);
   g.fillStyle = rgba(color, 0.9);
   g.beginPath();
@@ -117,13 +128,13 @@ export const star = (color) => cached('t' + color, 64, 64, (g) => {
     g.lineTo(32 + Math.cos(a) * r, 32 + Math.sin(a) * r);
   }
   g.fill();
-});
+}));
 
-// Draw a sprite centred on (x, y) with radius r, additively.
-export function addGlow(ctx, sprite, x, y, r, a = 1) {
+// Draw a sprite centred on (x, y) with radius r (squashed to r * sy tall), additively.
+export function addGlow(ctx, sprite, x, y, r, a = 1, sy = 1) {
   ctx.globalCompositeOperation = 'lighter';
   ctx.globalAlpha = a;
-  ctx.drawImage(sprite, x - r, y - r, r * 2, r * 2);
+  ctx.drawImage(sprite, x - r, y - r * sy, r * 2, r * 2 * sy);
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
 }

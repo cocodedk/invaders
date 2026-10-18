@@ -109,21 +109,32 @@ function saucer(ctx, s, look, t) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
+// Each alien's frame, drawn y and lean, worked out by the body pass and reused by the lights pass
+// (kept between frames, so no garbage).
+const POSE_F = [];
+const POSE_Y = [];
+const POSE_R = [];
+
 export function drawAliens(ctx, world, look, t) {
   const A = art(look);
-  halos(ctx, world.aliens, look, A, t);
+  const list = world.aliens;
+  const sets = {}; // role -> sprite set, looked up once a frame
+  halos(ctx, list, look, A, t);
   for (const w of world.wrecks) wreck(ctx, w, look, t);
-  for (const a of world.aliens) {
-    const set = roleSprites(look, a.role);
-    const f = frameOf(A, a, t);
+  for (let i = 0; i < list.length; i++) {
+    const a = list[i];
+    const set = (sets[a.role] ??= roleSprites(look, a.role));
+    const f = (POSE_F[i] = frameOf(A, a, t));
+    POSE_Y[i] = a.y + bobOf(A, a, t);
+    POSE_R[i] = lean(world, a);
     const k = crackStage(a);
     const img = flashing(a, t) ? set.flash[f] : k ? cracked(set, f, k) : set.body[f];
-    blit(ctx, img, set, a.x, a.y + bobOf(A, a, t), 1, lean(world, a));
+    blit(ctx, img, set, a.x, POSE_Y[i], 1, POSE_R[i]);
   }
   ctx.globalCompositeOperation = 'lighter';
-  for (const a of world.aliens) {
-    const set = roleSprites(look, a.role);
-    blit(ctx, set.lights[frameOf(A, a, t)], set, a.x, a.y + bobOf(A, a, t), 1, lean(world, a));
+  for (let i = 0; i < list.length; i++) {
+    const set = sets[list[i].role];
+    blit(ctx, set.lights[POSE_F[i]], set, list[i].x, POSE_Y[i], 1, POSE_R[i]);
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
@@ -134,15 +145,17 @@ export function drawAlienLights(ctx, world, look, t, k) {
   const A = art(look);
   const colors = look.palette.alien;
   ctx.globalCompositeOperation = 'lighter';
+  const sets = {}; // role -> sprite set, looked up once a frame
   for (const a of world.aliens) {
     const y = a.y + bobOf(A, a, t);
     ctx.globalAlpha = 0.45 * k;
     ctx.drawImage(glow(colors[a.role]), a.x - 46, y - 46, 92, 92);
-    const set = roleSprites(look, a.role);
+    const set = (sets[a.role] ??= roleSprites(look, a.role));
     const f = frameOf(A, a, t);
-    blit(ctx, set.lights[f], set, a.x, y, k, lean(world, a));
+    const rot = lean(world, a);
+    blit(ctx, set.lights[f], set, a.x, y, k, rot);
     const stage = crackStage(a);
-    if (stage) blit(ctx, crackLights(set, f, stage), set, a.x, y, k * 0.8, lean(world, a));
+    if (stage) blit(ctx, crackLights(set, f, stage), set, a.x, y, k * 0.8, rot);
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';

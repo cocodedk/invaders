@@ -42,7 +42,7 @@ export function createView(canvas, level, warm = true) {
     canvas, ctx: canvas.getContext('2d'), level, look,
     sky: buildSky(look, level), layers: buildLayers(look, level.seed ?? 1),
     quality: createQuality(), cache: {}, hud: { lag: null }, showHud: true,
-    lastT: null, drift: 0, fit: { css: '', s: 1, ox: 0, oy: 0 }, lift: 0,
+    lastT: null, drift: 0, fit: { w: 0, h: 0, dpr: 0, s: 1, ox: 0, oy: 0 }, lift: 0,
   };
 }
 
@@ -52,15 +52,15 @@ function fit(v) {
   const cssW = c.clientWidth || c.width;
   const cssH = c.clientHeight || c.height;
   const dpr = globalThis.devicePixelRatio || 1;
-  const key = `${cssW}x${cssH}@${dpr}`;
-  if (key === v.fit.css) return v.fit;
+  const f = v.fit;
+  if (cssW === f.w && cssH === f.h && dpr === f.dpr) return f;
   const rawW = cssW * dpr;
   const rawH = cssH * dpr;
   const fitRaw = Math.min(rawW / W, rawH / H);
   const s = Math.min(1, fitRaw);
   c.width = Math.max(1, Math.round((rawW * s) / fitRaw));
   c.height = Math.max(1, Math.round((rawH * s) / fitRaw));
-  v.fit = { css: key, s, ox: (c.width - W * s) / 2, oy: (c.height - H * s) / 2 };
+  v.fit = { w: cssW, h: cssH, dpr, s, ox: (c.width - W * s) / 2, oy: (c.height - H * s) / 2 };
   return v.fit;
 }
 
