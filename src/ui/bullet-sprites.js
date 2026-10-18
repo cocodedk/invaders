@@ -79,6 +79,22 @@ export const shuriken = (glowColor) => cached('shu' + glowColor, 48, 48, (g) => 
   g.fill();
 });
 
+// Every enemy bullet sprite of a look, baked on its first frame and then plain property reads:
+// drawBullets asks once per bullet per frame. Lasers (strip) are drawn by lasers-view.js.
+const kits = new WeakMap();
+export function bulletKit(look) {
+  let k = kits.get(look);
+  if (!k) {
+    const { enemy: c, enemyRim: rim } = look.palette;
+    k = {
+      ball: orb(c, rim, 8), seeker: orb(c, rim, 10), bolt: capsule(c, rim, 28, 9), drop: capsule(c, rim, 26, 9),
+      acid: capsule('#a6ff3a', '#0a1a04', 22, 12), star: shuriken(c), zig: [zigzag(c, rim, 0), zigzag(c, rim, 1)],
+    };
+    kits.set(look, k);
+  }
+  return k;
+}
+
 // A horizontal cross-section of a beam (transparent edges, colour, white centre): stretch it.
 export const strip = (color) => cached('strip' + color, 64, 4, (g, w, h) => {
   const gr = g.createLinearGradient(0, 0, w, 0);

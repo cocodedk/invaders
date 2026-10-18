@@ -3,7 +3,7 @@
 // stars, acid. Lasers are in lasers-view.js. One glow + one body sprite per bullet; at half quality
 // the glow is skipped.
 import { glow } from './sprites.js';
-import { orb, capsule, zigzag, shuriken } from './bullet-sprites.js';
+import { bulletKit } from './bullet-sprites.js';
 
 // A bullet's own animation offset: its heading and speed, which belong to the bullet (an index into
 // the list does not: it shifts whenever an earlier bullet is removed, and every star after it would
@@ -22,7 +22,7 @@ function rotated(ctx, m, x, y, angle, sprite, w = sprite.width) {
 const heading = (vx, vy) => Math.atan2(vy, vx) + Math.PI / 2;
 
 export function drawBullets(ctx, world, look, t, quality = 1) {
-  const { enemy, enemyRim: rim } = look.palette;
+  const { enemy } = look.palette;
   const list = world.bullets;
   if (quality >= 1) { // glows under everything, in one additive pass
     ctx.globalCompositeOperation = 'lighter';
@@ -38,25 +38,19 @@ export function drawBullets(ctx, world, look, t, quality = 1) {
   }
   const m = ctx.getTransform();
   const style = look.bullet;
-  let ball, star, drop, acid, seeker, bolt; // each sprite looked up on first use this frame
-  const zig = [null, null];
+  const K = bulletKit(look);
   for (const b of list) {
     const p = b.pattern;
     if (p === 'laser') continue;
-    if (p === 'shuriken') rotated(ctx, m, b.x, b.y, t * 9 + phaseOf(b), (star ??= shuriken(enemy)), 48 * (b.r / 18));
-    else if (p === 'rain') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), (drop ??= capsule(enemy, rim, 26, 9)));
-    else if (p === 'acid') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy || 1), (acid ??= capsule('#a6ff3a', '#0a1a04', 22, 12)));
+    if (p === 'shuriken') rotated(ctx, m, b.x, b.y, t * 9 + phaseOf(b), K.star, 48 * (b.r / 18));
+    else if (p === 'rain') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), K.drop);
+    else if (p === 'acid') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy || 1), K.acid);
     else if (p === 'homing') {
       const pulse = 1 + 0.18 * Math.sin(t * 12 + phaseOf(b));
-      const s = (seeker ??= orb(enemy, rim, 10));
+      const s = K.seeker;
       ctx.drawImage(s, b.x - s.width / 2 * pulse, b.y - s.height / 2 * pulse, s.width * pulse, s.height * pulse);
-    } else if (style === 'bolt') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), (bolt ??= capsule(enemy, rim, 28, 9)));
-    else if (style === 'pixel') {
-      const k = Math.floor(t * 10 + phaseOf(b)) & 1;
-      ctx.drawImage((zig[k] ??= zigzag(enemy, rim, k)), b.x - 10, b.y - 18);
-    } else {
-      ball ??= orb(enemy, rim, 8);
-      ctx.drawImage(ball, b.x - ball.width / 2, b.y - ball.height / 2);
-    }
+    } else if (style === 'bolt') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), K.bolt);
+    else if (style === 'pixel') ctx.drawImage(K.zig[Math.floor(t * 10 + phaseOf(b)) & 1], b.x - 10, b.y - 18);
+    else ctx.drawImage(K.ball, b.x - K.ball.width / 2, b.y - K.ball.height / 2);
   }
 }

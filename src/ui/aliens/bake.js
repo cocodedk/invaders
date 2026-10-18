@@ -28,7 +28,7 @@ export const ROLE_LIST = ['grunt', 'diver', 'gunner', 'armored', 'carrier'];
 const ART = [w1, w2, w3, w4, w5, w6, w7, w8];
 const DEFAULTS = { rate: 2, sync: false, bob: 0, halo: 0.25, crack: null };
 
-const sets = new Map();
+const sets = new Map(); // world -> scale -> { [role or extra name]: set } (shelf, below)
 const arts = new Map();
 
 export function art(look) {
@@ -64,24 +64,24 @@ function bakeSet(paint, color, scale, seed, crackColor, flash) {
   return { body, lights, flash: flash ? body.map(white) : null, size, scale, seed, color, crackColor, cracks: {}, crackGlow: {} };
 }
 
-function get(look, key, paint, color, scale, seed, flash = false) {
-  const k = `${look.world}:${key}:${scale}`;
-  let s = sets.get(k);
-  if (!s) {
-    s = bakeSet(paint, color, scale, seed, art(look).crack, flash);
-    sets.set(k, s);
-  }
+// A world's baked sets at one scale. Nested maps, not one string key: the drawing asks for every
+// alien every frame, so a hit must build no key and work out no recipe.
+function shelf(look, scale) {
+  let byScale = sets.get(look.world);
+  if (!byScale) sets.set(look.world, (byScale = new Map()));
+  let s = byScale.get(scale);
+  if (!s) byScale.set(scale, (s = {}));
   return s;
 }
 
 export function roleSprites(look, role, scale = 1) {
-  const i = ROLE_LIST.indexOf(role);
-  return get(look, role, art(look)[role], look.palette.alien[role], scale, i + 1, true);
+  const s = shelf(look, scale);
+  return (s[role] ??= bakeSet(art(look)[role], look.palette.alien[role], scale, ROLE_LIST.indexOf(role) + 1, art(look).crack, true));
 }
 
 export function extraSprites(look, name, scale = 1) {
   const paint = art(look)[name];
-  return paint ? get(look, name, paint, look.palette.alien.carrier, scale, 9) : null;
+  return paint ? (shelf(look, scale)[name] ??= bakeSet(paint, look.palette.alien.carrier, scale, 9, art(look).crack, false)) : null;
 }
 
 export function warmAliens(look) {
