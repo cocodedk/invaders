@@ -1,7 +1,8 @@
 // mulberry32: small, fast, seedable. Two forms of the same stream:
 //   makeRng(seed)  a closure giving floats in [0, 1). For fx and ui, which never need to be cloned.
 //   createRng(seed) + rand(r)  the state lives in a plain `{ s }` object, so a world that holds it
-//                   survives structuredClone. The core only ever draws from `world.rng` via rand.
+//                   survives structuredClone. The core only ever draws from `world.rng` via rand
+//                   (or randBetween, randPick, one rand each).
 const STEP = 0x6d2b79f5;
 
 function mix(a) {
@@ -26,8 +27,8 @@ export function rand(r) {
   return mix(r.s);
 }
 
-// A uniform draw in [lo, hi), and a uniform pick from `list`: for a closure rng, and the same for a
-// `{ s }` state (randBetween, randPick: one rand(r) draw each).
+// Uniform draws, a number in [lo, hi) and an item of `list`: between and pick take a closure rng (fx,
+// ui); randBetween and randPick take a `{ s }` state (core) and draw once.
 export const between = (rng, lo, hi) => lo + rng() * (hi - lo);
 export const pick = (rng, list) => list[Math.floor(rng() * list.length)];
 export const randBetween = (r, lo, hi) => lo + rand(r) * (hi - lo);

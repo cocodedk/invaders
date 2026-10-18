@@ -13,6 +13,14 @@ import { emit, prune } from './util.js';
 export const WARN = 0.7; // s between the warning and the bullets; the rule is at least 0.6
 const MINION_CAP = 8;
 
+// How minions fly, shared with predict.js so the autopilot's lookahead is the real flight: a carrier
+// bobs along y ~ CARRIER_Y at `t` s of age; the rest fall at minionSpeed(d) and, over a step of h s
+// ending at age t, steer toward the ship's column while they weave.
+const CARRIER_Y = 500;
+export const carrierY = (t) => CARRIER_Y + 18 * Math.sin(t * 2);
+export const minionSpeed = (d) => 150 + 120 * d;
+export const minionX = (x, shipX, t, id, h) => clamp(x + (clamp((shipX - x) / 40, -1, 1) * 90 + Math.cos(t * 3 + id) * 60) * h, 20, 1900);
+
 function release(world, b, w) {
   const a = bossDef(b.kind).phases[w.phase].attacks[w.i];
   const src = b.parts.find((p) => p.id === w.part);
@@ -80,14 +88,6 @@ export function stepMinions(world, b, def, dt) {
     launch(world, b, m);
   });
 }
-
-// How minions fly, shared with predict.js so the autopilot's lookahead is the real flight: a carrier
-// bobs along y ~ CARRIER_Y at `t` s of age; the rest fall at minionSpeed(d) and, over a step of h s
-// ending at age t, steer toward the ship's column while they weave.
-const CARRIER_Y = 500;
-export const carrierY = (t) => CARRIER_Y + 18 * Math.sin(t * 2);
-export const minionSpeed = (d) => 150 + 120 * d;
-export const minionX = (x, shipX, t, id, h) => clamp(x + (clamp((shipX - x) / 40, -1, 1) * 90 + Math.cos(t * 3 + id) * 60) * h, 20, 1900);
 
 // Minions fly (above). Anything that leaves the screen is dropped without score.
 export function moveMinions(world, dt) {

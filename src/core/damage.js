@@ -5,14 +5,14 @@ import { hurtWreck } from './twists-2.js';
 
 // The one place that knows what can be damaged. The bomb and the laser go through these helpers
 // and nothing else, so a new kind of target means widening them here.
+//   loose(world)          every target but the boss's parts: aliens, the saucer, wrecks
 //   targets(world)        every live target, in a fixed order: aliens, the saucer, wrecks, the boss's parts
 //   inColumn(t, x, half)  does the target touch the vertical strip x +- half (and is it on screen)
-//   onScreen(t)           is it visible, so a bomb reaches it
-//   hurt(world, t, dmg)   damage with the kill and the hit event; a boss part applies its own
-//                         rule (weak 100 %, armor 25 %, bare hull 0), a wreck just breaks
 //   bombAll(world)        what one bomb does: 3 to everything loose on screen, and 8 % of the boss's
 //                         max hp as raw damage, shared by its damageable parts (boss-hit.js)
 //   drip(world, t, amount) damage that arrives continuously, paid out in whole points
+// Both hurt through one private hurt(world, t, dmg): the kill and the hit event; a boss part applies
+// its own rule (weak 100 %, armor 25 %, bare hull 0), a wreck just breaks.
 
 const BOMB_DAMAGE = 3;
 const EPS = 1e-9; // 8 / 60 added fifteen times is 2 only up to rounding

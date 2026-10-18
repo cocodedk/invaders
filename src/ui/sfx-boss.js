@@ -5,7 +5,6 @@
 // a scream, a groan as the hull snaps, blasts rising through the chain to the white-out.
 // The boss sounds like its world: the roar and the charge take the world's style (sound-data.js).
 import { tone, hiss, fm, wobble, crush, noteHz } from './audio-kit.js';
-import { WARN } from '../core/boss-attack.js';
 
 // The roar's voice per style: [oscillator wave, pitch, glide steps, waveshaper amount].
 const ROAR = {
@@ -53,7 +52,7 @@ export const BOSS = {
     return 0.14;
   },
   warn(a, o) { // the charge: a whine and a flutter that climb to the moment it fires
-    const w = o.warn ?? WARN;
+    const w = o.warn;
     const chip = a.kit.style === 'chip' || a.kit.style === 'code';
     const whine = tone(a, {
       type: chip ? 'square' : a.kit.wave === 'sine' ? 'triangle' : 'sawtooth', f0: 170 * a.kit.pitch, f1: 1500 * a.kit.pitch,

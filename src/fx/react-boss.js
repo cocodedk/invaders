@@ -3,16 +3,14 @@
 import { addShake } from './camera.js';
 import { addFlash, addPopup, addRing, startSlowMo } from './fx.js';
 import { debris, METAL, sparks, smoke } from './emit.js';
-import { WARN } from '../core/boss-attack.js';
 
 const CHARGE = '#ff3a3a';
 const CRACK = ['#ffffff', '#fff6c8', '#ffd24a'];
 
-// The warned part glows brighter until it fires, and a ring closes in on it.
+// The warned part glows brighter until it fires (ev.warn s later), and a ring closes in on it.
 function bossWarn(fx, ev) {
-  const warn = ev.warn ?? WARN;
-  addFlash(fx, { x: ev.x, y: ev.y, r: 90, color: CHARGE, ramp: true, life: warn, tag: 'charge' });
-  addRing(fx, { x: ev.x, y: ev.y, r0: 120, maxR: 10, width: 3, color: '#ff5a4a', kind: 'charge', life: warn });
+  addFlash(fx, { x: ev.x, y: ev.y, r: 90, color: CHARGE, ramp: true, life: ev.warn, tag: 'charge' });
+  addRing(fx, { x: ev.x, y: ev.y, r0: 120, maxR: 10, width: 3, color: '#ff5a4a', kind: 'charge', life: ev.warn });
 }
 
 function bossPhase(fx, ev, rng) {

@@ -100,10 +100,12 @@ export function steer(world, want) {
   const threats = threatsOf(world);
   if (!threats.bodies.length && !threats.beams.length) return want;
   const path = { xs: new Float64Array(N), ys: new Float64Array(N) };
+  // what flying to c costs: its hazard h plus the detour from `want` (h = 0: the detour alone)
+  const costOf = (c, h = 0) => h + PULL_X * Math.abs(c.x - want.x) + PULL_Y * Math.abs(c.y - want.y);
   const price = (c) => {
     fly(s, c, path);
     const h = hazard(path, threats, from);
-    return { h, cost: h + PULL_X * Math.abs(c.x - want.x) + PULL_Y * Math.abs(c.y - want.y) };
+    return { h, cost: costOf(c, h) };
   };
   const first = price(want);
   if (first.h === 0) return want;
@@ -113,8 +115,8 @@ export function steer(world, want) {
   const tries = [{ x: s.x, y: s.y }];
   for (let k = -STEPS; k <= STEPS; k++) for (const y of rows) tries.push({ x: clamp(s.x + STEP_X * k, ZONE.x0, ZONE.x1), y });
   for (const c of tries) {
-    // cost = hazard + detour, so a detour that alone reaches bestCost cannot win: skip the flight
-    if (PULL_X * Math.abs(c.x - want.x) + PULL_Y * Math.abs(c.y - want.y) >= bestCost) continue;
+    // a hazard only adds, so a detour that alone reaches bestCost cannot win: skip the flight
+    if (costOf(c) >= bestCost) continue;
     const v = price(c);
     if (v.cost < bestCost) {
       best = c;

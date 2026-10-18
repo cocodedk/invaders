@@ -20,7 +20,7 @@ import { emit } from './util.js';
 
 export const ENTER_TIME = 1.5; // formations-2.js: entryPosition's length
 export const DIVE_TIME = 2.2; // formations-2.js: diveCurve's length
-export const MAX_BULLETS = 400;
+const MAX_BULLETS = 400;
 
 // Is the alien swooping (out on a dive, or on its way home)?
 export const isSwooping = (a) => a.mode === 'dive' || a.mode === 'return';
@@ -133,7 +133,7 @@ export function fire(world, dt, pattern, shoots = null) {
 export function stepAliens(world, dt) {
   const m = world.march;
   if (!m) return;
-  const spec = world.level.waves[world.wave - 1];
+  const spec = waveSpec(world);
   m.age += dt;
   if (m.age < ENTER_TIME) {
     for (const a of world.aliens) {
