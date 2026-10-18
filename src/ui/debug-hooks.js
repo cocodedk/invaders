@@ -4,7 +4,7 @@
 //   info()            where the game is: screen, level, state, score, lives, power, bombs, recording,
 //                     the trailer or blooper (film) and the world whose music plays (music)
 //   play(id)          jump to a level ('w2-1')              lobby() title() demo() try()
-//   grant(kind)       drop a pickup on the ship: 'spread' | 'laser' | 'rapid' | 'shield' | 'bomb'
+//   grant(kind, x, y) drop a pickup on the ship, or at (x, y): 'spread' | 'laser' | 'rapid' | 'shield' | 'bomb'
 //   clear(hits?)      empty the field now (a boss level runs its death chain); hits sets the stars
 //   fail()            the last life goes
 //   drive(mode)       who flies: 'auto' (the autopilot), 'idle' (nobody) or null (the player). It
@@ -52,8 +52,8 @@ export function installDebug(r) {
       if (level) r.startLevel(level);
       return Boolean(level);
     },
-    grant: (kind = 'spread') => touch((w) => {
-      w.pickups.push({ kind, x: w.ship.x, y: w.ship.y, vy: FALL, r: PICKUP_R });
+    grant: (kind = 'spread', x = null, y = null) => touch((w) => {
+      w.pickups.push({ kind, x: x ?? w.ship.x, y: y ?? w.ship.y, vy: FALL, r: PICKUP_R });
     }),
     clear: (hits) => touch((w) => {
       if (Number.isInteger(hits)) w.hits = hits;
