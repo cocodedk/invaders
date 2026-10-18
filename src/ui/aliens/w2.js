@@ -1,7 +1,7 @@
 // World 2, Neon Rain: police-style hover drones of the megacity, black lacquer hulls that are
 // nearly invisible in the dark, drawn by their neon: light bars, headlamps, sirens and thrust.
 // Darkness dims the bodies; the lights layer (drawAlienLights) is what still burns.
-import { path, sym, ink, lin, rgba, shade, mix, neon, eye, bloom, gloss, line, ellipse, both } from './kit.js';
+import { path, sym, ink, lin, rgba, shade, mix, neon, eye, bloom, gloss, line, ellipse, both, TAU } from './kit.js';
 
 // Black hull lit faintly from above, a cold rim of the drone's own colour along its top edge.
 const hull = (g, c, top, bot) => lin(g, 0, top, 0, bot, [
@@ -131,8 +131,8 @@ function carrier(b, l, f, c) {
   l.fillStyle = c; // the advert: a bar chart, then a ring
   if (f) {
     l.beginPath();
-    l.arc(0, 0, 8, 0, Math.PI * 2);
-    l.arc(0, 0, 4, 0, Math.PI * 2, true);
+    l.arc(0, 0, 8, 0, TAU);
+    l.arc(0, 0, 4, 0, TAU, true);
     l.fill();
   } else {
     for (const [x, h] of [[-9, 11], [-3, 17], [3, 8], [9, 14]]) l.fillRect(x - 2, 9 - h, 4, h);

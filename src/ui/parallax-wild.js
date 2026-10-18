@@ -3,6 +3,7 @@
 import { rgba, shade } from './sprites.js';
 import { profile, waves, ridgeTop } from './parallax-kit.js';
 import { taper } from './sky-bodies-2.js';
+import { TAU } from '../core/math.js';
 
 // A crooked pine: a bent trunk and flat clouds of needles, ink style.
 function pine(g, x, base, s, rng) {
@@ -21,7 +22,7 @@ function pine(g, x, base, s, rng) {
     g.stroke();
     for (let j = 0; j < 4; j++) {
       g.beginPath();
-      g.ellipse(px + side * reach * (0.25 + j * 0.25), py - 4 * s - (j % 2) * 3 * s, 11 * s, 5 * s, 0, 0, Math.PI * 2);
+      g.ellipse(px + side * reach * (0.25 + j * 0.25), py - 4 * s - (j % 2) * 3 * s, 11 * s, 5 * s, 0, 0, TAU);
       g.fill();
     }
   }
@@ -87,7 +88,7 @@ function ribs(g, w, h, rng, L) {
     g.fillRect(x - cw / 2, top, cw, h - top);
     for (let y = top + 20; y < h; y += 34 + rng() * 10) {
       g.beginPath();
-      g.ellipse(x, y, cw * 0.75, 12, 0, 0, Math.PI * 2);
+      g.ellipse(x, y, cw * 0.75, 12, 0, 0, TAU);
       g.fill();
     }
   }
@@ -121,7 +122,7 @@ function eggs(g, w, h, rng, L, out) {
     const y = h * 0.7;
     g.fillStyle = L.color;
     g.beginPath();
-    g.ellipse(x, y - 34 * s, 24 * s, 36 * s, 0, 0, Math.PI * 2);
+    g.ellipse(x, y - 34 * s, 24 * s, 36 * s, 0, 0, TAU);
     g.fill();
     g.strokeStyle = rgba(shade(L.color, 0.45), 0.7);
     g.lineWidth = 2;

@@ -4,7 +4,7 @@ import { INK, cached, rgba, roundRect, lin, rad } from './sprites.js';
 import { TAU } from '../core/math.js';
 
 // A round bullet of radius r: dark rim, coloured ring, white-hot core.
-export const orb = (color, rim, r) => cached(`orb${color}${rim}${r}`, r * 2 + 6, r * 2 + 6, (g, w) => {
+const orb = (color, rim, r) => cached(`orb${color}${rim}${r}`, r * 2 + 6, r * 2 + 6, (g, w) => {
   const c = w / 2;
   g.fillStyle = rgba(rim, 0.92);
   g.beginPath();
@@ -17,7 +17,7 @@ export const orb = (color, rim, r) => cached(`orb${color}${rim}${r}`, r * 2 + 6,
 });
 
 // A capsule pointing up, `len` long and `wd` wide: a blaster bolt or a falling drop.
-export const capsule = (color, rim, len, wd) => cached(`cap${color}${rim}${len}${wd}`, wd + 6, len + 6, (g, w, h) => {
+const capsule = (color, rim, len, wd) => cached(`cap${color}${rim}${len}${wd}`, wd + 6, len + 6, (g, w, h) => {
   const pill = (x, y, cw, ch) => {
     roundRect(g, x, y, cw, ch, cw / 2);
     g.fill();
@@ -35,7 +35,7 @@ const ZIG = [
   ['.x.', 'x..', '.x.', '..x', '.x.', 'x..', '.x.'],
   ['.x.', '..x', '.x.', 'x..', '.x.', '..x', '.x.'],
 ];
-export const zigzag = (color, rim, frame) => cached(`zig${color}${rim}${frame}`, 20, 36, (g) => {
+const zigzag = (color, rim, frame) => cached(`zig${color}${rim}${frame}`, 20, 36, (g) => {
   const rows = ZIG[frame];
   for (const [pad, fill] of [[2, rim], [0, color]]) {
     g.fillStyle = fill;
@@ -48,7 +48,7 @@ export const zigzag = (color, rim, frame) => cached(`zig${color}${rim}${frame}`,
 });
 
 // A four-point throwing star, steel with a bright edge and a dark outline.
-export const shuriken = (glowColor) => cached('shu' + glowColor, 48, 48, (g) => {
+const shuriken = (glowColor) => cached('shu' + glowColor, 48, 48, (g) => {
   g.translate(24, 24);
   g.beginPath();
   for (let i = 0; i < 8; i++) {

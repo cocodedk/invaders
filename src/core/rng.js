@@ -1,8 +1,7 @@
 // mulberry32: small, fast, seedable. Two forms of the same stream:
 //   makeRng(seed)  a closure giving floats in [0, 1). For fx and ui, which never need to be cloned.
 //   createRng(seed) + rand(r)  the state lives in a plain `{ s }` object, so a world that holds it
-//                   survives structuredClone. The core only ever draws from `world.rng` via rand
-//                   (or randBetween, randPick, one rand each).
+//                   survives structuredClone. The core only ever draws from `world.rng` via rand.
 const STEP = 0x6d2b79f5;
 
 function mix(a) {

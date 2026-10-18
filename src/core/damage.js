@@ -17,7 +17,7 @@ import { hurtWreck } from './twists-2.js';
 const BOMB_DAMAGE = 3;
 const EPS = 1e-9; // 8 / 60 added fifteen times is 2 only up to rounding
 
-// Everything that is not the boss: aliens, the bonus saucer (an alien in all but its list), wrecks.
+// The bonus saucer is an alien in all but its list.
 export const loose = (world) => (world.saucer ? [...world.aliens, world.saucer, ...world.wrecks] : [...world.aliens, ...world.wrecks]);
 
 export const targets = (world) => [...loose(world), ...liveParts(world)];

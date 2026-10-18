@@ -7,7 +7,7 @@
 //   CRACKABLE                       the roles that can be hurt and live (more than 1 hp)
 import { makeCanvas, hash } from '../sprites.js';
 import { ROLES } from '../../core/kinds.js';
-import { INK, rgba, path } from './kit.js';
+import { INK, rgba, path, TAU } from './kit.js';
 
 export const CRACKABLE = Object.keys(ROLES).filter((role) => ROLES[role].hp > 1);
 
@@ -16,7 +16,7 @@ function crackPaths(seed, stage) {
   const out = [];
   for (let k = 0; k < stage * 2; k++) {
     const h = (j) => hash(seed * 977 + k * 131 + j);
-    let a = h(1) * Math.PI * 2;
+    let a = h(1) * TAU;
     let x = Math.cos(a) * 6 * h(2);
     let y = Math.sin(a) * 6 * h(2) - 2;
     const pts = [[x, y]];

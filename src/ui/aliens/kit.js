@@ -28,11 +28,7 @@ export function both(draw) {
 export function ink(g, fill, lw = 3) {
   g.fillStyle = fill;
   g.fill();
-  g.lineJoin = 'round';
-  g.lineCap = 'round';
-  g.lineWidth = lw;
-  g.strokeStyle = INK;
-  g.stroke();
+  line(g, INK, lw);
 }
 
 // Polished metal across x: dark edge, a bright band left of centre, the colour, a dark edge.

@@ -2,6 +2,7 @@
 // limb and ice crags (Event Horizon). See parallax-shapes.js for the painter contract.
 import { rgba, shade, lin } from './sprites.js';
 import { profile, waves } from './parallax-kit.js';
+import { TAU } from '../core/math.js';
 
 // Dunes, and the wedge of a giant ship sunk nose-first in the sand long ago.
 function wreck(g, w, h, rng, L) {
@@ -43,7 +44,7 @@ function huts(g, w, h, rng, L, out) {
     const mx = x + r * 1.6 + 20;
     g.fillRect(mx, y - 120 - rng() * 60, 3, 200);
     g.beginPath();
-    g.ellipse(mx + 2, y - 140, 14, 5, -0.3, 0, Math.PI * 2);
+    g.ellipse(mx + 2, y - 140, 14, 5, -0.3, 0, TAU);
     g.fill();
   }
 }

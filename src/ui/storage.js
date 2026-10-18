@@ -66,12 +66,12 @@ export function createStorage(getBackend = () => globalThis.localStorage) {
   // A finished level: keep the higher score and the higher stars, each on its own.
   function recordResult(id, { score, stars }) {
     const all = allBest();
-    const prev = { ...(all[id] ?? NONE) };
+    const prev = all[id] ?? NONE;
     const s = validScore(score) ? score : 0;
     const st = validStars(stars) ? stars : 0;
     all[id] = { score: Math.max(prev.score, s), stars: Math.max(prev.stars, st) };
     write('best', JSON.stringify(all));
-    return { best: { ...all[id] }, prev, newBest: s > prev.score };
+    return { best: { ...all[id] }, newBest: s > prev.score };
   }
 
   return {

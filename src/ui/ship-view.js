@@ -3,7 +3,7 @@
 // motion, a roll into every sideways move, a shield bubble, and a blink while invulnerable.
 // Stateless: everything comes from the ship's position, velocity and t.
 import { INK, rgba, glow, star, addGlow } from './sprites.js';
-import { clamp } from '../core/math.js';
+import { clamp, TAU } from '../core/math.js';
 import { SHIP_SPEED } from '../core/ship.js';
 
 // `alpha` is the ship's own (0.3 while it blinks), so the flames blink with it.
@@ -77,7 +77,7 @@ function hull(ctx, bank, accent) {
   glass.addColorStop(1, '#0a1428');
   ctx.fillStyle = glass;
   ctx.beginPath();
-  ctx.ellipse(lit * 2, -13, 4.5, 11, 0, 0, Math.PI * 2);
+  ctx.ellipse(lit * 2, -13, 4.5, 11, 0, 0, TAU);
   ctx.fill();
   ctx.fillStyle = INK;
   ctx.fillRect(-11, 24, 22, 7); // engine block
@@ -91,7 +91,7 @@ function shield(ctx, s, color, t, left) {
   ctx.strokeStyle = rgba(color, 0.7 * fade);
   ctx.lineWidth = 2.5;
   ctx.beginPath();
-  ctx.arc(s.x, s.y, 50, 0, Math.PI * 2);
+  ctx.arc(s.x, s.y, 50, 0, TAU);
   ctx.stroke();
   ctx.strokeStyle = rgba('#ffffff', 0.55 * fade);
   ctx.lineWidth = 3;

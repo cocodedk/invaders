@@ -1,5 +1,6 @@
 // HUD building blocks shared by hud.js: panels, text, and the small icons (ships for lives, bombs).
 import { INK, roundRect } from './sprites.js';
+import { TAU } from '../core/math.js';
 
 const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
 
@@ -50,7 +51,7 @@ export function shipIcon(ctx, x, y, color, full) {
 
 export function bombIcon(ctx, x, y, color, full) {
   ctx.beginPath();
-  ctx.arc(x - 2, y + 2, 10, 0, Math.PI * 2);
+  ctx.arc(x - 2, y + 2, 10, 0, TAU);
   ctx.lineWidth = 2.5;
   if (full) {
     ctx.fillStyle = color;
