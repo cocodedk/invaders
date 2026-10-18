@@ -14,7 +14,7 @@ const EMITTED = [...new Set(readdirSync(coreDir).flatMap((f) =>
 
 const sample = (type) => ({
   type, tick: 1, x: 500, y: 300, side: 'ship', power: null, pattern: 'aimed', role: 'grunt', mult: 3, size: 2,
-  on: true, kind: 'spread', lives: 2, wind: 120, strength: 0.8, dir: 1, warn: 0.7, phase: 1, open: ['core'], last: false,
+  on: true, kind: 'spread', lives: 2, wind: 120, strength: 0.8, dir: 1, warn: 0.7, phase: 1, open: ['core'], last: false, nth: 0,
 });
 
 test('every event the core emits makes a sound that exists, or is silent on purpose', () => {
