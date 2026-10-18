@@ -46,7 +46,7 @@ test('fx never draws from the world rng', () => {
   const before = world.rng.s;
   const fx = createFx();
   const rng = makeRng(1);
-  for (const type of REACTS) applyEvent(fx, { ...sampleEvent(type), kind: 'queen' }, rng, world);
+  for (const type of REACTS) applyEvent(fx, sampleEvent(type), rng, world);
   assert.equal(world.rng.s, before);
 });
 
