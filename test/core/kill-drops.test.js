@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { POWERS } from '../../src/core/kinds.js';
 import { hurtAlien } from '../../src/core/aliens.js';
 import { createWorld } from '../../src/core/world.js';
-import { KILL_DROP } from '../../src/core/powerups.js';
+import { KILL_DROP, killDrop } from '../../src/core/powerups.js';
 import { rand } from '../../src/core/rng.js';
 import { level, wave, step, playing, shotAt } from './world-kit.js';
 
@@ -47,6 +47,22 @@ test('over many seeded kills each non-carrier role drops about KILL_DROP of the 
     const n = w.pickups.length;
     assert.ok(n >= 230 && n <= 370, `${role}: ${n} drops in ${N} kills`);
   }
+});
+
+// R56: the late worlds shoot hardest, so their aliens drop more.
+test('the drop chance climbs with difficulty: 3 % at d 0, 12 % at d 1, 3 % + 9 % x d squared between', () => {
+  assert.equal(killDrop(0), KILL_DROP);
+  assert.ok(Math.abs(killDrop(1) - 0.12) < 1e-12, `${killDrop(1)} at d 1`);
+  assert.ok(Math.abs(killDrop(0.5) - 0.0525) < 1e-12, `${killDrop(0.5)} at d 0.5`);
+  for (let k = 1; k <= 10; k++) assert.ok(killDrop(k / 10) > killDrop((k - 1) / 10), `climbs at d ${k / 10}`);
+});
+
+test('kills in the hardest level drop about 12 % of the time', () => {
+  const w = createWorld(level([wave({ rows: 1, cols: 3, roles: ['carrier'] })], 1), 99);
+  const N = 10000; // about 1200 drops, sigma 32
+  for (let i = 0; i < N; i++) hurtAlien(w, dead(i, ROLE_LIST[i % 4]), 1);
+  const n = w.pickups.length;
+  assert.ok(n >= 1050 && n <= 1350, `${n} drops in ${N} kills`);
 });
 
 test('a chance drop uses the carrier split: about 20 % bombs, no life at full lives, all six powers', () => {

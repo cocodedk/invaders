@@ -5,9 +5,9 @@ import { SHIP_R, ZONE, LIVES } from './ship.js';
 import { emit, prune } from './util.js';
 import { awardPickup } from './scoring.js';
 
-// What the dead drop (every carrier, and a KILL_DROP share of the other aliens), and what the ship
+// What the dead drop (every carrier, and a killDrop(d) share of the other aliens), and what the ship
 // does with it. Exports: makePickup, dropPickup, dropOnKill, stepPickups, sweepPickups, tickPower,
-// powerTime, POWER_TIME, BOMB_MAX, KILL_DROP.
+// powerTime, POWER_TIME, BOMB_MAX, KILL_DROP, LATE_DROP, killDrop.
 //   pickup = { kind, x, y, vy, r }  kind is one of POWERS, 'bomb' or 'life' (makePickup).
 //   ship.power = null | { kind, left }  the one running. A new power starts at its full time and the
 //     one it displaces, with its time left, waits in ship.reserve = null | { kind, left } (R53): a
@@ -31,6 +31,11 @@ const LIFE_SHARE = 0.05; // of drops: an extra life, only while the ship is shor
 // autopilot at reaction lags of 10 and 15 ticks): about twice the pickups caught a run, and the
 // clear rate and hits a run within noise of before.
 export const KILL_DROP = 0.03;
+// R56: the late worlds shoot hardest (scaled(d).fireMult), so their aliens drop more: the chance
+// climbs with the square of the level's difficulty, leaving the early worlds about as they were,
+// from KILL_DROP at d 0 to 12 % at d 1.
+export const LATE_DROP = 0.09;
+export const killDrop = (d) => KILL_DROP + LATE_DROP * d * d;
 
 // A pickup at (x, y), falling.
 export const makePickup = (kind, x, y) => ({ kind, x, y, vy: FALL, r: PICKUP_R });
@@ -45,10 +50,10 @@ export function dropPickup(world, from) {
 }
 
 // A hit alien has just died at `a`: a carrier always drops, any other formation alien with chance
-// KILL_DROP (R54). Boss minions never roll: their carriers drop as before and the rest do not. The
-// saucer is a carrier. The roll is one draw on world.rng, taken for every such kill, drop or not.
+// killDrop(d) (R54, R56). Boss minions never roll: their carriers drop as before and the rest do not.
+// The saucer is a carrier. The roll is one draw on world.rng, taken for every such kill, drop or not.
 export function dropOnKill(world, a) {
-  if (a.role === 'carrier' || (!a.minion && rand(world.rng) < KILL_DROP)) dropPickup(world, a);
+  if (a.role === 'carrier' || (!a.minion && rand(world.rng) < killDrop(world.level.d))) dropPickup(world, a);
 }
 
 function collect(world, p) {

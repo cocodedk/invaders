@@ -59,8 +59,8 @@ test('with no saved run, a cleared run is saved even when the level best is high
 });
 
 test('a corrupted or mislabelled saved run is replaced by the next clear', () => {
-  // cut off; an old version (v 6, the boss fights before R55); another level's run
-  for (const bad of ['{"v":7,"level":"w6-1","seed":', JSON.stringify({ ...runFor('w6-1', 99999), v: 6 }), JSON.stringify(runFor('w1-1', 99999))]) {
+  // cut off; an old version (v 7, the drops before R56); another level's run
+  for (const bad of ['{"v":8,"level":"w6-1","seed":', JSON.stringify({ ...runFor('w6-1', 99999), v: 7 }), JSON.stringify(runFor('w1-1', 99999))]) {
     const back = backend();
     back.map.set('invaders.run.w6-1', bad);
     const store = createStorage(() => back);
@@ -98,8 +98,8 @@ test('cinema lists the levels with a playable saved run, in level order, skippin
   const put = (id, value) => back.map.set(`invaders.run.${id}`, typeof value === 'string' ? value : JSON.stringify(value));
   put('w3-2', runFor('w3-2', 5000));
   put('w1-1', runFor('w1-1', 7000));
-  put('w1-2', '{"v":7,"level":"w1-2","seed":'); // cut off mid-write
-  put('w1-3', { ...runFor('w1-3'), v: 6 }); // an old version (the boss fights before R55)
+  put('w1-2', '{"v":8,"level":"w1-2","seed":'); // cut off mid-write
+  put('w1-3', { ...runFor('w1-3'), v: 7 }); // an old version (the drops before R56)
   put('w2-1', runFor('w1-1')); // another level's run under this key
   put('w2-2', { ...runFor('w2-2'), inputs: runFor('w2-2').inputs.slice(0, 2) }); // truncated inputs
   put('w2-3', 'null');

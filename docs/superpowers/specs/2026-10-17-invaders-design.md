@@ -36,7 +36,8 @@ quoted lines, so the repo can be public.
   - gunner — fires the world's bullet pattern, 2 hp;
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
-    formation alien drops one too, 3 % of the time (R54).
+    formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
+    (R54, R56).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -80,6 +81,15 @@ quoted lines, so the repo can be public.
     the four late bosses together 33 % of the time, up from 8 % (20 seeds each): catching one under fire
     is a risk the player chooses. The stand-and-fire bot of the boss tests ignores pickups, so its 40 to
     60 s bar still measures the boss's hp alone.
+  - **More drops in the late worlds (R56).** The late worlds shoot hardest, and a wave level's carriers
+    often sit in its last wave, so Event Horizon's level 3 dropped about one power-up before its
+    carriers came. The chance that any other formation alien drops a pickup now climbs with the square
+    of the level's difficulty: `killDrop(d)` = `KILL_DROP` + `LATE_DROP` × d² = 3 % + 9 % × d², so
+    3.3 % at world 2 level 3, 4.7 % at world 4 level 3, 9 % at world 7 level 3 and 11 % at world 8
+    level 3. Boss minions still never roll. On the headless run (the autopilot at reaction lag 10,
+    20 seeds), Event Horizon's level 3 drops 10.4 pickups a run where it dropped 4.5, and is cleared
+    15 times in 20 where it was 12; its level 4 13 where it was 3. World 2 is unchanged, and worlds 4
+    to 6 got a little easier at the slower lag of 15 ticks.
   - **Homing:** the gun fires single shots at 1000 px/s (the base shot flies at 1400) that steer up to
     180°/s toward the nearest live alien ahead of them, and fly straight when there is none. Never the
     boss, the saucer or a wreck.
