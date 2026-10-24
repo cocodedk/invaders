@@ -21,6 +21,6 @@ export default {
   },
   bullet: 'orb',
   bunker: { fill: '#2a3a30', light: '#6a8a72', dark: '#0c1610', edge: '#b8ff9a', skin: 'resin' },
-  power: { spread: '#d8f0ff', laser: '#c8ff6a', rapid: '#ffd27a', shield: '#7ad8ff', bomb: '#ff7a3a' },
+  power: { spread: '#d8f0ff', laser: '#c8ff6a', rapid: '#ffd27a', shield: '#7ad8ff', homing: '#ff8ad8', slow: '#b8a8ff', bomb: '#ff7a3a', life: '#ff5a8a' },
   music: { mood: 'dread drones', root: 'C#', scale: 'locrian', bpm: 66 },
 };

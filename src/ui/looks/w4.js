@@ -21,6 +21,6 @@ export default {
   },
   bullet: 'orb',
   bunker: { fill: '#b8382a', light: '#f0805a', dark: '#2a0a08', edge: '#ffcfa0', accent: '#1c1012', skin: 'shrine' },
-  power: { spread: '#e8e8f0', laser: '#ff4a4a', rapid: '#ffd27a', shield: '#ffb0c8', bomb: '#ff6a3a' },
+  power: { spread: '#e8e8f0', laser: '#ff4a4a', rapid: '#ffd27a', shield: '#ffb0c8', homing: '#c08aff', slow: '#7aa8d8', bomb: '#ff6a3a', life: '#6aff9a' },
   music: { mood: 'koto and taiko', root: 'D', scale: 'in', bpm: 72 },
 };

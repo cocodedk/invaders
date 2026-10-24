@@ -44,6 +44,45 @@ export function drawIcon(g, kind, color, world = 0) {
       g.lineTo(Math.cos(a) * 14, Math.sin(a) * 14);
     }
     g.stroke();
+  } else if (kind === 'homing') { // a shot swinging round onto its mark
+    g.moveTo(-11, 14);
+    g.quadraticCurveTo(7, 12, 7, -4);
+    g.stroke();
+    g.beginPath();
+    g.moveTo(7, -15);
+    g.lineTo(0, -4);
+    g.lineTo(14, -4);
+    g.fill();
+  } else if (kind === 'slow') { // an hourglass with its sand run down
+    g.moveTo(-9, -14);
+    g.lineTo(9, -14);
+    g.lineTo(-9, 14);
+    g.lineTo(9, 14);
+    g.closePath();
+    g.stroke();
+    g.beginPath();
+    g.moveTo(-6, 11);
+    g.lineTo(6, 11);
+    g.lineTo(0, 3);
+    g.fill();
+  } else if (kind === 'life') { // the HUD's little fighter, and a plus
+    g.moveTo(-3, -11);
+    g.lineTo(1, -1);
+    g.lineTo(11, 11);
+    g.lineTo(1, 10);
+    g.lineTo(-3, 15);
+    g.lineTo(-7, 10);
+    g.lineTo(-17, 11);
+    g.lineTo(-7, -1);
+    g.closePath();
+    g.fill();
+    g.beginPath();
+    g.moveTo(11, -15);
+    g.lineTo(11, -5);
+    g.moveTo(6, -10);
+    g.lineTo(16, -10);
+    g.lineWidth = 3.5;
+    g.stroke();
   } else { // bomb
     g.arc(-2, 3, 11, 0, TAU);
     g.fill();

@@ -8,7 +8,8 @@
 //             them) and boss colours
 //   bullet    how enemy bullets are drawn: 'orb' | 'bolt' | 'pixel' (bullets-view.js)
 //   bunker    { fill, light, dark, edge, accent?, skin } (skin: a texture in bunker-skins.js)
-//   power     tint per pickup kind (shapes per world: pickup-skins.js); music: { mood, root, scale, bpm }
+//   power     tint per pickup kind: every POWERS kind plus bomb and life (shapes per world:
+//             pickup-skins.js); music: { mood, root, scale, bpm }
 import w1 from './w1.js';
 import w2 from './w2.js';
 import w3 from './w3.js';

@@ -21,6 +21,6 @@ export default {
   },
   bullet: 'pixel',
   bunker: { fill: '#2cff6a', light: '#b8ffd0', dark: '#0a6a2a', edge: '#eaffef', skin: 'phosphor' },
-  power: { spread: '#ffd23a', laser: '#ff5ad8', rapid: '#3affc8', shield: '#7aa8ff', bomb: '#ff6a3a' },
+  power: { spread: '#ffd23a', laser: '#ff5ad8', rapid: '#3affc8', shield: '#7aa8ff', homing: '#a06aff', slow: '#e8f4ff', bomb: '#ff6a3a', life: '#8aff3a' },
   music: { mood: 'chiptune march', root: 'E', scale: 'minor', bpm: 120 },
 };

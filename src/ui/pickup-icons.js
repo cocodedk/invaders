@@ -32,7 +32,10 @@ const PIX = {
   laser: ['...x...', '..xxx..', '..xxx..', '..xxx..', '..xxx..', '..xxx..', '...x...'],
   rapid: ['...x...', '..x.x..', '.x...x.', '...x...', '..x.x..', '.x...x.', '.......'],
   shield: ['..xxx..', '.x...x.', 'x.....x', 'x.....x', 'x.....x', '.x...x.', '..xxx..'],
+  homing: ['....x..', '...xxx.', '..xxxxx', '....x..', '....x..', '..xx...', 'xx.....'],
+  slow: ['xxxxxxx', '.x...x.', '..x.x..', '...x...', '..xxx..', '.xxxxx.', 'xxxxxxx'],
   bomb: ['.....xx', '....x..', '..xxx..', '.xxxxx.', '.xxxxx.', '.xxxxx.', '..xxx..'],
+  life: ['...x...', '...x...', '..xxx..', '.xxxxx.', 'xxxxxxx', 'xx.x.xx', 'x.....x'],
 };
 const pixel = (rows) => (g, color) => {
   g.fillStyle = color;

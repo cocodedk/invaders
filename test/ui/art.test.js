@@ -7,6 +7,7 @@ import { levelById } from '../../src/core/levels.js';
 import { IDLE } from '../core/world-kit.js';
 import { leave } from '../core/boss-kit.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
+import { POWERS } from '../../src/core/kinds.js';
 import { art, ROLE_LIST } from '../../src/ui/aliens/bake.js';
 import { crackStage } from '../../src/ui/aliens/index.js';
 import { SKINS } from '../../src/ui/bunker-skins.js';
@@ -76,4 +77,12 @@ test('every world has its own pickup rim, and the spec examples have their own i
   for (const look of LOOKS) assert.equal(typeof FRAMES[look.world], 'function', `w${look.world} frame`);
   assert.equal(typeof ICONS[2].laser, 'function', "Neon Rain's laser is a neon beam");
   assert.equal(typeof ICONS[4].spread, 'function', "Ronin Moon's spread is a fan of throwing stars");
+});
+
+test('every look tints every power, the bomb and the extra life, each in its own colour', () => {
+  for (const look of LOOKS) {
+    const tints = [...POWERS, 'bomb', 'life'].map((kind) => look.power[kind]);
+    for (const [i, c] of tints.entries()) assert.match(c, /^#[0-9a-f]{6}$/, `w${look.world} tint ${i}`);
+    assert.equal(new Set(tints).size, tints.length, `w${look.world} ${tints.join()}`);
+  }
 });

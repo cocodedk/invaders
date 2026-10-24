@@ -35,7 +35,7 @@ quoted lines, so the repo can be public.
   - diver — leaves formation to swoop at the ship, then returns, 1 hp;
   - gunner — fires the world's bullet pattern, 2 hp;
   - armored — 3 hp, sparks and cracks per hit;
-  - carrier — glows, 1 hp, always drops a power-up.
+  - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life.
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -49,12 +49,26 @@ quoted lines, so the repo can be public.
   (only they take full damage; armour plates take 25 %), 2–3 phases switched at hp thresholds,
   every attack telegraphed ≥ 0.6 s. Ends in a long destruction chain (staggered blasts, debris,
   white-out flash).
-- **Power-ups:** spread, laser, rapid, shield. 10 s each; one at a time; a new one replaces the
-  current. Fall at 160 px/s, collected by touch. Each world reskins them (Neon Rain's laser is a pink
-  neon beam, Ronin Moon's spread is a fan of throwing stars).
+- **Power-ups:** spread, laser, rapid, shield, homing, slow. 10 s each, slow 6 s. Fall at 160 px/s,
+  collected by touch. Each world reskins them (Neon Rain's laser is a pink neon beam, Ronin Moon's
+  spread is a fan of throwing stars).
+  - **One runs at a time, one waits (R53).** A new power starts with its full time and the running one,
+    with the time it had left, waits in a one-slot reserve; when the running one ends the reserve takes
+    over and goes on from there. The reserve does not tick while it waits, and a newer pickup that
+    displaces another power overwrites it. Nothing carries between levels. The HUD shows the running
+    power as a ring with its time draining, and the reserve as a smaller ring in its own tint with the
+    seconds it has left.
+  - **Homing:** the gun fires single shots at 1000 px/s (the base shot flies at 1400) that steer up to
+    180°/s toward the nearest live alien ahead of them, and fly straight when there is none. Never the
+    boss, the saucer or a wreck.
+  - **Slow:** enemies, their bullets and the boss run at 0.5× for 6 s. It does not stack with Code
+    Rain's bullet time (never 0.25×), and the frame takes bullet time's tint while it runs.
 - **Smart bombs:** separate stock, start each level with 1, max 3. Clears all enemy bullets and
   deals 3 damage to everything on screen (bosses: 8 % of max hp). Bomb pickups drop from carriers
   20 % of the time instead of a power-up.
+- **Extra life:** a pickup like the bomb, not a power: +1 life, never above 3, and it makes no event
+  of its own beyond the pickup. A carrier drops one 5 % of the time, and only while the ship has fewer
+  than 3 lives (at full lives that 5 % is a power instead). It counts as a pickup for the flat 500.
 - **Scoring:** grunt 100, diver 150, gunner 200, armored 300, carrier 250, boss 10 000. Combo: each
   kill within 1.5 s of the last raises the multiplier by 1 (max ×8); 1.5 s without a kill resets it.
   Clear bonus 2 000 + 3 000 if no hits. Every pickup collected is worth a flat 500 (no multiplier);
@@ -91,7 +105,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
   (2 animation frames + a white hit-flash frame each).
 - Explosions: flash, shockwave ring, debris, sparks, smoke; screen shake scaled by size; score
   pop-ups; combo meter that pulses at ×4 and burns at ×8.
-- HUD: score, combo, lives, bombs, power-up timer ring, boss health bar; readable from across a
+- HUD: score, combo, lives, bombs, power-up timer ring with the reserve beside it, boss health bar; readable from across a
   room (Barrage's HUD sizes).
 - Sound: WebAudio, no files — Barrage's synth approach. SFX (shot per power-up, hit, explosion,
   pickup, bomb, warning, boss roar) and a light synthesized music loop per world (drone + arpeggio
@@ -165,7 +179,7 @@ world = {
   level,                      // { id: 'w3-2', world: 3, index: 2, seed, waves | boss, bunkers, twist }
   t, tick,                    // seconds and ticks since start
   rng, scale, intro, gap, march, nextId, // a { s } rng state, scaled difficulty, the wave's march state
-  ship: { x, y, vx, vy, lives, invuln, power: null | { kind, left }, bombs, cooldown, alive },
+  ship: { x, y, vx, vy, lives, invuln, power: null | { kind, left }, reserve: null | { kind, left }, bombs, cooldown, alive },
   aliens: [alien], shots: [shot], bullets: [bullet], pickups: [pickup],
   bunkers: [{ x, y, w, h, mask }],
   boss: null | { kind, x, y, hp, maxHp, phase, parts: [{ id, dx, dy, w, h, hp, max, weak, armor, … }],
@@ -193,7 +207,7 @@ API: `createWorld(level, seed = level.seed)`, `stepWorld(world, dt, input)` with
 
 `node --test` covers: rng determinism; ship bounds and easing; every formation stays on screen and
 fills its slots; each bullet pattern's shape; hit detection and invulnerability; combo and scoring;
-stars rule; power-up duration and replacement; bomb clears bullets and damages all; bunker carving;
+stars rule; power-up duration, the reserve and replacement; bomb clears bullets and damages all; bunker carving;
 boss weak-point damage and phase switches at hp thresholds; each world's twist; every level
 validates; **determinism** — a run with random inputs replays to an identical state hash and
 score; input encoding round-trips; the highlight picker returns non-overlapping windows in order;

@@ -2,8 +2,9 @@
 
 A cinematic arcade shooter for the browser. Fly anywhere in the lower half of the screen, shoot down
 alien formations and beat a boss at the end of every world: 8 worlds and 40 levels, each world with
-its own look, music and one rule only it has. Spread shot, laser, rapid fire, shield and smart bombs
-along the way, and combos for the score.
+its own look, music and one rule only it has. Spread shot, laser, rapid fire, shield, homing shots,
+slow time, smart bombs and extra lives along the way (a second power-up waits in reserve while the
+first runs), and combos for the score.
 
 Clear a level and the game cuts a movie trailer from your own run, title cards and all. The Cinema
 on the title screen keeps your best run of every level. Lose one and you get the blooper instead.

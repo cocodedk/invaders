@@ -13,6 +13,7 @@ test('a fresh fx holds every list and number the renderer reads', () => {
   assert.equal(fx.shakeY, 0);
   assert.equal(fx.slow, 1);
   assert.equal(fx.bulletTime, false);
+  assert.equal(fx.slowPower, false);
   assert.equal(fx.density, 1);
 });
 

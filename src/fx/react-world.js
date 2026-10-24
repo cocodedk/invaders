@@ -23,6 +23,7 @@ const GLOW_ALPHA = 0.7; // and brightens by GLOW_ALPHA_STEP, to a peak of 1
 const GLOW_ALPHA_STEP = 0.1;
 
 const BONUS_GAP = 64; // px
+const NAMES = { bomb: '+1 BOMB', life: '+1 LIFE' }; // what a stock pickup's pop-up says; a power says its own name
 
 // Where a swept pickup's points pop up: where it was, unless that is on the bonus row (the two pop-ups
 // rise at the same speed, so clear at the start is clear throughout), in which case BONUS_GAP above or below it.
@@ -33,7 +34,7 @@ function pickup(fx, ev, rng) {
   const color = powerColor(ev.kind);
   addRing(fx, { x: ev.x, y: ev.y, maxR: 90, color, life: 0.4 });
   sparks(fx, rng, ev.x, ev.y, 8, 260, [color, '#ffffff']);
-  const text = ev.kind === 'bomb' ? '+1 BOMB' : String(ev.kind).toUpperCase();
+  const text = NAMES[ev.kind] ?? String(ev.kind).toUpperCase();
   addPopup(fx, { x: ev.x, y: ev.y - 24, text, color, scale: 1.3, life: 1.2 });
   addPopup(fx, { x: ev.x, y: ev.y - 70, text: '+' + ev.points, color: POINTS, life: 1.2 });
 }
@@ -76,8 +77,11 @@ function shipGlow(fx, ship, color, nth) {
   addFlash(fx, { x: ship.x, y: ship.y, ...glowAt(nth), color, ramp: STREAK / life, life, tag: 'sweep' });
 }
 
-// A power-up starting rings out from the ship; one running out fizzles into smoke.
+// A power-up starting rings out from the ship; one running out fizzles into smoke. Whichever power
+// starts or ends, the slow tint is on exactly when the one starting is slow (a power displaced into the
+// reserve ends silently, so only a start can say the slow one has stopped running).
 function power(fx, ev, rng, world) {
+  fx.slowPower = ev.on && ev.kind === 'slow';
   const ship = world?.ship;
   if (!ship) return;
   if (ev.on) addRing(fx, { x: ship.x, y: ship.y, maxR: 140, color: powerColor(ev.kind), life: 0.5 });

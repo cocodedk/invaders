@@ -24,7 +24,7 @@ export const CAPTIONS = [
   { id: 'fire', on: 'fire', title: 'Fire',
     text: 'Hold {Space} or the left mouse button to keep firing.' },
   { id: 'power', on: 'pickup', title: 'Power-ups',
-    text: 'Shoot a glowing carrier: spread, laser, rapid fire or a shield.' },
+    text: 'Shoot a glowing carrier: spread, laser, rapid fire, shield, homing or slow time.' },
   { id: 'bomb', on: 'bomb', title: 'Smart bomb',
     text: '{B}, {Shift} or right-click: clears every bullet, hurts everything.' },
   { id: 'stars', on: 'cleared', title: 'Stars',

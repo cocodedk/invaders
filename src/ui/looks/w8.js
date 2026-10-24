@@ -21,6 +21,6 @@ export default {
   },
   bullet: 'orb',
   bunker: { fill: '#3a5a8a', light: '#c8e0ff', dark: '#14203a', edge: '#e8f4ff', skin: 'ice' },
-  power: { spread: '#ffd28a', laser: '#8fb8ff', rapid: '#ffb36a', shield: '#c8a8ff', bomb: '#ff7a4a' },
+  power: { spread: '#ffd28a', laser: '#8fb8ff', rapid: '#ffb36a', shield: '#c8a8ff', homing: '#ff7ab8', slow: '#e8f4ff', bomb: '#ff7a4a', life: '#7affb0' },
   music: { mood: 'organ swell', root: 'A', scale: 'lydian', bpm: 60 },
 };

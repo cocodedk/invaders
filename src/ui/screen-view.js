@@ -46,7 +46,8 @@ export function drawDarkness(ctx, env) {
   drawAlienLights(ctx, world, v.look, t, back); // their neon, and the glow it throws around them
 }
 
-// Full-frame flashes (bombs, boss deaths, lightning, bullet time) and the bullet-time tint.
+// Full-frame flashes (bombs, boss deaths, lightning, bullet time) and the bullet-time tint, which the
+// slow power shares.
 export function drawScreenFx(ctx, fx) {
   ctx.globalCompositeOperation = 'lighter';
   for (const f of fx.flashes) {
@@ -58,7 +59,7 @@ export function drawScreenFx(ctx, fx) {
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
-  if (fx.bulletTime) {
+  if (fx.bulletTime || fx.slowPower) {
     ctx.fillStyle = 'rgba(0,30,12,0.28)';
     ctx.fillRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'lighter';

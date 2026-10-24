@@ -1,9 +1,10 @@
 // dev.html?sheet=w4: one world's art on its own sky, for judging it by eye (not shipped UI).
 //   two big rows    every role, frame 0 then frame 1, baked at BIG x so the detail is real
 //   a 1:1 strip     per role: frame 0, frame 1, the hit flash, cracked 1, cracked 2, as in the game
-//   the last row    a bunker fresh and carved, the five pickups, the saucer and the wreck (if any)
+//   the last row    a bunker fresh and carved, the eight pickups, the saucer and the wreck (if any)
 import { clamp } from '../../core/math.js';
 import { WORLDS } from '../../core/levels.js';
+import { POWERS } from '../../core/kinds.js';
 import { W, H } from '../sprites.js';
 import { createBunker, hitBunker, BUNKER } from '../../core/bunkers.js';
 import { LOOKS } from '../looks/index.js';
@@ -56,9 +57,9 @@ export function drawSheet(canvas, id) {
   label(g, 'FRAME 1', 40, 690);
   label(g, '1:1 · FRAME 0 · FRAME 1 · FLASH · CRACK 1 · CRACK 2', 40, 830);
   bunkers(g, look);
-  const pickups = ['spread', 'laser', 'rapid', 'shield', 'bomb'].map((kind, k) => ({ kind, x: 560 + k * 92, y: 935 }));
+  const pickups = [...POWERS, 'bomb', 'life'].map((kind, k) => ({ kind, x: 560 + k * 92, y: 935 }));
   drawPickups(g, { pickups }, look, 0.3);
-  [['saucer', 1240], ['wreck', 1420]].forEach(([name, x]) => {
+  [['saucer', 1340], ['wreck', 1520]].forEach(([name, x]) => {
     const s = extraSprites(look, name, 1.5);
     if (s) put(g, s, s.body[0], 0, x, 935);
   });

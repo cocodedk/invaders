@@ -1,12 +1,13 @@
 // Heads-up display in the 1920 x 1080 frame, sized like Barrage's to read from across a room:
 // score and combo (top left; the meter pulses at x4 and burns at x8), the wave counter or the boss's
-// health bar (top centre), lives and bombs (top right) and the power-up's timer ring beside them.
+// health bar (top centre), lives and bombs (top right) and the power-up's timer ring beside them, with
+// the power waiting in the reserve (R53) as a smaller ring and its seconds to the ring's left.
 // Every panel sits in the band y 16..HUD_BOTTOM (96), above the formation's top row.
 // hud = the view's HUD state { lag } (the boss bar's trailing damage).
 import { W, rgba, shade, glow } from './sprites.js';
 import { approach, clamp, TAU } from '../core/math.js';
 import { COMBO_WINDOW, COMBO_MAX } from '../core/scoring.js';
-import { POWER_TIME, BOMB_MAX } from '../core/powerups.js';
+import { powerTime, BOMB_MAX } from '../core/powerups.js';
 import { LIVES } from '../core/ship.js';
 import { ENTER } from '../core/boss-move.js';
 import { bossDef } from '../core/bosses-data.js';
@@ -98,7 +99,7 @@ function bossBar(ctx, world, look, hud) {
 
 function ring(ctx, s, look, cx, cy, t) {
   const color = look.power[s.power.kind];
-  const k = clamp(s.power.left / POWER_TIME, 0, 1);
+  const k = clamp(s.power.left / powerTime(s.power.kind), 0, 1);
   const warn = s.power.left < 2 && Math.floor(t * 8) % 2;
   ctx.beginPath();
   ctx.arc(cx, cy, 39, 0, TAU);
@@ -119,6 +120,33 @@ function ring(ctx, s, look, cx, cy, t) {
   ctx.restore();
 }
 
+// The power waiting its turn: a ring in its own tint, as full as the time it has left, with that time.
+// It does not tick while it waits, so it never flashes.
+function reserve(ctx, s, look, cx, cy) {
+  const { kind, left } = s.reserve;
+  const color = look.power[kind];
+  ctx.beginPath();
+  ctx.arc(cx, cy, 27, 0, TAU);
+  ctx.fillStyle = 'rgba(8,10,18,0.7)';
+  ctx.fill();
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, TAU);
+  ctx.stroke();
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, -Math.PI / 2, -Math.PI / 2 + TAU * clamp(left / powerTime(kind), 0, 1));
+  ctx.stroke();
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(0.6, 0.6);
+  drawIcon(ctx, kind, color, look.world);
+  ctx.restore();
+  label(ctx, 'NEXT', cx - 36, CAP, 'right');
+  text(ctx, `${Math.ceil(left)}s`, cx - 36, MAIN, 30, '#ffffff', 'right', 900);
+}
+
 function stock(ctx, world, look, t) {
   const s = world.ship;
   const x = W - 32 - 300;
@@ -127,7 +155,9 @@ function stock(ctx, world, look, t) {
   label(ctx, 'BOMBS', x + 172, CAP);
   for (let i = 0; i < LIVES; i++) shipIcon(ctx, x + 38 + i * 38, MAIN + 2, look.palette.accent, i < s.lives);
   for (let i = 0; i < BOMB_MAX; i++) bombIcon(ctx, x + 186 + i * 36, MAIN + 2, look.power.bomb, i < s.bombs);
-  if (s.power) ring(ctx, s, look, x - 58, TOP + PH / 2, t);
+  if (!s.power) return;
+  ring(ctx, s, look, x - 58, TOP + PH / 2, t);
+  if (s.reserve) reserve(ctx, s, look, x - 134, TOP + PH / 2);
 }
 
 export function drawHud(ctx, world, look, hud, t) {

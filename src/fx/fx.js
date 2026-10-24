@@ -12,6 +12,7 @@
 //   shake     screen-shake amplitude in px; shakeX/shakeY the offset to apply this frame
 //   slow      1, or SLOW_FACTOR during slow motion: main multiplies the logic dt by it
 //   bulletTime true while the glitch world's bullet time runs (tint the frame)
+//   slowPower  true while the slow power runs (the same tint; its own flag, so the two never clear each other)
 //   density   1, or less when the quality scaler halves particle spawns
 //   shieldT   fx.time of the last shield flare (react-fight throttles on it); time = real seconds run
 // stepFx takes real frame time. Particles, rings, flashes, pop-ups and slices follow `slow` so slow
@@ -29,7 +30,7 @@ export function createFx() {
   return {
     particles: [], rings: [], flashes: [], popups: [], slices: [],
     shake: 0, shakeX: 0, shakeY: 0, slow: 1, slowLeft: 0, time: 0,
-    bulletTime: false, density: 1, shieldT: -1,
+    bulletTime: false, slowPower: false, density: 1, shieldT: -1,
   };
 }
 

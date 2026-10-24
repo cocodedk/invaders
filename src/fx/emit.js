@@ -10,7 +10,10 @@ export const METAL = ['#8d96a8', '#5b6478', '#c8d0e0'];
 
 // Each power's colour in the fx reactions. Fixed here; the capsule, HUD and shield bubble the screens draw
 // take theirs from look.power.
-const POWER_COLORS = { spread: '#ffd24a', laser: '#ff4fd8', rapid: '#6ad6ff', shield: '#5cf0ff', bomb: '#ff8a3a' };
+const POWER_COLORS = {
+  spread: '#ffd24a', laser: '#ff4fd8', rapid: '#6ad6ff', shield: '#5cf0ff', homing: '#b57aff', slow: '#eaf0ff',
+  bomb: '#ff8a3a', life: '#6aff7a',
+};
 export const powerColor = (kind) => POWER_COLORS[kind] ?? '#ffffff';
 
 export const count = (fx, k) => Math.max(1, Math.round(k * fx.density));
