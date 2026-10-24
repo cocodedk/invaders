@@ -32,6 +32,7 @@ export function stateHash(world) {
   const parts = [
     world.tick, world.state, world.score, world.hits, world.wave, world.combo.mult, world.rng.s,
     round(ship.x), round(ship.y), ship.lives, round(ship.invuln), ship.bombs, ship.power?.kind, round(ship.power?.left ?? 0),
+    ship.reserve?.kind, round(ship.reserve?.left ?? 0),
     world.aliens.length, ...world.aliens.map((a) => `${a.id},${round(a.x)},${round(a.y)},${a.hp},${a.mode}`),
     world.shots.length, ...points(world.shots),
     world.bullets.length, ...points(world.bullets),

@@ -34,13 +34,14 @@ test('only carriers drop', () => {
   assert.equal(w.pickups.length, 0);
 });
 
-test('1000 seeded carrier deaths: about 20 % bombs, the rest spread over all four powers', () => {
+test('1000 seeded carrier deaths at full lives: about 20 % bombs, never a life, the rest over all six powers', () => {
   const w = createWorld(lv(['carrier']), 99);
   for (let i = 0; i < 1000; i++) hurtAlien(w, { id: i, role: 'carrier', x: 500, y: 200, hp: 1 }, 1);
   const count = (k) => w.pickups.filter((p) => p.kind === k).length;
   assert.equal(w.pickups.length, 1000);
   assert.ok(count('bomb') >= 160 && count('bomb') <= 240, `bombs ${count('bomb')}`);
-  for (const k of POWERS) assert.ok(count(k) >= 140 && count(k) <= 260, `${k} ${count(k)}`);
+  assert.equal(count('life'), 0, 'a ship with every life has no use for one');
+  for (const k of POWERS) assert.ok(count(k) >= 100 && count(k) <= 170, `${k} ${count(k)}`); // 133 each: 80 % in six
 });
 
 test('a pickup falls 160 px/s and is removed once it has left the screen', () => {
@@ -82,7 +83,7 @@ test('a power lasts 10 s, then ends with a power event', () => {
   assert.deepEqual(ofType(drain(w), 'power').map((e) => [e.kind, e.on]), [['rapid', true], ['rapid', false]]);
 });
 
-test('a new power replaces the current one and restarts the clock', () => {
+test('a new power takes over at its full time; the one it displaces waits in the reserve', () => {
   const w = playing(lv());
   pickupOnShip(w, 'spread');
   seconds(w, 6);
@@ -91,10 +92,12 @@ test('a new power replaces the current one and restarts the clock', () => {
   step(w);
   assert.equal(w.ship.power.kind, 'shield');
   assert.ok(w.ship.power.left > 9.9);
+  assert.equal(w.ship.reserve.kind, 'spread');
+  assert.ok(w.ship.reserve.left < 4.1, 'with the time it had left');
   seconds(w, 5);
   pickupOnShip(w, 'shield');
   step(w);
-  assert.ok(w.ship.power.left > 9.9, 'the same kind again also resets');
+  assert.ok(w.ship.power.left > 9.9, 'the same kind again also starts afresh');
 });
 
 test('spread fires 5 shots fanned +-20 degrees at full speed; a base shot fires 1', () => {

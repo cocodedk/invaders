@@ -2,7 +2,7 @@ import { approach, clamp } from './math.js';
 import { emit } from './util.js';
 import { MID_X } from './kinds.js';
 
-// The player's ship: movement, the gun (and how spread and rapid change it), and what a hit does.
+// The player's ship: movement, the gun (and how spread, rapid and homing change it), and what a hit does.
 
 export const SHIP_R = 14; // hit radius
 export const SHIP_SPEED = 720; // px/s
@@ -11,6 +11,8 @@ export const LIVES = 3;
 export const INVULN = 1.5; // s of blinking after a hit
 const COOLDOWN = 0.18; // s between base shots
 export const SHOT_SPEED = 1400;
+export const HOMING_SPEED = 1000; // px/s: a homing shot is slower, so it has time to turn
+export const HOMING_TURN = Math.PI; // rad/s: how hard it steers toward the nearest alien ahead (stepBullet)
 const RAPID_COOLDOWN = 0.07; // s between shots under the rapid power
 export const MUZZLE = 22; // px above the ship's centre where shots (and the beam) start
 const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spread power
@@ -18,10 +20,11 @@ const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spre
 const ACCEL = 7200; // px/s^2: from rest to full speed in 0.1 s, the same to stop (a short ease)
 export const FOLLOW = 12; // 1/s: how hard a pointer target pulls; speed is FOLLOW * distance, capped at max
 
-// bombHeld / bombPressed turn the bomb key into an edge (stepShip); beam is whether the laser burns.
+// reserve is the power a newer pickup displaced (powerups.js); bombHeld / bombPressed turn the bomb
+// key into an edge (stepShip); beam is whether the laser burns.
 export const createShip = () => ({
-  x: MID_X, y: 1000, vx: 0, vy: 0, lives: LIVES, invuln: 0, power: null, bombs: 1, cooldown: 0, alive: true,
-  beam: false, bombHeld: false, bombPressed: false,
+  x: MID_X, y: 1000, vx: 0, vy: 0, lives: LIVES, invuln: 0, power: null, reserve: null, bombs: 1, cooldown: 0,
+  alive: true, beam: false, bombHeld: false, bombPressed: false,
 });
 
 const SNAP = 0.5; // px: closer than this to a pointer target, the ship stops dead on it
@@ -45,16 +48,19 @@ function wanted(ship, input, g) {
   return [dx * k, dy * k];
 }
 
-// One trigger pull: a single shot, or the spread's five. Rapid only shortens the wait.
+// One trigger pull: a single shot, or the spread's five. Rapid only shortens the wait. A homing shot
+// is the single shot, slower, with `seek`: stepBullet steers it toward the nearest alien ahead.
 function shoot(world) {
   const s = world.ship;
   const power = s.power?.kind ?? null;
   s.cooldown = power === 'rapid' ? RAPID_COOLDOWN : COOLDOWN;
   const at = { x: s.x, y: s.y - MUZZLE };
+  const speed = power === 'homing' ? HOMING_SPEED : SHOT_SPEED;
   for (const deg of power === 'spread' ? SPREAD : [0]) {
     const a = (deg * Math.PI) / 180;
-    const vx = Math.sin(a) * SHOT_SPEED;
-    world.shots.push({ pattern: 'shot', x: at.x, y: at.y, vx, vy: -Math.cos(a) * SHOT_SPEED, r: 5, life: 1.5, dmg: 1 });
+    const shot = { pattern: 'shot', x: at.x, y: at.y, vx: Math.sin(a) * speed, vy: -Math.cos(a) * speed, r: 5, life: 1.5, dmg: 1 };
+    if (power === 'homing') shot.seek = HOMING_TURN;
+    world.shots.push(shot);
   }
   emit(world, 'fire', { side: 'ship', x: at.x, y: at.y, power });
 }

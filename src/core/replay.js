@@ -11,14 +11,15 @@ export { TICK };
 
 // A run is its level, its seed and the input of every tick: the core is deterministic, so
 // re-simulating those gives back every state and event of the run.
-//   run    { v: 5, level: 'w3-2', seed, ticks, inputs: <encoded>, score, stars }   (makeRun)
+//   run    { v: 6, level: 'w3-2', seed, ticks, inputs: <encoded>, score, stars }   (makeRun)
 // The inputs and their text form are in input-codec.js. RUN_V goes up whenever a rule change makes
 // the same inputs play out differently: an older run would replay diverged, so it is not read at all
 // (2: task 13a's rules: bullets spent on a blinking ship, near misses, the shuriken cut, boss minions,
 // the reborn armored; 3: task 13b's tuning: level waves, boss hp and attacks, gunner minions that
 // hold their fire at point blank; 4: formations kept clear of the HUD, R41, and a gentler
-// mothership, R42; 5: pickups worth 500 and swept up at the clear, R51).
-const RUN_V = 5;
+// mothership, R42; 5: pickups worth 500 and swept up at the clear, R51; 6: a power reserve, the homing
+// and slow powers, the extra life, R53).
+const RUN_V = 6;
 
 // The storable form of a finished run. `level` is a level or its id; `result` is { score, stars }.
 export const makeRun = (level, seed, inputs, result) => ({

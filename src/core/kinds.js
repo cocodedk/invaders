@@ -11,7 +11,7 @@ export const ROLES = {
 
 export const FORMATIONS = ['grid', 'sway', 'dive', 'spiral', 'split', 'escort', 'rain', 'orbit'];
 export const PATTERNS = ['aimed', 'fan', 'ring', 'spiral', 'laser', 'rain', 'homing', 'shuriken'];
-export const POWERS = ['spread', 'laser', 'rapid', 'shield'];
+export const POWERS = ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow'];
 
 // World order: WORLDS[i].twist is TWISTS[i] and WORLDS[i].boss is BOSSES[i].
 export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity'];

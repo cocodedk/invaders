@@ -1,32 +1,55 @@
-import { clamp, angleTo, segDist2, wrapAngle } from './math.js';
+import { clamp, angleTo, dist2, segDist2, wrapAngle } from './math.js';
 import { WIDTH, HEIGHT } from './kinds.js';
 
 // The life of one enemy bullet after it is fired, plus the laser's geometry. Bullets are the plain
-// objects emitPattern returns: { pattern, x, y, vx, vy, r, life, warn?, turn? }.
+// objects emitPattern returns: { pattern, x, y, vx, vy, r, life, warn?, turn? }. A homing ship shot
+// (ship.js) is a bullet with `seek` instead of `turn`.
 
 export const LASER_WARN = 0.8; // s of harmless warning line before the beam
 export const LASER_BEAM = 0.6; // s the beam then burns
 
-// Turn the velocity toward `to` by at most `b.turn` rad/s, keeping the speed.
-function steer(b, dt, to) {
+// Turn the velocity toward `to` by at most `rate` rad/s, keeping the speed.
+function steer(b, rate, dt, to) {
   const speed = Math.hypot(b.vx, b.vy);
   const heading = Math.atan2(b.vy, b.vx);
   const diff = wrapAngle(angleTo(b, to) - heading);
-  const next = heading + clamp(diff, -b.turn * dt, b.turn * dt);
+  const next = heading + clamp(diff, -rate * dt, rate * dt);
   b.vx = Math.cos(next) * speed;
   b.vy = Math.sin(next) * speed;
 }
 
-// Advance one bullet by `dt`. `world.ship` is what a homing bullet chases. A laser never moves: it
-// counts its warning down to 0 and then burns until `life` runs out. Callers drop bullets whose
-// `life` is <= 0.
+// The live alien nearest to a ship shot among those ahead of it (higher on the screen), or null. The
+// boss, the saucer and wrecks are not aliens here: a seeking shot only chases the formation, and not
+// an alien still flying in above the top edge, which would lead it off the screen.
+function seekTarget(b, aliens) {
+  let best = null;
+  let bestD = Infinity;
+  for (const a of aliens) {
+    if (a.hp <= 0 || a.y >= b.y || a.y < 0) continue;
+    const d = dist2(a, b);
+    if (d < bestD) {
+      best = a;
+      bestD = d;
+    }
+  }
+  return best;
+}
+
+// Advance one bullet by `dt`. `world.ship` is what a homing bullet chases (`turn`); a ship shot with
+// `seek` chases the nearest alien ahead of it and flies straight when there is none. A laser never
+// moves: it counts its warning down to 0 and then burns until `life` runs out. Callers drop bullets
+// whose `life` is <= 0.
 export function stepBullet(b, dt, world) {
   b.life -= dt;
   if (b.pattern === 'laser') {
     b.warn = Math.max(0, b.warn - dt);
     return;
   }
-  if (b.turn && world?.ship) steer(b, dt, world.ship);
+  if (b.turn && world?.ship) steer(b, b.turn, dt, world.ship);
+  if (b.seek && world?.aliens) {
+    const to = seekTarget(b, world.aliens);
+    if (to) steer(b, b.seek, dt, to);
+  }
   b.x += b.vx * dt;
   b.y += b.vy * dt;
 }

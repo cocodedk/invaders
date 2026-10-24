@@ -13,8 +13,9 @@ const SLOW = 0.5; // bullet time: enemy bullets, aliens and boss step at this fr
 const SLOW_TIME = 2; // s it lasts
 const SLOW_COOL = 8; // s from its start until a near miss can start it again
 
-// The time an enemy bullet, an alien or the boss moves in this tick.
-export const enemyDt = (world, dt) => (world.slow > 0 ? dt * SLOW : dt);
+// The time an enemy bullet, an alien or the boss moves in this tick: slowed by the glitch world's
+// bullet time and by the ship's slow power, never twice over.
+export const enemyDt = (world, dt) => (world.slow > 0 || world.ship.power?.kind === 'slow' ? dt * SLOW : dt);
 
 // Push every ship shot and enemy bullet (not a laser: its vx, vy are the aim). `accel(p, out, dt)`
 // writes the acceleration in px/s^2 into out.x, out.y; dt is the time that projectile just moved.
