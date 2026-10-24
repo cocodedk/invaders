@@ -1,52 +1,13 @@
-// Sound patches of the fight: the ship's gun (one signature per world, varied by power-up), enemy
-// fire, hits, the ship's scrapes and bunkers (kills by role: sfx-kill.js; pickups: sfx-power.js).
+// Sound patches of the fight: enemy fire, hits, the ship's scrapes and bunkers (the ship's gun is one
+// drum hit per shot, stepping through a techno pattern: sfx-shot.js; kills by role: sfx-kill.js;
+// pickups: sfx-power.js).
 // A patch is (a, o) -> seconds it rings; a = { ctx, t, out, tail, noise, kit } (audio-kit.js).
 import { tone, hiss, fm, wobble, crush } from './audio-kit.js';
 import { LASER_WARN, LASER_BEAM } from '../core/patterns.js';
 import { kill } from './sfx-kill.js';
+import { shot } from './sfx-shot.js';
 
-// The ship's shot per world style; k scales the pitch (power-up and world).
-const SHOT = {
-  chip: (a, k) => (tone(a, { type: 'square', f0: 1480 * k, f1: 360 * k, dur: 0.09, peak: 0.13, steps: 6, cut: 7000 }), 0.12),
-  noir: (a, k) => {
-    tone(a, { type: 'sawtooth', f0: 1900 * k, f1: 240 * k, dur: 0.13, peak: 0.18, cut: 4500, cut1: 600 });
-    tone(a, { type: 'sawtooth', t: a.t + 0.13, f0: 1900 * k, f1: 240 * k, dur: 0.12, peak: 0.05, cut: 2400, cut1: 400 });
-    return 0.3; // and its echo down the wet street
-  },
-  brass: (a, k) => {
-    fm(a, { f0: 2500 * k, f1: 230 * k, ratio: 1.5, index: 0.7, dur: 0.16, peak: 0.14 });
-    hiss(a, { type: 'highpass', f0: 5200, dur: 0.03, peak: 0.06 });
-    return 0.2;
-  },
-  koto: (a, k) => {
-    tone(a, { type: 'triangle', f0: 1760 * k, f1: 1660 * k, dur: 0.16, peak: 0.16 });
-    hiss(a, { type: 'bandpass', f0: 6500, f1: 2400, q: 2, dur: 0.09, peak: 0.16 });
-    return 0.2;
-  },
-  hive: (a, k) => {
-    hiss(a, { type: 'bandpass', f0: 650 * k, f1: 2600 * k, q: 6, dur: 0.09, peak: 0.62 });
-    tone(a, { f0: 420 * k, f1: 960 * k, dur: 0.07, peak: 0.16 });
-    return 0.12;
-  },
-  code: (a, k) => {
-    tone(a, { type: 'square', f0: 880 * k, f1: 1760 * k, steps: 3, dur: 0.07, peak: 0.13, cut: 6000 });
-    hiss(a, { type: 'highpass', f0: 7000, dur: 0.02, peak: 0.1 });
-    return 0.1;
-  },
-  iron: (a, k) => {
-    hiss(a, { type: 'highpass', f0: 2600, f1: 1100, dur: 0.05, peak: 0.12 });
-    tone(a, { f0: 190 * k, f1: 52 * k, dur: 0.11, peak: 0.16 });
-    tone(a, { type: 'sawtooth', f0: 900 * k, f1: 210 * k, dur: 0.06, peak: 0.06, cut: 3000 });
-    return 0.14;
-  },
-  cosmic: (a, k) => {
-    const o = tone(a, { f0: 1320 * k, f1: 620 * k, dur: 0.24, peak: 0.11 });
-    wobble(a, o.frequency, 28, 36, a.t, 0.24);
-    return 0.26;
-  },
-};
-
-// Enemy fire by bullet pattern: quieter and lower than the ship's, in the world's own wave.
+// Enemy fire by bullet pattern: quieter than the ship's drum hit, in the world's own wave.
 function enemy(a, o) {
   const { kit } = a;
   const k = kit.pitch * (o.boss ? 0.7 : 1);
@@ -68,12 +29,7 @@ function enemy(a, o) {
 }
 
 export const FIGHT = {
-  shot(a, o) {
-    const p = o.power;
-    if (p === 'rapid') a.out.gain.value *= 0.62;
-    if (p === 'spread') hiss(a, { type: 'bandpass', f0: 900, f1: 3800, q: 1.4, dur: 0.12, peak: 0.08 });
-    return SHOT[a.kit.style](a, a.kit.pitch * (p === 'spread' ? 0.84 : p === 'rapid' ? 1.19 : 1));
-  },
+  shot,
   enemyShot: enemy,
   laserWarn(a) { // an enemy laser: a warning that climbs for LASER_WARN, then the beam burns
     tone(a, { type: 'sawtooth', f0: 200, f1: 900, dur: LASER_WARN, attack: LASER_WARN * 0.8, peak: 0.05, cut: 1600, cut1: 3200 });
