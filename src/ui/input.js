@@ -10,6 +10,8 @@
 //   resetInput(input)              forget held keys and buttons (a screen took over)
 // Keys with Alt, Ctrl or Meta held are left alone: Alt+Left must stay the browser's Back.
 import { MOVE } from './keys.js';
+import { ZONE } from '../core/ship.js';
+import { clamp } from '../core/math.js';
 
 const FIRE = ['Space'];
 const BOMB = ['KeyB', 'ShiftLeft', 'ShiftRight'];
@@ -18,7 +20,7 @@ const GAME_KEYS = new Set([...Object.keys(MOVE), 'Space', 'Enter', 'NumpadEnter'
 export function createInput(canvas) {
   const input = {
     canvas, down: new Set(), taps: new Set(),
-    mouse: { x: 0, y: 0, left: false, right: false, active: false },
+    mouse: { x: 0, y: 0, left: false, right: false, active: false, slack: null },
     onKey: null, onGesture: null,
   };
   const m = input.mouse;
@@ -79,19 +81,43 @@ export function resetInput(input) {
   input.mouse.active = false;
   input.mouse.left = false;
   input.mouse.right = false;
+  input.mouse.slack = null;
 }
 
 const any = (input, codes) => codes.some((c) => input.down.has(c) || input.taps.has(c));
 
-// The pointer in world px, through the view's letterbox fit (view.js).
-function toWorld(view, x, y) {
+// The pointer and the canvas's corners in world px, through the view's letterbox fit (view.js).
+function inWorld(view, m) {
   const c = view.canvas;
   const r = c.getBoundingClientRect();
   const f = view.fit;
   if (!r.width || !r.height || !f.s) return null;
-  const px = ((x - r.left) * c.width) / r.width;
-  const py = ((y - r.top) * c.height) / r.height;
-  return { x: (px - f.ox) / f.s, y: (py - f.oy) / f.s };
+  const at = (x, y) => ({
+    x: (((x - r.left) * c.width) / r.width - f.ox) / f.s,
+    y: (((y - r.top) * c.height) / r.height - f.oy) / f.s,
+  });
+  return { p: at(m.x, m.y), lo: at(r.left, r.top), hi: at(r.right, r.bottom) };
+}
+
+// One axis of the goal: the pointer plus its slack, held on the zone [z0, z1]. The slack is what a push
+// past an edge built up, never more than the canvas [w0, w1] can take back, so every spot of the zone
+// stays in reach of a pointer inside the window.
+function axis(p, s, z0, z1, w0, w1) {
+  const g = clamp(p + s, z0, z1);
+  return [g, clamp(g - p, z1 - w1, z0 - w0)];
+}
+
+// The ship's goal. The cursor is hidden in play and the canvas reaches past the zone (the sky above
+// it, the letterbox bars of a wide window beside it), so a pointer pushed past an edge drags the goal
+// along that edge instead of leaving a dead stretch to cross back: a move back answers at once.
+function steer(m, view) {
+  const w = inWorld(view, m);
+  if (!w) return null;
+  const s = m.slack ?? { x: 0, y: 0 };
+  const [x, sx] = axis(w.p.x, s.x, ZONE.x0, ZONE.x1, w.lo.x, w.hi.x);
+  const [y, sy] = axis(w.p.y, s.y, ZONE.y0, ZONE.y1, w.lo.y, w.hi.y);
+  m.slack = { x: sx, y: sy };
+  return { x, y };
 }
 
 export function readInput(input, view) {
@@ -104,11 +130,12 @@ export function readInput(input, view) {
     dy += mv[1];
   }
   const m = input.mouse;
+  if (!m.active) m.slack = null; // the keys have the ship: the pointer starts from where it is again
   const raw = {
     dx, dy,
     fire: any(input, FIRE) || m.left || input.taps.has('Mouse0'),
     bomb: any(input, BOMB) || m.right || input.taps.has('Mouse2'),
-    target: m.active ? toWorld(view, m.x, m.y) : null,
+    target: m.active ? steer(m, view) : null,
   };
   input.taps.clear(); // read by this tick
   return raw;
