@@ -111,11 +111,11 @@ test('the last alien dying on the tick the ship loses its last life is a clear, 
   assert.equal(control.state, 'failed', 'without the kill it is a failure');
 });
 
-test('a boss level has no aliens yet and stays in play (the boss arrives in a later task)', () => {
+test('a boss level spawns no waves and stays in play: its only aliens are the boss\'s minions', () => {
   const w = createWorld(levelById('w1-5'), 1);
   seconds(w, 6);
   assert.equal(w.state, 'play');
-  assert.equal(w.aliens.length, 0);
+  assert.equal(w.aliens.filter((a) => !a.minion).length, 0);
   assert.equal(w.wave, 0);
 });
 

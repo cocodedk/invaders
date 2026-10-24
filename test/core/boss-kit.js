@@ -43,7 +43,7 @@ export function reachable(world, p) {
 const TRAVEL = 30; // ticks a shot takes to climb from the ship to the boss
 
 // Stand under the nearest weak part, aimed where it will be, and hold fire with an invulnerable
-// ship. `onTick(world)` sees the world after every step. Returns the world and every event, until
+// ship and no power-ups. `onTick(world)` sees the world after every step. Returns the world and every event, until
 // cleared or `limit` s.
 export function botFight(kind, limit = 120, onTick = () => {}) {
   const world = createWorld(realLevel(kind));
@@ -58,6 +58,7 @@ export function botFight(kind, limit = 120, onTick = () => {}) {
       aim = near.x + (near.x - (prev[near.id] ?? near.x)) * TRAVEL;
     }
     for (const p of world.boss.parts) prev[p.id] = p.x;
+    world.pickups.length = 0; // the bot measures the boss's hp: a carrier shot down overhead would hand it a power
     stepWorld(world, TICK, input({ fire: true, target: { x: aim, y: 1000 } }));
     log.push(...world.events.splice(0));
     onTick(world);

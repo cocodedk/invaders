@@ -89,16 +89,21 @@ const fight = (kind) => {
   return w;
 };
 
-test('a destroyed part launches no minions; a live one still does', () => {
-  const w = fight('mothership'); // its last phase: grunts from the eye, a carrier from the dome
-  leave(w, ['gunL', 'gunR', 'eye'], 5); // the dome is gone
-  const seen = new Set();
-  for (let i = 0; i < 60 * 45; i++) {
-    stepWorld(w, TICK, IDLE);
-    w.events.length = 0;
-    for (const a of w.aliens) seen.add(a.role);
-  }
-  assert.deepEqual([...seen], ['grunt']);
+// A carrier flies in from the side of the screen, not out of its part, so it comes whatever is left (R55).
+test('a destroyed part launches no minions, but a carrier comes whatever is left of its part', () => {
+  const roles = (alive) => {
+    const w = fight('mothership'); // its last phase: grunts from the eye, a carrier from the dome
+    leave(w, alive, 5);
+    const seen = new Set();
+    for (let i = 0; i < 60 * 45; i++) {
+      stepWorld(w, TICK, IDLE);
+      w.events.length = 0;
+      for (const a of w.aliens) seen.add(a.role);
+    }
+    return [...seen].sort();
+  };
+  assert.deepEqual(roles(['gunL', 'gunR', 'dome']), ['carrier'], 'the eye is gone: no grunts');
+  assert.deepEqual(roles(['gunL', 'gunR', 'eye']), ['carrier', 'grunt'], 'the dome is gone: the carrier still comes');
 });
 
 test('gunner minions shoot at the ship', () => {

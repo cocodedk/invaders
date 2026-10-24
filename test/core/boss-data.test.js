@@ -86,6 +86,17 @@ test('attacks come from real parts with real patterns, and are slower than their
   assert.ok(WARN >= 0.6, 'the telegraph is at least 0.6 s');
 });
 
+// Power-ups come all through a fight, not only at its end (R55).
+test('every phase of every boss sends one carrier at a time, at least every 5 s', () => {
+  for (const def of BOSS_DEFS) {
+    def.phases.forEach((ph, i) => {
+      const carriers = (ph.minions ?? []).filter((m) => m.role === 'carrier');
+      assert.equal(carriers.length, 1, `${def.kind} phase ${i}`);
+      assert.ok(carriers[0].count === 1 && carriers[0].every <= 5, `${def.kind} phase ${i}`);
+    });
+  }
+});
+
 test('the bosses differ: layouts, part counts and attack mixes are not copies of one another', () => {
   const sig = BOSS_DEFS.map((d) => JSON.stringify([d.parts.map((p) => [p.dx, p.dy]), d.phases.map((p) => p.attacks.map((a) => a.pattern))]));
   assert.equal(new Set(sig).size, 8);

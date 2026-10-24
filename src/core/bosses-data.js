@@ -19,19 +19,19 @@ const mothership = boss('mothership', 'Mothership', 240, { w: 640, h: 220 }, [
     atk('aimed', 2.2, 'eye', { speed: 0.8 }),
     atk('fan', 4.2, 'gunL', { count: 3, spread: 0.6 }),
     atk('fan', 4.2, 'gunR', { count: 3, spread: 0.6 }),
-  ]),
+  ], { minions: [minion('carrier', 1, 4, 'dome')] }),
   phase(0.3, 'sway', [
     atk('fan', 3.2, 'eye', { count: 5, spread: 0.9 }),
     atk('ring', 6, 'eye', { count: 12 }),
     atk('aimed', 2.6, 'gunL'),
     atk('aimed', 2.6, 'gunR'),
-  ], { rate: 1.2, minions: [minion('grunt', 3, 10, 'eye')] }),
+  ], { rate: 1.2, minions: [minion('grunt', 3, 10, 'eye'), minion('carrier', 1, 4, 'dome')] }),
   phase(0, 'charge', [
     atk('ring', 4.5, 'eye', { count: 16, speed: 0.8 }),
     atk('fan', 3, 'gunL', { count: 5, spread: 0.8 }),
     atk('fan', 3, 'gunR', { count: 5, spread: 0.8 }),
     atk('laser', 8, 'eye'),
-  ], { rate: 1.4, minions: [minion('grunt', 3, 9, 'eye'), minion('carrier', 1, 16, 'dome')] }),
+  ], { rate: 1.4, minions: [minion('grunt', 3, 9, 'eye'), minion('carrier', 1, 4, 'dome')] }),
 ]);
 
 // The tiers are split by a shaft down the middle: the eye hangs in it at the bottom, the spire sits
@@ -52,21 +52,21 @@ const pyramid = boss('pyramid', 'Corporate pyramid', 250, { w: 560, h: 300 }, [
     atk('rain', 2.6, 'baseL', { count: 3, spread: 300 }),
     atk('rain', 2.6, 'baseR', { count: 3, spread: 300 }),
     atk('fan', 3, 'eye', { count: 5, spread: 0.7 }),
-  ]),
+  ], { minions: [minion('carrier', 1, 4.5, 'capL')] }),
   phase(0.25, 'sway', [
     atk('rain', 2.6, 'baseL', { count: 4, spread: 340 }),
     atk('rain', 2.6, 'baseR', { count: 4, spread: 340 }),
     atk('homing', 3, 'signL'),
     atk('homing', 3, 'signR'),
     atk('laser', 7, 'eye'),
-  ], { rate: 1.1, minions: [minion('gunner', 2, 12, 'signL')] }),
+  ], { rate: 1.1, minions: [minion('gunner', 2, 12, 'signL'), minion('carrier', 1, 4.5, 'capL')] }),
   phase(0, 'orbit', [
     atk('rain', 2.2, 'baseL', { count: 5, spread: 380 }),
     atk('rain', 2.2, 'baseR', { count: 5, spread: 380 }),
     atk('spiral', 4.2, 'spire', { count: 14 }),
     atk('fan', 2.6, 'eye', { count: 5, spread: 0.9 }),
     atk('laser', 6, 'signR'),
-  ], { rate: 1.2, minions: [minion('gunner', 2, 10, 'signR'), minion('carrier', 1, 18, 'capL')] }),
+  ], { rate: 1.2, minions: [minion('gunner', 2, 10, 'signR'), minion('carrier', 1, 4.5, 'capL')] }),
 ]);
 
 // The trench: in the last phase the core, a bare hull until then, takes full damage.
@@ -82,17 +82,17 @@ const fortress = boss('fortress', 'Star fortress', 235, { w: 760, h: 280 }, [
     atk('fan', 2, 'turretL', { count: 3, spread: 0.3 }),
     atk('fan', 2, 'turretR', { count: 3, spread: 0.3 }),
     atk('fan', 4, 'dish', { count: 5, spread: 0.6 }),
-  ], { rate: 0.8 }),
+  ], { rate: 0.8, minions: [minion('carrier', 1, 4.5, 'plateL')] }),
   phase(0.4, 'hover', [
     atk('laser', 5.5, 'dish'),
     atk('fan', 2.8, 'turretL', { count: 5, spread: 0.7 }),
     atk('fan', 2.8, 'turretR', { count: 5, spread: 0.7 }),
-  ], { minions: [minion('diver', 3, 9, 'plateR')] }),
+  ], { minions: [minion('diver', 3, 9, 'plateR'), minion('carrier', 1, 4.5, 'plateL')] }),
   phase(0, 'charge', [
     atk('ring', 3.2, 'core', { count: 14 }),
     atk('rain', 3.6, 'core', { count: 7, spread: 420 }),
     atk('laser', 6, 'dish'),
-  ], { open: ['core'], minions: [minion('carrier', 1, 18, 'plateL')] }),
+  ], { open: ['core'], minions: [minion('carrier', 1, 4.5, 'plateL')] }),
 ]);
 
 // Rests 40 px lower than first set (ruling R28) so the helmet and its crest clear the HUD.
@@ -111,20 +111,20 @@ const shogun = boss('shogun', 'Shogun mecha', 320, { w: 600, h: 440 }, [
     atk('shuriken', 2.4, 'bladeL'),
     atk('shuriken', 2.4, 'bladeR'),
     atk('shuriken', 3.6, 'helm'),
-  ], { rate: 0.9 }),
+  ], { rate: 0.9, minions: [minion('carrier', 1, 5, 'torso')] }),
   phase(0.28, 'charge', [
     atk('shuriken', 2, 'bladeL'),
     atk('shuriken', 2, 'bladeR'),
     atk('shuriken', 2.8, 'core'),
     atk('fan', 4.5, 'core', { count: 5, spread: 1 }),
-  ]),
+  ], { minions: [minion('carrier', 1, 5, 'torso')] }),
   phase(0, 'orbit', [
     atk('laser', 6, 'bladeL'),
     atk('laser', 7, 'bladeR'),
     atk('shuriken', 1.9, 'helm'),
     atk('shuriken', 2.2, 'core'),
     atk('spiral', 5, 'core', { count: 16 }),
-  ], { rate: 1.15, minions: [minion('carrier', 1, 20, 'torso')] }),
+  ], { rate: 1.15, minions: [minion('carrier', 1, 5, 'torso')] }),
 ]);
 
 export const BOSS_DEFS = [mothership, pyramid, fortress, shogun, ...BOSSES2];

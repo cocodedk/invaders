@@ -69,6 +69,17 @@ quoted lines, so the repo can be public.
     autopilot with a human-like reaction lag, 40 levels, 20 to 50 seeds): about 2.1 pickups caught a run
     where there was about 1.0, and the clear rate and hits a run within a point or two of before, at reaction
     lags of 10 and 15 ticks.
+  - **A carrier in every boss phase (R55).** A boss used to send its carrier only in its last phase, and
+    the bosses of worlds 4 and 5 never did, because a carrier waited on a part the player had always shot
+    away by then: a fight dropped nothing for its first 70 % of hp or more. Now every phase sends one
+    carrier every 4 to 5 s (the first comes half that long into the phase), about 2 to 4 pickups a
+    phase, and a carrier comes whatever is left of the part it is listed on, since it flies in from the
+    side of the screen. On the headless boss run (the autopilot at reaction lag 10), a player who catches
+    every pickup beats the Endoskeleton titan 52 % of the time, up from 14 % (50 seeds). The autopilot,
+    which chases every pickup into the boss's fire, beats the titan about as often as before (12 %), but
+    the four late bosses together 33 % of the time, up from 8 % (20 seeds each): catching one under fire
+    is a risk the player chooses. The stand-and-fire bot of the boss tests ignores pickups, so its 40 to
+    60 s bar still measures the boss's hp alone.
   - **Homing:** the gun fires single shots at 1000 px/s (the base shot flies at 1400) that steer up to
     180°/s toward the nearest live alien ahead of them, and fly straight when there is none. Never the
     boss, the saucer or a wreck.

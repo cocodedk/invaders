@@ -53,14 +53,15 @@ export function stepAttacks(world, b, def, dt) {
 
 // Launch `m.count` aliens of the role from a part, unless the part is destroyed. They are ordinary
 // aliens without a formation slot (slot null, minion true): divers and the rest fly at the ship, a
-// carrier crosses the screen below the boss with a power-up to shoot loose.
+// carrier crosses the screen below the boss with a power-up to shoot loose. A carrier flies in from
+// the side of the screen, not out of its part, so it comes whatever is left of the part (R55).
 function launch(world, b, m) {
   const src = b.parts.find((p) => p.id === m.from);
-  if (src.hp <= 0) return;
+  const carrier = m.role === 'carrier';
+  if (src.hp <= 0 && !carrier) return;
   let live = world.aliens.reduce((n, a) => n + (a.minion ? 1 : 0), 0);
   for (let i = 0; i < m.count && live < MINION_CAP; i++, live++) {
     const id = world.nextId++;
-    const carrier = m.role === 'carrier';
     const hp = ROLES[m.role].hp; // minions carry no armour bonus
     world.aliens.push({
       id, role: m.role, x: carrier ? (id % 2 ? -40 : 1960) : src.x + (i - (m.count - 1) / 2) * 56,
