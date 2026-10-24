@@ -5,6 +5,7 @@
 // Pure functions of t (and fx for lightning); cached sprites live in v.cache.
 import { W, H, rgba, hash, glow, soft, wrap, makeCanvas, lighter, normal, lin } from './sprites.js';
 import { FLOURISH2 } from './flourish-2.js';
+import { FLOURISH3 } from './flourish-3.js';
 
 function beam(color, len = 1000, top = 240) {
   const c = makeCanvas(top, len);
@@ -151,7 +152,7 @@ function shooting(ctx, { t }) {
 const FLOURISH = {
   searchlights: { sky: searchlights }, cars: { far: cars, neonfar: cars }, holo: { mid: holo, neonmid: holo },
   flares: { far: flares, neonfar: flares },
-  mist: { near: mist }, shooting: { sky: shooting }, ...FLOURISH2,
+  mist: { near: mist }, shooting: { sky: shooting }, ...FLOURISH2, ...FLOURISH3,
 };
 
 export function drawFlourishes(ctx, env, phase, x0 = 0, top = 0) {

@@ -20,6 +20,16 @@ test('difficulty never falls as (world, level) advances', () => {
   }
 });
 
+// World 9 is a side world with its own d, about world 4-5 hard; worlds 1-8 keep the 39-step curve.
+test('world 9 sets its own difficulty per level, rising within the world, and leaves worlds 1-8 alone', () => {
+  const own = [1, 2, 3, 4, 5].map((i) => difficulty(9, i));
+  assert.deepEqual(own, [0.40, 0.43, 0.45, 0.48, 0.50]);
+  own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w9-${i + 1}`));
+  for (let w = 1; w <= 8; w++) {
+    for (let i = 1; i <= 5; i++) assert.equal(difficulty(w, i), ((w - 1) * 5 + i - 1) / 39, `w${w}-${i}`);
+  }
+});
+
 test('scaled gives the documented range at d = 0 and d = 1', () => {
   assert.deepEqual(scaled(0), { bulletSpeed: 260, fireMult: 0.6 * FIRE_UP, formationSpeed: 1, armorBonus: 0 });
   const hard = scaled(1);

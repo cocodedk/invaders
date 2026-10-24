@@ -13,7 +13,7 @@ const FPS = 24;
 const LOOK = { vignette: 0.7, grade: 0.55, grain: 0.35 };
 
 // One grade colour per world, in world order.
-const TINTS = ['#3affc8', '#ff4fd8', '#ffb347', '#d94a4a', '#9ad67a', '#33ff66', '#ff6a3a', '#8fb8ff'];
+const TINTS = ['#3affc8', '#ff4fd8', '#ffb347', '#d94a4a', '#9ad67a', '#33ff66', '#ff6a3a', '#8fb8ff', '#22b0a6'];
 
 export function createFilm(world) {
   const level = world?.level ?? {};

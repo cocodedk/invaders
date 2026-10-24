@@ -1,4 +1,4 @@
-// Everything alien-shaped on the playfield, in each world's own sprites (aliens/w1.js .. w8.js,
+// Everything alien-shaped on the playfield, in each world's own sprites (aliens/w1.js .. w9.js,
 // baked once by bake.js): world.aliens (formation and boss minions), world.saucer (the bonus carrier,
 // or null) and world.wrecks (armored wrecks waiting to reassemble).
 //   drawAliens(ctx, world, look, t)          world space, after the bunkers and the boss (minions

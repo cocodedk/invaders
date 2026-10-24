@@ -40,7 +40,7 @@ export function fly(world, limit = LIMIT) {
 }
 
 // One test per level of world `n`: this is what each autopilot-w<n>.test.js registers, so that
-// `node --test` runs the eight worlds in parallel.
+// `node --test` runs the nine worlds in parallel.
 export function clearsWorld(n) {
   for (const level of LEVELS.filter((l) => l.world === n)) {
     test(`the autopilot clears ${level.id} within ${LIMIT} s with an invulnerable ship`, () => {

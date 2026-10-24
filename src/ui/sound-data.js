@@ -1,7 +1,7 @@
-// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w8.js).
+// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w9.js).
 // Pure data and maths, shared by the sound effects (one flavour per world) and the music loop.
 //   kitFor(music) -> { style, root, scale, bpm, wave, cut, wet, pitch }
-//     style  which signature the patches use: chip noir brass koto hive code iron cosmic
+//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster
 //     root   semitone of the root above C; scale: semitone steps of the scale
 //     wave   the oscillator most of the world's tones use; cut: their lowpass ceiling (Hz);
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
@@ -61,6 +61,11 @@ export const STYLES = {
     mood: 'organ swell', wave: 'sine', cut: 4200, wet: 0.6, pitch: 0.95,
     music: { vol: 0.6, drone: { wave: 'sine', oct: 2, cut: 1200, fifth: true }, lead: { wave: 'sine', oct: 5, cut: 3000, len: 3.2, gain: 0.07 },
       div: 0.5, seq: [0, 2, 4, 6, 4, 2, 7, 4], drum: '........' },
+  },
+  monster: {
+    mood: 'monster', wave: 'sawtooth', cut: 2000, wet: 0.3, pitch: 0.8,
+    music: { vol: 0.8, drone: { wave: 'sawtooth', oct: 1, cut: 240, fifth: true }, lead: { wave: 'sawtooth', oct: 3, cut: 1300, len: 0.8, gain: 0.07 },
+      div: 2, seq: [0, null, null, 0, null, null, 1, null, 0, null, null, 0, null, 3, 4, null], drum: 't...t.t.t...t.tt' },
   },
 };
 

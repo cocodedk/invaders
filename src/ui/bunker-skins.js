@@ -98,4 +98,17 @@ function ice(x, y, w, h, P) {
   return [P.fill, (hash2(id, 5) - 0.5) * 0.5 + 0.15 * (1 - y / h) + grain(x, y, 0.05)];
 }
 
-export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice };
+// Tidal Siege: two shipping containers stacked, vertical corrugation down each face, corner posts,
+// door lock-bars at one end and a white stencil panel near the roof; the lower box in the accent.
+function container(x, y, w, h, P) {
+  const lower = y >= 30;
+  const box = lower ? P.accent : P.fill;
+  const row = y % 30;
+  if (row === 0 || row === 29) return [P.dark, 0];
+  if (x < 6 || x >= w - 6) return [P.dark, 0.1];
+  if (row > 5 && row < 9 && x > 12 && x < 40) return [P.light, 0.35];
+  if (x > w - 34 && x < w - 12 && x % 8 < 2) return [P.light, 0.05];
+  return [box, (x % 5 < 2 ? 0.2 : -0.14) + 0.12 * (1 - row / 30) + grain(x, y, 0.08)];
+}
+
+export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container };

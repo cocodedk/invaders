@@ -13,6 +13,7 @@ const LEAD = {
   code: { type: 'square', cut: 3200, peak: 0.075 },
   iron: { type: 'sawtooth', cut: 2400, peak: 0.1 },
   cosmic: { type: 'sine', peak: 0.12, attack: 0.08 },
+  monster: { type: 'sawtooth', cut: 1700, peak: 0.08, attack: 0.04 },
 };
 
 function note(a, degree, octave, t, dur, peak = 1) {
@@ -20,7 +21,7 @@ function note(a, degree, octave, t, dur, peak = 1) {
   const f = noteHz(a.kit, degree, octave);
   tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak });
   if (a.kit.style === 'cosmic') tone(a, { ...v, t, f0: f * 2, dur, peak: v.peak * peak * 0.35 }); // the organ's octave
-  if (a.kit.style === 'noir' || a.kit.style === 'brass') tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak * 0.7, detune: 12 });
+  if (['noir', 'brass', 'monster'].includes(a.kit.style)) tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak * 0.7, detune: 12 });
 }
 
 export const UI = {

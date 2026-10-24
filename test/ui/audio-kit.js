@@ -43,3 +43,17 @@ export function installAudio({ currentTime = 0, onNode = () => {} } = {}) {
   }
   globalThis.AudioContext = FakeContext;
 }
+
+// A voice for one sound patch under node: every node it makes (kind, started, stopAt) and the `a`
+// a patch is called with. Pass a world's kit (sound-data.js kitFor).
+export function fakeVoice(kit) {
+  const nodes = [];
+  const make = (kind) => () => {
+    const n = node({ kind, started: false, stopAt: null, start() { this.started = true; }, stop(t) { this.stopAt = t; } });
+    nodes.push(n);
+    return n;
+  };
+  const ctx = {};
+  for (const kind of ['Gain', 'BiquadFilter', 'Oscillator', 'BufferSource', 'WaveShaper']) ctx[`create${kind}`] = make(kind);
+  return { a: { ctx, t: 1, out: make('Out')(), noise: {}, kit }, nodes };
+}

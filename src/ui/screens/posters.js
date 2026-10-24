@@ -5,7 +5,7 @@
 // one per idle period while the title or the lobby is up, so no single frame carries a whole poster
 // and nothing is baked while a level plays.
 //   warmPosters(allowed)   start baking in idle slices; allowed() says whether now is a menu
-//   bakeStep() -> bool     one slice of the next poster (false once all eight are done)
+//   bakeStep() -> bool     one slice of the next poster (false once all nine are done)
 //   posterFor(world) -> canvas | null      TAGLINES[world - 1]: each world's line      reelName(level)
 import { LEVELS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
@@ -30,11 +30,12 @@ export const TAGLINES = [
   'The signal has teeth.',
   'The machines woke first.',
   'Even light bends here.',
+  'The tide brings it home.',
 ];
 
 const FRAME_W = 768;
 const FRAME_H = 432;
-const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8]; // s into each boss fight: in place, mid-attack
+const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6]; // s into each boss fight: in place, mid-attack
 const LIT = 0.4; // s of effects before the frame (muzzle flashes, sparks); the run-up before has none
 const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
 const CROP_H = 900;
@@ -79,7 +80,7 @@ function* bake(world) {
 let current = null;
 function bakeStep() {
   if (!current) {
-    const world = [1, 2, 3, 4, 5, 6, 7, 8].find((wd) => !posters.has(wd));
+    const world = [1, 2, 3, 4, 5, 6, 7, 8, 9].find((wd) => !posters.has(wd));
     if (!world) return false;
     current = bake(world);
   }

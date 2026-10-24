@@ -1,4 +1,4 @@
-// Level select as a cinema lobby: eight posters (each world's boss fight, rendered by the game) over
+// Level select as a cinema lobby: nine posters (each world's boss fight, rendered by the game) over
 // five reels each, showing best stars and best score. Every reel is open from the start.
 // Keys: left/right change world (same reel), up/down change reel, down from the last reel reaches
 // Back, Enter plays, Esc goes back. The mouse focuses on hover and plays on click.

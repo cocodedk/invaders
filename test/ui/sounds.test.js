@@ -60,7 +60,7 @@ test('the pickups swept up at the clear chime one after another, a caught one at
 
 test('each world has its own sound style, root and scale from its look', () => {
   const styles = LOOKS.map((l) => kitFor(l.music).style);
-  assert.equal(new Set(styles).size, 8, styles.join());
+  assert.equal(new Set(styles).size, 9, styles.join());
   for (const look of LOOKS) {
     const kit = kitFor(look.music);
     assert.equal(kit.root, NOTES[look.music.root], look.music.root);

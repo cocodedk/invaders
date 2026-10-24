@@ -16,9 +16,9 @@ test('a fresh film is off: no bars, no look, a grain seed from the level', () =>
 });
 
 test('the grade tint belongs to the world and differs between worlds', () => {
-  const tints = [1, 2, 3, 4, 5, 6, 7, 8].map((w) => film(`w${w}-1`).tint);
+  const tints = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((w) => film(`w${w}-1`).tint);
   for (const t of tints) assert.match(t, /^#[0-9a-f]{6}$/i);
-  assert.equal(new Set(tints).size, 8);
+  assert.equal(new Set(tints).size, 9);
 });
 
 test('letterbox eases in to exactly 1 and out to exactly 0, through every value between', () => {

@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 8 cinematic worlds × 5 levels = 40 levels, free 2D
+as beautiful as Barrage (`../artillery`): 9 cinematic worlds × 5 levels = 45 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56).
+    (R54, R56; world 9 follows its own difficulty, R57).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -111,6 +111,15 @@ quoted lines, so the repo can be public.
 - **Difficulty** is a property of the level, not of progress: bullet speed, fire rate, formation
   speed and alien hp scale with `(world, level)` so world 8 is hard even when played first. The fire
   rate multiplier is `(0.6 + d) × 1.5` (0.9 at world 1 level 1, 2.4 at world 8 level 5; R54).
+  - **World 9, a breather beside the run (R57).** The user asked for another stage after beating the
+    titan, and chose a mid-game side world over a ninth, harder one. So `d` stays
+    `((world − 1) × 5 + level − 1) / 39` for worlds 1–8, which play exactly as before, and world 9 sets
+    its own: 0.40, 0.43, 0.45, 0.48, 0.50 for its levels 1–5 (world 4 level 3 is 0.44, world 5 level 1
+    is 0.51). Its twist is Twin Suns' `gusts`, the storm's wind, rather than a new rule, and its boss
+    never charges, so the bottom of the screen stays the player's. On the headless run (the autopilot,
+    20 seeds) its levels 1–5 clear 19, 17, 18, 16 and 14 times at reaction lag 10, against world 4's
+    20, 18, 20, 16 and 20, and 17, 11, 10, 13 and 10 times at lag 15, against world 4's 20, 15, 18, 11
+    and 16 (world 5's boss: 2): a little harder than world 4, easier than world 5.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -128,6 +137,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 6 | Code Rain | digital-rain simulation | falling green glyphs, the frame glitches | aliens blink-teleport between formation slots; near misses trigger 0.5× bullet time (8 s cooldown) | Agent core |
 | 7 | Iron Dawn | machine-war future | burning future war, chrome, red eyes | armored aliens reassemble once after 2 s unless their wreck is shot | Endoskeleton titan |
 | 8 | Event Horizon | black-hole space epic | black hole with lensing, bent starlight | a gravity well bends every bullet, yours included | The Singularity |
+| 9 | Tidal Siege | kaiju harbour monster movie | night harbour in a storm, cranes, a sea beast's teal glow | the storm's gusts push all bullets sideways (Twin Suns' wind, ruling R57) | Abyssal behemoth |
 
 ## Look and effects
 
@@ -176,7 +186,7 @@ original run — the game state never does.
 ## Screens
 
 Title (a live autopilot battle in a random world behind the logo) · Level Select (a cinema lobby:
-8 world posters, each with 5 level reels showing stars and best score) · Play · Pause ·
+9 world posters, each with 5 level reels showing stars and best score) · Play · Pause ·
 Trailer → Results (score, stars, best; Next / Retry / Select) · Blooper → Failed (Retry / Select) ·
 Cinema · Watch, then try (below).
 

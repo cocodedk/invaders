@@ -1,8 +1,8 @@
 # Invaders
 
-> Invaders is a free cinematic arcade shooter that runs in the browser: fly anywhere in the lower half of the screen, shoot down alien formations and beat a boss at the end of each of 8 worlds, 40 levels in all.
+> Invaders is a free cinematic arcade shooter that runs in the browser: fly anywhere in the lower half of the screen, shoot down alien formations and beat a boss at the end of each of 9 worlds, 45 levels in all.
 
-Each world has its own look, music and one rule only it has. Power-ups (spread shot, laser, rapid fire, shield, homing shots, slow time; a second one waits in reserve while the first runs), smart bombs and extra lives drop along the way. After every cleared level the game cuts a movie trailer from the player's own run, re-simulated from the recorded inputs; the Cinema on the title screen keeps the best run of every level, and a lost level plays a short blooper. It is plain HTML, CSS and JavaScript ES modules with no dependencies, no build step and no network requests at runtime. Made by Babak Bandpey at Cocode, released under Apache-2.0.
+Each world has its own look, music and twist. Power-ups (spread shot, laser, rapid fire, shield, homing shots, slow time; a second one waits in reserve while the first runs), smart bombs and extra lives drop along the way. After every cleared level the game cuts a movie trailer from the player's own run, re-simulated from the recorded inputs; the Cinema on the title screen keeps the best run of every level, and a lost level plays a short blooper. It is plain HTML, CSS and JavaScript ES modules with no dependencies, no build step and no network requests at runtime. Made by Babak Bandpey at Cocode, released under Apache-2.0.
 
 ## Play
 

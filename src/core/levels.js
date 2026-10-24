@@ -1,6 +1,7 @@
 import { TWISTS, BOSSES } from './kinds.js';
 import { difficulty } from './difficulty.js';
 import { w, lv, LATE } from './levels-2.js';
+import { SIDE } from './levels-3.js';
 
 // Level data, plain and serialisable. Each level, in order, is
 //   { id: 'w<world>-<index>', world, index, seed, d, twist, bunkers,
@@ -10,7 +11,7 @@ import { w, lv, LATE } from './levels-2.js';
 // The wave shorthand `w` and its role letters are explained in levels-2.js.
 
 const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon',
-  'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon'];
+  'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege'];
 
 export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i] }));
 
@@ -142,7 +143,7 @@ function level(world, index, { seed, bunkers, waves }) {
   return waves ? { ...base, waves } : { ...base, boss: home.boss };
 }
 
-export const LEVELS = [...EARLY, ...LATE].flatMap((specs, wi) =>
+export const LEVELS = [...EARLY, ...LATE, ...SIDE].flatMap((specs, wi) =>
   specs.map((spec, ii) => level(wi + 1, ii + 1, spec)));
 
 // World 1 at d = 0 for "Watch, then try": a 6x3 grunt grid, then one swaying trio around a carrier.

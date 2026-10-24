@@ -1,11 +1,11 @@
-// Per-world pickup skins (look.world 1..8). A pickup must still read as "catch me" in every world,
+// Per-world pickup skins (look.world 1..9). A pickup must still read as "catch me" in every world,
 // so the falling capsule keeps its dark middle, coloured rim, pulse and turning dashes
 // (pickups-view.js); a world changes the rim's shape and redraws some icons in its own idiom.
 //   FRAMES[world](g, color)        the capsule's rim, centred, inside a 60 x 60 sprite (baked)
 //   ICONS[world][kind](g, color)   replaces drawIcon's default for that kind (centred, ~30 px);
 //                                  also drawn by the HUD every frame, so plain paths only
 //                                  (pickup-icons.js worlds 1-4, pickup-icons-2.js worlds 5-8)
-import { INK, rgba } from './sprites.js';
+import { INK, rgba, shade } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
 import { ICONS2 } from './pickup-icons-2.js';
@@ -119,6 +119,18 @@ export const FRAMES = {
     g.restore();
     disc(g, 23);
     ring(g, 24, color, 2.5);
+  },
+  9(g, color) { // a life-buoy: a ring banded in the power's colour and its shadow
+    disc(g, 22);
+    ring(g, 25, INK, 9);
+    g.lineWidth = 6;
+    for (let i = 0; i < 8; i++) {
+      g.strokeStyle = i % 2 ? shade(color, -0.6) : color;
+      g.beginPath();
+      g.arc(0, 0, 25, (i * TAU) / 8, ((i + 1) * TAU) / 8 + 0.02);
+      g.stroke();
+    }
+    ring(g, 22.2, rgba('#ffffff', 0.4), 1);
   },
 };
 

@@ -1,8 +1,10 @@
 import { boss, weak, armor, hull, atk, minion, phase } from './bosses-kit.js';
 import { BOSSES2 } from './bosses-data-2.js';
+import { BOSSES3 } from './bosses-data-3.js';
 
-// The first four bosses (worlds 1-4); bosses-data-2.js holds the other four. Each is built from its
-// world's look: parts are where the picture needs them, the attack mix is what the world shoots.
+// The first four bosses (worlds 1-4); bosses-data-2.js holds worlds 5-8, bosses-data-3.js world 9.
+// Each is built from its world's look: parts are where the picture needs them, the attack mix is
+// what the world shoots.
 // Layouts keep a clear column to some weak part from below at every moment of the fight (the boss
 // tests check it tick by tick), and when the last weak part falls the plates crack open to be shot
 // at full strength (boss-phase.js), so there is always something to aim at.
@@ -127,7 +129,7 @@ const shogun = boss('shogun', 'Shogun mecha', 320, { w: 600, h: 440 }, [
   ], { rate: 1.15, minions: [minion('carrier', 1, 5, 'torso')] }),
 ]);
 
-export const BOSS_DEFS = [mothership, pyramid, fortress, shogun, ...BOSSES2];
+export const BOSS_DEFS = [mothership, pyramid, fortress, shogun, ...BOSSES2, ...BOSSES3];
 
 const BY_KIND = new Map(BOSS_DEFS.map((d) => [d.kind, d]));
 

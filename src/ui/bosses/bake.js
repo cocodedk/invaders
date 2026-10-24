@@ -29,8 +29,9 @@ import queen from './queen.js';
 import agent from './agent.js';
 import titan from './titan.js';
 import singularity from './singularity.js';
+import behemoth from './behemoth.js';
 
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth };
 const cache = new Map();
 
 export function painterFor(mod, id) {
@@ -90,7 +91,7 @@ function bake(look, kind) {
 }
 
 // Only the current boss is kept: a boss is several MB of canvases, and a kiosk session that plays
-// all eight boss levels must not hold all eight (Pi 4 memory).
+// all the boss levels must not hold them all (Pi 4 memory).
 export function bossArt(look, kind) {
   const k = `${look.world}:${kind}`;
   let a = cache.get(k);

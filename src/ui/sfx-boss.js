@@ -10,6 +10,7 @@ import { tone, hiss, fm, wobble, crush, noteHz } from './audio-kit.js';
 const ROAR = {
   chip: ['square', 1.4, 10, 1.5], noir: ['sawtooth', 1, 0, 2], brass: ['sawtooth', 0.9, 0, 2.5], koto: ['triangle', 1.2, 0, 2],
   hive: ['sawtooth', 1.6, 0, 3], code: ['square', 1.2, 14, 4], iron: ['sawtooth', 0.8, 0, 5], cosmic: ['sine', 0.7, 0, 1.5],
+  monster: ['sawtooth', 0.62, 0, 4],
 };
 
 function roar(a, h, dur, fall) {
@@ -24,6 +25,11 @@ function roar(a, h, dur, fall) {
   wobble(a, growl.gain, 23 + h * 9, 0.08, a.t, dur, 'square');
   if (a.kit.style === 'hive') wobble(a, tone(a, { f0: 1900, f1: 900, attack: 0.15, dur: dur * 0.6, peak: 0.04 }).frequency, 9, 140, a.t, dur);
   if (a.kit.style === 'koto') tone(a, { f0: 110, f1: 40, dur: 0.6, peak: 0.5 });
+  if (a.kit.style === 'monster') { // a bellow an octave above the floor, falling and shaking, over a lung's rumble
+    const bellow = tone(a, { type: 'sawtooth', f0: 150 + h * 20, f1: 62, attack: 0.15, dur: dur * 0.9, peak: 0.07, cut: 900, cut1: 250, q: 4, dest });
+    wobble(a, bellow.frequency, 5, 9, a.t, dur);
+    hiss(a, { type: 'lowpass', f0: 500, f1: 110, attack: 0.2, dur, peak: 0.1 });
+  }
 }
 
 // A blast; k in 0..1 swells it (the death chain rises), size 2 is a big one.

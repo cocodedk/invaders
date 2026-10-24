@@ -17,10 +17,10 @@ function windows(g, rng, x, top, bw, h, colors, density, cell = [3, 4, 7, 9]) {
   }
 }
 
-// Towers with setbacks, lit windows, vertical neon strips and antenna beacons; the mid layer also
-// frames billboards (out.signs) for the holo flourish.
+// Towers with setbacks, lit windows, vertical neon strips (neon: false: none) and antenna beacons;
+// the mid layer also frames billboards (out.signs) for the holo flourish.
 function skyline(g, w, h, rng, L, out) {
-  const neon = L.neon ?? ['#ff4fd8', '#2ef2ff'];
+  const neon = L.neon || ['#ff4fd8', '#2ef2ff'];
   for (let x = -20; x < w; ) {
     const bw = 40 + rng() * 120;
     const bh = h * (0.35 + rng() * 0.65 * L.roughness);
@@ -35,7 +35,7 @@ function skyline(g, w, h, rng, L, out) {
       g.fillRect(ax - 1.5, top - 50, 3, 50);
       out.lights.push({ x: ax, y: top - 52, r: 9, color: '#ff3a3a', mode: 'blink', ph: rng() });
     }
-    if (rng() < 0.45) {
+    if (L.neon !== false && rng() < 0.45) { // neon: false leaves the towers plain (Tidal Siege has no signage)
       const c = pick(rng, neon);
       const sx = rng() < 0.5 ? x + 4 : x + bw - 10;
       const sh = 40 + rng() * 140;

@@ -79,6 +79,11 @@ export const VOICES = [
     ['{time} AT THE EDGE.', 'YEARS EVERYWHERE ELSE.'],
     ['{kills}.', '{near}.', 'ONE WAY HOME.'],
   ],
+  [ // Tidal Siege: monster movie, a harbour in a storm
+    ['A STORM OVER THE HARBOUR.', 'THEN THE SEA STOOD UP.'],
+    ['{kills}', 'PULLED UNDER THE WAVES.'],
+    ['{near} IN THE SPRAY.', 'THE DEEP ANSWERS.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

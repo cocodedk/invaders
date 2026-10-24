@@ -1,8 +1,8 @@
 # Invaders
 
 A cinematic arcade shooter for the browser. Fly anywhere in the lower half of the screen, shoot down
-alien formations and beat a boss at the end of every world: 8 worlds and 40 levels, each world with
-its own look, music and one rule only it has. Spread shot, laser, rapid fire, shield, homing shots,
+alien formations and beat a boss at the end of every world: 9 worlds and 45 levels, each world with
+its own look, music and twist. Spread shot, laser, rapid fire, shield, homing shots,
 slow time, smart bombs and extra lives along the way (a second power-up waits in reserve while the
 first runs), and combos for the score.
 
