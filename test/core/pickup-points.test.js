@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  level, wave, step, seconds, playing, drain, ofType, shotAt, pickupAt, pickupOnShip, bulletOnShip,
+  level, wave, step, seconds, playing, drain, ofType, shotAt, pickupAt, pickupOnShip, bulletOnShip, dry,
 } from './world-kit.js';
 import { bossWorld, leave } from './boss-kit.js';
 
@@ -9,7 +9,8 @@ import { bossWorld, leave } from './boss-kit.js';
 // still in the air (a `sweep` event: worth its points, too late for its power or bomb) before
 // `cleared` is sent.
 
-const one = () => playing(level([wave({ rows: 1, cols: 1 })]));
+// `dry`: the grunt it kills must not drop a pickup of its own (R54), or the counts would not be ours.
+const one = () => dry(playing(level([wave({ rows: 1, cols: 1 })])));
 const types = (ev) => ev.map((e) => e.type);
 
 test('a caught pickup scores a flat 500: no combo multiplier, the combo untouched', () => {

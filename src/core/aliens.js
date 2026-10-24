@@ -3,7 +3,7 @@ import { makeSlots, slotPosition, entryPosition, diveCurve, clockRate } from './
 import { emitPattern } from './patterns.js';
 import { rand, randBetween, randPick } from './rng.js';
 import { awardKill } from './scoring.js';
-import { dropPickup } from './powerups.js';
+import { dropOnKill } from './powerups.js';
 import { emit } from './util.js';
 
 // A wave of aliens: spawn, fly in, hold the formation, swoop, shoot back.
@@ -68,8 +68,8 @@ export function spawnWave(world) {
   };
 }
 
-// Damage an alien; at 0 hp it dies (scored), and a carrier leaves a pickup where it fell. The
-// caller removes the dead from world.aliens.
+// Damage an alien; at 0 hp it dies (scored), and it may leave a pickup where it fell: always for a
+// carrier, by chance for the others (dropOnKill, R54). The caller removes the dead from world.aliens.
 export function hurtAlien(world, a, dmg) {
   if (a.hp <= 0) return;
   a.hp -= dmg;
@@ -78,7 +78,7 @@ export function hurtAlien(world, a, dmg) {
     return;
   }
   awardKill(world, a);
-  if (a.role === 'carrier') dropPickup(world, a);
+  dropOnKill(world, a);
 }
 
 // One swoop tick: along diveCurve onto the slot's live position, landing exactly on it at the end.

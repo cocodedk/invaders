@@ -35,7 +35,8 @@ quoted lines, so the repo can be public.
   - diver — leaves formation to swoop at the ship, then returns, 1 hp;
   - gunner — fires the world's bullet pattern, 2 hp;
   - armored — 3 hp, sparks and cracks per hit;
-  - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life.
+  - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
+    formation alien drops one too, 3 % of the time (R54).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -58,16 +59,26 @@ quoted lines, so the repo can be public.
     displaces another power overwrites it. Nothing carries between levels. The HUD shows the running
     power as a ring with its time draining, and the reserve as a smaller ring in its own tint with the
     seconds it has left.
+  - **More drops, heavier fire (R54).** Power-ups used to come from carriers alone, about one a run. Now
+    any other formation alien that dies drops a pickup with chance `KILL_DROP` = 3 % (one draw on the
+    world's rng per kill, then the same split as a carrier's: 20 % a bomb, 5 % a life, the rest a power).
+    Boss minions and the saucer are as they were: a carrier among them always drops, the others never.
+    To keep the game no easier the enemy shoots more: `scaled(d).fireMult` is `(0.6 + d) × FIRE_UP` with
+    `FIRE_UP` = 1.5, so 0.9 at d = 0 and 2.4 at d = 1 (the boss's attacks and gunner minions use the
+    same multiplier); the 400 enemy-bullet cap is unchanged. Tuned on the headless balance run (the
+    autopilot with a human-like reaction lag, 40 levels, 20 to 50 seeds): about 2.1 pickups caught a run
+    where there was about 1.0, and the clear rate and hits a run within a point or two of before, at reaction
+    lags of 10 and 15 ticks.
   - **Homing:** the gun fires single shots at 1000 px/s (the base shot flies at 1400) that steer up to
     180°/s toward the nearest live alien ahead of them, and fly straight when there is none. Never the
     boss, the saucer or a wreck.
   - **Slow:** enemies, their bullets and the boss run at 0.5× for 6 s. It does not stack with Code
     Rain's bullet time (never 0.25×), and the frame takes bullet time's tint while it runs.
 - **Smart bombs:** separate stock, start each level with 1, max 3. Clears all enemy bullets and
-  deals 3 damage to everything on screen (bosses: 8 % of max hp). Bomb pickups drop from carriers
-  20 % of the time instead of a power-up.
+  deals 3 damage to everything on screen (bosses: 8 % of max hp). Bomb pickups are 20 % of all drops
+  (carriers' and, since R54, the others') instead of a power-up.
 - **Extra life:** a pickup like the bomb, not a power: +1 life, never above 3, and it makes no event
-  of its own beyond the pickup. A carrier drops one 5 % of the time, and only while the ship has fewer
+  of its own beyond the pickup. A drop is one 5 % of the time, and only while the ship has fewer
   than 3 lives (at full lives that 5 % is a power instead). It counts as a pickup for the flat 500.
 - **Scoring:** grunt 100, diver 150, gunner 200, armored 300, carrier 250, boss 10 000. Combo: each
   kill within 1.5 s of the last raises the multiplier by 1 (max ×8); 1.5 s without a kill resets it.
@@ -77,7 +88,8 @@ quoted lines, so the repo can be public.
 - **Stars:** ★ cleared · ★★ cleared losing ≤ 1 life · ★★★ cleared with no hits. Best score and best
   stars per level are saved in `localStorage`.
 - **Difficulty** is a property of the level, not of progress: bullet speed, fire rate, formation
-  speed and alien hp scale with `(world, level)` so world 8 is hard even when played first.
+  speed and alien hp scale with `(world, level)` so world 8 is hard even when played first. The fire
+  rate multiplier is `(0.6 + d) × 1.5` (0.9 at world 1 level 1, 2.4 at world 8 level 5; R54).
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds

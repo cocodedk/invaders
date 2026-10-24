@@ -5,7 +5,9 @@ import { SHIP_R, ZONE, LIVES } from './ship.js';
 import { emit, prune } from './util.js';
 import { awardPickup } from './scoring.js';
 
-// What carriers drop, and what the ship does with it.
+// What the dead drop (every carrier, and a KILL_DROP share of the other aliens), and what the ship
+// does with it. Exports: makePickup, dropPickup, dropOnKill, stepPickups, sweepPickups, tickPower,
+// powerTime, POWER_TIME, BOMB_MAX, KILL_DROP.
 //   pickup = { kind, x, y, vy, r }  kind is one of POWERS, 'bomb' or 'life' (makePickup).
 //   ship.power = null | { kind, left }  the one running. A new power starts at its full time and the
 //     one it displaces, with its time left, waits in ship.reserve = null | { kind, left } (R53): a
@@ -23,17 +25,30 @@ const PICKUP_R = 22;
 const FALL = 160; // px/s
 const BOMB_SHARE = 0.2; // of drops: a bomb instead of a power
 const LIFE_SHARE = 0.05; // of drops: an extra life, only while the ship is short of LIVES
+// R54: power-ups came only from carriers, about one a run. Any other formation alien now drops one
+// too, with this chance per kill (one rand), through the same split. Heavier enemy fire (FIRE_UP in
+// difficulty.js) pays for it. The pair was tuned on the headless balance run (all 40 levels, the
+// autopilot at reaction lags of 10 and 15 ticks): about twice the pickups caught a run, and the
+// clear rate and hits a run within noise of before.
+export const KILL_DROP = 0.03;
 
 // A pickup at (x, y), falling.
 export const makePickup = (kind, x, y) => ({ kind, x, y, vy: FALL, r: PICKUP_R });
 
-// A carrier died at `from`: 20 % a bomb, 5 % a life (at full lives that 5 % is a power instead), the
+// A pickup falls from `from`: 20 % a bomb, 5 % a life (at full lives that 5 % is a power instead), the
 // rest one of the six powers.
 export function dropPickup(world, from) {
   const r = rand(world.rng);
   const life = r >= BOMB_SHARE && r < BOMB_SHARE + LIFE_SHARE && world.ship.lives < LIVES;
   const kind = r < BOMB_SHARE ? 'bomb' : life ? 'life' : randPick(world.rng, POWERS);
   world.pickups.push(makePickup(kind, clamp(from.x, ZONE.x0, ZONE.x1), from.y));
+}
+
+// A hit alien has just died at `a`: a carrier always drops, any other formation alien with chance
+// KILL_DROP (R54). Boss minions never roll: their carriers drop as before and the rest do not. The
+// saucer is a carrier. The roll is one draw on world.rng, taken for every such kill, drop or not.
+export function dropOnKill(world, a) {
+  if (a.role === 'carrier' || (!a.minion && rand(world.rng) < KILL_DROP)) dropPickup(world, a);
 }
 
 function collect(world, p) {

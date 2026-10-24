@@ -2,6 +2,7 @@ import { createWorld, stepWorld } from '../../src/core/world.js';
 import { TICK } from '../../src/core/kinds.js';
 import { IDLE } from '../../src/core/input-codec.js';
 import { makePickup } from '../../src/core/powerups.js';
+import { rand } from '../../src/core/rng.js';
 
 export { TICK, IDLE };
 
@@ -29,6 +30,18 @@ export function playing(lv, { seed = 1, quiet = true } = {}) {
   step(world, 3);
   world.events.length = 0;
   return world;
+}
+
+// R54: any alien that dies may drop a pickup (KILL_DROP of the non-carriers, one draw on world.rng).
+// A test about the clear, the score or the sweep should not hang on whether the grunt it kills
+// happens to drop one, so `dry` moves the world's rng to a state whose next `n` draws are all >= 0.5,
+// far above KILL_DROP: every kill within them misses. The state is nudged, never the rule.
+export function dry(world, n = 6) {
+  for (let tries = 0; tries < 100000; tries++, world.rng.s = (world.rng.s + 1) >>> 0) {
+    const probe = { s: world.rng.s };
+    if (Array.from({ length: n }, () => rand(probe)).every((r) => r >= 0.5)) return world;
+  }
+  throw new Error('no dry rng state found');
 }
 
 export const drain = (world) => world.events.splice(0);

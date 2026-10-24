@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld } from '../../src/core/world.js';
 import { ROLES } from '../../src/core/kinds.js';
+import { FIRE_UP } from '../../src/core/difficulty.js';
 import { slotPosition } from '../../src/core/formations.js';
 import { level, wave, step, seconds, playing, drain, ofType, shotAt } from './world-kit.js';
 
@@ -126,13 +127,14 @@ test('only divers dive', () => {
 test('firing rate is ROLES[role].fire * fireMult per alien, with the wave pattern', () => {
   const w = playing(level([wave({ formation: 'sway', cols: 6, roles: ['gunner'] })]), { quiet: false });
   w.ship.invuln = 1e9;
+  assert.equal(w.scale.fireMult, 0.6 * FIRE_UP);
   const shots = [];
   for (let i = 0; i < 60 * 120; i++) {
     step(w);
     w.bullets.length = 0;
     shots.push(...ofType(drain(w), 'fire').filter((e) => e.side === 'enemy'));
   }
-  const expected = 6 * ROLES.gunner.fire * 0.6 * 120;
+  const expected = 6 * ROLES.gunner.fire * 0.6 * FIRE_UP * 120; // d = 0: fireMult = 0.6 * FIRE_UP (R54)
   assert.ok(shots.length > expected * 0.7 && shots.length < expected * 1.3, `${shots.length} vs ${expected}`);
   assert.ok(shots.every((e) => e.pattern === 'aimed'));
 });

@@ -28,11 +28,6 @@ test('a drop lands inside the ship\'s reach even when the carrier died at the sc
   assert.deepEqual(w.pickups.map((p) => p.x), [40, 1880]);
 });
 
-test('only carriers drop', () => {
-  const w = playing(lv(['grunt', 'gunner']));
-  for (const a of [...w.aliens]) hurtAlien(w, a, 9);
-  assert.equal(w.pickups.length, 0);
-});
 
 test('1000 seeded carrier deaths at full lives: about 20 % bombs, never a life, the rest over all six powers', () => {
   const w = createWorld(lv(['carrier']), 99);

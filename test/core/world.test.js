@@ -4,7 +4,7 @@ import { createWorld, stepWorld, stars } from '../../src/core/world.js';
 import { createRng, rand } from '../../src/core/rng.js';
 import { levelById } from '../../src/core/levels.js';
 import {
-  TICK, IDLE, level, wave, step, seconds, playing, drain, ofType, shotAt, bulletOnShip,
+  TICK, IDLE, level, wave, step, seconds, playing, drain, ofType, shotAt, bulletOnShip, dry,
 } from './world-kit.js';
 
 const two = () => level([wave({ cols: 3 }), wave({ formation: 'sway', cols: 2, roles: ['grunt'] })]);
@@ -65,7 +65,7 @@ test('the next wave alternates its march direction, and its aliens can be shot w
 });
 
 test('clearing the last wave clears the level: +2000, +3000 more with no hits', () => {
-  const w = playing(level([wave({ cols: 2 })]));
+  const w = dry(playing(level([wave({ cols: 2 })]))); // dry: no pickup to sweep in (R54), the score is the kills' and the bonus
   killAll(w);
   assert.equal(w.state, 'cleared');
   const ev = drain(w);
