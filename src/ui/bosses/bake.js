@@ -30,8 +30,9 @@ import agent from './agent.js';
 import titan from './titan.js';
 import singularity from './singularity.js';
 import behemoth from './behemoth.js';
+import count from './count.js';
 
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count };
 const cache = new Map();
 
 export function painterFor(mod, id) {

@@ -8,7 +8,7 @@
 // A world change fades the old loop out, stops its sources and then disconnects every node it
 // made (the echo's feedback loop included), so a kiosk that cycles worlds for days stays flat.
 import { audioNodes, setWorldSound } from './audio.js';
-import { tone, hiss } from './audio-kit.js';
+import { tone, hiss, fm, noteHz } from './audio-kit.js';
 import { STYLES, kitFor, degreeMidi, midiHz } from './sound-data.js';
 
 const AHEAD = 0.3; // s scheduled ahead of the audio clock
@@ -40,6 +40,18 @@ const DRUM = {
   s: (a, t) => {
     hiss(a, { t, type: 'bandpass', f0: 1700, q: 0.8, dur: 0.12, peak: 0.08 });
     tone(a, { t, f0: 210, f1: 150, dur: 0.05, peak: 0.05 });
+  },
+  b: (a, t) => { // a low bell struck on the root: a hum, the prime with its metallic overtones, a minor third
+    const f = noteHz(a.kit, 0, 3);
+    fm(a, { t, f0: f, ratio: 2.41, index: 1.8, dur: 2.2, peak: 0.1, cut: 2600 });
+    tone(a, { t, f0: f * 0.5, dur: 2.6, peak: 0.1 });
+    tone(a, { t, f0: f * 1.19, dur: 1.4, peak: 0.035 });
+    hiss(a, { t, type: 'highpass', f0: 3600, dur: 0.03, peak: 0.03 });
+  },
+  p: (a, t) => { // a soft timpani: a round thump that sags a fifth
+    const f = noteHz(a.kit, 0, 2);
+    tone(a, { t, f0: f * 1.5, f1: f, dur: 0.55, peak: 0.16 });
+    hiss(a, { t, type: 'lowpass', f0: 320, dur: 0.07, peak: 0.05 });
   },
 };
 

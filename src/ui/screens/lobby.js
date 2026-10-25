@@ -1,7 +1,9 @@
-// Level select as a cinema lobby: nine posters (each world's boss fight, rendered by the game) over
-// five reels each, showing best stars and best score. Every reel is open from the start.
-// Keys: left/right change world (same reel), up/down change reel, down from the last reel reaches
-// Back, Enter plays, Esc goes back. The mouse focuses on hover and plays on click.
+// Level select as a cinema lobby: ten posters (each world's boss fight, rendered by the game), in
+// two rows of five, each beside five reels showing best stars and best score. Every reel is open
+// from the start.
+// Keys (lobby-nav.js): left/right change world within a row (same reel), up/down change reel and
+// run on into the row below or above, down from the last row's last reel reaches Back, Enter plays,
+// Esc goes back. The mouse focuses on hover and plays on click.
 //   lobbyScreen({ best, start(level), back(), focusId }) -> screen   best: storage allBest()
 // Posters not baked yet (posters.js bakes them in idle slices) show their sky, and develop in as
 // soon as they are ready (update).
@@ -14,6 +16,7 @@ import { fmt } from '../format.js';
 import { MOVE, isConfirm, isBack } from '../keys.js';
 import { MAX_STARS } from '../../core/scoring.js';
 import { TAGLINES, posterFor } from './posters.js';
+import { step } from './lobby-nav.js';
 
 function reel(level, best, start) {
   const b = best[level.id];
@@ -77,9 +80,8 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
       const move = MOVE[code];
       if (move) {
         lastReel = document.activeElement;
-        if (r + move[1] >= grid[0].length) return focusItem(backBtn), true;
-        focusItem(grid[(w + move[0] + grid.length) % grid.length][Math.max(0, r + move[1])]);
-        return true;
+        const to = step([w, r], move, grid.length, grid[0].length);
+        return focusItem(to ? grid[to[0]][to[1]] : backBtn), true;
       }
       if (isConfirm(code)) return document.activeElement.click(), true;
       return false;

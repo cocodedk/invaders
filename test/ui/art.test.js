@@ -13,6 +13,7 @@ import { crackStage } from '../../src/ui/aliens/index.js';
 import { SKINS } from '../../src/ui/bunker-skins.js';
 import { FRAMES, ICONS } from '../../src/ui/pickup-skins.js';
 import { rgb } from '../../src/ui/sprites.js';
+import { recorder } from './dom-kit.js';
 
 const at = (maxHp, hp) => crackStage({ role: 'armored', hp, maxHp });
 
@@ -85,4 +86,34 @@ test('every look tints every power, the bomb and the extra life, each in its own
     for (const [i, c] of tints.entries()) assert.match(c, /^#[0-9a-f]{6}$/, `w${look.world} tint ${i}`);
     assert.equal(new Set(tints).size, tints.length, `w${look.world} ${tints.join()}`);
   }
+});
+
+test('every Hollow Night guest burns on its lights layer on both beats: the eyes, faces and brew are what the dark leaves', () => {
+  const look = LOOKS[9];
+  assert.equal(look.world, 10);
+  for (const role of ROLE_LIST) {
+    for (const f of [0, 1]) {
+      const [b, l] = [recorder(), recorder()];
+      art(look)[role](b.ctx, l.ctx, f, look.palette.alien[role]);
+      const lit = l.calls.filter(([k]) => ['fill', 'fillRect', 'stroke'].includes(k)).length;
+      assert.ok(lit >= 6, `${role} frame ${f}: ${lit} fills and strokes of light`);
+    }
+  }
+  assert.equal(art(look).crack, '#9dff5a', 'cracks split the lid and the rind in witch-fire green');
+});
+
+test("Hollow Night's headstones are weathered stone: mortar, moss, cracks, no two rows alike", () => {
+  const P = {};
+  for (const k of ['fill', 'light', 'dark', 'edge', 'accent']) P[k] = rgb(LOOKS[9].bunker[k]);
+  const seen = new Map();
+  for (let y = 0; y < BUNKER.h; y++) {
+    for (let x = 0; x < BUNKER.w; x++) {
+      const [c] = SKINS.gravestone(x, y, BUNKER.w, BUNKER.h, P);
+      const name = Object.entries(P).find(([, v]) => v === c)?.[0];
+      seen.set(name, (seen.get(name) ?? 0) + 1);
+    }
+  }
+  assert.ok(seen.get('accent') > 120, `${seen.get('accent')} px of moss`);
+  assert.ok(seen.get('dark') > 250, `${seen.get('dark')} px of mortar and cracks`);
+  assert.ok(seen.get('fill') > BUNKER.w * BUNKER.h * 0.55, 'mostly stone');
 });

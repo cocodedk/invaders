@@ -111,4 +111,24 @@ function container(x, y, w, h, P) {
   return [box, (x % 5 < 2 ? 0.2 : -0.14) + 0.12 * (1 - row / 30) + grain(x, y, 0.08)];
 }
 
-export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container };
+// Hollow Night: weathered stone laid in uneven courses, mortar gone dark, moss creeping up from the
+// foot and along the joints, pitted and streaked by rain, hairline cracks, pale lichen. No lettering.
+function gravestone(x, y, w, h, P) {
+  const row = Math.floor(y / 13);
+  const ry = y - row * 13;
+  const off = Math.floor(hash2(row, 4) * 38); // whole px, or the vertical joints never land
+  const bw = 24 + Math.floor(hash2(row, 8) * 3) * 8;
+  const col = Math.floor((x + off) / bw);
+  const joint = ry === 0 || (x + off) % bw === 0;
+  const moss = noise2(x, y, 13, 7) + 0.24 * (y / h) + (joint ? 0.14 : 0);
+  if (Math.abs(noise2(x, y, 22, 11) - 0.5) < 0.011 || (Math.abs(noise2(x + 90, y, 17, 12) - 0.5) < 0.008 && y > 14)) return [P.dark, -0.35]; // a crack
+  if (moss > 0.86) return [P.accent, (noise2(x, y, 4, 2) - 0.5) * 0.5 + 0.1]; // moss
+  if (joint) return [P.dark, joint && moss > 0.7 ? 0.1 : -0.2];
+  if (hash2(x, y) > 0.994) return [P.light, 0.35]; // lichen
+  const stone = (hash2(col + row * 13, 6) - 0.5) * 0.3 + (noise2(x, y, 9, 3) - 0.5) * 0.34 + grain(x, y, 0.14);
+  const streak = noise2(x * 3, y * 0.22, 5, 2) > 0.68 ? -0.17 : 0;
+  const pit = noise2(x, y, 4, 9) > 0.8 ? -0.34 : 0;
+  return [P.fill, stone + streak + pit + 0.16 * (1 - y / h) + (ry === 1 ? 0.1 : 0) - (ry === 12 ? 0.1 : 0)];
+}
+
+export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container, gravestone };

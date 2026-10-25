@@ -36,7 +36,7 @@ function bunkers(g, look) {
 }
 
 export function drawSheet(canvas, id) {
-  const n = clamp(parseInt(String(id).replace(/\D/g, ''), 10) || 1, 1, 9);
+  const n = clamp(parseInt(String(id).replace(/\D/g, ''), 10) || 1, 1, 10);
   const look = LOOKS[n - 1];
   canvas.width = W;
   canvas.height = H;

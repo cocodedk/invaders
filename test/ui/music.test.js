@@ -62,3 +62,20 @@ test('fifty world changes leave one loop connected, the echo feedback included (
   assert.equal(intoMusic(), 0, 'silence leaves nothing connected to the bus');
   assert.equal(live('Delay'), 0);
 });
+
+test("Hollow Night's loop tolls a low bell on the bar, over an organ drone and plucked arpeggios in harmonic minor", () => {
+  const nodes = fakeAudio();
+  const c = startLoop(nodes, LOOKS[9]);
+  fillLoop(c, 4.2); // two bars at 112 bpm, and a little over
+  const osc = nodes.ctx.nodes.filter((n) => n.kind === 'Oscillator');
+  const first = (n) => n.frequency.calls[0]?.[1] ?? n.frequency.value;
+  const bell = osc.filter((n) => Math.abs(first(n) - 146.83) < 0.5 || Math.abs(first(n) - 73.42) < 0.5);
+  assert.ok(bell.length >= 4, `${bell.length} bell tones: the prime and the hum, on each of the two bars`);
+  assert.ok(osc.filter((n) => n.type === 'square').length >= 3, 'an organ pad of square waves: root, fifth and a detuned root');
+  const plucks = osc.filter((n) => n.type === 'sawtooth' && n.frequency.calls.length);
+  assert.ok(plucks.length >= 12, `${plucks.length} harpsichord plucks`);
+  const pitchClass = (n) => (Math.round(12 * Math.log2(first(n) / 440)) + 69) % 12;
+  const pcs = new Set(plucks.map(pitchClass));
+  assert.ok([...pcs].every((pc) => [1, 2, 4, 5, 7, 9, 10].includes(pc)), `every pluck is D harmonic minor: ${[...pcs]}`);
+  assert.ok(pcs.has(1), 'the leading tone, C sharp, is in the arpeggio');
+});

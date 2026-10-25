@@ -14,13 +14,14 @@ const LEAD = {
   iron: { type: 'sawtooth', cut: 2400, peak: 0.1 },
   cosmic: { type: 'sine', peak: 0.12, attack: 0.08 },
   monster: { type: 'sawtooth', cut: 1700, peak: 0.08, attack: 0.04 },
+  gothic: { type: 'sawtooth', cut: 2300, peak: 0.065, attack: 0.05 },
 };
 
 function note(a, degree, octave, t, dur, peak = 1) {
   const v = LEAD[a.kit.style] ?? LEAD.noir;
   const f = noteHz(a.kit, degree, octave);
   tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak });
-  if (a.kit.style === 'cosmic') tone(a, { ...v, t, f0: f * 2, dur, peak: v.peak * peak * 0.35 }); // the organ's octave
+  if (a.kit.style === 'cosmic' || a.kit.style === 'gothic') tone(a, { ...v, t, f0: f * 2, dur, peak: v.peak * peak * 0.35 }); // the organ's octave
   if (['noir', 'brass', 'monster'].includes(a.kit.style)) tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak * 0.7, detune: 12 });
 }
 

@@ -8,6 +8,7 @@ import { CITY } from './parallax-city.js';
 import { WILD } from './parallax-wild.js';
 import { BARREN } from './parallax-barren.js';
 import { HARBOUR } from './parallax-harbour.js';
+import { GOTHIC } from './parallax-gothic.js';
 
 // Flat-topped buttes with steep sides and a talus skirt.
 function mesas(g, w, h, rng, L) {
@@ -90,6 +91,6 @@ const GENERIC = {
 
 export function paintLayer(g, w, h, rng, L, out) {
   g.fillStyle = L.color;
-  const paint = GENERIC[L.kind] ?? CITY[L.kind] ?? WILD[L.kind] ?? BARREN[L.kind] ?? HARBOUR[L.kind];
+  const paint = GENERIC[L.kind] ?? CITY[L.kind] ?? WILD[L.kind] ?? BARREN[L.kind] ?? HARBOUR[L.kind] ?? GOTHIC[L.kind];
   paint(g, w, h, rng, L, out);
 }

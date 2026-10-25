@@ -20,7 +20,8 @@ test('difficulty never falls as (world, level) advances', () => {
   }
 });
 
-// World 9 is a side world with its own d, about world 4-5 hard; worlds 1-8 keep the 39-step curve.
+// Worlds 9 and 10 are side worlds with their own d: world 9 about world 4-5 hard, world 10 between
+// worlds 3 and 4. Worlds 1-8 keep the 39-step curve.
 test('world 9 sets its own difficulty per level, rising within the world, and leaves worlds 1-8 alone', () => {
   const own = [1, 2, 3, 4, 5].map((i) => difficulty(9, i));
   assert.deepEqual(own, [0.40, 0.43, 0.45, 0.48, 0.50]);
@@ -28,6 +29,13 @@ test('world 9 sets its own difficulty per level, rising within the world, and le
   for (let w = 1; w <= 8; w++) {
     for (let i = 1; i <= 5; i++) assert.equal(difficulty(w, i), ((w - 1) * 5 + i - 1) / 39, `w${w}-${i}`);
   }
+});
+
+test('world 10 sets its own difficulty per level, rising within the world, between worlds 3 and 4', () => {
+  const own = [1, 2, 3, 4, 5].map((i) => difficulty(10, i));
+  assert.deepEqual(own, [0.30, 0.32, 0.34, 0.36, 0.38]);
+  own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w10-${i + 1}`));
+  assert.ok(own[0] > difficulty(3, 1) && own[4] <= difficulty(4, 1), 'between world 3 and world 4');
 });
 
 test('scaled gives the documented range at d = 0 and d = 1', () => {

@@ -9,7 +9,7 @@ import { drawAlienLights } from './aliens/index.js';
 import { drawBossLights } from './bosses/index.js';
 
 const LIT = 0.15; // s a lightning flash lights the dark world fully, then it fades out
-const DIM = 0.66; // how dark the dark world is
+const DIM = 0.66; // how dark the dark world is, unless its look says (look.dark)
 
 // 1 while a lightning flash is in its first 0.15 s, falling to 0 over the rest of its life.
 function lightningLight(fx) {
@@ -31,9 +31,10 @@ export function drawDarkness(ctx, env) {
   if (world.level.twist !== 'darkness') return;
   const light = lightningLight(fx);
   if (light >= 1) return;
-  ctx.fillStyle = `rgba(3,2,10,${DIM * (1 - light)})`;
+  const dim = v.look.dark ?? DIM;
+  ctx.fillStyle = `rgba(3,2,10,${dim * (1 - light)})`;
   ctx.fillRect(-40, -40, W + 80, H + 80);
-  const back = 1 - light;
+  const back = (1 - light) * dim / DIM; // a lighter dark has less to give back to the lights
   for (const L of v.layers) {
     if (L.lights.length && !(L.far && env.quality < 1)) drawLights(ctx, L, layerX(L, world.ship.x), t, 0.8 * back);
   }

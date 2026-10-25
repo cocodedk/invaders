@@ -1,7 +1,7 @@
-// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w9.js).
+// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w10.js).
 // Pure data and maths, shared by the sound effects (one flavour per world) and the music loop.
 //   kitFor(music) -> { style, root, scale, bpm, wave, cut, wet, pitch }
-//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster
+//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic
 //     root   semitone of the root above C; scale: semitone steps of the scale
 //     wave   the oscillator most of the world's tones use; cut: their lowpass ceiling (Hz);
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
@@ -9,7 +9,7 @@
 //     vol: the loop's level, trimmed so every world's loop measures about -36 dBFS RMS offline
 //     drone: { wave, oct, cut, fifth }   lead: { wave, oct, cut, len (of a step), gain }
 //     div: steps per beat, seq: scale degrees per step (null rests), drum: per-step hit letters
-//     (k kick, t taiko, h hat, s snare-ish noise, . rest), bars: how many bars before the seq shifts
+//     (k kick, t taiko, h hat, s snare-ish noise, b a low tolling bell, p a soft timpani, . rest), bars: how many bars before the seq shifts
 export const NOTES = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
 
 export const SCALES = {
@@ -19,6 +19,7 @@ export const SCALES = {
   locrian: [0, 1, 3, 5, 6, 8, 10],
   lydian: [0, 2, 4, 6, 7, 9, 11],
   in: [0, 1, 5, 7, 8], // the Japanese in scale
+  harmonic: [0, 2, 3, 5, 7, 8, 11], // harmonic minor: the minor with its leading tone
 };
 
 export const STYLES = {
@@ -66,6 +67,11 @@ export const STYLES = {
     mood: 'monster', wave: 'sawtooth', cut: 2000, wet: 0.3, pitch: 0.8,
     music: { vol: 0.8, drone: { wave: 'sawtooth', oct: 1, cut: 240, fifth: true }, lead: { wave: 'sawtooth', oct: 3, cut: 1300, len: 0.8, gain: 0.07 },
       div: 2, seq: [0, null, null, 0, null, null, 1, null, 0, null, null, 0, null, 3, 4, null], drum: 't...t.t.t...t.tt' },
+  },
+  gothic: { // an organ held under a harpsichord's plucked arpeggios, a bell tolling on every bar, timpani underneath
+    mood: 'gothic', wave: 'triangle', cut: 3400, wet: 0.55, pitch: 0.9,
+    music: { vol: 0.62, drone: { wave: 'square', oct: 2, cut: 760, fifth: true }, lead: { wave: 'sawtooth', oct: 4, cut: 2800, len: 0.55, gain: 0.05 },
+      div: 2, seq: [0, 2, 4, 7, 4, 2, 4, 2, 0, 2, 4, 6, 7, 6, 4, null], drum: 'b...p...b...p.p.' },
   },
 };
 

@@ -2,7 +2,7 @@ import { boss, weak, armor, hull, atk, minion, phase } from './bosses-kit.js';
 import { BOSSES2 } from './bosses-data-2.js';
 import { BOSSES3 } from './bosses-data-3.js';
 
-// The first four bosses (worlds 1-4); bosses-data-2.js holds worlds 5-8, bosses-data-3.js world 9.
+// The first four bosses (worlds 1-4); bosses-data-2.js holds worlds 5-8, bosses-data-3.js worlds 9-10.
 // Each is built from its world's look: parts are where the picture needs them, the attack mix is
 // what the world shoots.
 // Layouts keep a clear column to some weak part from below at every moment of the fight (the boss

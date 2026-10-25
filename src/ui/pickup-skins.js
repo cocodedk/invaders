@@ -1,11 +1,11 @@
-// Per-world pickup skins (look.world 1..9). A pickup must still read as "catch me" in every world,
+// Per-world pickup skins (look.world 1..10). A pickup must still read as "catch me" in every world,
 // so the falling capsule keeps its dark middle, coloured rim, pulse and turning dashes
 // (pickups-view.js); a world changes the rim's shape and redraws some icons in its own idiom.
 //   FRAMES[world](g, color)        the capsule's rim, centred, inside a 60 x 60 sprite (baked)
 //   ICONS[world][kind](g, color)   replaces drawIcon's default for that kind (centred, ~30 px);
 //                                  also drawn by the HUD every frame, so plain paths only
 //                                  (pickup-icons.js worlds 1-4, pickup-icons-2.js worlds 5-8)
-import { INK, rgba, shade } from './sprites.js';
+import { INK, rgba, shade, lin } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
 import { ICONS2 } from './pickup-icons-2.js';
@@ -131,6 +131,53 @@ export const FRAMES = {
       g.stroke();
     }
     ring(g, 22.2, rgba('#ffffff', 0.4), 1);
+  },
+  10(g, color) { // a pumpkin rind: eight ribs bulging round a dark middle, a stem, four notches carved through it
+    disc(g, 21);
+    for (let i = 0; i < 8; i++) {
+      const a = (i * TAU) / 8;
+      g.save();
+      g.rotate(a);
+      g.translate(23.6, 0);
+      g.beginPath();
+      g.ellipse(0, 0, 6.4, 10, 0, 0, TAU);
+      g.fillStyle = lin(g, -6, -9, 6, 9, [[0, shade(color, 0.35)], [0.55, color], [1, shade(color, -0.55)]]);
+      g.fill();
+      g.lineWidth = 1.7;
+      g.strokeStyle = INK;
+      g.stroke();
+      g.restore();
+    }
+    ring(g, 19.2, INK, 1.8);
+    g.fillStyle = 'rgba(8,10,20,0.96)';
+    for (let i = 0; i < 4; i++) { // the cuts, each with the candle's light on its lower lip
+      g.save();
+      g.rotate(Math.PI / 4 + (i * TAU) / 4);
+      g.translate(23.6, 0);
+      g.rotate(Math.PI / 2);
+      g.beginPath();
+      g.moveTo(-3.4, -3.2);
+      g.lineTo(3.4, -3.2);
+      g.lineTo(0, 3.8);
+      g.closePath();
+      g.fill();
+      g.strokeStyle = rgba('#fff0b0', 0.8);
+      g.lineWidth = 1;
+      g.beginPath();
+      g.moveTo(-2, 1.4);
+      g.lineTo(0, 3.8);
+      g.lineTo(2, 1.4);
+      g.stroke();
+      g.restore();
+    }
+    g.fillStyle = '#4e5a22'; // the stem, curling
+    g.fillRect(-2.6, -31, 5.2, 6);
+    g.strokeStyle = '#7a9a38';
+    g.lineWidth = 1.8;
+    g.beginPath();
+    g.moveTo(2, -29.6);
+    g.quadraticCurveTo(7, -32.6, 6, -27.6);
+    g.stroke();
   },
 };
 

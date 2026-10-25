@@ -14,9 +14,10 @@ export const PATTERNS = ['aimed', 'fan', 'ring', 'spiral', 'laser', 'rain', 'hom
 export const POWERS = ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow'];
 
 // World order: WORLDS[i].twist is TWISTS[i] and WORLDS[i].boss is BOSSES[i].
-// World 9 reuses Twin Suns' storm wind, so its twist repeats world 3's.
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts'];
-export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth'];
+// World 9 reuses Twin Suns' storm wind, so its twist repeats world 3's; world 10 reuses Neon Rain's
+// darkness, so its twist repeats world 2's.
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness'];
+export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
 // HUD_BOTTOM; nothing that must be seen or shot may sit behind them.

@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 9 cinematic worlds × 5 levels = 45 levels, free 2D
+as beautiful as Barrage (`../artillery`): 10 cinematic worlds × 5 levels = 50 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56; world 9 follows its own difficulty, R57).
+    (R54, R56; worlds 9 and 10 follow their own difficulty, R57, R58).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -120,6 +120,18 @@ quoted lines, so the repo can be public.
     20 seeds) its levels 1–5 clear 19, 17, 18, 16 and 14 times at reaction lag 10, against world 4's
     20, 18, 20, 16 and 20, and 17, 11, 10, 13 and 10 times at lag 15, against world 4's 20, 15, 18, 11
     and 16 (world 5's boss: 2): a little harder than world 4, easier than world 5.
+  - **World 10, a Halloween night beside the run (R58).** The user asked for another world, in a
+    vampire and Halloween theme with the harbour's detail, as a second breather. World 10 sets its own
+    `d` as world 9 does: 0.30, 0.32, 0.34, 0.36, 0.38, a step below world 9, so worlds 1–9 and their
+    replays are unchanged. Its twist is Neon Rain's `darkness`, with no new rule, but moonlit: its look
+    dims the scene by 38 % rather than 66 %, so the night's detail stays in view while its own lights
+    burn brightest (the lanterns' faces, the ghosts' eyes, the castle's windows, the Count's eyes and
+    heart). Its boss, the Crimson Count, never charges, and his bat swarm in the last phase is drawing
+    plus the usual diver minions. The darkness is only drawn, so the autopilot cannot feel it, and the
+    levels were set on the easy side. On the headless run (20 seeds) its levels 1–5
+    clear 19, 17, 18, 17 and 19 times at reaction lag 10, and 17, 15, 15, 12 and 20 times at lag 15,
+    against world 9's 19, 17, 18, 16, 14 and 17, 11, 10, 13, 10 and world 4's 20, 18, 20, 16, 20 and
+    20, 15, 18, 11, 16: about world 4, and easier than world 9.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -138,6 +150,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 7 | Iron Dawn | machine-war future | burning future war, chrome, red eyes | armored aliens reassemble once after 2 s unless their wreck is shot | Endoskeleton titan |
 | 8 | Event Horizon | black-hole space epic | black hole with lensing, bent starlight | a gravity well bends every bullet, yours included | The Singularity |
 | 9 | Tidal Siege | kaiju harbour monster movie | night harbour in a storm, cranes, a sea beast's teal glow | the storm's gusts push all bullets sideways (Twin Suns' wind, ruling R57) | Abyssal behemoth |
+| 10 | Hollow Night | gothic vampire Halloween | a castle on a crag under a harvest moon, dead trees, a graveyard of jack-o'-lanterns | darkness, moonlit: the night's own lights burn brightest; lightning lights the whole screen (Neon Rain's, ruling R58) | Crimson Count |
 
 ## Look and effects
 

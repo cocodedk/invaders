@@ -10,7 +10,7 @@ import { tone, hiss, fm, wobble, crush, noteHz } from './audio-kit.js';
 const ROAR = {
   chip: ['square', 1.4, 10, 1.5], noir: ['sawtooth', 1, 0, 2], brass: ['sawtooth', 0.9, 0, 2.5], koto: ['triangle', 1.2, 0, 2],
   hive: ['sawtooth', 1.6, 0, 3], code: ['square', 1.2, 14, 4], iron: ['sawtooth', 0.8, 0, 5], cosmic: ['sine', 0.7, 0, 1.5],
-  monster: ['sawtooth', 0.62, 0, 4],
+  monster: ['sawtooth', 0.62, 0, 4], gothic: ['triangle', 0.9, 0, 1.2],
 };
 
 function roar(a, h, dur, fall) {
@@ -29,6 +29,16 @@ function roar(a, h, dur, fall) {
     const bellow = tone(a, { type: 'sawtooth', f0: 150 + h * 20, f1: 62, attack: 0.15, dur: dur * 0.9, peak: 0.07, cut: 900, cut1: 250, q: 4, dest });
     wobble(a, bellow.frequency, 5, 9, a.t, dur);
     hiss(a, { type: 'lowpass', f0: 500, f1: 110, attack: 0.2, dur, peak: 0.1 });
+  }
+  if (a.kit.style === 'gothic') { // a great bell struck and left ringing, and a bat's shriek cutting over it
+    const f = noteHz(a.kit, 0, 3);
+    fm(a, { f0: f, ratio: 2.41, index: 2.6, dur: dur * 1.2, peak: 0.16, cut: 2600 });
+    tone(a, { f0: f * 0.5, dur: dur * 1.2, peak: 0.14 });
+    tone(a, { f0: f * 1.19, dur, peak: 0.06 });
+    const t = a.t + 0.18;
+    const shriek = tone(a, { type: 'sawtooth', t, f0: 2600 + h * 500, f1: 5600, attack: 0.03, dur: dur * 0.55, peak: 0.035, cut: 7000, q: 5 });
+    wobble(a, shriek.frequency, 24 + h * 8, 420, t, dur * 0.55);
+    hiss(a, { t, type: 'bandpass', f0: 5200, f1: 3000, q: 4, attack: 0.04, dur: dur * 0.5, peak: 0.05 });
   }
 }
 

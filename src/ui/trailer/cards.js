@@ -84,6 +84,11 @@ export const VOICES = [
     ['{kills}', 'PULLED UNDER THE WAVES.'],
     ['{near} IN THE SPRAY.', 'THE DEEP ANSWERS.'],
   ],
+  [ // Hollow Night: gothic, candlelit and slow
+    ['WHEN THE LANTERNS LIGHT,', 'THE CASTLE WAKES.'],
+    ['{kills}', 'LAID TO REST.'],
+    ['{near} IN THE DARK.', 'DAWN IS {time} AWAY.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

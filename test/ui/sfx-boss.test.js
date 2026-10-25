@@ -30,7 +30,22 @@ test("the monster's roar sits lower than any other world's, so it reads as a bel
     BOSS.phase(a, { phase: 1 });
     return Math.min(...nodes.filter((x) => x.kind === 'Oscillator' && x.frequency.calls.length).map((x) => x.frequency.calls[0][1]));
   };
-  const [w9, ...others] = [LOOKS[8], ...LOOKS.slice(0, 8)].map(floor);
+  const [w9, ...others] = [LOOKS[8], ...LOOKS.slice(0, 8), LOOKS[9]].map(floor);
   assert.ok(w9 < 50, `${w9} Hz`);
   assert.ok(others.every((f) => f > w9), 'every other world roars higher');
+});
+
+test("the Count's roar is a bell tolled low, with a bat's shriek high over it, and the stingers play on an organ", () => {
+  const kit = kitFor(LOOKS[9].music);
+  assert.equal(kit.style, 'gothic');
+  const { a, nodes } = fakeVoice(kit);
+  BOSS.phase(a, { phase: 1 });
+  const starts = nodes.filter((x) => x.kind === 'Oscillator' && x.frequency.calls.length).map((x) => x.frequency.calls[0][1]);
+  assert.ok(starts.some((f) => f > 120 && f < 160), 'the bell strikes the root of D, an octave and a half under middle C');
+  assert.ok(starts.some((f) => f > 70 && f < 80), 'with its hum an octave under');
+  assert.ok(starts.some((f) => f >= 2600), 'the shriek');
+  const organ = fakeVoice(kit);
+  UI.cleared(organ.a, {});
+  const types = organ.nodes.filter((x) => x.kind === 'Oscillator').map((x) => x.type);
+  assert.ok(types.filter((t) => t === 'sawtooth').length >= 8, 'a sawtooth lead, each note doubled an octave up like an organ stop');
 });
