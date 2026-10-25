@@ -101,3 +101,36 @@ test("Aurora Kingdom's loop strikes celesta bells in E lydian over a choir that 
   const shake = nodes.ctx.nodes.filter((n) => n.kind === 'BiquadFilter' && n.type === 'bandpass' && first(n) >= 5000);
   assert.ok(shake.length >= 10, `${shake.length} sleigh-bell rattles`);
 });
+
+test("Starlit Archive's loop plucks harp arpeggios in D dorian under music-box bells and strings that bow in on each bar, with a plucked bass and a soft frame drum", () => {
+  const nodes = fakeAudio();
+  const c = startLoop(nodes, LOOKS[11]);
+  assert.deepEqual([c.kit.style, c.kit.bpm], ['archive', 116]);
+  fillLoop(c, 4.2); // one 16-step pass at 116 bpm, and a little over
+  const osc = nodes.ctx.nodes.filter((n) => n.kind === 'Oscillator');
+  const first = (n) => n.frequency.calls[0]?.[1] ?? n.frequency.value;
+  const pitchClass = (n) => (Math.round(12 * Math.log2(first(n) / 440)) + 69) % 12;
+  const DORIAN = [2, 4, 5, 7, 9, 11, 0];
+  const carriers = osc.filter((n) => nodes.ctx.nodes.some((g) => g.out.has(n.frequency))); // the FM tones: what a modulator drives
+  const partner = (n, ratio) => osc.some((m) => Math.abs(first(m) - first(n) * ratio) < 0.5);
+  const harp = carriers.filter((n) => first(n) < 900);
+  assert.equal(harp.length, 15, 'fifteen plucks and a rest in the arpeggio');
+  const pcs = new Set(harp.map(pitchClass));
+  assert.ok([...pcs].every((pc) => DORIAN.includes(pc)), `every pluck is D dorian: ${[...pcs]}`);
+  assert.ok(pcs.has(11), 'the dorian sixth, B, is in the tune');
+  assert.ok(harp.every((n) => partner(n, 3)), 'each pluck has a whole-number FM partner, so it rings like a string');
+  const bells = carriers.filter((n) => first(n) > 900);
+  assert.equal(bells.length, 2, 'sparse: two music-box bells in the pass');
+  assert.ok(bells.every((n) => DORIAN.includes(pitchClass(n)) && partner(n, 4.2)), 'in the scale, with an inharmonic partner');
+  const saws = osc.filter((n) => n.type === 'sawtooth');
+  const drone = saws.filter((n) => !n.frequency.calls.length);
+  assert.equal(drone.length, 3, 'the string pad underneath: root, fifth and a detuned root');
+  assert.ok(Math.abs(first(drone[0]) - 73.42) < 0.05, 'on D2');
+  const pad = saws.filter((n) => n.frequency.calls.length && n.stopAt - n.frequency.calls[0][2] > 2.5);
+  assert.equal(pad.length, 16, 'four notes of two detuned voices, bowed in on each of the two bars');
+  assert.ok(pad.every((n) => DORIAN.includes(pitchClass(n))), 'a chord of the scale');
+  assert.ok(pad.some((n) => n.detune.value < 0) && pad.some((n) => n.detune.value > 0), 'detuned both ways');
+  const bass = saws.filter((n) => n.frequency.calls.length && n.stopAt - n.frequency.calls[0][2] < 0.5);
+  assert.deepEqual(bass.map((n) => Math.round(first(n))), [73, 147, 73, 147], 'the plucked bass: root, octave, root, octave');
+  assert.equal(osc.filter((n) => first(n) === 132).length, 4, 'four soft frame-drum thumps');
+});

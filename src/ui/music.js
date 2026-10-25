@@ -1,14 +1,16 @@
 // A light synthesized loop per world: a drone on the root (two detuned oscillators breathing through
-// a slow filter) and a lead stepping through the world's scale over a short drum line, all from the
-// look's music entry (sound-data.js STYLES[style].music). Every 2 passes of the sequence the lead
-// moves to the next chord of a four-step progression, so the loop does not drone on one phrase.
+// a slow filter) and a lead stepping through the world's scale over a short drum line (its hits are in
+// music-drums.js), all from the look's music entry (sound-data.js STYLES[style].music). Every 2 passes
+// of the sequence the lead moves to the next chord of a four-step progression, so the loop does not
+// drone on one phrase.
 //   setMusic(look)   the world to play (cross-fades from the last); null for silence; musicLook()
 //   updateMusic(nodes?)  once per frame: schedules the next 0.3 s of notes ahead of the clock
 //   startLoop(nodes, look) / fillLoop(loop, until) / stopLoop(loop)   the same loop on any context
 // A world change fades the old loop out, stops its sources and then disconnects every node it
 // made (the echo's feedback loop included), so a kiosk that cycles worlds for days stays flat.
 import { audioNodes, setWorldSound } from './audio.js';
-import { tone, hiss, fm, noteHz, bell } from './audio-kit.js';
+import { tone, fm } from './audio-kit.js';
+import { DRUM } from './music-drums.js';
 import { STYLES, kitFor, degreeMidi, midiHz } from './sound-data.js';
 
 const AHEAD = 0.3; // s scheduled ahead of the audio clock
@@ -29,37 +31,6 @@ export function setWorld(look) {
 }
 
 export const musicLook = () => want; // what plays now: a Cinema trailer hands the menu's music back
-
-const DRUM = {
-  k: (a, t) => tone(a, { t, f0: 150, f1: 44, dur: 0.18, peak: 0.26 }),
-  t: (a, t) => {
-    tone(a, { t, f0: 115, f1: 48, dur: 0.42, peak: 0.3 });
-    hiss(a, { t, type: 'lowpass', f0: 500, dur: 0.08, peak: 0.08 });
-  },
-  h: (a, t) => hiss(a, { t, type: 'highpass', f0: 8000, dur: 0.03, peak: 0.03 }),
-  s: (a, t) => {
-    hiss(a, { t, type: 'bandpass', f0: 1700, q: 0.8, dur: 0.12, peak: 0.08 });
-    tone(a, { t, f0: 210, f1: 150, dur: 0.05, peak: 0.05 });
-  },
-  b: (a, t) => { // a low bell struck on the root, and the clapper's tick
-    bell(a, { t, index: 1.8, dur: [2.2, 2.6, 1.4], peak: [0.1, 0.1, 0.035] });
-    hiss(a, { t, type: 'highpass', f0: 3600, dur: 0.03, peak: 0.03 });
-  },
-  p: (a, t) => { // a soft timpani: a round thump that sags a fifth
-    const f = noteHz(a.kit, 0, 2);
-    tone(a, { t, f0: f * 1.5, f1: f, dur: 0.55, peak: 0.16 });
-    hiss(a, { t, type: 'lowpass', f0: 320, dur: 0.07, peak: 0.05 });
-  },
-  c: (a, t) => { // a choir swelling in: a chord over the root (third, fifth, ninth), each note two detuned sawtooth voices
-    for (const d of [2, 4, 8]) {
-      for (const detune of [-6, 7]) tone(a, { type: 'sawtooth', t, f0: noteHz(a.kit, d, 3), detune, attack: 1.1, dur: 2.2, peak: 0.022, cut: 1000 });
-    }
-  },
-  j: (a, t) => { // sleigh bells: bright rattles tumbling over each other, and a thin ring that hangs
-    [0, 0.03, 0.055, 0.1, 0.13].forEach((d, i) => hiss(a, { t: t + d, type: 'bandpass', f0: [7200, 5600, 8400, 6400, 7800][i], q: 6, dur: 0.1, peak: 0.03 }));
-    fm(a, { t, f0: 3300, ratio: 2.76, index: 1.2, dur: 0.6, peak: 0.02 });
-  },
-};
 
 export function startLoop(nodes, look) {
   const { ctx } = nodes;
@@ -91,7 +62,7 @@ export function startLoop(nodes, look) {
 function droneVoice(a, d, make) {
   const { ctx, kit } = a;
   const g = make(ctx.createGain());
-  g.gain.value = 0.05;
+  g.gain.value = d.gain ?? 0.05;
   const f = make(ctx.createBiquadFilter());
   f.type = 'lowpass';
   f.frequency.value = d.cut;
@@ -142,7 +113,7 @@ function stepAt(c, t) {
     else tone(a, o);
   }
   const hit = m.drum[c.step % m.drum.length];
-  DRUM[hit]?.(a, t);
+  DRUM[hit]?.(a, t, { deg: deg == null ? null : deg + shift, shift, step: c.step });
   c.step += 1;
   return len;
 }

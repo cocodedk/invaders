@@ -16,7 +16,7 @@ const TOP = -Math.PI / 2; // where a ring starts draining
 
 test('every pickup kind draws an icon of its own, in the default set and in every world', () => {
   const kinds = [...POWERS, 'bomb', 'life'];
-  for (const world of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]) {
+  for (const world of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
     const drawn = kinds.map((kind) => {
       const { ctx, calls } = recorder();
       drawIcon(ctx, kind, '#ffffff', world);

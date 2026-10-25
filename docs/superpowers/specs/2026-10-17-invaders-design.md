@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 11 cinematic worlds × 5 levels = 55 levels, free 2D
+as beautiful as Barrage (`../artillery`): 12 cinematic worlds × 5 levels = 60 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56; worlds 9–11 follow their own difficulty, R57–R59).
+    (R54, R56; worlds 9–12 follow their own difficulty, R57–R60).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -142,6 +142,18 @@ quoted lines, so the repo can be public.
     clear 100, 65, 75, 68 and 77 (40 seeds, the boss 60), against world 5's 99, 62, 69, 48 and 35 (100
     seeds); at lag 15, 90, 30, 38, 30 and 20, against 80, 28, 38, 22 and 9. The behemoth clears 87 and
     45: the wyrm sits between the two bosses, and its waves at about world 5's.
+  - **World 12, a library at the edge of the universe (R60).** The user asked for a world of my own,
+    "the world of your fantasies", harder than average, with no questions asked. It is an archive
+    where every star is a book: shelf towers rising into an indigo nebula, constellations that gild
+    themselves star to star, and guards of paper, ink and bronze. World 12 sets its own `d` to world
+    6's run: 0.64, 0.66, 0.69, 0.71, 0.74, so `armorBonus` applies, as it does there. Its twist is Code
+    Rain's `glitch`, with no new rule, but its own look and sound: a blinking alien dissolves into
+    pages and re-forms, with a harp note in the world's scale; the glitch bands are a gold-ink smear,
+    and bullet time is a sepia-gold hush with a held string chord. Its boss, the Grand Grimoire, never
+    charges; its storm of pages in the last phase is drawing, plus the usual diver minions. On the
+    headless run (40 seeds) its levels 1–5 clear 38, 35, 30, 25 and 19 times at reaction lag 10, and
+    37, 16, 27, 11 and 3 at lag 15. World 6 clears 39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: its waves
+    and its boss match world 6 within noise.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -162,6 +174,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 9 | Tidal Siege | kaiju harbour monster movie | night harbour in a storm, cranes, a sea beast's teal glow | the storm's gusts push all bullets sideways (Twin Suns' wind, ruling R57) | Abyssal behemoth |
 | 10 | Hollow Night | gothic vampire Halloween | a castle on a crag under a harvest moon, dead trees, a graveyard of jack-o'-lanterns | darkness, moonlit: the night's own lights burn brightest; lightning lights the whole screen (Neon Rain's, ruling R58) | Crimson Count |
 | 11 | Aurora Kingdom | polar fantasy under the northern lights | an ice kingdom under the aurora, glacier mountains, a frozen fleet, ice floes on black water | enemy shots are slow, large ice shards; the ship's shots shatter them (Ronin Moon's, ruling R59) | Crystal Wyrm |
+| 12 | Starlit Archive | celestial library fantasy | a library at the edge of the universe: shelf towers in an indigo nebula, floating islands of books, constellations drawn in gold | aliens blink between slots in a whirl of pages; near misses drop into a sepia-gold bullet time (Code Rain's, ruling R60) | Grand Grimoire |
 
 ## Look and effects
 

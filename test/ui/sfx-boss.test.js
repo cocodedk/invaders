@@ -70,3 +70,33 @@ test("the wyrm's roar is a glacier cracking under a long keen that falls and sha
   assert.ok(bell.length >= 20, `${bell.length}: each note a sine and an FM ring`);
   assert.ok(bell.some((x) => Math.abs((x.frequency.calls[0]?.[1] ?? 0) - 659.26 * 3.51) < 1), 'the glassy ring is an inharmonic partner of the first note, an octave up');
 });
+
+const ARCHIVE = kitFor({ mood: 'archive', root: 'D', scale: 'dorian', bpm: 116 });
+
+test("the Grimoire's roar is a book slammed shut, a boom and a leathery crack, with a rush of pages after it", () => {
+  assert.equal(ARCHIVE.style, 'archive');
+  const { a, nodes } = fakeVoice(ARCHIVE);
+  const secs = BOSS.phase(a, { phase: 1 });
+  const osc = nodes.filter((x) => x.kind === 'Oscillator');
+  assert.ok(osc.some((x) => x.type === 'sine' && x.frequency.calls[0]?.[1] === 118 && x.frequency.calls[1]?.[1] === 34), 'a boom that falls through the floor');
+  assert.ok(nodes.some((x) => x.kind === 'BiquadFilter' && x.type === 'lowpass' && x.frequency.calls[0]?.[1] === 3000), 'the cover cracking');
+  const pages = nodes.filter((x) => x.kind === 'BiquadFilter' && x.type === 'bandpass' && x.frequency.calls[0][1] >= 3200);
+  assert.equal(pages.length, 10, 'ten leaves flapping, each a short burst of bright noise');
+  assert.ok(osc.some((x) => x.type === 'triangle' && x.frequency.calls[0]?.[1] < 100), 'the rumble under it');
+  for (const s of nodes.filter((x) => x.kind === 'Oscillator' || x.kind === 'BufferSource')) assert.ok(s.started && s.stopAt <= a.t + secs + 0.5, 'a source left running');
+  const { a: b, nodes: other } = fakeVoice(kitFor(LOOKS[10].music));
+  BOSS.phase(b, { phase: 1 });
+  assert.ok(!other.some((x) => x.kind === 'Oscillator' && x.frequency.calls[0]?.[1] === 118), "no other world's roar slams a book");
+});
+
+test("the archive's stingers are a solo violin: one bowed sawtooth a note, a vibrato that shakes it, and no organ or bell doubling", () => {
+  const { a, nodes } = fakeVoice(ARCHIVE);
+  const secs = UI.cleared(a, {});
+  const osc = nodes.filter((x) => x.kind === 'Oscillator');
+  const violin = osc.filter((x) => x.type === 'sawtooth');
+  assert.equal(violin.length, 7, 'seven notes, each a single voice');
+  assert.ok(Math.abs(violin[0].frequency.calls[0][1] - 293.66) < 0.05, 'the run starts on D4');
+  assert.equal(osc.filter((x) => x.frequency.value === 5.4).length, 7, 'a vibrato on each note');
+  assert.ok(violin.every((x) => x.detune.value === 0), 'solo, not an ensemble');
+  for (const s of nodes.filter((x) => x.kind === 'Oscillator' || x.kind === 'BufferSource')) assert.ok(s.started && s.stopAt <= a.t + secs + 0.5, 'a source left running');
+});

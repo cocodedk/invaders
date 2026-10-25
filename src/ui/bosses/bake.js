@@ -18,7 +18,8 @@
 //   (extra hull lights that fade in with that phase), live?(ctx, boss, t, k, own, since)
 //   (per-frame extras in boss coordinates, 'lighter', cached sprites only; k is the light
 //   strength, since when the phase began; anything opaque only when `own`, the boss's own pass,
-//   since the darkness pass runs live again over the aliens) }.
+//   since the darkness pass runs live again over the aliens), warm?() (paints the cached sprites
+//   live() draws, which warmBoss calls so that none is baked mid-fight) }.
 // S = { def, pal: look.palette.boss, look, W, H, pad }; b, l are the body and lights contexts.
 import { makeCanvas, white } from '../sprites.js';
 import { bossDef } from '../../core/bosses-data.js';
@@ -34,8 +35,9 @@ import singularity from './singularity.js';
 import behemoth from './behemoth.js';
 import count from './count.js';
 import wyrm from './wyrm.js';
+import grimoire from './grimoire.js';
 
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire };
 const cache = new Map();
 
 export function painterFor(mod, id) {
@@ -121,5 +123,6 @@ export function warmBoss(look, kind) {
     if (set.open) wreck(set, true);
   }
   hullFlash(B);
+  B.mod.warm?.();
   return B;
 }

@@ -1,7 +1,7 @@
 // Sound patches of the stingers and the menus. The stingers play in the world's scale and its lead
-// voice (chip square, noir saw, koto pluck and taiko, cosmic organ, aurora bells...), so a clear in Ronin Moon
+// voice (chip square, noir saw, koto pluck and taiko, cosmic organ, aurora bells, archive violin...), so a clear in Ronin Moon
 // sounds like Ronin Moon. Menu sounds are short, soft and in key. A patch is (a, o) -> seconds.
-import { tone, hiss, fm, noteHz } from './audio-kit.js';
+import { tone, hiss, fm, wobble, noteHz } from './audio-kit.js';
 
 // The world's lead voice for melodic stingers: tone options for a note of `dur` seconds.
 const LEAD = {
@@ -16,14 +16,19 @@ const LEAD = {
   monster: { type: 'sawtooth', cut: 1700, peak: 0.08, attack: 0.04 },
   gothic: { type: 'sawtooth', cut: 2300, peak: 0.065, attack: 0.05 },
   aurora: { type: 'sine', peak: 0.09 },
+  archive: { type: 'sawtooth', cut: 3300, peak: 0.08, attack: 0.07 },
 };
 
 function note(a, degree, octave, t, dur, peak = 1) {
   const v = LEAD[a.kit.style] ?? LEAD.noir;
   const f = noteHz(a.kit, degree, octave);
-  tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak });
+  const lead = tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak });
   if (a.kit.style === 'cosmic' || a.kit.style === 'gothic') tone(a, { ...v, t, f0: f * 2, dur, peak: v.peak * peak * 0.35 }); // the organ's octave
   if (a.kit.style === 'aurora') fm(a, { t, f0: f * 2, ratio: 3.51, index: 1.1, dur, peak: v.peak * peak * 0.4 }); // the bell's glassy ring, an octave up
+  if (a.kit.style === 'archive') { // a solo violin: the bow rasps in, then the note shakes with a vibrato that blooms late
+    hiss(a, { t, type: 'bandpass', f0: f * 6, q: 1.5, attack: 0.02, dur: 0.07, peak: 0.02 * peak });
+    wobble(a, lead.frequency, 5.4, f * 0.011, t + dur * 0.3, dur * 0.7);
+  }
   if (['noir', 'brass', 'monster'].includes(a.kit.style)) tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak * 0.7, detune: 12 });
 }
 

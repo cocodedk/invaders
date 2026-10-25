@@ -2,6 +2,7 @@
 // rings by kind, local flashes, and floating score text. Pure reads of fx; nothing is changed here.
 // Full-frame flashes, glitch slices and tints are screen-view.js.
 import { INK, rgba, glow, soft } from './sprites.js';
+import { pageSprite } from './ambient-4.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { flashK } from '../fx/fx.js';
 import { TAU } from '../core/math.js';
@@ -28,6 +29,16 @@ function plain(ctx, p) {
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1;
     ctx.stroke();
+    return;
+  }
+  if (p.kind === 'page') { // a loose sheet turning over as it flies (Starlit Archive's blink)
+    const a = (p.max - p.life) * 9 + p.vx * 0.01;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(a * 0.7);
+    ctx.scale((s / 20) * Math.cos(a * 1.3), s / 20);
+    ctx.drawImage(pageSprite(p.color), -16, -20);
+    ctx.restore();
     return;
   }
   if (p.kind === 'debris') { // tumbling chips: the box turns with the particle's age

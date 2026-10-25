@@ -124,7 +124,7 @@ export function drawFrame(v, world, fx, t = 0, film = null) {
   drawFlourishes(ctx, env, 'sky');
   field(ctx, v, world, fx, t, env, amb);
   ctx.translate(0, v.lift);
-  drawScreenFx(ctx, fx);
+  drawScreenFx(ctx, fx, v.look);
   drawAmbient(ctx, v.look, 'screen', amb);
   drawFlourishes(ctx, env, 'screen');
   drawSlices(ctx, v.canvas, f, fx);

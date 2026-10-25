@@ -1,8 +1,10 @@
 // Sound patches of the eight world twists: Neon Rain's thunder, Twin Suns' gusts, Ronin Moon's
-// shuriken cut (an ice shard shattering, in Aurora Kingdom), Hive's acid, Code Rain's teleport glitch and bullet-time swell, Iron Dawn's wrecks
-// that reassemble, Event Horizon's well swallowing bullets, and Arcade Origin's warbling saucer.
+// shuriken cut (an ice shard shattering, in Aurora Kingdom), Hive's acid, Code Rain's teleport glitch and
+// bullet-time swell (a page fluttering and a harp note, and a string chord held, in Starlit Archive), Iron
+// Dawn's wrecks that reassemble, Event Horizon's well swallowing bullets, and Arcade Origin's warbling saucer.
 // A patch is (a, o) -> seconds (audio-kit.js); a.tail is a stereo panner when the sound has an x.
 import { tone, hiss, fm, wobble, crush, noteHz } from './audio-kit.js';
+import { WIDTH } from '../core/kinds.js';
 
 // Sweep the sound's panner from one side to the other over `secs`.
 function sweep(a, from, to, secs) {
@@ -20,6 +22,27 @@ function shatter(a, o) {
   const degree = [2, 4, 6, 7, 9][Math.min(4, Math.max(0, Math.floor((o.x ?? 0) / 384)))];
   fm(a, { t: a.t + 0.04, f0: noteHz(a.kit, degree, 5), ratio: 3.51, index: 0.8, dur: 0.5, peak: 0.06 });
   return 0.6;
+}
+
+// Starlit Archive's alien blinks as a page turns: a flutter of paper, and a harp note on the scale of the
+// landing x, climbing from the left of the screen to the right (seven bands, D F A B D F A in D dorian: two octaves).
+const HARP = [0, 2, 4, 5, 7, 9, 11];
+function pageBlink(a, o) {
+  [0, 0.028, 0.06, 0.085, 0.13].forEach((d, i) => hiss(a, {
+    t: a.t + d, type: 'bandpass', f0: [5200, 3600, 6400, 4300, 5600][i], q: 1.4, dur: 0.035, peak: 0.14 - i * 0.017,
+  }));
+  const band = Math.min(HARP.length - 1, Math.max(0, Math.floor(((o.x ?? 0) / WIDTH) * HARP.length)));
+  fm(a, { t: a.t + 0.04, f0: noteHz(a.kit, HARP[band], 4), ratio: 3, index: 3.2, dur: 0.75, peak: 0.115, cut: 6500 });
+  return 0.85;
+}
+
+// ...and bullet time (2 s) is strings held: a chord of the scale (root, fifth, octave and the third over it, a
+// low root under them) bowed in and held until time returns, when the same chord falls away. Each note is
+// two detuned sawtooth voices.
+const STRINGS = [0, 4, 7, 9];
+function chord(a, o) {
+  STRINGS.forEach((d) => [-7, 8].forEach((detune) => tone(a, { ...o, type: 'sawtooth', f0: noteHz(a.kit, d, 3), detune, q: 1 })));
+  tone(a, { ...o, f0: noteHz(a.kit, 0, 2), peak: o.peak * 2, cut: undefined });
 }
 
 export const WORLD = {
@@ -51,20 +74,29 @@ export const WORLD = {
     wobble(a, s.gain, 41, 0.05, a.t + 0.06, 0.55, 'square');
     return 0.65;
   },
-  teleport(a) { // a digital glitch out, and back in a beat later
+  teleport(a, o) { // a digital glitch out, and back in a beat later (a page flutters, a harp note)
+    if (a.kit.style === 'archive') return pageBlink(a, o);
     const d = crush(a, 6);
     tone(a, { type: 'square', f0: 2100, f1: 260, steps: 9, dur: 0.11, peak: 0.03, dest: d });
     hiss(a, { type: 'highpass', f0: 5200, dur: 0.04, peak: 0.05 });
     tone(a, { type: 'square', t: a.t + 0.1, f0: 300, f1: 1900, steps: 7, dur: 0.08, peak: 0.025, dest: d });
     return 0.25;
   },
-  bulletOn(a) { // time thickens: everything swoops down
+  bulletOn(a) { // time thickens: everything swoops down (the strings swell in)
+    if (a.kit.style === 'archive') {
+      chord(a, { attack: 0.8, hold: 1.2, dur: 0.4, peak: 0.015, cut: 500, cut1: 2400 });
+      return 2.5;
+    }
     tone(a, { type: 'sawtooth', f0: 440, f1: 82, dur: 0.95, peak: 0.12, cut: 2200, cut1: 260 });
     hiss(a, { type: 'lowpass', f0: 2400, f1: 180, dur: 0.95, peak: 0.14 });
     hiss(a, { type: 'highpass', f0: 3000, f1: 8000, attack: 0.35, dur: 0.1, peak: 0.06 });
     return 1.1;
   },
-  bulletOff(a) {
+  bulletOff(a) { // (the strings fall away)
+    if (a.kit.style === 'archive') {
+      chord(a, { attack: 0.04, dur: 1.1, peak: 0.015, cut: 2400, cut1: 400 });
+      return 1.4;
+    }
     tone(a, { type: 'sawtooth', f0: 82, f1: 440, dur: 0.5, peak: 0.08, cut: 300, cut1: 2400 });
     return 0.6;
   },

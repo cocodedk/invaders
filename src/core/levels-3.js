@@ -1,8 +1,8 @@
 import { w, lv } from './levels-2.js';
 
-// Level data for worlds 9-11, in the shorthand explained in levels-2.js. All three are side worlds beside
+// Level data for worlds 9-12, in the shorthand explained in levels-2.js. All four are side worlds beside
 // the main run: their own d (difficulty.js) puts world 9 near worlds 4-5, world 10 between worlds 3
-// and 4 and world 11 about world 5, so their waves are paced like those.
+// and 4, world 11 about world 5 and world 12 at world 6's own d, so their waves are paced like those.
 export const SIDE = [
   // 9 Tidal Siege: the beast's brood comes in off the sea: crabs sway along the quay, rays dive
   // out of the spray, jellyfish drift in escort. The piers (bunkers) stand on the first and third.
@@ -95,5 +95,36 @@ export const SIDE = [
       w('orbit', 3, 'gca', 'shuriken', 1.35),
     ], true),
     lv(112209),
+  ],
+  // 12 Starlit Archive: the guards of the stacks. Ink wisps drift in, paper cranes dive off the
+  // shelves, spellbooks snap open and fire, bronze owl bookends march and lantern moths carry. Paced
+  // like world 6, whose glitch twist it shares: rain, aimed shots, spirals and rings, with the fans
+  // and lasers of world 7 now and then. The stacks of tomes (bunkers) stand on the first and third.
+  [
+    lv(120391, [
+      w('sway', 8, 'ugg', 'rain', 1.0),
+      w('dive', 6, 'dgu', 'aimed', 1.05),
+      w('escort', 3, 'gcu', 'spiral', 1.05),
+    ], true),
+    lv(120847, [
+      w('split', 8, 'ugd', 'ring', 1.1),
+      w('rain', 8, 'gag', 'aimed', 1.1),
+      w('spiral', 6, 'dgg', 'rain', 1.15),
+      w('orbit', 3, 'ucu', 'spiral', 1.15),
+    ]),
+    lv(121302, [
+      w('dive', 8, 'dug', 'fan', 1.15),
+      w('split', 8, 'gag', 'ring', 1.15),
+      w('sway', 8, 'ugg', 'rain', 1.15),
+      w('escort', 3, 'aca', 'spiral', 1.2),
+    ], true),
+    lv(121779, [
+      w('spiral', 6, 'uda', 'rain', 1.2),
+      w('sway', 5, 'dug', 'laser', 1.2),
+      w('rain', 8, 'gdg', 'ring', 1.2),
+      w('split', 8, 'gag', 'spiral', 1.25),
+      w('orbit', 3, 'uca', 'aimed', 1.3),
+    ]),
+    lv(122236),
   ],
 ];

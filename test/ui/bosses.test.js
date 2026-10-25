@@ -12,7 +12,7 @@ const parts = (kind) => BOSS_DEFS.find((d) => d.kind === kind).parts.map((p) => 
 const dying = (kind, left) => ({ kind, dying: left, parts: parts(kind) });
 
 test('every boss has a hull painter and a painter for every one of its parts (the parts are the hit boxes)', () => {
-  assert.equal(Object.keys(BOSS_ART).length, 11);
+  assert.equal(Object.keys(BOSS_ART).length, 12);
   for (const def of BOSS_DEFS) {
     const art = BOSS_ART[def.kind];
     assert.ok(art, `${def.kind} has art`);
@@ -66,6 +66,19 @@ test("the wyrm's gems and coils are drawn once, as the left ones, and mirrored f
   assert.equal(art.rage.length, 3, 'one rage layer per phase');
   assert.equal(art.rage[0], null, 'the first phase is the serpent at rest');
   assert.equal(typeof art.live, 'function', 'the breath and the blizzard are live extras');
+});
+
+test("the grimoire's pages and quills are drawn once, as the left ones, and mirrored for the right", () => {
+  const art = BOSS_ART.grimoire;
+  for (const base of ['page', 'quill']) {
+    assert.deepEqual(painterFor(art, `${base}L`), [art.parts[base], 1]);
+    assert.deepEqual(painterFor(art, `${base}R`), [art.parts[base], -1]);
+  }
+  for (const id of ['crown', 'eye', 'clasp']) assert.equal(painterFor(art, id)[1], 1, `${id} is drawn as it is`);
+  assert.equal(art.rage.length, 3, 'one rage layer per phase');
+  assert.equal(art.rage[0], null, 'the first phase is the book at rest');
+  assert.equal(typeof art.live, 'function', 'the script, the pupil and the storm are live extras');
+  assert.equal(typeof art.warm, 'function', 'whose sprites are baked ahead of the fight');
 });
 
 test('armour shows the hp it has lost out of its max: whole, cracked, badly cracked', () => {

@@ -4,6 +4,7 @@
 // light (k > 0) or dark (k < 0). The rim (bunkers-view.js) is drawn over every skin, so every
 // carve still shows as a lit edge. Baked per carve, never per frame.
 import { hash2, noise2 } from './sprites.js';
+import { tomes } from './bunker-tomes.js';
 
 const grain = (x, y, a) => (hash2(x >> 1, y >> 1) - 0.5) * a;
 
@@ -149,4 +150,4 @@ function glacier(x, y, w, h, P) {
   return [P.fill, 0.34 * (1 - y / h) - 0.4 * (y / h) ** 2 + band + (noise2(x, y, 9, 5) - 0.5) * 0.22 + grain(x, y, 0.1)];
 }
 
-export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container, gravestone, glacier };
+export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container, gravestone, glacier, tomes };

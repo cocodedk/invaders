@@ -16,9 +16,10 @@ export const POWERS = ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow'];
 // World order: WORLDS[i].twist is TWISTS[i] and WORLDS[i].boss is BOSSES[i].
 // World 9 reuses Twin Suns' storm wind, so its twist repeats world 3's; world 10 reuses Neon Rain's
 // darkness, so its twist repeats world 2's; world 11 reuses Ronin Moon's shuriken, drawn there as
-// ice shards, so its twist repeats world 4's.
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken'];
-export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm'];
+// ice shards, so its twist repeats world 4's; world 12 reuses Code Rain's glitch, drawn there as
+// pages and gold dust, so its twist repeats world 6's.
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch'];
+export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
 // HUD_BOTTOM; nothing that must be seen or shot may sit behind them.

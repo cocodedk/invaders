@@ -1,8 +1,8 @@
 import { boss, weak, armor, atk, minion, phase } from './bosses-kit.js';
 
-// The bosses of worlds 9-11, the side-world bosses, none of which charges: they sway, hover, then circle.
-// All rest high enough that every part is below the HUD (R28); the Count and the wyrm sit no lower
-// than the behemoth.
+// The bosses of worlds 9-12, the side-world bosses, none of which charges: they sway, hover, then circle.
+// All rest high enough that every part is below the HUD (R28); the Count, the wyrm and the grimoire
+// sit no lower than the behemoth.
 
 // The boss of world 9: the Abyssal behemoth, a sea beast rising out of the harbour. Its maw breathes
 // the laser, its gills fan out spray, its crest rains, and its claws send the divers.
@@ -110,4 +110,45 @@ const wyrm = boss('wyrm', 'Crystal Wyrm', 260, { w: 700, h: 340 }, [
   ], { rate: 1.25, minions: [minion('diver', 4, 6.5, 'coilR'), minion('carrier', 1, 4.5, 'crest')] }),
 ]);
 
-export const BOSSES3 = [behemoth, count, wyrm];
+// The boss of world 12: the Grand Grimoire, a living spellbook floating open and upright. The crown
+// (the spine's gilded headband) stands over the spread; the sigil-eye sits on its centre and the
+// clasp hangs below it, with a quill at the lower outer corner of each open page, so shots from
+// below always find a weak part. The eye shoots aimed bolts and, in the last phase, the laser; the
+// quills write fans and spirals; the clasp breathes rings; the pages loose homing sparks and, from
+// phase 2, send the paper cranes (divers). About the Agent core's weight and clearly above the
+// wyrm: it never charges, and it moves at 1.0-1.3. It rests at 260 with its eye low in the frame
+// (top -80), so at the top of its orbit the face is well clear of the HUD (R28); its quills and
+// clasp end no lower than the wyrm's coils.
+const grimoire = boss('grimoire', 'Grand Grimoire', 260, { w: 700, h: 340 }, [
+  armor('crown', 0, -140, 260, 40, 8),
+  weak('eye', 0, -30, 120, 100, 84),
+  armor('pageL', -205, -20, 250, 230, 7),
+  armor('pageR', 205, -20, 250, 230, 7),
+  weak('quillL', -290, 90, 70, 100, 46),
+  weak('quillR', 290, 90, 70, 100, 46),
+  weak('clasp', 0, 95, 90, 90, 38),
+], [
+  phase(0.65, 'sway', [
+    atk('aimed', 2.2, 'eye'),
+    atk('fan', 3.2, 'quillL', { count: 3, spread: 0.5 }),
+    atk('spiral', 5, 'quillR', { count: 12 }),
+    atk('homing', 4.6, 'pageL'),
+  ], { rate: 1, minions: [minion('carrier', 1, 4.5, 'crown')] }),
+  phase(0.3, 'hover', [
+    atk('aimed', 2, 'eye'),
+    atk('fan', 3, 'quillL', { count: 4, spread: 0.6 }),
+    atk('spiral', 4.8, 'quillR', { count: 14 }),
+    atk('homing', 3.6, 'pageR'),
+    atk('ring', 5.2, 'clasp', { count: 12 }),
+  ], { rate: 1.15, minions: [minion('diver', 2, 10, 'pageL'), minion('carrier', 1, 4.5, 'crown')] }),
+  phase(0, 'orbit', [
+    atk('aimed', 1.8, 'eye'),
+    atk('spiral', 4.4, 'quillL', { count: 16 }),
+    atk('fan', 2.8, 'quillR', { count: 5, spread: 0.8 }),
+    atk('homing', 3.2, 'pageL'),
+    atk('ring', 4.6, 'clasp', { count: 14 }),
+    atk('laser', 6.4, 'eye'),
+  ], { rate: 1.3, minions: [minion('diver', 3, 7.5, 'pageR'), minion('carrier', 1, 4.5, 'crown')] }),
+]);
+
+export const BOSSES3 = [behemoth, count, wyrm, grimoire];

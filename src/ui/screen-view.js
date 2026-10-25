@@ -1,7 +1,8 @@
 // Effects on the whole frame: Neon Rain's darkness (the scene dimmed, neon still burning, lightning
-// lighting it all for 0.15 s), full-frame flashes, the bullet-time tint and Code Rain's glitch
-// slices (bands of the finished frame shifted sideways).
-import { W, H } from './sprites.js';
+// lighting it all for 0.15 s), full-frame flashes, the bullet-time tint (green, or the look's own: Starlit
+// Archive's warm sepia) and the glitch slices (bands of the finished frame shifted sideways: Code Rain's
+// green ones, or Starlit Archive's smears of gilt ink).
+import { W, H, rgba, lin } from './sprites.js';
 import { flashK } from '../fx/fx.js';
 import { drawLights, layerX } from './parallax.js';
 import { drawFlourishes } from './flourish.js';
@@ -10,6 +11,7 @@ import { drawBossLights } from './bosses/index.js';
 
 const LIT = 0.15; // s a lightning flash lights the dark world fully, then it fades out
 const DIM = 0.66; // how dark the dark world is, unless its look says (look.dark)
+const GREEN = { shade: 'rgba(0,30,12,0.28)', glow: 'rgba(40,255,120,0.06)' }; // the tint of bullet time and the slow power, unless the look says (look.tint)
 
 // 1 while a lightning flash is in its first 0.15 s, falling to 0 over the rest of its life.
 function lightningLight(fx) {
@@ -49,7 +51,7 @@ export function drawDarkness(ctx, env) {
 
 // Full-frame flashes (bombs, boss deaths, lightning, bullet time) and the bullet-time tint, which the
 // slow power shares.
-export function drawScreenFx(ctx, fx) {
+export function drawScreenFx(ctx, fx, look) {
   ctx.globalCompositeOperation = 'lighter';
   for (const f of fx.flashes) {
     if (!f.full) continue;
@@ -61,13 +63,35 @@ export function drawScreenFx(ctx, fx) {
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
   if (fx.bulletTime || fx.slowPower) {
-    ctx.fillStyle = 'rgba(0,30,12,0.28)';
+    const tint = look?.tint ?? GREEN;
+    ctx.fillStyle = tint.shade;
     ctx.fillRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'lighter';
-    ctx.fillStyle = 'rgba(40,255,120,0.06)';
+    ctx.fillStyle = tint.glow;
     ctx.fillRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'source-over';
   }
+}
+
+// An ink slice: a page turning across the frame. A tall strip of the frame is shifted sideways and sweeps on
+// the way it was shifted as it fades, a wash of gilt over it brightest at its leading edge, where the paper
+// folds, and a thin bright line there. Canvas pixels, like the slices below.
+function smear(ctx, canvas, sl, k, x, y, w, h, s) {
+  const dir = Math.sign(sl.dx);
+  const [sx, env] = [Math.round(x + dir * (1 - k) * 260 * s), Math.min(1, k * 2.5)];
+  const dx = sx + sl.dx * s;
+  ctx.globalAlpha = 0.9 * env;
+  ctx.drawImage(canvas, sx, y, w, h, dx, y, w, h);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = env;
+  const lead = dir > 0 ? 0.85 : 0.15;
+  ctx.fillStyle = lin(ctx, dx, 0, dx + w, 0, [[0, rgba(sl.color, 0)], [lead, rgba(sl.color, 0.42)], [1, rgba(sl.color, 0)]]);
+  ctx.fillRect(dx, y, w, h);
+  const edge = dx + w * lead;
+  ctx.fillStyle = lin(ctx, edge - 5 * s, 0, edge + 5 * s, 0, [[0, rgba('#fff4d0', 0)], [0.5, rgba('#fff4d0', 0.85)], [1, rgba('#fff4d0', 0)]]);
+  ctx.fillRect(edge - 5 * s, y, 10 * s, h);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
 }
 
 // Glitch slices: copy each band of what is already on the canvas, shifted by dx, tinted green.
@@ -83,6 +107,10 @@ export function drawSlices(ctx, canvas, fit, fx) {
     const sw = Math.min(canvas.width - sx, Math.round(sl.w * fit.s));
     const sh = Math.min(canvas.height - sy, Math.max(1, Math.round(sl.h * fit.s)));
     if (sw <= 0 || sh <= 0) continue;
+    if (sl.kind === 'ink') {
+      smear(ctx, canvas, sl, k, sx, sy, sw, sh, fit.s);
+      continue;
+    }
     ctx.drawImage(canvas, sx, sy, sw, sh, sx + sl.dx * fit.s, sy, sw, sh);
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = 0.35 * k;

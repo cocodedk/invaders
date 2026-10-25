@@ -10,7 +10,7 @@ const sum = (parts) => parts.reduce((n, p) => n + p.hp, 0);
 const weakAt = (def, i) => def.parts.filter((p) =>
   p.weak || def.phases.some((ph, j) => j <= i && ph.open?.includes(p.id)));
 
-test('there are eleven definitions, in world order, looked up by kind', () => {
+test('there are twelve definitions, in world order, looked up by kind', () => {
   assert.deepEqual(BOSS_DEFS.map((d) => d.kind), BOSSES);
   for (const kind of BOSSES) assert.equal(bossDef(kind).kind, kind);
   assert.equal(bossDef('nope'), undefined);
@@ -99,7 +99,7 @@ test('every phase of every boss sends one carrier at a time, at least every 5 s'
 
 test('the bosses differ: layouts, part counts and attack mixes are not copies of one another', () => {
   const sig = BOSS_DEFS.map((d) => JSON.stringify([d.parts.map((p) => [p.dx, p.dy]), d.phases.map((p) => p.attacks.map((a) => a.pattern))]));
-  assert.equal(new Set(sig).size, 11);
+  assert.equal(new Set(sig).size, 12);
   for (const def of BOSS_DEFS) assert.ok(def.parts.length >= 5, `${def.kind} has parts`);
   assert.ok(BOSS_DEFS.some((d) => d.phases.some((p) => p.open)), 'a trench that opens');
 });
@@ -119,4 +119,24 @@ test('the Crystal Wyrm sways, hovers and circles, shoots shards, and sits no low
   assert.ok(attacks.some((a) => a.pattern === 'rain' && a.from === 'crest'), 'hail from the crest');
   assert.ok(wyrm.phases.slice(1).every((p) => p.minions.some((m) => m.role === 'diver')), 'snow owls in phases 2 and 3');
   for (const id of ['maw', 'gemL', 'gemR']) assert.ok(wyrm.parts.find((p) => p.id === id).weak, id);
+});
+
+// The Grand Grimoire never charges, keeps its sigil-eye clear of the HUD at the top of its orbit,
+// ends no lower than the wyrm, and works every pattern of its kind: aimed bolts and the laser from
+// the eye, fans and spirals from the quills, rings from the clasp, homing sparks from the pages.
+test('the Grand Grimoire sways, hovers and circles, writes its attacks, and sits no lower than the wyrm', () => {
+  const grimoire = bossDef('grimoire');
+  assert.deepEqual(grimoire.phases.map((p) => p.move), ['sway', 'hover', 'orbit']);
+  const eye = grimoire.parts.find((p) => p.id === 'eye');
+  assert.ok(grimoire.y + eye.dy - eye.h / 2 - 55 >= HUD_BOTTOM, 'the eye clears the HUD at the top of the orbit');
+  assert.ok(grimoire.bottom <= bossDef('wyrm').bottom, 'no lower than the wyrm');
+  const from = (pattern, part) => grimoire.phases.flatMap((p) => p.attacks).some((a) => a.pattern === pattern && a.from.startsWith(part));
+  assert.ok(from('aimed', 'eye') && from('laser', 'eye'), 'aimed bolts and the laser from the eye');
+  assert.ok(from('fan', 'quill') && from('spiral', 'quill'), 'fans and spirals from the quills');
+  assert.ok(from('ring', 'clasp'), 'rings from the clasp');
+  assert.ok(from('homing', 'page'), 'homing sparks from the pages');
+  assert.ok(grimoire.phases.at(-1).attacks.some((a) => a.pattern === 'laser'), 'the laser in the last phase');
+  assert.ok(grimoire.phases.slice(1).every((p) => p.minions.some((m) => m.role === 'diver')), 'paper cranes in phases 2 and 3');
+  for (const id of ['eye', 'quillL', 'quillR', 'clasp']) assert.ok(grimoire.parts.find((p) => p.id === id).weak, id);
+  for (const id of ['crown', 'pageL', 'pageR']) assert.ok(grimoire.parts.find((p) => p.id === id).armor, id);
 });

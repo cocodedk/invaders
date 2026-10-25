@@ -12,6 +12,7 @@ const ROAR = {
   hive: ['sawtooth', 1.6, 0, 3], code: ['square', 1.2, 14, 4], iron: ['sawtooth', 0.8, 0, 5], cosmic: ['sine', 0.7, 0, 1.5],
   monster: ['sawtooth', 0.62, 0, 4], gothic: ['triangle', 0.9, 0, 1.2],
   aurora: ['triangle', 1.1, 0, 1.5],
+  archive: ['triangle', 0.85, 0, 3],
 };
 
 function roar(a, h, dur, fall) {
@@ -46,6 +47,16 @@ function roar(a, h, dur, fall) {
     const cry = tone(a, { type: 'triangle', t, f0: 520 + h * 60, f1: 190, attack: 0.25, dur, peak: 0.09, cut: 2600, q: 3 });
     wobble(a, cry.frequency, 6, 14, t, dur);
     fm(a, { t, f0: 1040 + h * 120, f1: 380, ratio: 2.76, index: 1.2, attack: 0.25, dur: dur * 0.8, peak: 0.03 });
+  }
+  if (a.kit.style === 'archive') { // the Grimoire slams shut: a boom, the cover's leathery crack, a settling thud, then a rush of pages
+    tone(a, { f0: 118, f1: 34, dur: 0.95, peak: 0.5 });
+    hiss(a, { type: 'lowpass', f0: 3000, f1: 140, dur: 0.4, peak: 0.34 });
+    hiss(a, { type: 'bandpass', f0: 1100, q: 1.2, dur: 0.07, peak: 0.25 });
+    tone(a, { t: a.t + 0.22, f0: 92, f1: 40, dur: 0.3, peak: 0.2 });
+    hiss(a, { t: a.t + 0.14, type: 'bandpass', f0: 1500, f1: 6200, q: 0.9, attack: 0.3, dur: dur * 0.4, peak: 0.1 });
+    [0, 0.05, 0.09, 0.15, 0.19, 0.26, 0.3, 0.38, 0.45, 0.55].forEach((d, i) => hiss(a, {
+      t: a.t + 0.2 + d, type: 'bandpass', f0: 3200 + (i % 3) * 1400, q: 1.2, dur: 0.05, peak: 0.13 - i * 0.008,
+    }));
   }
 }
 

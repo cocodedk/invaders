@@ -94,6 +94,11 @@ export const VOICES = [
     ['{kills}', 'LEFT TO THE FROST.'],
     ['{near}.', '{time} OF POLAR NIGHT.'],
   ],
+  [ // Starlit Archive: a hushed library at the edge of the universe, every star a book
+    ['PAST THE LAST CONSTELLATION,', 'THE LIBRARY NEVER CLOSES.'],
+    ['{kills}', 'RETURNED TO THE SHELF.'],
+    ['{near}.', '{time} IN THE STACKS.', 'QUIET, PLEASE.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

@@ -1,5 +1,5 @@
 // Reactions to pickups and to each world's twist: lightning, glitches, sand, acid, wrecks, the well, the cut
-// (steel sparks, or glass in Aurora Kingdom: react-ice.js).
+// and the blink (the world's own: react-ice.js for glass, react-ink.js for pages, ink and bullet time).
 import { addShake } from './camera.js';
 import { addFlash, addPopup, addRing, addSlice, BONUS_Y } from './fx.js';
 import { addParticle } from './particles.js';
@@ -8,6 +8,7 @@ import { clamp, TAU } from '../core/math.js';
 import { HEIGHT } from '../core/kinds.js';
 import { count, debris, dust, FIRE, METAL, powerColor, smoke, sparks } from './emit.js';
 import { cutFor } from './react-ice.js';
+import { bulletTimeFor, teleportFor } from './react-ink.js';
 
 const GLYPH = ['#5dff9a', '#b8ffd0', '#ffffff'];
 const RED_EYE = ['#ff3a2a', '#ff7a3a', '#ffd0a0'];
@@ -23,7 +24,6 @@ const GLOW_R_STEP = 7;
 const GLOW_R_MAX = 1.5 * GLOW_R;
 const GLOW_ALPHA = 0.7; // and brightens by GLOW_ALPHA_STEP, to a peak of 1
 const GLOW_ALPHA_STEP = 0.1;
-
 const BONUS_GAP = 64; // px
 const NAMES = { bomb: '+1 BOMB', life: '+1 LIFE' }; // what a stock pickup's pop-up says; a power says its own name
 
@@ -193,6 +193,6 @@ function bunker(fx, ev, rng) {
 }
 
 export const WORLD = {
-  pickup, sweep, power, lightning, teleport, absorb, saucer, gust, acid, wreck, wreckDown, reassemble,
-  bulletTime, cut: cutFor(cut), bunker,
+  pickup, sweep, power, lightning, teleport: teleportFor(teleport), absorb, saucer, gust, acid, wreck, wreckDown, reassemble,
+  bulletTime: bulletTimeFor(bulletTime), cut: cutFor(cut), bunker,
 };
