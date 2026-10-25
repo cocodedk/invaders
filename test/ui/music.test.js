@@ -3,25 +3,7 @@ import assert from 'node:assert/strict';
 import { setMusic, updateMusic, startLoop, fillLoop, stopLoop } from '../../src/ui/music.js';
 import { STYLES } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
-import { node } from './audio-kit.js';
-
-// A stand-in AudioContext that records every node and its outgoing connections.
-function fakeAudio() {
-  const ctx = { currentTime: 0, nodes: [] };
-  const make = (kind) => () => {
-    const n = node({
-      kind, out: new Set(), stopAt: null,
-      connect(target) { this.out.add(target); return target; },
-      disconnect() { this.out.clear(); },
-      stop(t) { this.stopAt = t; },
-    });
-    ctx.nodes.push(n);
-    return n;
-  };
-  for (const kind of ['Gain', 'BiquadFilter', 'Oscillator', 'Delay', 'BufferSource']) ctx[`create${kind}`] = make(kind);
-  const music = make('MusicBus')();
-  return { ctx, music, noise: {} };
-}
+import { fakeAudio } from './audio-kit.js';
 
 test('a loop that ends disconnects every node it made and stops its sources', (t) => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
@@ -170,18 +152,22 @@ test("Sunset Armada's loop is a brass fanfare in G major over timpani on the dow
   assert.equal(bands(1900).length, 12, 'and a roll of six taps into the next bar, twice');
 });
 
-test("only Sunset Armada's loop opens its lead's filter, chops strings or rolls a snare; every other loop is as it was", () => {
+test("only Sunset Armada's loop opens its lead's filter or chops strings, only Ember Carnival's holds a lead note and plays its band, and only those two roll a snare; every other loop is as it was", () => {
   for (const [name, s] of Object.entries(STYLES)) {
-    const armada = name === 'armada';
+    const [armada, carnival] = [name === 'armada', name === 'carnival'];
     assert.equal(s.music.lead.cut1 !== undefined, armada, `${name} lead swell`);
-    assert.equal(/[ro]/.test(s.music.drum), armada, `${name} drum`);
+    assert.equal(s.music.lead.hold !== undefined, carnival, `${name} lead hold`);
+    assert.equal(s.music.drum.includes('o'), armada, `${name} chopped strings`);
+    assert.equal(s.music.drum.includes('r'), armada || carnival, `${name} snare roll`);
+    assert.equal(/[yuag]/.test(s.music.drum), carnival, `${name} band`);
   }
   const nodes = fakeAudio();
-  for (const look of LOOKS.filter((l) => l.music.mood !== 'armada')) {
+  for (const look of LOOKS.filter((l) => !['armada', 'carnival'].includes(l.music.mood))) {
     const c = startLoop(nodes, look);
     fillLoop(c, 4);
     const lead = nodes.ctx.nodes.filter((n) => n.kind === 'BiquadFilter' && n.type === 'lowpass' && n.Q.value === 1.5);
     assert.ok(lead.length > 0 && lead.every((n) => n.frequency.calls.length === 1), `world ${look.world}: a lead note's filter stays put`);
+    assert.ok(nodes.ctx.nodes.every((n) => n.kind !== 'Gain' || n.gain.calls[2]?.[0] !== 'set'), `world ${look.world}: no note holds its level`);
     stopLoop(c);
   }
 });

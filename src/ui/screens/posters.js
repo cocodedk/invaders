@@ -5,7 +5,7 @@
 // one per idle period while the title or the lobby is up, so no single frame carries a whole poster
 // and nothing is baked while a level plays.
 //   warmPosters(allowed)   start baking in idle slices; allowed() says whether now is a menu
-//   bakeStep() -> bool     one slice of the next poster (false once all thirteen are done)
+//   bakeStep() -> bool     one slice of the next poster (false once all fourteen are done)
 //   posterFor(world) -> canvas | null      TAGLINES[world - 1]: each world's line      reelName(level)
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
@@ -35,11 +35,12 @@ export const TAGLINES = [
   'The sky burns cold.',
   'Every star is a story.',
   'The wind is on our side.',
+  'One spark is all it takes.',
 ];
 
 const FRAME_W = 768;
 const FRAME_H = 432;
-const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6]; // s into each boss fight: in place, mid-attack
+const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6]; // s into each boss fight: in place, mid-attack
 const LIT = 0.4; // s of effects before the frame (muzzle flashes, sparks); the run-up before has none
 const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
 const CROP_H = 900;

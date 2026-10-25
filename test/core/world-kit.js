@@ -67,3 +67,12 @@ export function holdAlien(world, x, y, hp = 1, role = 'grunt') {
   world.aliens.push(a);
   return a;
 }
+
+// One more alien standing still at (x, y), beside the one holdAlien placed (ids go on from 901): a
+// shell of world 14 when `shell` is set.
+export function addAlien(world, x, y, { hp = 1, role = 'grunt', shell = false } = {}) {
+  const a = { id: 900 + world.aliens.length, role, x, y, hp, maxHp: hp, slot: null, mode: 'hold', t: 0, dive: null };
+  if (shell) a.shell = true;
+  world.aliens.push(a);
+  return a;
+}

@@ -24,9 +24,10 @@ export const powersFor = (level) => (level.world === 13 ? POWERS_13 : POWERS);
 // darkness, so its twist repeats world 2's; world 11 reuses Ronin Moon's shuriken, drawn there as
 // ice shards, so its twist repeats world 4's; world 12 reuses Code Rain's glitch, drawn there as
 // pages and gold dust, so its twist repeats world 6's. World 13's broadside is a twist of its own
-// (R61): any pickup caught opens the ship's side guns for a while (powerups.js).
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside'];
-export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon'];
+// (R61): any pickup caught opens the ship's side guns for a while (powerups.js). World 14's fireworks
+// is one too (R62): some aliens are shells that burst when they die (fireworks.js).
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks'];
+export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
 // HUD_BOTTOM; nothing that must be seen or shot may sit behind them.

@@ -1,5 +1,6 @@
 import { ROLES, WIDTH, EDGE } from './kinds.js';
 import { addBullets, fire } from './aliens.js';
+import { markShell } from './fireworks.js';
 import { emitPattern } from './patterns.js';
 import { bossDef } from './bosses-data.js';
 import { clamp, dist2 } from './math.js';
@@ -54,7 +55,8 @@ export function stepAttacks(world, b, def, dt) {
 // Launch `m.count` aliens of the role from a part, unless the part is destroyed. They are ordinary
 // aliens without a formation slot (slot null, minion true): divers and the rest fly at the ship, a
 // carrier crosses the screen below the boss with a power-up to shoot loose. A carrier flies in from
-// the side of the screen, not out of its part, so it comes whatever is left of the part (R55).
+// the side of the screen, not out of its part, so it comes whatever is left of the part (R55). In world
+// 14 a minion may be a shell like any alien (markShell).
 function launch(world, b, m) {
   const src = b.parts.find((p) => p.id === m.from);
   const carrier = m.role === 'carrier';
@@ -63,11 +65,13 @@ function launch(world, b, m) {
   for (let i = 0; i < m.count && live < MINION_CAP; i++, live++) {
     const id = world.nextId++;
     const hp = ROLES[m.role].hp; // minions carry no armour bonus
-    world.aliens.push({
+    const a = {
       id, role: m.role, x: carrier ? (id % 2 ? -40 : 1960) : src.x + (i - (m.count - 1) / 2) * 56,
       y: carrier ? CARRIER_Y : src.y + src.h / 2, hp, maxHp: hp, slot: null,
       mode: carrier ? 'hold' : 'dive', t: 0, dive: null, minion: true, vx: carrier ? (id % 2 ? 150 : -150) : 0,
-    });
+    };
+    markShell(world, a);
+    world.aliens.push(a);
   }
 }
 

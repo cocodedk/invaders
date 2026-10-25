@@ -20,8 +20,9 @@ export { TICK };
 // mothership, R42; 5: pickups worth 500 and swept up at the clear, R51; 6: a power reserve, the homing
 // and slow powers, the extra life, R53; drops from any alien and heavier enemy fire, R54; 7: a carrier
 // in every boss phase, R55; 8: more drops in the late worlds, R56). World 13's two rules (R61: the
-// wingmen power and the broadside twist) are scoped to that world and draw no rng elsewhere, so the
-// version stays 8: test/core/worlds-unchanged.test.js pins that worlds 1-12 play as they did.
+// wingmen power and the broadside twist) and world 14's (R62: the fireworks) are scoped to their worlds
+// and draw no rng elsewhere, so the version stays 8: test/core/worlds-unchanged.test.js pins that worlds
+// 1-13 play as they did.
 const RUN_V = 8;
 
 // The storable form of a finished run. `level` is a level or its id; `result` is { score, stars }.

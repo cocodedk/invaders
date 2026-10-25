@@ -57,3 +57,21 @@ export function fakeVoice(kit) {
   for (const kind of ['Gain', 'BiquadFilter', 'Oscillator', 'BufferSource', 'WaveShaper']) ctx[`create${kind}`] = make(kind);
   return { a: { ctx, t: 1, out: make('Out')(), noise: {}, kit }, nodes };
 }
+
+// A stand-in AudioContext that records every node and its outgoing connections.
+export function fakeAudio() {
+  const ctx = { currentTime: 0, nodes: [] };
+  const make = (kind) => () => {
+    const n = node({
+      kind, out: new Set(), stopAt: null,
+      connect(target) { this.out.add(target); return target; },
+      disconnect() { this.out.clear(); },
+      stop(t) { this.stopAt = t; },
+    });
+    ctx.nodes.push(n);
+    return n;
+  };
+  for (const kind of ['Gain', 'BiquadFilter', 'Oscillator', 'Delay', 'BufferSource']) ctx[`create${kind}`] = make(kind);
+  const music = make('MusicBus')();
+  return { ctx, music, noise: {} };
+}

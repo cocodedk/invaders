@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 13 cinematic worlds × 5 levels = 65 levels, free 2D
+as beautiful as Barrage (`../artillery`): 14 cinematic worlds × 5 levels = 70 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56; worlds 9–13 follow their own difficulty, R57–R61).
+    (R54, R56; worlds 9–14 follow their own difficulty, R57–R62).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -174,6 +174,20 @@ quoted lines, so the repo can be public.
     seeds) its levels 1–5 clear 39, 33, 34, 26 and 13 times at reaction lag 10, and 34, 16, 24, 10
     and 9 at lag 15, against world 6's 39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: within noise. World
     6 itself, re-run on the new rules, clears exactly as before.
+  - **World 14, a fireworks night at the fair (R62).** The user asked for another world of my own
+    with a new twist. It is a night fair in a fireworks festival, and its twist, `fireworks`, is new.
+    About one alien in five made in world 14 (a wave's or a boss minion) is a shell, marked by a
+    lit fuse. When a shell dies, however it dies, it bursts 0.12 s later where it fell. The burst
+    deals 1 damage to every alien within 160 px and to every boss part whose box is that close,
+    each part through its own armor rule. A shell the burst kills goes off in turn, so a cluster
+    pops in a chain, and a wave is not clear while a fuse is still lit. Only shells burst: if every
+    kill did, one shot would clear a wave of one-hit grunts. The burst never hurts the ship, the
+    bunkers or bullets, and chained kills score as ordinary kills. `d` is 0.70, 0.72, 0.75, 0.77,
+    0.80, a notch above world 13 to pay for the bursts. Its boss, the Grand Carousel, never charges.
+    Its minions can be shells, so one that bursts beside it hurts it. On the headless run (40 seeds)
+    its levels 1–5 clear 38, 30, 32, 26 and 21 times at reaction lag 10, and 30, 17, 24, 18 and 7
+    at lag 15, against world 6's 39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: within noise. World 13,
+    re-run on the new rules, clears exactly as before.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -196,6 +210,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 11 | Aurora Kingdom | polar fantasy under the northern lights | an ice kingdom under the aurora, glacier mountains, a frozen fleet, ice floes on black water | enemy shots are slow, large ice shards; the ship's shots shatter them (Ronin Moon's, ruling R59) | Crystal Wyrm |
 | 12 | Starlit Archive | celestial library fantasy | a library at the edge of the universe: shelf towers in an indigo nebula, floating islands of books, constellations drawn in gold | aliens blink between slots in a whirl of pages; near misses drop into a sepia-gold bullet time (Code Rain's, ruling R60) | Grand Grimoire |
 | 13 | Sunset Armada | airship battle at golden hour | a sea of clouds under a huge low sun, floating islands with waterfalls, brass-and-canvas airships | catching any pickup opens the side guns for 6 s: every volley also fires left and right (new, ruling R61); and its own power, Wingmen | Thunder Galleon |
+| 14 | Ember Carnival | fireworks night at the fair | a lakeside fair at night: a Ferris wheel, big tops, a roller coaster on the far shore, fireworks over the water | about one alien in five is a shell whose death bursts like a firework, hurting everything within 160 px and setting off other shells in a chain (new, ruling R62) | The Grand Carousel |
 
 ## Look and effects
 

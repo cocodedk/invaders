@@ -14,6 +14,7 @@ const ROAR = {
   aurora: ['triangle', 1.1, 0, 1.5],
   archive: ['triangle', 0.85, 0, 3],
   armada: ['sawtooth', 0.78, 0, 2.5],
+  carnival: ['square', 0.95, 0, 2],
 };
 
 function roar(a, h, dur, fall) {
@@ -69,6 +70,14 @@ function roar(a, h, dur, fall) {
     wobble(a, groan.frequency, 8, 12, t, dur); // the beam straining, a stick-slip shudder
     const creak = hiss(a, { t, type: 'bandpass', f0: 820, f1: 430, q: 10, attack: 0.15, dur: dur * 0.8, peak: 0.12 });
     wobble(a, creak.gain, 14, 0.07, t, dur * 0.8, 'square');
+  }
+  if (a.kit.style === 'carnival') { // the Carousel's band organ: a seventh chord swells in on square pipes, over a ratchet cranked ever faster
+    [0, 2, 4, 6].forEach((d) => [-9, 9].forEach((detune) => tone(a, {
+      type: 'square', f0: noteHz(a.kit, d, 3), detune, attack: dur * 0.6, dur: dur * 0.4, peak: 0.028, cut: 500, cut1: 2600,
+    })));
+    for (let t = 0, gap = 0.12, i = 0; t < dur * 0.85; t += gap, gap = Math.max(0.04, gap * 0.88), i++) {
+      hiss(a, { t: a.t + t, type: 'bandpass', f0: i % 2 ? 2300 : 3100, q: 6, dur: 0.02, peak: 0.16 }); // a pawl clicking over the teeth
+    }
   }
 }
 

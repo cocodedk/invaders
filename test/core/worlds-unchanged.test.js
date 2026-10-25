@@ -33,6 +33,23 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_13)) {
   });
 }
 
+// World 14 adds one rule (the fireworks twist: shells, fuses, the burst) that must touch no other
+// world, world 13 included: the aliens of every other world get no `shell` field and no extra rng
+// draw, the twist state gets no fuses, and the state hash adds nothing. These are two wave levels of
+// world 13 and its boss level, taken on commit cd58e7f, the last before world 14, and held to the same
+// rule as the fingerprints above.
+const BEFORE_WORLD_14 = {
+  'w13-1': {fold: -970930790, end: '1264:50200:cec9c3fe96fa9e60', pickup: 4, power: 4, kill: 51, shipHit: 0, fire: 127},
+  'w13-3': {fold: 1835565022, end: '1806:90350:8b224b6edf9de494', pickup: 8, power: 2, kill: 75, shipHit: 0, fire: 211},
+  'w13-5': {fold: 1753922709, end: '1979:19000:db5dbbb1c74ef26f', pickup: 5, power: 4, kill: 5, shipHit: 0, fire: 241},
+};
+
+for (const [id, expected] of Object.entries(BEFORE_WORLD_14)) {
+  test(`${id} plays out exactly as it did before world 14`, () => {
+    assert.deepEqual(fingerprint(id), expected);
+  });
+}
+
 test('the replay version stays 8, and the six powers stay the six', () => {
   assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 8);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);

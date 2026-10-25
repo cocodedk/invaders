@@ -35,7 +35,7 @@ function shotShare(level) {
   return { share: landed / ended, state: world.state, ended };
 }
 
-for (let n = 1; n <= 13; n++) {
+for (let n = 1; n <= 14; n++) {
   test(`world ${n}: the autopilot clears its levels, and most of its shots land (waves 30 %, boss 65 %)`, () => {
     for (const level of LEVELS.filter((l) => l.world === n)) {
       const { share, state, ended } = shotShare(level);

@@ -10,7 +10,7 @@ const sum = (parts) => parts.reduce((n, p) => n + p.hp, 0);
 const weakAt = (def, i) => def.parts.filter((p) =>
   p.weak || def.phases.some((ph, j) => j <= i && ph.open?.includes(p.id)));
 
-test('there are thirteen definitions, in world order, looked up by kind', () => {
+test('there are fourteen definitions, in world order, looked up by kind', () => {
   assert.deepEqual(BOSS_DEFS.map((d) => d.kind), BOSSES);
   for (const kind of BOSSES) assert.equal(bossDef(kind).kind, kind);
   assert.equal(bossDef('nope'), undefined);
@@ -99,7 +99,7 @@ test('every phase of every boss sends one carrier at a time, at least every 5 s'
 
 test('the bosses differ: layouts, part counts and attack mixes are not copies of one another', () => {
   const sig = BOSS_DEFS.map((d) => JSON.stringify([d.parts.map((p) => [p.dx, p.dy]), d.phases.map((p) => p.attacks.map((a) => a.pattern))]));
-  assert.equal(new Set(sig).size, 13);
+  assert.equal(new Set(sig).size, 14);
   for (const def of BOSS_DEFS) assert.ok(def.parts.length >= 5, `${def.kind} has parts`);
   assert.ok(BOSS_DEFS.some((d) => d.phases.some((p) => p.open)), 'a trench that opens');
 });
@@ -163,4 +163,31 @@ test('the Thunder Galleon sways, hovers and circles, fires from its decks, and s
   for (const id of ['bridge', 'gunL', 'gunR', 'keel']) assert.ok(galleon.parts.find((p) => p.id === id).weak, id);
   for (const id of ['mast', 'propL', 'propR']) assert.ok(galleon.parts.find((p) => p.id === id).armor, id);
   assert.deepEqual(galleon.parts.map((p) => p.id), ['mast', 'bridge', 'propL', 'propR', 'gunL', 'gunR', 'keel']);
+});
+
+// The Grand Carousel never charges, keeps its organ clear of the HUD at the top of its orbit, ends no
+// lower than the galleon, and works its attacks from the parts the picture gives it: aimed bolts and
+// the laser from the organ, fans from the lanterns, confetti rain from the crown, rings from the drum.
+test('the Grand Carousel sways, hovers and circles, fires from its organ and lamps, and sits no lower than the galleon', () => {
+  const carousel = bossDef('carousel');
+  assert.equal(carousel.name, 'The Grand Carousel');
+  assert.deepEqual(carousel.phases.map((p) => p.move), ['sway', 'hover', 'orbit']);
+  assert.equal(carousel.y, 260);
+  assert.deepEqual([carousel.size.w, carousel.size.h], [700, 340]);
+  const organ = carousel.parts.find((p) => p.id === 'organ');
+  assert.ok(carousel.y + organ.dy - organ.h / 2 - 55 >= HUD_BOTTOM, 'the organ clears the HUD at the top of the orbit');
+  assert.ok(carousel.bottom <= bossDef('galleon').bottom, 'no lower than the galleon');
+  assert.ok(Math.abs(carousel.maxHp - bossDef('galleon').maxHp) <= 10, `${carousel.maxHp} hp, about the galleon's`);
+  const from = (pattern, part) => carousel.phases.flatMap((p) => p.attacks).some((a) => a.pattern === pattern && a.from.startsWith(part));
+  assert.ok(from('aimed', 'organ') && from('laser', 'organ'), 'aimed bolts and the laser from the organ');
+  assert.ok(from('fan', 'lamp'), 'fans from the lamps');
+  assert.ok(from('rain', 'crown'), 'confetti from the crown');
+  assert.ok(from('ring', 'drum'), 'rings from the drum');
+  assert.ok(!carousel.phases.slice(0, 2).some((p) => p.attacks.some((a) => a.pattern === 'laser')), 'the laser only in the last phase');
+  assert.ok(carousel.phases.at(-1).attacks.some((a) => a.pattern === 'laser'), 'the laser in the last phase');
+  assert.ok(carousel.phases.slice(1).every((p) => p.minions.some((m) => m.role === 'diver' && m.from.startsWith('horse'))), 'divers from the horses in phases 2 and 3');
+  assert.ok(!carousel.phases[0].minions.some((m) => m.role === 'diver'), 'none in the first');
+  for (const id of ['organ', 'lampL', 'lampR', 'drum']) assert.ok(carousel.parts.find((p) => p.id === id).weak, id);
+  for (const id of ['crown', 'horseL', 'horseR']) assert.ok(carousel.parts.find((p) => p.id === id).armor, id);
+  assert.deepEqual(carousel.parts.map((p) => p.id), ['crown', 'organ', 'horseL', 'horseR', 'lampL', 'lampR', 'drum']);
 });

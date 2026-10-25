@@ -3,6 +3,7 @@
 // Full-frame flashes, glitch slices and tints are screen-view.js.
 import { INK, rgba, glow, soft } from './sprites.js';
 import { pageSprite } from './ambient-4.js';
+import { drawBloom } from './burst-view.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { flashK } from '../fx/fx.js';
 import { TAU } from '../core/math.js';
@@ -68,6 +69,10 @@ function hot(ctx, p) {
 
 function rings(ctx, fx) {
   for (const r of fx.rings) {
+    if (r.kind === 'bloom') { // a firework burst (world 14): its own baked flower, burst-view.js
+      drawBloom(ctx, r);
+      continue;
+    }
     const f = r.life / r.max;
     const inward = r.kind === 'lens' || r.kind === 'charge';
     const a = inward ? 1 - f * 0.5 : f;

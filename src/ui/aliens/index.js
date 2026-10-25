@@ -1,4 +1,4 @@
-// Everything alien-shaped on the playfield, in each world's own sprites (aliens/w1.js .. w12.js,
+// Everything alien-shaped on the playfield, in each world's own sprites (aliens/w1.js .. w14.js,
 // baked once by bake.js): world.aliens (formation and boss minions), world.saucer (the bonus carrier,
 // or null) and world.wrecks (armored wrecks waiting to reassemble).
 //   drawAliens(ctx, world, look, t)          world space, after the bunkers and the boss (minions
@@ -11,13 +11,15 @@
 // Per alien: a halo (cached glow, 'lighter'), the body (cracked once it has lost hp; a white
 // silhouette for FLASH s after a hit) and its lights ('lighter'); frames alternate at the world's
 // rate, some worlds bob, swoopers lean into the swoop. The flash is the renderer's own memory: a
-// WeakMap of the hp each alien had when last drawn. Nothing on world or fx is written.
+// WeakMap of the hp each alien had when last drawn. Nothing on world or fx is written. In world 14 a shell
+// (alien.shell) wears a lit fuse and a glow on top of its sprite (shell-view.js).
 import { glow } from '../sprites.js';
 import { clamp } from '../../core/math.js';
 import { WRECK_TIME } from '../../core/twists-2.js';
 import { isSwooping } from '../../core/aliens.js';
 import { art, roleSprites, extraSprites } from './bake.js';
 import { cracked, crackLights } from './cracks.js';
+import { drawShells } from '../shell-view.js';
 
 const FLASH = 0.09; // s
 const seen = new WeakMap(); // alien -> { hp, at }
@@ -110,6 +112,15 @@ function saucer(ctx, s, look, t) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
+const spot = { x: 0, y: 0, rot: 0, f: 0 }; // where an alien's sprite is drawn this frame, for what rides on it (shell-view.js)
+function shellSpot(world, A, a, t) {
+  spot.x = a.x;
+  spot.y = a.y + bobOf(A, a, t);
+  spot.rot = lean(world, a);
+  spot.f = frameOf(A, a, t);
+  return spot;
+}
+
 export function drawAliens(ctx, world, look, t) {
   const A = art(look);
   halos(ctx, world.aliens, look, A, t);
@@ -128,6 +139,7 @@ export function drawAliens(ctx, world, look, t) {
   }
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
+  if (world.level?.twist === 'fireworks') drawShells(ctx, world.aliens, look, t, (a) => shellSpot(world, A, a, t)); // world 14: a lit fuse on every shell
   if (world.saucer) saucer(ctx, world.saucer, look, t);
 }
 

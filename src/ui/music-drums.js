@@ -4,6 +4,17 @@
 // loop's step count, for the hits that follow the tune (the music box, the bass).
 import { tone, hiss, fm, noteHz, bell } from './audio-kit.js';
 
+// The waltz's bars are six steps; the second of each pair of bars sounds the chord's fifth where the first sounds its root.
+const oddBar = (n) => Math.floor(n.step / 6) % 2;
+
+// A tuba note: a round body and a blat that closes, and a hat's tick.
+function oom(a, t, n) {
+  const f = noteHz(a.kit, n.shift + (oddBar(n) ? 4 : 0), 2);
+  tone(a, { t, f0: f, f1: f * 0.98, dur: 0.22, peak: 0.21 });
+  tone(a, { t, type: 'sawtooth', f0: f, dur: 0.15, peak: 0.08, cut: 900, cut1: 300 });
+  hiss(a, { t, type: 'highpass', f0: 8000, dur: 0.04, peak: 0.03 });
+}
+
 export const DRUM = {
   k: (a, t) => tone(a, { t, f0: 150, f1: 44, dur: 0.18, peak: 0.26 }),
   t: (a, t) => {
@@ -51,6 +62,19 @@ export const DRUM = {
   o: (a, t, n) => { // a string chopped short: the chord's root, fifth, third, fifth in turn, two detuned sawtooth voices
     const d = n.shift + [0, 4, 2, 4][(n.step >> 1) % 4];
     for (const detune of [-9, 10]) tone(a, { type: 'sawtooth', t, f0: noteHz(a.kit, d, 3), detune, attack: 0.012, dur: 0.1, peak: 0.03, cut: 2200, cut1: 700 });
+  },
+  u: oom, // a tuba on the chord's root (its fifth on every second bar)
+  y: (a, t, n) => { // the same under a cymbal crash: a long hiss that shimmers on and dies away
+    oom(a, t, n);
+    hiss(a, { t, type: 'highpass', f0: 6500, f1: 3800, dur: 0.5, peak: 0.06 });
+  },
+  a: (a, t, n) => { // the band organ's chord, stabbed (root, third and fifth, short square voices) with the snare tapping under it
+    for (const d of [0, 2, 4]) tone(a, { type: 'square', t, f0: noteHz(a.kit, n.shift + d, 3), attack: 0.008, dur: 0.1, peak: 0.1, cut: 2400 });
+    hiss(a, { t, type: 'bandpass', f0: 2000, q: 0.9, dur: 0.07, peak: 0.12 });
+    tone(a, { t, f0: 220, f1: 150, dur: 0.04, peak: 0.07 });
+  },
+  g: (a, t, n) => { // a glockenspiel tinkling the chord's fifth, and its octave on the next bar
+    fm(a, { t, f0: noteHz(a.kit, n.shift + (oddBar(n) ? 7 : 4), 5), ratio: 3.51, index: 1.3, dur: 0.45, peak: 0.1, cut: 8000 });
   },
   v: (a, t) => { // strings bowing a chord in: root, third, fifth and octave, each two detuned sawtooth voices, the bow opening the filter
     for (const d of [0, 2, 4, 7]) {

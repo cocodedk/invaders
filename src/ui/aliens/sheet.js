@@ -1,7 +1,8 @@
 // dev.html?sheet=w4: one world's art on its own sky, for judging it by eye (not shipped UI).
 //   two big rows    every role, frame 0 then frame 1, baked at BIG x so the detail is real
 //   a 1:1 strip     per role: frame 0, frame 1, the hit flash, cracked 1, cracked 2, as in the game
-//   the last row    a bunker fresh and carved, the eight pickups, the saucer and the wreck (if any)
+//   the last row    a bunker fresh and carved, the eight pickups, the saucer and the wreck (if any); world 14's
+//                   five shells instead
 import { clamp } from '../../core/math.js';
 import { WORLDS } from '../../core/levels.js';
 import { POWERS } from '../../core/kinds.js';
@@ -14,6 +15,7 @@ import { drawBunkers } from '../bunkers-view.js';
 import { drawPickups } from '../pickups-view.js';
 import { roleSprites, extraSprites, ROLE_LIST } from './bake.js';
 import { cracked } from './cracks.js';
+import { drawShells } from '../shell-view.js';
 
 const BIG = 2.6;
 
@@ -33,6 +35,17 @@ function bunkers(g, look) {
     hitBunker(carved, x, y, r);
   }
   drawBunkers(g, { bunkers: [fresh, carved] }, look);
+}
+
+// World 14: every role as a shell (a lit fuse and a glow through the body), 1:1, in the saucer and wreck slots.
+function shells(g, look) {
+  const list = ROLE_LIST.map((role, k) => ({ id: k + 1, role, shell: true, x: 1370 + k * 108, y: 950 }));
+  for (const a of list) {
+    const set = roleSprites(look, a.role);
+    put(g, set, set.body[0], 0, a.x, a.y);
+  }
+  drawShells(g, list, look, 1.3, (a) => ({ x: a.x, y: a.y, rot: 0, f: 0 }));
+  label(g, 'SHELLS', 1370, 1010);
 }
 
 export function drawSheet(canvas, id) {
@@ -63,5 +76,6 @@ export function drawSheet(canvas, id) {
     const s = extraSprites(look, name, 1.5);
     if (s) put(g, s, s.body[0], 0, x, 935);
   });
+  if (look.world === 14) shells(g, look);
   label(g, 'BUNKERS · PICKUPS · SAUCER · WRECK', 40, 1060);
 }

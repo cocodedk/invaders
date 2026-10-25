@@ -19,18 +19,18 @@ function assertWaveValid(w, at) {
   assert.ok(aliens(w) <= 40, `${at} has ${aliens(w)} aliens`);
 }
 
-test('WORLDS has the 13 worlds with names, twists and bosses in the spec order', () => {
-  assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]);
+test('WORLDS has the 14 worlds with names, twists and bosses in the spec order', () => {
+  assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]);
   assert.deepEqual(WORLDS.map((w) => w.name), ['Arcade Origin', 'Neon Rain', 'Twin Suns',
     'Ronin Moon', 'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
-    'Starlit Archive', 'Sunset Armada']);
+    'Starlit Archive', 'Sunset Armada', 'Ember Carnival']);
   assert.deepEqual(WORLDS.map((w) => w.twist), TWISTS);
   assert.deepEqual(WORLDS.map((w) => w.boss), BOSSES);
 });
 
-test('there are 65 levels, in order, with unique ids that match world and index', () => {
-  assert.equal(LEVELS.length, 65);
-  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 65);
+test('there are 70 levels, in order, with unique ids that match world and index', () => {
+  assert.equal(LEVELS.length, 70);
+  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 70);
   LEVELS.forEach((l, i) => {
     assert.equal(l.world, Math.floor(i / 5) + 1);
     assert.equal(l.index, (i % 5) + 1);
@@ -45,7 +45,7 @@ test('every level has an integer seed (all distinct), its difficulty and its wor
     assert.equal(l.twist, WORLDS[l.world - 1].twist, `${l.id} twist`);
     assert.equal(typeof l.bunkers, 'boolean', `${l.id} bunkers`);
   }
-  assert.equal(new Set(LEVELS.map((l) => l.seed)).size, 65);
+  assert.equal(new Set(LEVELS.map((l) => l.seed)).size, 70);
 });
 
 test('every wave of every level is valid against kinds.js', () => {
@@ -61,7 +61,7 @@ test('wave levels have 3 to 5 waves and at least one carrier', () => {
 });
 
 test('boss levels name their world boss and have no waves or bunkers', () => {
-  assert.equal(bossLevels.length, 13);
+  assert.equal(bossLevels.length, 14);
   for (const l of bossLevels) {
     assert.equal(l.boss, BOSSES[l.world - 1], l.id);
     assert.ok(!('waves' in l), `${l.id} has waves`);
@@ -70,7 +70,7 @@ test('boss levels name their world boss and have no waves or bunkers', () => {
 });
 
 test('each world uses at least 4 different formations across its wave levels', () => {
-  for (let world = 1; world <= 13; world++) {
+  for (let world = 1; world <= 14; world++) {
     const used = new Set(waveLevels.filter((l) => l.world === world)
       .flatMap((l) => l.waves.map((w) => w.formation)));
     assert.ok(used.size >= 4, `world ${world} uses only ${[...used]}`);
@@ -114,6 +114,20 @@ test('world 13 has cargo-crate bunkers on levels 2 and 4 only, and divers in mos
   assert.equal(levelById('w13-5').boss, 'galleon');
 });
 
+test('world 14 has striped-booth bunkers on levels 2 and 4 only, and dense blocks of rows for the shells', () => {
+  const w14 = waveLevels.filter((x) => x.world === 14);
+  assert.equal(w14.length, 4);
+  assert.deepEqual(w14.map((l) => l.bunkers), [false, true, false, true]);
+  assert.ok(w14.every((l) => l.twist === 'fireworks'), 'the fireworks twist');
+  const waves = w14.flatMap((l) => l.waves);
+  const dense = waves.filter((x) => x.rows >= 3 && x.cols >= 8);
+  assert.ok(dense.length > waves.length / 2, `${dense.length} of ${waves.length} waves are blocks of 3+ rows and 8+ columns`);
+  assert.ok(new Set(waves.map((x) => x.pattern)).size >= 4, 'a mix of bullet patterns');
+  for (const l of w14.slice(1)) assert.ok(l.waves.some((x) => x.roles.includes('armored')), `${l.id} has an armored row`);
+  assert.deepEqual(w14.map((l) => l.seed), [140417, 140884, 141333, 141796]);
+  assert.equal(levelById('w14-5').boss, 'carousel');
+});
+
 test('levels are plain data: a JSON round trip changes nothing', () => {
   assert.deepEqual(JSON.parse(JSON.stringify(LEVELS)), LEVELS);
 });
@@ -135,6 +149,6 @@ test('DEMO_LEVEL is a gentle world 1 level: a 6x3 grunt grid, then a sway with o
 
 test('levelById finds every level and returns undefined for an unknown id', () => {
   for (const l of LEVELS) assert.equal(levelById(l.id), l);
-  assert.equal(levelById('w14-1'), undefined);
+  assert.equal(levelById('w15-1'), undefined);
   assert.equal(levelById(''), undefined);
 });

@@ -5,8 +5,9 @@ import { FIGHT } from './react-fight.js';
 import { BOSS } from './react-boss.js';
 import { WORLD } from './react-world.js';
 import { ARMADA } from './react-armada.js';
+import { CARNIVAL } from './react-carnival.js';
 
-const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA };
+const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL };
 
 // Every event type fx reacts to.
 export const REACTS = Object.keys(HANDLERS);

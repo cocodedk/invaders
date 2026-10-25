@@ -30,8 +30,9 @@ function cull(world) {
   prune(world.aliens, (a) => a.hp > 0);
 }
 
-// A field with no alien and no wreck standing is empty.
-const empty = (world) => world.aliens.length === 0 && world.wrecks.length === 0;
+// A field with no alien, no wreck standing and no fuse still lit (world 14) is empty, so the last
+// shell of a level bursts before the clear.
+const empty = (world) => world.aliens.length === 0 && world.wrecks.length === 0 && !world.twist.fuses?.length;
 
 // An empty field ends the wave: waveClear on that very tick, then the gap, then the next wave.
 // Boss levels have no waves (boss.js runs the fight).

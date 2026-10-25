@@ -1,9 +1,10 @@
 import { layoutBunkers } from './bunkers.js';
 import { hurtAlien } from './aliens.js';
+import { burstAt } from './damage.js';
 import { ALIEN_R, HUD_BOTTOM, WELL } from './kinds.js';
 import { sweepDist2 } from './math.js';
 import { randBetween } from './rng.js';
-import { emit } from './util.js';
+import { emit, prune } from './util.js';
 import { pushAll, acid, glitch, reassemble, gravity } from './twists-2.js';
 
 // Each world's one small rule of its own. A level's rule is `level.twist`; applyTwist(world, dt)
@@ -18,13 +19,15 @@ import { pushAll, acid, glitch, reassemble, gravity } from './twists-2.js';
 //   well     { x, y } or null (gravity)
 //   twist    { timer, cool, wave, sent, drips } private: the countdown to the next lightning, gust,
 //            blink or saucer; the bullet-time cooldown; the wave bunkers were last laid for; the
-//            saucers sent; acid in the making
+//            saucers sent; acid in the making; fuses, the lit fireworks fuses (fireworks.js), made
+//            for world 14 alone
 
 const SAUCER_EVERY = 20; // s
 const SAUCER_Y = HUD_BOTTOM + 8; // just under the HUD band, so it is never behind a panel
 const SAUCER_SPEED = 260;
 const SAUCER_R = ALIEN_R + 8;
 const GUST = 120; // px/s^2, either way
+const EPS = 1e-9; // a fuse due on a whole tick must not wait one more for float dust
 
 export function createTwist(level, rng) {
   const kind = level.twist;
@@ -38,6 +41,7 @@ export function createTwist(level, rng) {
     twist.timer = randBetween(rng, 4, 7);
   }
   if (kind === 'gravity') state.well = { ...WELL };
+  if (kind === 'fireworks') twist.fuses = [];
   return state;
 }
 
@@ -118,9 +122,25 @@ export function cutShuriken(world, dt) {
   }
 }
 
+// Fireworks (world 14): each fuse that has burned down goes off, in the order it was lit: a 'burst'
+// event, then its damage (burstAt). A burst that kills shells lights their fuses one link deeper;
+// those are not due yet, so a chain goes off pop, pop, pop, FUSE s apart. A wave is not clear while a
+// fuse is still lit (world-step.js), so the last shell's burst plays before the clear.
+function fireworks(world) {
+  const fuses = world.twist.fuses;
+  if (!fuses.length) return;
+  const due = fuses.filter((f) => f.at <= world.t + EPS);
+  if (!due.length) return;
+  prune(fuses, (f) => f.at > world.t + EPS);
+  for (const f of due) {
+    emit(world, 'burst', { x: f.x, y: f.y, depth: f.depth, kind: f.kind });
+    burstAt(world, f.x, f.y, f.depth);
+  }
+}
+
 // shuriken: cutShuriken. broadside (world 13) has no per-tick rule here: a pickup caught opens the ship's
 // side guns (collect, powerups.js), tickPower counts them down, and shoot (ship.js) fires them.
-const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity };
+const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity, fireworks };
 
 export function applyTwist(world, dt) {
   RULES[world.level.twist]?.(world, dt);

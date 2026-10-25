@@ -4,10 +4,11 @@ import { emitPattern } from './patterns.js';
 import { rand, randBetween, randPick } from './rng.js';
 import { awardKill } from './scoring.js';
 import { dropOnKill } from './powerups.js';
+import { markShell, lightFuse } from './fireworks.js';
 import { emit } from './util.js';
 
 // A wave of aliens: spawn, fly in, hold the formation, swoop, shoot back.
-//   alien = { id, role, x, y, hp, maxHp, slot, mode, t, dive }
+//   alien = { id, role, x, y, hp, maxHp, slot, mode, t, dive }  (+ shell: true on a world 14 shell)
 //   maxHp the hp of the alien whole, set once where it is made (here, boss minions, the reborn
 //         wrecks of reassemble, the saucer) so nothing downstream has to work it out again
 //   mode 'enter' (ENTER_TIME s, the same for the whole wave) -> 'hold' -> 'dive' (first half of a
@@ -59,6 +60,7 @@ export function spawnWave(world) {
       id: world.nextId++, role: slot.role, x: 0, y: 0, hp, maxHp: hp,
       slot, mode: 'enter', t: 0, dive: null,
     };
+    markShell(world, a);
     place(a, entryPosition(spec.formation, slot, 0));
     world.aliens.push(a);
   }
@@ -69,7 +71,8 @@ export function spawnWave(world) {
 }
 
 // Damage an alien; at 0 hp it dies (scored), and it may leave a pickup where it fell: always for a
-// carrier, by chance for the others (dropOnKill, R54). The caller removes the dead from world.aliens.
+// carrier, by chance for the others (dropOnKill, R54). A dead shell lights its fuse (world 14,
+// fireworks.js), however it died. The caller removes the dead from world.aliens.
 export function hurtAlien(world, a, dmg) {
   if (a.hp <= 0) return;
   a.hp -= dmg;
@@ -79,6 +82,7 @@ export function hurtAlien(world, a, dmg) {
   }
   awardKill(world, a);
   dropOnKill(world, a);
+  if (a.shell) lightFuse(world, a);
 }
 
 // One swoop tick: along diveCurve onto the slot's live position, landing exactly on it at the end.

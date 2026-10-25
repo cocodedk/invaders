@@ -6,7 +6,8 @@
 // only blasts with no kill of their own sound: the boss's death chain (swelling as it runs, k 0..1),
 // the ship's wreck (size 2) and the final white-out blast (size 3). World 13's rules sound through their
 // own events: the broadside's opening and closing, each side shot (a cannon, left or right), and the
-// escorts' rattle with the ship's shot while the wingmen run (the fire event's power).
+// escorts' rattle with the ship's shot while the wingmen run (the fire event's power). World 14's firework
+// shells sound through `burst`, pitched by where and how far down the chain it goes off (sfx-carnival.js).
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X } from '../core/kinds.js';
 
@@ -70,6 +71,7 @@ export function eventSounds(events, world, play) {
       case 'saucer': play('saucer', { dir: e.dir, x: e.x }); break;
       case 'broadside': play(e.on ? 'broadsideOn' : 'broadsideOff', { x: e.x }); break;
       case 'sideShot': play(e.dir < 0 ? 'cannonL' : 'cannonR', { x: e.x + e.dir * SIDE_PAN }); break;
+      case 'burst': play('burst', { x: e.x, depth: e.depth }); break;
       default: break; // SILENT
     }
   }

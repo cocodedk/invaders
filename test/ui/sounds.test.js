@@ -60,7 +60,8 @@ test('the pickups swept up at the clear chime one after another, a caught one at
 
 test('each world has its own sound style, root and scale from its look', () => {
   const styles = LOOKS.map((l) => kitFor(l.music).style);
-  assert.equal(new Set(styles).size, 13, styles.join());
+  assert.equal(new Set(styles).size, LOOKS.length, styles.join());
+  assert.equal(Object.keys(STYLES).length, 14, 'a style for each of the 14 worlds');
   for (const look of LOOKS) {
     const kit = kitFor(look.music);
     assert.equal(kit.root, NOTES[look.music.root], look.music.root);
@@ -85,6 +86,18 @@ test('Sunset Armada plays the armada style, in G major at 132 bpm', () => {
   assert.deepEqual(SCALES.major, [0, 2, 4, 5, 7, 9, 11]);
 });
 
+const CARNIVAL = { mood: 'carnival', root: 'A#', scale: 'mixolydian', bpm: 156 };
+
+test('Ember Carnival plays the carnival style, in B flat mixolydian at 156 bpm', () => {
+  const kit = kitFor(CARNIVAL);
+  assert.deepEqual([kit.style, kit.root, kit.scale, kit.bpm], ['carnival', NOTES['A#'], SCALES.mixolydian, 156]);
+  assert.deepEqual(SCALES.mixolydian, [0, 2, 4, 5, 7, 9, 10]);
+});
+
+test("world 14's look carries that music entry (looks/w14.js)", () => {
+  assert.deepEqual(LOOKS[13]?.music, CARNIVAL);
+});
+
 test('scale degrees land in the scale, an octave per scale length', () => {
   const kit = kitFor({ mood: 'koto and taiko', root: 'D', scale: 'in', bpm: 72 });
   assert.equal(degreeMidi(kit, 0, 4), 62, 'D4');
@@ -102,7 +115,7 @@ test('every music style is well formed', () => {
     const m = s.music;
     assert.ok(m.div > 0 && m.seq.length > 0 && m.drum.length > 0, name);
     for (const d of m.seq) assert.ok(d === null || Number.isInteger(d), `${name} seq`);
-    assert.match(m.drum, /^[kthsbpcjfzmvro.]+$/, `${name} drum`);
+    assert.match(m.drum, /^[kthsbpcjfzmvroyaug.]+$/, `${name} drum`);
     assert.ok(m.lead.gain > 0 && m.lead.gain < 0.2, `${name} lead gain`);
     if (m.lead.fm) assert.ok(m.lead.fm.ratio > 0 && m.lead.fm.index > 0, `${name} lead fm`);
   }
@@ -123,4 +136,10 @@ test("the escorts rattle with the ship's shot only while the wingmen run; every 
   for (const power of [null, 'spread', 'rapid', 'shield', 'homing', 'slow']) assert.deepEqual(volley(power), ['shot'], String(power));
   assert.deepEqual(volley('laser'), [], 'the beam still hums instead');
   assert.deepEqual(names([{ ...sample('fire'), side: 'enemy', pattern: 'fan' }]).map((s) => s.name), ['enemyShot']);
+});
+
+test('a firework shell going off sounds where it burst and how far down its chain it is; no other event plays a burst', () => {
+  assert.deepEqual(names([{ ...sample('burst'), x: 700, depth: 3 }]), [{ name: 'burst', x: 700, depth: 3 }]);
+  assert.deepEqual(names([{ ...sample('burst'), x: 700, depth: 0 }]).map((s) => s.depth), [0], 'the first shell is depth 0');
+  for (const type of ['kill', 'explode', 'hit', 'bomb', 'fire']) assert.ok(!names([sample(type)]).some((s) => s.name === 'burst'), type);
 });

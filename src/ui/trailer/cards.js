@@ -104,6 +104,11 @@ export const VOICES = [
     ['{kills}', 'RAN OUT OF SKY.'],
     ['{near} IN THE SMOKE.', '{time} OF GOLDEN HOUR.'],
   ],
+  [ // Ember Carnival: a night fair at its fireworks festival, every toy stuffed with powder
+    ['WHEN THE FAIR LIGHTS UP,', 'THE NIGHT CATCHES FIRE.'],
+    ['{kills}', 'WENT UP IN SMOKE.'],
+    ['{near} IN THE SPARKS.', '{time} OF FIREWORKS.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

@@ -1,4 +1,4 @@
-// Per-world art direction, one data file per world (w1.js .. w13.js), plain data:
+// Per-world art direction, one data file per world (w1.js .. w14.js), plain data:
 //   sky       gradient stops [[at, colour], ...] top to bottom
 //   body      what is baked into the sky (sky-bodies.js); haze: colour far layers fade toward
 //   layers    3 parallax bands, far to near (parallax.js; kinds in parallax-shapes.js and the files it imports)
@@ -26,7 +26,8 @@ import w10 from './w10.js';
 import w11 from './w11.js';
 import w12 from './w12.js';
 import w13 from './w13.js';
+import w14 from './w14.js';
 
-export const LOOKS = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13].map((look, i) => ({ world: i + 1, ...look }));
+export const LOOKS = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14].map((look, i) => ({ world: i + 1, ...look }));
 
 export const lookFor = (level) => LOOKS[(level.world ?? 1) - 1] ?? LOOKS[0];

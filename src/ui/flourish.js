@@ -12,6 +12,8 @@ import { FLOURISH6 } from './flourish-6.js';
 import { FLOURISH7 } from './flourish-7.js';
 import { FLOURISH8 } from './flourish-8.js';
 import { FLOURISH9 } from './flourish-9.js';
+import { FLOURISH10 } from './flourish-10.js';
+import { FLOURISH11 } from './flourish-11.js';
 
 function beam(color, len = 1000, top = 240) {
   const c = makeCanvas(top, len);
@@ -158,7 +160,7 @@ function shooting(ctx, { t }) {
 const FLOURISH = {
   searchlights: { sky: searchlights }, cars: { far: cars, neonfar: cars }, holo: { mid: holo, neonmid: holo },
   flares: { far: flares, neonfar: flares },
-  mist: { near: mist }, shooting: { sky: shooting }, ...FLOURISH2, ...FLOURISH3, ...FLOURISH4, ...FLOURISH5, ...FLOURISH6, ...FLOURISH7, ...FLOURISH8, ...FLOURISH9,
+  mist: { near: mist }, shooting: { sky: shooting }, ...FLOURISH2, ...FLOURISH3, ...FLOURISH4, ...FLOURISH5, ...FLOURISH6, ...FLOURISH7, ...FLOURISH8, ...FLOURISH9, ...FLOURISH10, ...FLOURISH11,
 };
 
 export function drawFlourishes(ctx, env, phase, x0 = 0, top = 0) {

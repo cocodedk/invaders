@@ -6,6 +6,7 @@ import { hurtAlien, isSwooping } from './aliens.js';
 import { shotsVsBoss } from './boss-hit.js';
 import { sweepBunkers } from './bunkers.js';
 import { awardKill } from './scoring.js';
+import { lightFuse } from './fireworks.js';
 import { emit } from './util.js';
 import { cutShuriken } from './twists.js';
 
@@ -49,6 +50,7 @@ function vsBunkers(world, list, dt) {
 }
 
 // A diver that reaches the ship costs a life and is lost with no score. A blinking ship is passed.
+// A shell (world 14) that rams still lights its fuse, like a shell dying any other way.
 function rams(world) {
   const reach = (ALIEN_R + SHIP_R) ** 2;
   for (const a of world.aliens) {
@@ -56,6 +58,7 @@ function rams(world) {
     if (dist2(a, world.ship) <= reach && hitShip(world, 'ram')) {
       a.hp = 0;
       awardKill(world, a, false);
+      if (a.shell) lightFuse(world, a);
     }
   }
 }
