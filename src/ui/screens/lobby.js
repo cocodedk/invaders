@@ -1,9 +1,10 @@
-// Level select as a cinema lobby: ten posters (each world's boss fight, rendered by the game), in
-// two rows of five, each beside five reels showing best stars and best score. Every reel is open
-// from the start.
+// Level select as a cinema lobby: a poster per world (its boss fight, rendered by the game) with
+// five reels showing best stars and best score. The main run's worlds stand in the first row, each
+// poster over its reels; under them, "also showing", the side worlds (difficulty.js isSide), each
+// poster beside its reels. Every reel is open from the start.
 // Keys (lobby-nav.js): left/right change world within a row (same reel), up/down change reel and
-// run on into the row below or above, down from the last row's last reel reaches Back, Enter plays,
-// Esc goes back. The mouse focuses on hover and plays on click.
+// run on into the nearest world of the row below or above, down from the last row's last reel
+// reaches Back, Enter plays, Esc goes back. The mouse focuses on hover and plays on click.
 //   lobbyScreen({ best, start(level), back(), focusId }) -> screen   best: storage allBest()
 // Posters not baked yet (posters.js bakes them in idle slices) show their sky, and develop in as
 // soon as they are ready (update).
@@ -17,6 +18,7 @@ import { MOVE, isConfirm, isBack } from '../keys.js';
 import { MAX_STARS } from '../../core/scoring.js';
 import { TAGLINES, posterFor } from './posters.js';
 import { step } from './lobby-nav.js';
+import { isSide } from '../../core/difficulty.js';
 
 function reel(level, best, start) {
   const b = best[level.id];
@@ -48,12 +50,20 @@ function poster(world, best, start) {
 export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
   const el = shell('lobby');
   const cols = WORLDS.map((w) => poster(w, best, start));
+  const rows = [false, true].map((side) => cols.flatMap((c, i) => (isSide(c.world) === side ? [i] : [])))
+    .filter((row) => row.length);
+  const mid = (i) => {
+    const r = cols[i].el.getBoundingClientRect();
+    return r.left + r.width / 2;
+  };
+  const near = (w, row) => row.reduce((a, b) => (Math.abs(mid(b) - mid(w)) < Math.abs(mid(a) - mid(w)) ? b : a));
   const total = Object.values(best).reduce((n, b) => n + b.stars, 0);
   const backBtn = button('Back', () => { play('back'); back(); }, 'btn');
   el.append(
     h('header', 'marquee', h('span', 'bulbs'), h('h2', 'marquee-title', 'Now showing'), h('span', 'bulbs')),
     h('p', 'sub', `${WORLDS.length} worlds, ${LEVELS.length} reels. Every one is open. `, h('span', 'lobby-total', `★ ${total} / ${LEVELS.length * MAX_STARS}`)),
-    h('div', 'posters', ...cols.map((c) => c.el)),
+    h('div', 'posters', ...rows[0].map((i) => cols[i].el)),
+    rows[1] && h('div', 'side', h('span', 'side-label', 'Also showing'), ...rows[1].map((i) => cols[i].el)),
     h('div', 'row', backBtn, h('span', 'hint', '← → world · ↑ ↓ reel · Enter play · Esc back')));
   const grid = cols.map((c) => c.reels);
   const first = grid.flat().find((r) => r.dataset.id === focusId) ?? grid[0][0];
@@ -76,11 +86,10 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
         return true;
       }
       if (!at) return focusItem(lastReel), true;
-      const [w, r] = at;
       const move = MOVE[code];
       if (move) {
         lastReel = document.activeElement;
-        const to = step([w, r], move, grid.length, grid[0].length);
+        const to = step(at, move, rows, grid[0].length, near);
         return focusItem(to ? grid[to[0]][to[1]] : backBtn), true;
       }
       if (isConfirm(code)) return document.activeElement.click(), true;

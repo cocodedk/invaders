@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { difficulty, scaled, FIRE_UP } from '../../src/core/difficulty.js';
+import { difficulty, scaled, FIRE_UP, isSide } from '../../src/core/difficulty.js';
 
 test('difficulty runs from 0 at world 1 level 1 to 1 at world 8 level 5', () => {
   assert.equal(difficulty(1, 1), 0);
@@ -61,4 +61,8 @@ test('fireMult is the d curve times FIRE_UP (R54), at every d', () => {
   }
   assert.ok(Math.abs(scaled(0).fireMult - 0.9) < 1e-12);
   assert.ok(Math.abs(scaled(1).fireMult - 2.4) < 1e-12);
+});
+
+test('the side worlds are the ones that set their own d: 9 and 10, not the main run', () => {
+  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(isSide), [9, 10]);
 });

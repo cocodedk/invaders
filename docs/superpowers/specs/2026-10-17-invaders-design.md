@@ -199,7 +199,8 @@ original run — the game state never does.
 ## Screens
 
 Title (a live autopilot battle in a random world behind the logo) · Level Select (a cinema lobby:
-9 world posters, each with 5 level reels showing stars and best score) · Play · Pause ·
+a poster per world, each with 5 level reels showing stars and best score; the main run's eight in
+a row, the side worlds under them, "also showing") · Play · Pause ·
 Trailer → Results (score, stars, best; Next / Retry / Select) · Blooper → Failed (Retry / Select) ·
 Cinema · Watch, then try (below).
 
