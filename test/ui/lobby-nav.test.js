@@ -54,36 +54,47 @@ test('every reel is reachable from the first by the arrows', () => {
   assert.equal(seen.size, 50);
 });
 
-// World 12 makes the side row four cards wide, under the main row's eight (the row is as wide as the
-// main row, 77 rem against 76.7). Mids in main-row world widths: main world w at w + 0.5, side card k
-// at 2k + 1.2, so every world has one nearest card and no ties.
-const ROWS12 = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11]];
-const mid = (w) => (w < 8 ? w + 0.5 : 2 * (w - 8) + 1.2);
+// World 13 makes the side row five cards wide, as wide as the main row (lobby.css: 76.7 rem each).
+// Card centres in rem, measured on a mock of the real DOM against lobby.css (1280, 1600 and 1920 wide
+// agree to 0.2 rem): main world w at 14.05 + 9.7 w, the side cards at 17, 32.5, 48, 63.5 and 79.
+const ROWS13 = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12]];
+const SIDE_AT = [17, 32.5, 48, 63.5, 79];
+const mid = (w) => (w < 8 ? 14.05 + 9.7 * w : SIDE_AT[w - 8]);
 const nearest = (w, row) => row.reduce((a, b) => (Math.abs(mid(b) - mid(w)) < Math.abs(mid(a) - mid(w)) ? b : a));
-const go12 = (at, key) => step(at, MOVE[key], ROWS12, 5, nearest);
+const go13 = (at, key) => step(at, MOVE[key], ROWS13, 5, nearest);
 
-test('a four-card side row wraps on itself, and the rows hand over to the nearest card', () => {
-  assert.deepEqual(go12([11, 2], 'ArrowRight'), [8, 2]);
-  assert.deepEqual(go12([8, 2], 'ArrowLeft'), [11, 2]);
-  assert.deepEqual(go12([0, 4], 'ArrowDown'), [8, 0]);
-  assert.deepEqual(go12([4, 4], 'ArrowDown'), [10, 0]);
-  assert.deepEqual(go12([7, 4], 'ArrowDown'), [11, 0]);
-  assert.deepEqual(go12([9, 0], 'ArrowUp'), [3, 4]);
-  assert.equal(go12([11, 4], 'ArrowDown'), null, 'the last row leaves for Back');
+test('a five-card side row wraps on itself, one card at a time', () => {
+  assert.deepEqual(go13([12, 2], 'ArrowRight'), [8, 2]);
+  assert.deepEqual(go13([8, 2], 'ArrowLeft'), [12, 2]);
+  assert.deepEqual(go13([10, 1], 'ArrowRight'), [11, 1]);
+  assert.deepEqual(go13([10, 1], 'ArrowLeft'), [9, 1]);
 });
 
-test('with the fourth side card every one of the 60 reels is reachable by the arrows', () => {
+test('down from the main row lands on the nearest of the five side cards, and up comes back to the nearest main world', () => {
+  const below = [8, 8, 9, 10, 10, 11, 12, 12]; // the side card under main worlds 0..7
+  for (const [w, card] of below.entries()) assert.deepEqual(go13([w, 4], 'ArrowDown'), [card, 0], `world ${w + 1}`);
+  const above = [0, 2, null, 5, 7]; // the middle card stands exactly between worlds 4 and 5
+  for (const [k, w] of above.entries()) {
+    const to = go13([8 + k, 0], 'ArrowUp');
+    assert.equal(to[1], 4, 'the last reel above');
+    if (w === null) assert.ok([3, 4].includes(to[0]), 'one of the two beside it');
+    else assert.equal(to[0], w, `side card ${k + 1}`);
+  }
+  assert.equal(go13([11, 4], 'ArrowDown'), null, 'the last row leaves for Back');
+});
+
+test('with the fifth side card every one of the 65 reels is reachable by the arrows', () => {
   const seen = new Set(['0,0']);
   const queue = [[0, 0]];
   while (queue.length) {
     const at = queue.pop();
     for (const key of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']) {
-      const to = go12(at, key);
+      const to = go13(at, key);
       if (to && !seen.has(to.join())) {
         seen.add(to.join());
         queue.push(to);
       }
     }
   }
-  assert.equal(seen.size, 60);
+  assert.equal(seen.size, 65);
 });

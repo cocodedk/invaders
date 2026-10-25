@@ -100,3 +100,52 @@ test("the archive's stingers are a solo violin: one bowed sawtooth a note, a vib
   assert.ok(violin.every((x) => x.detune.value === 0), 'solo, not an ensemble');
   for (const s of nodes.filter((x) => x.kind === 'Oscillator' || x.kind === 'BufferSource')) assert.ok(s.started && s.stopAt <= a.t + secs + 0.5, 'a source left running');
 });
+
+const ARMADA = kitFor({ mood: 'armada', root: 'G', scale: 'major', bpm: 132 });
+const salvo = (nodes) => nodes.filter((x) => x.kind === 'Oscillator' && x.frequency.calls[1]?.[1] === 40 && [150, 138, 126, 114].includes(x.frequency.calls[0][1])); // the four booms
+
+test("the Galleon's roar is a cannon salvo, four booms rippling down the deck, with the timbers creaking under the recoil", () => {
+  assert.equal(ARMADA.style, 'armada');
+  const { a, nodes } = fakeVoice(ARMADA);
+  const secs = BOSS.phase(a, { phase: 1 });
+  const booms = salvo(nodes);
+  assert.deepEqual(booms.map((x) => x.frequency.calls[0][1]), [150, 138, 126, 114], 'each gun a little lower and softer');
+  assert.deepEqual(booms.map((x) => Math.round((x.frequency.calls[0][2] - a.t) * 100)), [0, 15, 27, 46], 'staggered');
+  assert.equal(nodes.filter((x) => x.kind === 'BiquadFilter' && x.type === 'lowpass' && x.frequency.calls[0][1] === 2600).length, 4, 'a blast of smoke with each');
+  const groan = nodes.filter((x) => x.kind === 'Oscillator' && x.type === 'sawtooth' && x.frequency.calls[0][1] === 134);
+  assert.equal(groan.length, 1, 'a beam groaning, falling from 134 to 76 Hz');
+  assert.equal(nodes.filter((x) => x.kind === 'BiquadFilter' && x.type === 'bandpass' && x.Q.value === 10).length, 1, 'and a stick-slip creak of noise');
+  assert.equal(nodes.filter((x) => x.kind === 'Oscillator' && x.type === 'square' && x.frequency.value === 14).length, 1, 'which shudders on a square LFO');
+  for (const s of nodes.filter((x) => x.kind === 'Oscillator' || x.kind === 'BufferSource')) assert.ok(s.started && s.stopAt <= a.t + secs + 0.5, 'a source left running');
+  const death = fakeVoice(ARMADA);
+  const deathSecs = BOSS.bossDeath(death.a);
+  assert.equal(salvo(death.nodes).length, 4, 'the last roar fires the salvo too');
+  for (const s of death.nodes.filter((x) => x.kind === 'Oscillator' || x.kind === 'BufferSource')) assert.ok(s.started && s.stopAt <= death.a.t + deathSecs + 0.5, 'a source left running');
+});
+
+test("no other world's roar fires a salvo or creaks, and no other world's stinger swells its filter like a horn", () => {
+  for (const look of LOOKS.filter((l) => l.music.mood !== 'armada')) {
+    const kit = kitFor(look.music);
+    const roar = fakeVoice(kit);
+    BOSS.phase(roar.a, { phase: 1 });
+    assert.equal(salvo(roar.nodes).length, 0, `w${look.world}`);
+    assert.ok(!roar.nodes.some((x) => x.kind === 'BiquadFilter' && x.Q.value === 10), `w${look.world}: no creak`);
+    const stinger = fakeVoice(kit);
+    UI.cleared(stinger.a, {});
+    const swell = stinger.nodes.filter((x) => x.kind === 'BiquadFilter' && x.type === 'lowpass' && x.frequency.calls.length > 1);
+    assert.equal(swell.length, 0, `w${look.world}: the filter stays put`);
+  }
+});
+
+test("the armada's stingers are a pair of horns on the scale: a sawtooth and its detuned double a note, the filter opening as each swells", () => {
+  const { a, nodes } = fakeVoice(ARMADA);
+  const secs = UI.cleared(a, {});
+  const horns = nodes.filter((x) => x.kind === 'Oscillator' && x.type === 'sawtooth');
+  assert.equal(horns.length, 14, 'seven notes, each two voices');
+  assert.ok(Math.abs(horns[0].frequency.calls[0][1] - 392) < 0.05, 'the run starts on G4');
+  assert.ok(horns.some((x) => x.detune.value > 0), 'the double is detuned');
+  const swells = nodes.filter((x) => x.kind === 'BiquadFilter' && x.type === 'lowpass' && x.frequency.calls[0][1] === 900 && x.frequency.calls[1]?.[1] === 3400);
+  assert.equal(swells.length, 14, 'every horn voice opens from 900 to 3400 Hz');
+  assert.equal(nodes.filter((x) => x.kind === 'Oscillator' && x.type === 'sine').length, 1, 'no organ or bell doubling, only the root under the chord');
+  for (const s of nodes.filter((x) => x.kind === 'Oscillator' || x.kind === 'BufferSource')) assert.ok(s.started && s.stopAt <= a.t + secs + 0.5, 'a source left running');
+});

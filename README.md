@@ -1,10 +1,11 @@
 # Invaders
 
 A cinematic arcade shooter for the browser. Fly anywhere in the lower half of the screen, shoot down
-alien formations and beat a boss at the end of every world: 12 worlds and 60 levels, each world with
+alien formations and beat a boss at the end of every world: 13 worlds and 65 levels, each world with
 its own look, music and twist. Spread shot, laser, rapid fire, shield, homing shots,
 slow time, smart bombs and extra lives along the way (a second power-up waits in reserve while the
-first runs), and combos for the score.
+first runs), and combos for the score. Sunset Armada, the thirteenth world, brings its own: wingmen, two
+escort fighters that fire with you, and a broadside twist that opens the ship's side guns.
 
 Clear a level and the game cuts a movie trailer from your own run, title cards and all. The Cinema
 on the title screen keeps your best run of every level. Lose one and you get the blooper instead.

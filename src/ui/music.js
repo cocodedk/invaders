@@ -107,7 +107,7 @@ function stepAt(c, t) {
     const pad = L.len > 1 && !L.fm; // a bell rings long but strikes at once
     const o = {
       type: L.wave, t, f0: midiHz(degreeMidi(kit, deg + shift, L.oct)), attack: pad ? len * 0.25 : 0.006,
-      dur: len * L.len, peak: L.gain, cut: L.cut, q: 1.5,
+      dur: len * L.len, peak: L.gain, cut: L.cut, cut1: L.cut1, q: 1.5,
     };
     if (L.fm) fm(a, { ...o, ...L.fm });
     else tone(a, o);

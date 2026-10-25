@@ -1,7 +1,7 @@
 // Sound patches of the power-ups and the smart bomb: pickups chime in the world's scale (an extra life
-// climbs it), each power switches on with its own gesture (ON, by kind) and winds down when it ends,
-// the laser hums while it burns, and the bomb inhales before it lands. A patch is (a, o) -> seconds
-// (audio-kit.js).
+// climbs it), each power switches on with its own gesture (ON, by kind; world 13's wingmen sound a horn
+// call) and winds down when it ends, the laser hums while it burns, and the bomb inhales before it lands.
+// A patch is (a, o) -> seconds (audio-kit.js).
 import { tone, hiss, fm, wobble, noteHz, panOf } from './audio-kit.js';
 
 export const ON = {
@@ -25,6 +25,12 @@ export const ON = {
   homing(a) { // a seeker closing in: blips that climb and come faster, then the lock
     [0, 0.1, 0.17, 0.22].forEach((d, i) => tone(a, { type: 'square', t: a.t + d, f0: 600 + i * 260, dur: 0.04, peak: 0.05, cut: 3200 }));
     tone(a, { t: a.t + 0.27, f0: noteHz(a.kit, 4, 6), dur: 0.22, peak: 0.08 });
+  },
+  wingmen(a) { // a horn call: two short notes and a held one climbing the scale, the filter opening on each (a pair of horns, detuned)
+    [0, 4, 7].forEach((d, i) => [-12, 12].forEach((detune) => tone(a, {
+      type: 'sawtooth', t: a.t + i * 0.1, f0: noteHz(a.kit, d, 4), attack: 0.03, dur: i === 2 ? 0.3 : 0.08, peak: 0.03 + i * 0.006,
+      detune, cut: 900, cut1: 3200,
+    })));
   },
   slow(a) { // time thickening: everything swoops down
     tone(a, { type: 'sawtooth', f0: 760, f1: 110, dur: 0.5, peak: 0.1, cut: 2400, cut1: 300 });

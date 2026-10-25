@@ -4,7 +4,9 @@
 //   eventSounds(events, world, play)   once per tick, with that tick's events
 // Alien deaths sound through `kill` (by role, with the combo); their `explode` is the same moment, so
 // only blasts with no kill of their own sound: the boss's death chain (swelling as it runs, k 0..1),
-// the ship's wreck (size 2) and the final white-out blast (size 3).
+// the ship's wreck (size 2) and the final white-out blast (size 3). World 13's rules sound through their
+// own events: the broadside's opening and closing, each side shot (a cannon, left or right), and the
+// escorts' rattle with the ship's shot while the wingmen run (the fire event's power).
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X } from '../core/kinds.js';
 
@@ -17,6 +19,8 @@ const at = (e) => ({ x: e.x });
 // The pickups swept up at the clear (R51) all land on one tick: each chimes this long after the last,
 // a run of chimes rather than one blob.
 const CHIME_GAP = 0.06;
+// A side shot sounds this far out from the muzzle toward the side it flies to, so the volley opens in stereo.
+const SIDE_PAN = 240;
 
 export function eventSounds(events, world, play) {
   const dying = world.boss?.dying ?? null;
@@ -25,6 +29,7 @@ export function eventSounds(events, world, play) {
       case 'fire':
         if (e.side === 'ship') {
           if (e.power !== 'laser') play('shot', { power: e.power, x: e.x }); // the beam hums instead
+          if (e.power === 'wingmen') play('escortShot', { x: e.x }); // the two escorts fire with the ship
         } else if (e.pattern === 'laser') play('laserWarn', at(e));
         else play('enemyShot', { pattern: e.pattern, boss: e.role === 'boss', x: e.x });
         break;
@@ -63,6 +68,8 @@ export function eventSounds(events, world, play) {
       case 'reassemble': play('reassemble', at(e)); break;
       case 'absorb': play('absorb', at(e)); break;
       case 'saucer': play('saucer', { dir: e.dir, x: e.x }); break;
+      case 'broadside': play(e.on ? 'broadsideOn' : 'broadsideOff', { x: e.x }); break;
+      case 'sideShot': play(e.dir < 0 ? 'cannonL' : 'cannonR', { x: e.x + e.dir * SIDE_PAN }); break;
       default: break; // SILENT
     }
   }

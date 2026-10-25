@@ -1,11 +1,12 @@
 // What each world bakes into its sky beyond the gradient, one painter per look.body (worlds 1-4;
-// sky-bodies-2.js has 5-8, sky-bodies-3.js 9-11, sky-bodies-4.js 12). Painted once per level into the sky canvas; nothing here animates.
+// sky-bodies-2.js has 5-8, sky-bodies-3.js 9-11, sky-bodies-4.js 12, sky-bodies-5.js 13). Painted once per level into the sky canvas; nothing here animates.
 import { W, glow, hash, rgba, noise2, addGlow } from './sprites.js';
 import { blobs, stars, sun, moon, brush, horizonGlow } from './sky-paint.js';
 import { clamp, TAU } from '../core/math.js';
 import { BODIES2 } from './sky-bodies-2.js';
 import { BODIES3 } from './sky-bodies-3.js';
 import { BODIES4 } from './sky-bodies-4.js';
+import { BODIES5 } from './sky-bodies-5.js';
 
 const BAYER = [0, 2, 3, 1]; // 2x2 ordered dither
 
@@ -97,4 +98,4 @@ function redmoon(g) {
   horizonGlow(g, '#c83a2a', 0.35, 560);
 }
 
-export const BODIES = { arcade, megacity, twinsuns, redmoon, ...BODIES2, ...BODIES3, ...BODIES4 };
+export const BODIES = { arcade, megacity, twinsuns, redmoon, ...BODIES2, ...BODIES3, ...BODIES4, ...BODIES5 };

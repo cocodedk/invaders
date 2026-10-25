@@ -45,6 +45,13 @@ export const DRUM = {
   m: (a, t, n) => { // a music box: a thin bell on the step's own note, an octave over the harp, ringing out
     if (n.deg != null) fm(a, { t, f0: noteHz(a.kit, n.deg, 5), ratio: 4.2, index: 1.8, dur: 1.1, peak: 0.045, cut: 7000 });
   },
+  r: (a, t) => { // a snare roll into the bar: six taps crowding together and swelling
+    [0, 0.04, 0.077, 0.111, 0.142, 0.17].forEach((d, i) => hiss(a, { t: t + d, type: 'bandpass', f0: 1900, q: 0.9, dur: 0.045, peak: 0.03 + i * 0.008 }));
+  },
+  o: (a, t, n) => { // a string chopped short: the chord's root, fifth, third, fifth in turn, two detuned sawtooth voices
+    const d = n.shift + [0, 4, 2, 4][(n.step >> 1) % 4];
+    for (const detune of [-9, 10]) tone(a, { type: 'sawtooth', t, f0: noteHz(a.kit, d, 3), detune, attack: 0.012, dur: 0.1, peak: 0.03, cut: 2200, cut1: 700 });
+  },
   v: (a, t) => { // strings bowing a chord in: root, third, fifth and octave, each two detuned sawtooth voices, the bow opening the filter
     for (const d of [0, 2, 4, 7]) {
       for (const detune of [-8, 9]) tone(a, { type: 'sawtooth', t, f0: noteHz(a.kit, d, 3), detune, attack: 0.9, dur: 1.7, peak: 0.035, cut: 600, cut1: 2200 });

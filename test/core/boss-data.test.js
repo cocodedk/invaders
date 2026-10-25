@@ -10,7 +10,7 @@ const sum = (parts) => parts.reduce((n, p) => n + p.hp, 0);
 const weakAt = (def, i) => def.parts.filter((p) =>
   p.weak || def.phases.some((ph, j) => j <= i && ph.open?.includes(p.id)));
 
-test('there are twelve definitions, in world order, looked up by kind', () => {
+test('there are thirteen definitions, in world order, looked up by kind', () => {
   assert.deepEqual(BOSS_DEFS.map((d) => d.kind), BOSSES);
   for (const kind of BOSSES) assert.equal(bossDef(kind).kind, kind);
   assert.equal(bossDef('nope'), undefined);
@@ -99,7 +99,7 @@ test('every phase of every boss sends one carrier at a time, at least every 5 s'
 
 test('the bosses differ: layouts, part counts and attack mixes are not copies of one another', () => {
   const sig = BOSS_DEFS.map((d) => JSON.stringify([d.parts.map((p) => [p.dx, p.dy]), d.phases.map((p) => p.attacks.map((a) => a.pattern))]));
-  assert.equal(new Set(sig).size, 12);
+  assert.equal(new Set(sig).size, 13);
   for (const def of BOSS_DEFS) assert.ok(def.parts.length >= 5, `${def.kind} has parts`);
   assert.ok(BOSS_DEFS.some((d) => d.phases.some((p) => p.open)), 'a trench that opens');
 });
@@ -139,4 +139,28 @@ test('the Grand Grimoire sways, hovers and circles, writes its attacks, and sits
   assert.ok(grimoire.phases.slice(1).every((p) => p.minions.some((m) => m.role === 'diver')), 'paper cranes in phases 2 and 3');
   for (const id of ['eye', 'quillL', 'quillR', 'clasp']) assert.ok(grimoire.parts.find((p) => p.id === id).weak, id);
   for (const id of ['crown', 'pageL', 'pageR']) assert.ok(grimoire.parts.find((p) => p.id === id).armor, id);
+});
+
+// The Thunder Galleon never charges, keeps its bridge clear of the HUD at the top of its orbit, ends
+// no lower than the grimoire, and works its attacks from the parts the picture gives it: aimed bolts
+// and the laser from the bridge, fans from the gun decks, rain from the mast, rings from the keel.
+test('the Thunder Galleon sways, hovers and circles, fires from its decks, and sits no lower than the grimoire', () => {
+  const galleon = bossDef('galleon');
+  assert.deepEqual(galleon.phases.map((p) => p.move), ['sway', 'hover', 'orbit']);
+  assert.equal(galleon.y, 260, 'it rests about where the grimoire does');
+  const bridge = galleon.parts.find((p) => p.id === 'bridge');
+  assert.ok(galleon.y + bridge.dy - bridge.h / 2 - 55 >= HUD_BOTTOM, 'the bridge clears the HUD at the top of the orbit');
+  assert.ok(galleon.bottom <= bossDef('grimoire').bottom, 'no lower than the grimoire');
+  const from = (pattern, part) => galleon.phases.flatMap((p) => p.attacks).some((a) => a.pattern === pattern && a.from.startsWith(part));
+  assert.ok(from('aimed', 'bridge') && from('laser', 'bridge'), 'aimed bolts and the laser from the bridge');
+  assert.ok(from('fan', 'gun'), 'fans from the gun decks');
+  assert.ok(from('rain', 'mast'), 'rain from the mast');
+  assert.ok(from('ring', 'keel'), 'rings from the keel');
+  assert.ok(!galleon.phases.slice(0, 2).some((p) => p.attacks.some((a) => a.pattern === 'laser')), 'the laser only in the last phase');
+  assert.ok(galleon.phases.at(-1).attacks.some((a) => a.pattern === 'laser'), 'the laser in the last phase');
+  assert.ok(galleon.phases.slice(1).every((p) => p.minions.some((m) => m.role === 'diver' && m.from.startsWith('prop'))), 'divers from the props in phases 2 and 3');
+  assert.ok(!galleon.phases[0].minions.some((m) => m.role === 'diver'), 'none in the first');
+  for (const id of ['bridge', 'gunL', 'gunR', 'keel']) assert.ok(galleon.parts.find((p) => p.id === id).weak, id);
+  for (const id of ['mast', 'propL', 'propR']) assert.ok(galleon.parts.find((p) => p.id === id).armor, id);
+  assert.deepEqual(galleon.parts.map((p) => p.id), ['mast', 'bridge', 'propL', 'propR', 'gunL', 'gunR', 'keel']);
 });

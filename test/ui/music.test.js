@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { setMusic, updateMusic, startLoop, fillLoop, stopLoop } from '../../src/ui/music.js';
+import { STYLES } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
 import { node } from './audio-kit.js';
 
@@ -133,4 +134,54 @@ test("Starlit Archive's loop plucks harp arpeggios in D dorian under music-box b
   const bass = saws.filter((n) => n.frequency.calls.length && n.stopAt - n.frequency.calls[0][2] < 0.5);
   assert.deepEqual(bass.map((n) => Math.round(first(n))), [73, 147, 73, 147], 'the plucked bass: root, octave, root, octave');
   assert.equal(osc.filter((n) => first(n) === 132).length, 4, 'four soft frame-drum thumps');
+});
+
+test("Sunset Armada's loop is a brass fanfare in G major over timpani on the downbeats, a snare march that rolls into each bar and strings chopped off the beat", () => {
+  const nodes = fakeAudio();
+  const c = startLoop(nodes, LOOKS[12]);
+  assert.deepEqual([c.kit.style, c.kit.bpm], ['armada', 132]);
+  fillLoop(c, 3.7); // one 16-step pass at 132 bpm (0.227 s a step), and a little over
+  const step = 60 / 132 / 2;
+  const osc = nodes.ctx.nodes.filter((n) => n.kind === 'Oscillator');
+  const first = (n) => n.frequency.calls[0]?.[1] ?? n.frequency.value;
+  const startOf = (n) => n.frequency.calls[0][2];
+  const stepOf = (n) => Math.round((startOf(n) - 0.1) / step);
+  const pitchClass = (n) => (Math.round(12 * Math.log2(first(n) / 440)) + 69) % 12;
+  const MAJOR = [7, 9, 11, 0, 2, 4, 6];
+  const saws = osc.filter((n) => n.type === 'sawtooth' && n.frequency.calls.length);
+  const brass = saws.filter((n) => n.stopAt - startOf(n) > 0.25);
+  assert.equal(brass.length, 11, 'eleven fanfare notes and five rests');
+  assert.ok(Math.abs(first(brass[0]) - 392) < 0.05, 'the fanfare opens on G4');
+  assert.ok(brass.every((n) => MAJOR.includes(pitchClass(n))), 'every note is G major');
+  assert.ok(brass.some((n) => pitchClass(n) === 11), 'the major third, B, is in the tune');
+  const lowpass = nodes.ctx.nodes.filter((n) => n.kind === 'BiquadFilter' && n.type === 'lowpass');
+  const swells = lowpass.filter((n) => n.frequency.calls.length === 2 && n.frequency.calls[1][1] === 3600);
+  assert.equal(swells.length, 11, 'the filter opens on each note: a brass swell');
+  const strings = saws.filter((n) => n.stopAt - startOf(n) < 0.2);
+  assert.equal(strings.length, 12, 'six chopped notes of two detuned voices');
+  assert.deepEqual([...new Set(strings.map((n) => Math.round(first(n))))].sort((p, q) => p - q), [196, 247, 294], 'G, B and D: root, third, fifth');
+  assert.ok(strings.some((n) => n.detune.value < 0) && strings.some((n) => n.detune.value > 0), 'detuned both ways');
+  assert.deepEqual(strings.filter((n) => n.detune.value < 0).map(stepOf), [1, 3, 5, 9, 11, 13], 'off the beat');
+  const timpani = osc.filter((n) => n.type === 'sine' && Math.abs(first(n) - 147) < 0.05);
+  assert.deepEqual(timpani.map(stepOf), [0, 8], 'a timpani on the downbeat of each bar');
+  assert.ok(timpani.every((n) => Math.abs(n.frequency.calls[1][1] - 98) < 0.05), 'sagging a fifth to G2');
+  const bands = (hz) => nodes.ctx.nodes.filter((n) => n.kind === 'BiquadFilter' && n.type === 'bandpass' && n.frequency.calls[0][1] === hz);
+  assert.equal(bands(1700).length, 6, 'a snare on three beats of each bar');
+  assert.equal(bands(1900).length, 12, 'and a roll of six taps into the next bar, twice');
+});
+
+test("only Sunset Armada's loop opens its lead's filter, chops strings or rolls a snare; every other loop is as it was", () => {
+  for (const [name, s] of Object.entries(STYLES)) {
+    const armada = name === 'armada';
+    assert.equal(s.music.lead.cut1 !== undefined, armada, `${name} lead swell`);
+    assert.equal(/[ro]/.test(s.music.drum), armada, `${name} drum`);
+  }
+  const nodes = fakeAudio();
+  for (const look of LOOKS.filter((l) => l.music.mood !== 'armada')) {
+    const c = startLoop(nodes, look);
+    fillLoop(c, 4);
+    const lead = nodes.ctx.nodes.filter((n) => n.kind === 'BiquadFilter' && n.type === 'lowpass' && n.Q.value === 1.5);
+    assert.ok(lead.length > 0 && lead.every((n) => n.frequency.calls.length === 1), `world ${look.world}: a lead note's filter stays put`);
+    stopLoop(c);
+  }
 });

@@ -14,8 +14,8 @@ test('the backdrop is a wave level of any world, and never the world it is told 
     assert.ok(level.waves, `${level.id} is a wave level`);
     worlds.add(level.world);
   }
-  assert.equal(worlds.size, 12, 'every world comes up');
-  for (let skip = 1; skip <= 12; skip++) {
+  assert.equal(worlds.size, 13, 'every world comes up');
+  for (let skip = 1; skip <= 13; skip++) {
     const other = new Set();
     for (let i = 0; i < 200; i++) {
       const level = pickBackdrop(skip);
@@ -23,6 +23,6 @@ test('the backdrop is a wave level of any world, and never the world it is told 
       assert.notEqual(level.world, skip, `skipping world ${skip}`);
       other.add(level.world);
     }
-    assert.equal(other.size, 11, `the other eleven worlds come up when skipping ${skip}`);
+    assert.equal(other.size, 12, `the other twelve worlds come up when skipping ${skip}`);
   }
 });

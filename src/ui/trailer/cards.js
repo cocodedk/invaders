@@ -99,6 +99,11 @@ export const VOICES = [
     ['{kills}', 'RETURNED TO THE SHELF.'],
     ['{near}.', '{time} IN THE STACKS.', 'QUIET, PLEASE.'],
   ],
+  [ // Sunset Armada: a swashbuckling air battle at golden hour over a sea of clouds
+    ['ABOVE A SEA OF CLOUDS,', 'THE ARMADA WEIGHS ANCHOR.'],
+    ['{kills}', 'RAN OUT OF SKY.'],
+    ['{near} IN THE SMOKE.', '{time} OF GOLDEN HOUR.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

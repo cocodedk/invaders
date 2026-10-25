@@ -13,6 +13,7 @@ const ROAR = {
   monster: ['sawtooth', 0.62, 0, 4], gothic: ['triangle', 0.9, 0, 1.2],
   aurora: ['triangle', 1.1, 0, 1.5],
   archive: ['triangle', 0.85, 0, 3],
+  armada: ['sawtooth', 0.78, 0, 2.5],
 };
 
 function roar(a, h, dur, fall) {
@@ -57,6 +58,17 @@ function roar(a, h, dur, fall) {
     [0, 0.05, 0.09, 0.15, 0.19, 0.26, 0.3, 0.38, 0.45, 0.55].forEach((d, i) => hiss(a, {
       t: a.t + 0.2 + d, type: 'bandpass', f0: 3200 + (i % 3) * 1400, q: 1.2, dur: 0.05, peak: 0.13 - i * 0.008,
     }));
+  }
+  if (a.kit.style === 'armada') { // the Galleon fires a salvo, four guns rippling down the deck, and its timbers creak under the recoil
+    [0, 0.15, 0.27, 0.46].forEach((d, i) => {
+      tone(a, { t: a.t + d, f0: 150 - i * 12, f1: 40, dur: 0.45, peak: 0.36 - i * 0.04 });
+      hiss(a, { t: a.t + d, type: 'lowpass', f0: 2600, f1: 160, dur: 0.3, peak: 0.28 - i * 0.03 });
+    });
+    const t = a.t + 0.1;
+    const groan = tone(a, { type: 'sawtooth', t, f0: 134, f1: 76, attack: 0.2, dur: dur * 0.9, peak: 0.07, cut: 460, q: 6 });
+    wobble(a, groan.frequency, 8, 12, t, dur); // the beam straining, a stick-slip shudder
+    const creak = hiss(a, { t, type: 'bandpass', f0: 820, f1: 430, q: 10, attack: 0.15, dur: dur * 0.8, peak: 0.12 });
+    wobble(a, creak.gain, 14, 0.07, t, dur * 0.8, 'square');
   }
 }
 

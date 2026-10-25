@@ -5,7 +5,7 @@
 //                     the trailer or blooper (film) and the world whose music plays (music)
 //   play(id)          jump to a level ('w2-1')              lobby() title() demo() try()
 //   grant(kind, x, y) drop a pickup on the ship, or at (x, y): 'spread' | 'laser' | 'rapid' | 'shield' |
-//                     'homing' | 'slow' | 'bomb' | 'life'
+//                     'homing' | 'slow' | 'bomb' | 'life' | 'wingmen' (world 13)
 //   clear(hits?)      empty the field now (a boss level runs its death chain); hits sets the stars
 //   fail()            the last life goes
 //   drive(mode)       who flies: 'auto' (the autopilot), 'idle' (nobody) or null (the player). It

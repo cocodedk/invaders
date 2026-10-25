@@ -60,7 +60,7 @@ test('the pickups swept up at the clear chime one after another, a caught one at
 
 test('each world has its own sound style, root and scale from its look', () => {
   const styles = LOOKS.map((l) => kitFor(l.music).style);
-  assert.equal(new Set(styles).size, 12, styles.join());
+  assert.equal(new Set(styles).size, 13, styles.join());
   for (const look of LOOKS) {
     const kit = kitFor(look.music);
     assert.equal(kit.root, NOTES[look.music.root], look.music.root);
@@ -77,6 +77,12 @@ test('Aurora Kingdom plays the aurora style, in E lydian at 84 bpm', () => {
 test('Starlit Archive plays the archive style, in D dorian at 116 bpm', () => {
   const kit = kitFor(LOOKS[11].music);
   assert.deepEqual([kit.style, kit.root, kit.scale, kit.bpm], ['archive', NOTES.D, SCALES.dorian, 116]);
+});
+
+test('Sunset Armada plays the armada style, in G major at 132 bpm', () => {
+  const kit = kitFor(LOOKS[12].music);
+  assert.deepEqual([kit.style, kit.root, kit.scale, kit.bpm], ['armada', NOTES.G, SCALES.major, 132]);
+  assert.deepEqual(SCALES.major, [0, 2, 4, 5, 7, 9, 11]);
 });
 
 test('scale degrees land in the scale, an octave per scale length', () => {
@@ -96,8 +102,25 @@ test('every music style is well formed', () => {
     const m = s.music;
     assert.ok(m.div > 0 && m.seq.length > 0 && m.drum.length > 0, name);
     for (const d of m.seq) assert.ok(d === null || Number.isInteger(d), `${name} seq`);
-    assert.match(m.drum, /^[kthsbpcjfzmv.]+$/, `${name} drum`);
+    assert.match(m.drum, /^[kthsbpcjfzmvro.]+$/, `${name} drum`);
     assert.ok(m.lead.gain > 0 && m.lead.gain < 0.2, `${name} lead gain`);
     if (m.lead.fm) assert.ok(m.lead.fm.ratio > 0 && m.lead.fm.index > 0, `${name} lead fm`);
   }
+});
+
+test("the broadside's events sound: the guns opening and shutting, a cannon out of each side, panned a little outward", () => {
+  assert.deepEqual(names([{ ...sample('broadside'), on: true, x: 900 }]), [{ name: 'broadsideOn', x: 900 }]);
+  assert.deepEqual(names([{ ...sample('broadside'), on: false, x: 900 }]), [{ name: 'broadsideOff', x: 900 }]);
+  const [left, right] = names([{ ...sample('sideShot'), x: 938, dir: -1 }, { ...sample('sideShot'), x: 982, dir: 1 }]);
+  assert.deepEqual([left.name, right.name], ['cannonL', 'cannonR']);
+  assert.ok(left.x < 938 && right.x > 982, `each sounds out toward its side: ${left.x}, ${right.x}`);
+  assert.ok(right.x - left.x < 800, 'a spread, not a hard pan');
+});
+
+test("the escorts rattle with the ship's shot only while the wingmen run; every other shot sounds as it always did", () => {
+  const volley = (power) => names([{ ...sample('fire'), side: 'ship', power }]).map((s) => s.name);
+  assert.deepEqual(volley('wingmen'), ['shot', 'escortShot']);
+  for (const power of [null, 'spread', 'rapid', 'shield', 'homing', 'slow']) assert.deepEqual(volley(power), ['shot'], String(power));
+  assert.deepEqual(volley('laser'), [], 'the beam still hums instead');
+  assert.deepEqual(names([{ ...sample('fire'), side: 'enemy', pattern: 'fan' }]).map((s) => s.name), ['enemyShot']);
 });

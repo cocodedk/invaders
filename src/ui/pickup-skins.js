@@ -1,16 +1,18 @@
-// Per-world pickup skins (look.world 1..12). A pickup must still read as "catch me" in every world,
+// Per-world pickup skins (look.world 1..13). A pickup must still read as "catch me" in every world,
 // so the falling capsule keeps its dark middle, coloured rim, pulse and turning dashes
 // (pickups-view.js); a world changes the rim's shape and redraws some icons in its own idiom.
 //   FRAMES[world](g, color)        the capsule's rim, centred, inside a 60 x 60 sprite (baked)
 //   ICONS[world][kind](g, color)   replaces drawIcon's default for that kind (centred, ~30 px);
 //                                  also drawn by the HUD every frame, so plain paths only
-//                                  (pickup-icons.js worlds 1-4, pickup-icons-2.js worlds 5-8)
+//                                  (pickup-icons.js worlds 1-4, pickup-icons-2.js worlds 5-8, pickup-wheel.js
+//                                  the wingmen of world 13)
 import { INK, rgba, shade, lin } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
 import { ICONS2 } from './pickup-icons-2.js';
 import { frost } from './pickup-frost.js';
 import { gilt } from './pickup-gilt.js';
+import { wheel, ICONS13 } from './pickup-wheel.js';
 
 export const disc = (g, r) => {
   g.fillStyle = 'rgba(8,10,20,0.88)';
@@ -183,6 +185,7 @@ export const FRAMES = {
   },
   11: frost, // a ring of frost crystals (pickup-frost.js)
   12: gilt, // a wreath of gold leaf (pickup-gilt.js)
+  13: wheel, // a ship's wheel (pickup-wheel.js)
 };
 
-export const ICONS = { ...ICONS1, ...ICONS2 };
+export const ICONS = { ...ICONS1, ...ICONS2, 13: ICONS13 };

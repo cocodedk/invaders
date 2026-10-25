@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { installCanvas, recorder } from './dom-kit.js';
-import { POWERS } from '../../src/core/kinds.js';
+import { POWERS, POWERS_13 } from '../../src/core/kinds.js';
 import { createWorld } from '../../src/core/world.js';
 import { levelById } from '../../src/core/levels.js';
 
@@ -15,8 +15,8 @@ const { LOOKS } = await import('../../src/ui/looks/index.js');
 const TOP = -Math.PI / 2; // where a ring starts draining
 
 test('every pickup kind draws an icon of its own, in the default set and in every world', () => {
-  const kinds = [...POWERS, 'bomb', 'life'];
-  for (const world of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) {
+  for (const world of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]) {
+    const kinds = [...(world === 13 ? POWERS_13 : POWERS), 'bomb', 'life']; // the wingmen drop in world 13 alone
     const drawn = kinds.map((kind) => {
       const { ctx, calls } = recorder();
       drawIcon(ctx, kind, '#ffffff', world);

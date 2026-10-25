@@ -21,6 +21,7 @@ import { drawAliens } from './aliens/index.js';
 import { warmAliens } from './aliens/bake.js';
 import { drawBoss } from './bosses/index.js';
 import { warmBoss } from './bosses/bake.js';
+import { warmArmada } from './warm-armada.js';
 import { drawBullets } from './bullets-view.js';
 import { drawLasers, drawBeam, drawShots } from './lasers-view.js';
 import { drawShip } from './ship-view.js';
@@ -30,13 +31,14 @@ import { drawFilm } from './film-view.js';
 import { drawHud } from './hud.js';
 import { createQuality } from './quality.js';
 
-// warm (default true) bakes the level's aliens and boss with all their damage art; a poster, which
-// draws one frame and has baked what it draws, passes false.
+// warm (default true) bakes the level's aliens and boss with all their damage art (and world 13's sprites,
+// warm-armada.js); a poster, which draws one frame and has baked what it draws, passes false.
 export function createView(canvas, level, warm = true) {
   const look = lookFor(level);
   if (warm) {
     warmAliens(look);
     warmBoss(look, level.boss);
+    warmArmada(look);
   }
   return {
     canvas, ctx: canvas.getContext('2d'), level, look,
@@ -94,7 +96,7 @@ function field(ctx, v, world, fx, t, env, amb) {
   drawLasers(ctx, world, look, t);
   drawBullets(ctx, world, look, t, q);
   drawBeam(ctx, world, look, t);
-  drawShots(ctx, world, look);
+  drawShots(ctx, world, look, t);
   drawShip(ctx, world, look, t);
   drawFx(ctx, fx);
   drawAmbient(ctx, look, 'front', amb);

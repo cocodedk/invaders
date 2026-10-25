@@ -118,7 +118,9 @@ export function cutShuriken(world, dt) {
   }
 }
 
-const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity }; // shuriken: cutShuriken
+// shuriken: cutShuriken. broadside (world 13) has no per-tick rule here: a pickup caught opens the ship's
+// side guns (collect, powerups.js), tickPower counts them down, and shoot (ship.js) fires them.
+const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity };
 
 export function applyTwist(world, dt) {
   RULES[world.level.twist]?.(world, dt);

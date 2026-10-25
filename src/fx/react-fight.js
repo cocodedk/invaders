@@ -4,6 +4,7 @@ import { addFlash, addPopup, addRing, BONUS_Y, startSlowMo } from './fx.js';
 import { debris, FIRE, powerColor, sparks, smoke } from './emit.js';
 import { clamp } from '../core/math.js';
 import { MID_X } from '../core/kinds.js';
+import { fireFor } from './react-armada.js';
 
 const ROLE_COLORS = {
   grunt: ['#7dff7a', '#2fbf4a'], diver: ['#6ad6ff', '#2f8fd6'], gunner: ['#ff9a4a', '#d6502f'],
@@ -109,4 +110,4 @@ function cleared(fx, ev) {
   addPopup(fx, { x: MID_X, y: BONUS_Y, text: '+' + ev.bonus + ' BONUS', color: '#ffe14a', scale: 2, life: 2 });
 }
 
-export const FIGHT = { kill, explode, hit, fire, shipHit, shieldHit, nearMiss, bomb, waveClear, cleared };
+export const FIGHT = { kill, explode, hit, fire: fireFor(fire), shipHit, shieldHit, nearMiss, bomb, waveClear, cleared };

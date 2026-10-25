@@ -36,8 +36,9 @@ import behemoth from './behemoth.js';
 import count from './count.js';
 import wyrm from './wyrm.js';
 import grimoire from './grimoire.js';
+import galleon from './galleon.js';
 
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon };
 const cache = new Map();
 
 export function painterFor(mod, id) {

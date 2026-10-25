@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 12 cinematic worlds × 5 levels = 60 levels, free 2D
+as beautiful as Barrage (`../artillery`): 13 cinematic worlds × 5 levels = 65 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56; worlds 9–12 follow their own difficulty, R57–R60).
+    (R54, R56; worlds 9–13 follow their own difficulty, R57–R61).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -54,6 +54,13 @@ quoted lines, so the repo can be public.
 - **Power-ups:** spread, laser, rapid, shield, homing, slow. 10 s each, slow 6 s. Fall at 160 px/s,
   collected by touch. Each world reskins them (Neon Rain's laser is a pink neon beam, Ronin Moon's
   spread is a fan of throwing stars).
+  - **Wingmen, world 13's own power (R61).** The user asked for a superpower that gives the player
+    sidekicks for as long as the other powers last. Two escort fighters fly level with the ship, 80 px
+    to either side, and each fires a copy of the ship's straight shot whenever the ship fires, for 10 s,
+    with the ring and the reserve of R53. They cannot be hit and do nothing else. They drop only in
+    world 13, whose drops pick from the six powers plus `wingmen`; every other world draws from the
+    six exactly as before, so its play and its replays are unchanged (pinned by fingerprints of 14
+    levels across worlds 1–12) and `RUN_V` stays 8.
   - **One runs at a time, one waits (R53).** A new power starts with its full time and the running one,
     with the time it had left, waits in a one-slot reserve; when the running one ends the reserve takes
     over and goes on from there. The reserve does not tick while it waits, and a newer pickup that
@@ -154,6 +161,19 @@ quoted lines, so the repo can be public.
     headless run (40 seeds) its levels 1–5 clear 38, 35, 30, 25 and 19 times at reaction lag 10, and
     37, 16, 27, 11 and 3 at lag 15. World 6 clears 39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: its waves
     and its boss match world 6 within noise.
+  - **World 13, an air battle at golden hour (R61).** The user asked for another world of my own,
+    with twists: a sidekick power, and a twist of my devising, with sideways fire as the example.
+    It is an armada of airships over a sea of clouds, with world 13's own power (Wingmen, above) and
+    a new twist, `broadside`. Catching any pickup in world 13 (a power, a bomb or a life) opens the
+    ship's side guns for 6 s, and another catch resets the time. While they are open, every volley
+    also fires one shot straight left and one straight right, level with the ship, at the gliders
+    swooping in from the sides. Under the laser, which fires no volleys, the side guns fire at the
+    base rate beside the beam. Its levels lead with divers so the side guns have work. `d` is 0.66,
+    0.68, 0.71, 0.73, 0.76, a notch above world 12 because the two rules help the player, so
+    `armorBonus` applies. Its boss, the Thunder Galleon, never charges. On the headless run (40
+    seeds) its levels 1–5 clear 39, 33, 34, 26 and 13 times at reaction lag 10, and 34, 16, 24, 10
+    and 9 at lag 15, against world 6's 39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: within noise. World
+    6 itself, re-run on the new rules, clears exactly as before.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -175,6 +195,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 10 | Hollow Night | gothic vampire Halloween | a castle on a crag under a harvest moon, dead trees, a graveyard of jack-o'-lanterns | darkness, moonlit: the night's own lights burn brightest; lightning lights the whole screen (Neon Rain's, ruling R58) | Crimson Count |
 | 11 | Aurora Kingdom | polar fantasy under the northern lights | an ice kingdom under the aurora, glacier mountains, a frozen fleet, ice floes on black water | enemy shots are slow, large ice shards; the ship's shots shatter them (Ronin Moon's, ruling R59) | Crystal Wyrm |
 | 12 | Starlit Archive | celestial library fantasy | a library at the edge of the universe: shelf towers in an indigo nebula, floating islands of books, constellations drawn in gold | aliens blink between slots in a whirl of pages; near misses drop into a sepia-gold bullet time (Code Rain's, ruling R60) | Grand Grimoire |
+| 13 | Sunset Armada | airship battle at golden hour | a sea of clouds under a huge low sun, floating islands with waterfalls, brass-and-canvas airships | catching any pickup opens the side guns for 6 s: every volley also fires left and right (new, ruling R61); and its own power, Wingmen | Thunder Galleon |
 
 ## Look and effects
 

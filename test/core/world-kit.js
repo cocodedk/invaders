@@ -57,3 +57,13 @@ export const bulletOnShip = (world) => bulletAt(world, world.ship.x, world.ship.
 // A pickup placed anywhere, as a carrier drops it.
 export const pickupAt = (world, kind, x, y) => world.pickups.push(makePickup(kind, x, y));
 export const pickupOnShip = (world, kind) => pickupAt(world, kind, world.ship.x, world.ship.y);
+
+// The world's aliens swapped for one that stands still at (x, y) with `hp`: nothing moves (no march),
+// and with a lot of hp the level cannot be cleared by firing at it, or at nothing.
+export function holdAlien(world, x, y, hp = 1, role = 'grunt') {
+  world.march = null;
+  world.aliens.length = 0;
+  const a = { id: 900, role, x, y, hp, maxHp: hp, slot: null, mode: 'hold', t: 0, dive: null };
+  world.aliens.push(a);
+  return a;
+}

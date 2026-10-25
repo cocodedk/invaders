@@ -54,6 +54,15 @@ test('world 12 runs world 6\'s own difficulty, rising within the world, armorBon
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
 });
 
+test('world 13 runs a notch above world 12, rising within the world, armorBonus on', () => {
+  const own = [1, 2, 3, 4, 5].map((i) => difficulty(13, i));
+  assert.deepEqual(own, [0.66, 0.68, 0.71, 0.73, 0.76]);
+  own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w13-${i + 1}`));
+  own.forEach((d, i) => assert.ok(d > difficulty(12, i + 1) && d - difficulty(12, i + 1) < 0.04, `w13-${i + 1} just above w12-${i + 1}`));
+  assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
+  assert.equal(isSide(13), true);
+});
+
 test('scaled gives the documented range at d = 0 and d = 1', () => {
   assert.deepEqual(scaled(0), { bulletSpeed: 260, fireMult: 0.6 * FIRE_UP, formationSpeed: 1, armorBonus: 0 });
   const hard = scaled(1);

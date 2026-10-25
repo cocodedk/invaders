@@ -1,25 +1,29 @@
 import { clamp, dist2 } from './math.js';
 import { rand, randPick } from './rng.js';
-import { POWERS, HEIGHT } from './kinds.js';
+import { powersFor, HEIGHT } from './kinds.js';
 import { SHIP_R, ZONE, LIVES } from './ship.js';
 import { emit, prune } from './util.js';
 import { awardPickup } from './scoring.js';
 
 // What the dead drop (every carrier, and a killDrop(d) share of the other aliens), and what the ship
 // does with it. Exports: makePickup, dropPickup, dropOnKill, stepPickups, sweepPickups, tickPower,
-// powerTime, POWER_TIME, BOMB_MAX, KILL_DROP, LATE_DROP, killDrop.
-//   pickup = { kind, x, y, vy, r }  kind is one of POWERS, 'bomb' or 'life' (makePickup).
+// powerTime, POWER_TIME, BROADSIDE_TIME, BOMB_MAX, KILL_DROP, LATE_DROP, killDrop.
+//   pickup = { kind, x, y, vy, r }  kind is one of POWERS (world 13 also 'wingmen'), 'bomb' or 'life' (makePickup).
 //   ship.power = null | { kind, left }  the one running. A new power starts at its full time and the
 //     one it displaces, with its time left, waits in ship.reserve = null | { kind, left } (R53): a
 //     newer displacement overwrites the reserve, and the reserve does not tick while it waits.
 //     When the running power ends the reserve takes over (tickPower). Nothing carries between levels.
-// The effects live where they act: the gun in ship.js (spread, rapid, homing), the shield in hitShip,
-// the beam and the bomb in weapons.js, slow in enemyDt (twists-2.js). Every pickup collected scores
-// (awardPickup), and the clear sweeps up the ones still falling (sweepPickups).
+//   ship.broadside = seconds the side guns have left (world 13's twist, R61): any pickup caught there,
+//     a power, a bomb or a life, sets it to BROADSIDE_TIME (another catch sets it back to that), and
+//     tickPower counts it down. While it is above 0 every volley also fires out of both sides (shoot).
+// The effects live where they act: the gun in ship.js (spread, rapid, homing, wingmen, broadside), the
+// shield in hitShip, the beam and the bomb in weapons.js, slow in enemyDt (twists-2.js). Every pickup
+// collected scores (awardPickup), and the clear sweeps up the ones still falling (sweepPickups).
 
 export const POWER_TIME = 10; // s
 const TIMES = { slow: 6 }; // s: the powers that do not last POWER_TIME
 export const powerTime = (kind) => TIMES[kind] ?? POWER_TIME;
+export const BROADSIDE_TIME = 6; // s the side guns stay open after a catch (world 13)
 export const BOMB_MAX = 3;
 const PICKUP_R = 22;
 const FALL = 160; // px/s
@@ -41,11 +45,11 @@ export const killDrop = (d) => KILL_DROP + LATE_DROP * d * d;
 export const makePickup = (kind, x, y) => ({ kind, x, y, vy: FALL, r: PICKUP_R });
 
 // A pickup falls from `from`: 20 % a bomb, 5 % a life (at full lives that 5 % is a power instead), the
-// rest one of the six powers.
+// rest one of the six powers (seven in world 13, which adds the wingmen: powersFor).
 export function dropPickup(world, from) {
   const r = rand(world.rng);
   const life = r >= BOMB_SHARE && r < BOMB_SHARE + LIFE_SHARE && world.ship.lives < LIVES;
-  const kind = r < BOMB_SHARE ? 'bomb' : life ? 'life' : randPick(world.rng, POWERS);
+  const kind = r < BOMB_SHARE ? 'bomb' : life ? 'life' : randPick(world.rng, powersFor(world.level));
   world.pickups.push(makePickup(kind, clamp(from.x, ZONE.x0, ZONE.x1), from.y));
 }
 
@@ -56,9 +60,18 @@ export function dropOnKill(world, a) {
   if (a.role === 'carrier' || (!a.minion && rand(world.rng) < killDrop(world.level.d))) dropPickup(world, a);
 }
 
+// World 13's twist: a catch opens the side guns, or keeps them open for a full BROADSIDE_TIME more.
+// 'broadside' says so for the sound and the fx, and again with on false when the time runs out.
+function openBroadside(world) {
+  const ship = world.ship;
+  ship.broadside = BROADSIDE_TIME;
+  emit(world, 'broadside', { on: true, left: BROADSIDE_TIME, x: ship.x, y: ship.y });
+}
+
 function collect(world, p) {
   const ship = world.ship;
   emit(world, 'pickup', awardPickup(world, p));
+  if (world.level.twist === 'broadside') openBroadside(world);
   if (p.kind === 'bomb') {
     ship.bombs = Math.min(BOMB_MAX, ship.bombs + 1);
   } else if (p.kind === 'life') {
@@ -92,9 +105,15 @@ export function sweepPickups(world) {
   world.pickups.length = 0;
 }
 
-// The running power counts down; when it ends, the reserve (if any) takes over at the time it had left.
+// The side guns and the running power count down; when the power ends, the reserve (if any) takes over
+// at the time it had left. The guns run before a catch can reset them (stepPickups follows), so a
+// catch leaves them a full BROADSIDE_TIME.
 export function tickPower(world, dt) {
   const ship = world.ship;
+  if (ship.broadside > 0) {
+    ship.broadside = Math.max(0, ship.broadside - dt);
+    if (ship.broadside === 0) emit(world, 'broadside', { on: false, left: 0, x: ship.x, y: ship.y });
+  }
   if (!ship.power) return;
   ship.power.left -= dt;
   if (ship.power.left > 0) return;

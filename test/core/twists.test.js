@@ -18,7 +18,7 @@ test('every world has the twist state, plain data, and keeps it identical on a r
     assert.equal(w.well !== null, twist === 'gravity');
     assert.doesNotThrow(() => structuredClone(w));
   }
-  for (const id of ['w1-1', 'w2-2', 'w3-3', 'w4-4', 'w5-5', 'w6-1', 'w7-2', 'w8-3', 'w9-4', 'w10-1', 'w11-2', 'w12-2']) {
+  for (const id of ['w1-1', 'w2-2', 'w3-3', 'w4-4', 'w5-5', 'w6-1', 'w7-2', 'w8-3', 'w9-4', 'w10-1', 'w11-2', 'w12-2', 'w13-2']) {
     const run = (clone) => {
       let w = createWorld(levelById(id));
       w.ship.invuln = Infinity;
