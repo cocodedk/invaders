@@ -71,6 +71,47 @@ const shuriken = (glowColor) => cached('shu' + glowColor, 48, 48, (g) => {
   g.fill();
 });
 
+// Aurora Kingdom's throwing star: a long shard of ice, translucent and faceted, a hot core in it and an
+// edge in the world's enemy colour, so it still reads as a threat. It spins; it is the same size as the star.
+const shard = (glowColor) => cached('shd' + glowColor, 48, 48, (g) => {
+  g.translate(24, 24);
+  const pts = [[0, -22], [8.5, -9], [8.5, 9], [0, 22], [-8.5, 9], [-8.5, -9]];
+  const poly = (list) => {
+    g.beginPath();
+    list.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+    g.closePath();
+  };
+  poly(pts);
+  g.fillStyle = lin(g, -9, -22, 9, 22, [[0, 'rgba(244,252,255,0.92)'], [0.45, 'rgba(159,216,255,0.86)'], [1, 'rgba(63,134,200,0.9)']]); // translucent: the sky shows through
+  g.fill();
+  poly([pts[0], pts[1], pts[2], pts[3], [0, 4]]); // the right-hand facets, in shade
+  g.fillStyle = 'rgba(10,58,120,0.34)';
+  g.fill();
+  poly([pts[0], pts[5], pts[4], pts[3], [-2, 2]]);
+  g.fillStyle = 'rgba(255,255,255,0.32)';
+  g.fill();
+  g.strokeStyle = 'rgba(255,255,255,0.55)';
+  g.lineWidth = 1;
+  g.beginPath();
+  g.moveTo(-8.5, -9);
+  g.lineTo(8.5, -9);
+  g.moveTo(-8.5, 9);
+  g.lineTo(8.5, 9);
+  g.moveTo(0, -22);
+  g.lineTo(0, 22);
+  g.stroke();
+  poly([[0, -8], [4.4, 0], [0, 8], [-4.4, 0]]); // the hot core
+  g.fillStyle = rad(g, 0, 0, 0, 8, [[0, '#ffffff'], [0.5, glowColor], [1, rgba(glowColor, 0.6)]]);
+  g.fill();
+  poly(pts);
+  g.lineWidth = 2;
+  g.strokeStyle = INK;
+  g.stroke();
+  g.strokeStyle = rgba(glowColor, 0.9);
+  g.lineWidth = 1.4;
+  g.stroke();
+});
+
 // Every enemy bullet sprite of a look, baked on its first frame and then plain property reads:
 // drawBullets asks once per bullet per frame. Lasers (strip) are drawn by lasers-view.js.
 const kits = new WeakMap();
@@ -80,7 +121,7 @@ export function bulletKit(look) {
     const { enemy: c, enemyRim: rim } = look.palette;
     k = {
       ball: orb(c, rim, 8), seeker: orb(c, rim, 10), bolt: capsule(c, rim, 28, 9), drop: capsule(c, rim, 26, 9),
-      acid: capsule('#a6ff3a', '#0a1a04', 22, 12), star: shuriken(c), zig: [zigzag(c, rim, 0), zigzag(c, rim, 1)],
+      acid: capsule('#a6ff3a', '#0a1a04', 22, 12), star: (look.star === 'ice' ? shard : shuriken)(c), zig: [zigzag(c, rim, 0), zigzag(c, rim, 1)],
     };
     kits.set(look, k);
   }

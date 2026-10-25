@@ -1,4 +1,5 @@
-// Reactions to pickups and to each world's twist: lightning, glitches, sand, acid, wrecks, the well.
+// Reactions to pickups and to each world's twist: lightning, glitches, sand, acid, wrecks, the well, the cut
+// (steel sparks, or glass in Aurora Kingdom: react-ice.js).
 import { addShake } from './camera.js';
 import { addFlash, addPopup, addRing, addSlice, BONUS_Y } from './fx.js';
 import { addParticle } from './particles.js';
@@ -6,6 +7,7 @@ import { between } from '../core/rng.js';
 import { clamp, TAU } from '../core/math.js';
 import { HEIGHT } from '../core/kinds.js';
 import { count, debris, dust, FIRE, METAL, powerColor, smoke, sparks } from './emit.js';
+import { cutFor } from './react-ice.js';
 
 const GLYPH = ['#5dff9a', '#b8ffd0', '#ffffff'];
 const RED_EYE = ['#ff3a2a', '#ff7a3a', '#ffd0a0'];
@@ -192,5 +194,5 @@ function bunker(fx, ev, rng) {
 
 export const WORLD = {
   pickup, sweep, power, lightning, teleport, absorb, saucer, gust, acid, wreck, wreckDown, reassemble,
-  bulletTime, cut, bunker,
+  bulletTime, cut: cutFor(cut), bunker,
 };

@@ -33,8 +33,9 @@ import titan from './titan.js';
 import singularity from './singularity.js';
 import behemoth from './behemoth.js';
 import count from './count.js';
+import wyrm from './wyrm.js';
 
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm };
 const cache = new Map();
 
 export function painterFor(mod, id) {

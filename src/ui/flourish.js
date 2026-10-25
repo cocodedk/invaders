@@ -7,6 +7,7 @@ import { W, H, rgba, hash, glow, soft, wrap, makeCanvas, lighter, normal, lin } 
 import { FLOURISH2 } from './flourish-2.js';
 import { FLOURISH3 } from './flourish-3.js';
 import { FLOURISH4 } from './flourish-4.js';
+import { FLOURISH5 } from './flourish-5.js';
 
 function beam(color, len = 1000, top = 240) {
   const c = makeCanvas(top, len);
@@ -153,7 +154,7 @@ function shooting(ctx, { t }) {
 const FLOURISH = {
   searchlights: { sky: searchlights }, cars: { far: cars, neonfar: cars }, holo: { mid: holo, neonmid: holo },
   flares: { far: flares, neonfar: flares },
-  mist: { near: mist }, shooting: { sky: shooting }, ...FLOURISH2, ...FLOURISH3, ...FLOURISH4,
+  mist: { near: mist }, shooting: { sky: shooting }, ...FLOURISH2, ...FLOURISH3, ...FLOURISH4, ...FLOURISH5,
 };
 
 export function drawFlourishes(ctx, env, phase, x0 = 0, top = 0) {

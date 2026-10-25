@@ -10,7 +10,7 @@ const sum = (parts) => parts.reduce((n, p) => n + p.hp, 0);
 const weakAt = (def, i) => def.parts.filter((p) =>
   p.weak || def.phases.some((ph, j) => j <= i && ph.open?.includes(p.id)));
 
-test('there are ten definitions, in world order, looked up by kind', () => {
+test('there are eleven definitions, in world order, looked up by kind', () => {
   assert.deepEqual(BOSS_DEFS.map((d) => d.kind), BOSSES);
   for (const kind of BOSSES) assert.equal(bossDef(kind).kind, kind);
   assert.equal(bossDef('nope'), undefined);
@@ -99,7 +99,24 @@ test('every phase of every boss sends one carrier at a time, at least every 5 s'
 
 test('the bosses differ: layouts, part counts and attack mixes are not copies of one another', () => {
   const sig = BOSS_DEFS.map((d) => JSON.stringify([d.parts.map((p) => [p.dx, p.dy]), d.phases.map((p) => p.attacks.map((a) => a.pattern))]));
-  assert.equal(new Set(sig).size, 10);
+  assert.equal(new Set(sig).size, 11);
   for (const def of BOSS_DEFS) assert.ok(def.parts.length >= 5, `${def.kind} has parts`);
   assert.ok(BOSS_DEFS.some((d) => d.phases.some((p) => p.open)), 'a trench that opens');
+});
+
+// The Crystal Wyrm never charges, shoots ice shards from its gems and the laser from its maw, keeps
+// its face clear of the HUD at the top of its orbit (the orbit climbs 55 px: boss-move.js, R28) and
+// ends no lower than the Count.
+test('the Crystal Wyrm sways, hovers and circles, shoots shards, and sits no lower than the Count', () => {
+  const wyrm = bossDef('wyrm');
+  assert.deepEqual(wyrm.phases.map((p) => p.move), ['sway', 'hover', 'orbit']);
+  const head = wyrm.parts.find((p) => p.id === 'head');
+  assert.ok(wyrm.y + head.dy - head.h / 2 - 55 >= HUD_BOTTOM, 'the face clears the HUD at the top of the orbit');
+  assert.ok(wyrm.bottom <= bossDef('count').bottom, 'no lower than the Count');
+  const attacks = wyrm.phases.flatMap((p) => p.attacks);
+  assert.ok(attacks.some((a) => a.pattern === 'shuriken' && a.from.startsWith('gem')), 'shards from the gems');
+  assert.ok(attacks.some((a) => a.pattern === 'laser' && a.from === 'maw'), 'the frost laser from the maw');
+  assert.ok(attacks.some((a) => a.pattern === 'rain' && a.from === 'crest'), 'hail from the crest');
+  assert.ok(wyrm.phases.slice(1).every((p) => p.minions.some((m) => m.role === 'diver')), 'snow owls in phases 2 and 3');
+  for (const id of ['maw', 'gemL', 'gemR']) assert.ok(wyrm.parts.find((p) => p.id === id).weak, id);
 });

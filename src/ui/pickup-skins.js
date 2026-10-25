@@ -1,4 +1,4 @@
-// Per-world pickup skins (look.world 1..10). A pickup must still read as "catch me" in every world,
+// Per-world pickup skins (look.world 1..11). A pickup must still read as "catch me" in every world,
 // so the falling capsule keeps its dark middle, coloured rim, pulse and turning dashes
 // (pickups-view.js); a world changes the rim's shape and redraws some icons in its own idiom.
 //   FRAMES[world](g, color)        the capsule's rim, centred, inside a 60 x 60 sprite (baked)
@@ -9,6 +9,7 @@ import { INK, rgba, shade, lin } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
 import { ICONS2 } from './pickup-icons-2.js';
+import { frost } from './pickup-frost.js';
 
 export const disc = (g, r) => {
   g.fillStyle = 'rgba(8,10,20,0.88)';
@@ -179,6 +180,7 @@ export const FRAMES = {
     g.quadraticCurveTo(7, -32.6, 6, -27.6);
     g.stroke();
   },
+  11: frost, // a ring of frost crystals (pickup-frost.js)
 };
 
 export const ICONS = { ...ICONS1, ...ICONS2 };

@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 10 cinematic worlds × 5 levels = 50 levels, free 2D
+as beautiful as Barrage (`../artillery`): 11 cinematic worlds × 5 levels = 55 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56; worlds 9 and 10 follow their own difficulty, R57, R58).
+    (R54, R56; worlds 9–11 follow their own difficulty, R57–R59).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -132,6 +132,16 @@ quoted lines, so the repo can be public.
     clear 19, 17, 18, 17 and 19 times at reaction lag 10, and 17, 15, 15, 12 and 20 times at lag 15,
     against world 9's 19, 17, 18, 16, 14 and 17, 11, 10, 13, 10 and world 4's 20, 18, 20, 16, 20 and
     20, 15, 18, 11, 16: about world 4, and easier than world 9.
+  - **World 11, a polar night beside the run (R59).** The user asked for another world that looks
+    magnificent, picked a kingdom of ice under the aurora, and asked for about world 5's difficulty,
+    so the side worlds now span easy to medium. World 11 sets its own `d`: 0.51, 0.53, 0.56, 0.58,
+    0.60 (world 5's run from 0.513 to 0.615; at most 0.6 keeps `armorBonus` off). Its twist is Ronin
+    Moon's `shuriken`, with no new rule, but drawn as ice shards that shatter, with a glassy sound, when
+    a shot cuts one. Its boss, the Crystal Wyrm, never charges; its shard blizzard in the last phase is
+    drawing plus the usual diver minions. On the headless run, in % at reaction lag 10, its levels 1–5
+    clear 100, 65, 75, 68 and 77 (40 seeds, the boss 60), against world 5's 99, 62, 69, 48 and 35 (100
+    seeds); at lag 15, 90, 30, 38, 30 and 20, against 80, 28, 38, 22 and 9. The behemoth clears 87 and
+    45: the wyrm sits between the two bosses, and its waves at about world 5's.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -151,6 +161,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 8 | Event Horizon | black-hole space epic | black hole with lensing, bent starlight | a gravity well bends every bullet, yours included | The Singularity |
 | 9 | Tidal Siege | kaiju harbour monster movie | night harbour in a storm, cranes, a sea beast's teal glow | the storm's gusts push all bullets sideways (Twin Suns' wind, ruling R57) | Abyssal behemoth |
 | 10 | Hollow Night | gothic vampire Halloween | a castle on a crag under a harvest moon, dead trees, a graveyard of jack-o'-lanterns | darkness, moonlit: the night's own lights burn brightest; lightning lights the whole screen (Neon Rain's, ruling R58) | Crimson Count |
+| 11 | Aurora Kingdom | polar fantasy under the northern lights | an ice kingdom under the aurora, glacier mountains, a frozen fleet, ice floes on black water | enemy shots are slow, large ice shards; the ship's shots shatter them (Ronin Moon's, ruling R59) | Crystal Wyrm |
 
 ## Look and effects
 

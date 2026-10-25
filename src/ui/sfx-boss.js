@@ -11,6 +11,7 @@ const ROAR = {
   chip: ['square', 1.4, 10, 1.5], noir: ['sawtooth', 1, 0, 2], brass: ['sawtooth', 0.9, 0, 2.5], koto: ['triangle', 1.2, 0, 2],
   hive: ['sawtooth', 1.6, 0, 3], code: ['square', 1.2, 14, 4], iron: ['sawtooth', 0.8, 0, 5], cosmic: ['sine', 0.7, 0, 1.5],
   monster: ['sawtooth', 0.62, 0, 4], gothic: ['triangle', 0.9, 0, 1.2],
+  aurora: ['triangle', 1.1, 0, 1.5],
 };
 
 function roar(a, h, dur, fall) {
@@ -36,6 +37,15 @@ function roar(a, h, dur, fall) {
     const shriek = tone(a, { type: 'sawtooth', t, f0: 2600 + h * 500, f1: 5600, attack: 0.03, dur: dur * 0.55, peak: 0.035, cut: 7000, q: 5 });
     wobble(a, shriek.frequency, 24 + h * 8, 420, t, dur * 0.55);
     hiss(a, { t, type: 'bandpass', f0: 5200, f1: 3000, q: 4, attack: 0.04, dur: dur * 0.5, peak: 0.05 });
+  }
+  if (a.kit.style === 'aurora') { // the glacier cracking, then the wyrm's cry: a keen that falls, with ice in its throat
+    [0, 0.07, 0.19, 0.31].forEach((d, i) => hiss(a, { t: a.t + d, type: 'highpass', f0: 4200 - i * 500, f1: 1500, dur: 0.05, peak: 0.2 - i * 0.03 }));
+    const creak = tone(a, { type: 'sawtooth', f0: 96, f1: 58, attack: 0.1, dur: dur * 0.8, peak: 0.08, cut: 320, q: 3 });
+    wobble(a, creak.frequency, 31, 12, a.t, dur * 0.8, 'square');
+    const t = a.t + 0.15;
+    const cry = tone(a, { type: 'triangle', t, f0: 520 + h * 60, f1: 190, attack: 0.25, dur, peak: 0.09, cut: 2600, q: 3 });
+    wobble(a, cry.frequency, 6, 14, t, dur);
+    fm(a, { t, f0: 1040 + h * 120, f1: 380, ratio: 2.76, index: 1.2, attack: 0.25, dur: dur * 0.8, peak: 0.03 });
   }
 }
 

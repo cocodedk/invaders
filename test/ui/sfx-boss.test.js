@@ -30,7 +30,7 @@ test("the monster's roar sits lower than any other world's, so it reads as a bel
     BOSS.phase(a, { phase: 1 });
     return Math.min(...nodes.filter((x) => x.kind === 'Oscillator' && x.frequency.calls.length).map((x) => x.frequency.calls[0][1]));
   };
-  const [w9, ...others] = [LOOKS[8], ...LOOKS.slice(0, 8), LOOKS[9]].map(floor);
+  const [w9, ...others] = [LOOKS[8], ...LOOKS.slice(0, 8), ...LOOKS.slice(9)].map(floor);
   assert.ok(w9 < 50, `${w9} Hz`);
   assert.ok(others.every((f) => f > w9), 'every other world roars higher');
 });
@@ -48,4 +48,25 @@ test("the Count's roar is a bell tolled low, with a bat's shriek high over it, a
   UI.cleared(organ.a, {});
   const types = organ.nodes.filter((x) => x.kind === 'Oscillator').map((x) => x.type);
   assert.ok(types.filter((t) => t === 'sawtooth').length >= 8, 'a sawtooth lead, each note doubled an octave up like an organ stop');
+});
+
+test("the wyrm's roar is a glacier cracking under a long keen that falls and shakes, and the stingers ring as glass bells", () => {
+  const kit = kitFor({ mood: 'aurora', root: 'E', scale: 'lydian', bpm: 84 });
+  assert.equal(kit.style, 'aurora');
+  const { a, nodes } = fakeVoice(kit);
+  const secs = BOSS.phase(a, { phase: 1 });
+  const osc = nodes.filter((x) => x.kind === 'Oscillator');
+  const cracks = nodes.filter((x) => x.kind === 'BiquadFilter' && x.type === 'highpass' && x.frequency.calls[0][1] >= 2700);
+  assert.ok(cracks.length >= 4, `${cracks.length} cracks of the ice`);
+  const keen = osc.find((x) => x.type === 'triangle' && x.frequency.calls[0][1] > 500);
+  assert.ok(keen && keen.frequency.calls[1][1] < 250, 'a high cry that falls');
+  assert.ok(osc.some((x) => x.type === 'sine' && x.frequency.value === 6), 'a shake in its voice');
+  assert.ok(osc.some((x) => x.type === 'sawtooth' && x.frequency.calls[0][1] < 100), 'the ice creaking low under it');
+  for (const s of nodes.filter((x) => x.kind === 'Oscillator' || x.kind === 'BufferSource')) assert.ok(s.started && s.stopAt <= a.t + secs + 0.5, 'a source left running');
+  const bells = fakeVoice(kit);
+  UI.cleared(bells.a, {});
+  const bell = bells.nodes.filter((x) => x.kind === 'Oscillator');
+  assert.ok(bell.every((x) => !x.type || x.type === 'sine'), 'sine bells (an FM modulator keeps the default), no organ or pluck');
+  assert.ok(bell.length >= 20, `${bell.length}: each note a sine and an FM ring`);
+  assert.ok(bell.some((x) => Math.abs((x.frequency.calls[0]?.[1] ?? 0) - 659.26 * 3.51) < 1), 'the glassy ring is an inharmonic partner of the first note, an octave up');
 });

@@ -1,5 +1,5 @@
-// The skies of worlds 9 and 10 (see sky-bodies.js for the contract).
-import { W, glow, soft, addGlow, rgba, hash } from './sprites.js';
+// The skies of worlds 9, 10 and 11 (see sky-bodies.js for the contract).
+import { W, glow, soft, addGlow, rgba, hash, lin } from './sprites.js';
 import { blobs, brush, horizonGlow, moon, stars } from './sky-paint.js';
 import { TAU } from '../core/math.js';
 
@@ -70,4 +70,36 @@ function harvestmoon(g) {
   horizonGlow(g, '#b8381e', 0.22, 520);
 }
 
-export const BODIES3 = { stormsea, harvestmoon };
+// Aurora Kingdom's moon: a thin crescent low over the glacier, lit from below as if the sun were just
+// under the ice.
+export const CRESCENT = { x: 1560, y: 452, r: 58 };
+
+// Aurora Kingdom: the polar night. A great many stars, thick as the Milky Way toward the top, faint
+// banks of cold light between them, the crescent with a halo and earthshine on its dark limb, and the
+// horizon glowing blue-green from the ice. The aurora itself moves, so it is a flourish (aurora.js).
+function polarnight(g) {
+  const { x, y, r } = CRESCENT;
+  const keep = { x, y, r: r * 1.6 };
+  stars(g, 230, 111, 760, 0.95, false, keep);
+  stars(g, 90, 211, 380, 0.85, false, keep);
+  blobs(g, [[420, 220, 760, '#1a4a8a', 0.2, 0.34], [1250, 330, 880, '#243a9a', 0.16, 0.3], [820, 90, 700, '#0a2a5a', 0.3, 0.3], [1700, 160, 520, '#1a4a7a', 0.16, 0.34]]);
+  addGlow(g, glow('#8ac8ff'), x, y, r * 3.4, 0.12);
+  g.fillStyle = rgba('#a8c8f0', 0.05); // earthshine: the dark limb, just there
+  g.beginPath();
+  g.arc(x, y, r, 0, TAU);
+  g.fill();
+  g.save();
+  g.beginPath();
+  g.arc(x, y, r, 0, TAU);
+  g.clip();
+  g.beginPath(); // the lit crescent: the disc less one nearly its size, set up and to the right
+  g.arc(x, y, r, 0, TAU);
+  g.arc(x + r * 0.3, y - r * 0.26, r * 0.97, 0, TAU);
+  g.fillStyle = lin(g, x - r, y + r, x + r * 0.2, y - r * 0.4, [[0, '#ffffff'], [0.5, '#e4f0ff'], [1, '#a8c4e8']]);
+  g.fill('evenodd');
+  g.restore();
+  horizonGlow(g, '#3a9ad8', 0.34, 440);
+  horizonGlow(g, '#58ffb0', 0.1, 600);
+}
+
+export const BODIES3 = { stormsea, harvestmoon, polarnight };

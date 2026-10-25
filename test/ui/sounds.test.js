@@ -60,13 +60,18 @@ test('the pickups swept up at the clear chime one after another, a caught one at
 
 test('each world has its own sound style, root and scale from its look', () => {
   const styles = LOOKS.map((l) => kitFor(l.music).style);
-  assert.equal(new Set(styles).size, 10, styles.join());
+  assert.equal(new Set(styles).size, 11, styles.join());
   for (const look of LOOKS) {
     const kit = kitFor(look.music);
     assert.equal(kit.root, NOTES[look.music.root], look.music.root);
     assert.deepEqual(kit.scale, SCALES[look.music.scale]);
     assert.equal(kit.bpm, look.music.bpm);
   }
+});
+
+test('Aurora Kingdom plays the aurora style, in E lydian at 84 bpm', () => {
+  const kit = kitFor(LOOKS[10].music);
+  assert.deepEqual([kit.style, kit.root, kit.scale, kit.bpm], ['aurora', NOTES.E, SCALES.lydian, 84]);
 });
 
 test('scale degrees land in the scale, an octave per scale length', () => {
@@ -86,7 +91,8 @@ test('every music style is well formed', () => {
     const m = s.music;
     assert.ok(m.div > 0 && m.seq.length > 0 && m.drum.length > 0, name);
     for (const d of m.seq) assert.ok(d === null || Number.isInteger(d), `${name} seq`);
-    assert.match(m.drum, /^[kthsbp.]+$/, `${name} drum`);
+    assert.match(m.drum, /^[kthsbpcj.]+$/, `${name} drum`);
     assert.ok(m.lead.gain > 0 && m.lead.gain < 0.2, `${name} lead gain`);
+    if (m.lead.fm) assert.ok(m.lead.fm.ratio > 0 && m.lead.fm.index > 0, `${name} lead bell`);
   }
 });

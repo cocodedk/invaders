@@ -89,6 +89,11 @@ export const VOICES = [
     ['{kills}', 'LAID TO REST.'],
     ['{near} IN THE DARK.', 'DAWN IS {time} AWAY.'],
   ],
+  [ // Aurora Kingdom: a hushed northern epic, cold and slow
+    ['UNDER A SKY OF COLD FIRE,', 'THE ICE KEEPS ITS CROWN.'],
+    ['{kills}', 'LEFT TO THE FROST.'],
+    ['{near}.', '{time} OF POLAR NIGHT.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

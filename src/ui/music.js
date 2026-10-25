@@ -8,7 +8,7 @@
 // A world change fades the old loop out, stops its sources and then disconnects every node it
 // made (the echo's feedback loop included), so a kiosk that cycles worlds for days stays flat.
 import { audioNodes, setWorldSound } from './audio.js';
-import { tone, hiss, noteHz, bell } from './audio-kit.js';
+import { tone, hiss, fm, noteHz, bell } from './audio-kit.js';
 import { STYLES, kitFor, degreeMidi, midiHz } from './sound-data.js';
 
 const AHEAD = 0.3; // s scheduled ahead of the audio clock
@@ -49,6 +49,15 @@ const DRUM = {
     const f = noteHz(a.kit, 0, 2);
     tone(a, { t, f0: f * 1.5, f1: f, dur: 0.55, peak: 0.16 });
     hiss(a, { t, type: 'lowpass', f0: 320, dur: 0.07, peak: 0.05 });
+  },
+  c: (a, t) => { // a choir swelling in: a chord over the root (third, fifth, ninth), each note two detuned sawtooth voices
+    for (const d of [2, 4, 8]) {
+      for (const detune of [-6, 7]) tone(a, { type: 'sawtooth', t, f0: noteHz(a.kit, d, 3), detune, attack: 1.1, dur: 2.2, peak: 0.022, cut: 1000 });
+    }
+  },
+  j: (a, t) => { // sleigh bells: bright rattles tumbling over each other, and a thin ring that hangs
+    [0, 0.03, 0.055, 0.1, 0.13].forEach((d, i) => hiss(a, { t: t + d, type: 'bandpass', f0: [7200, 5600, 8400, 6400, 7800][i], q: 6, dur: 0.1, peak: 0.03 }));
+    fm(a, { t, f0: 3300, ratio: 2.76, index: 1.2, dur: 0.6, peak: 0.02 });
   },
 };
 
@@ -124,11 +133,13 @@ function stepAt(c, t) {
   const shift = PROGRESSION[Math.floor(c.step / (m.seq.length * 2)) % PROGRESSION.length];
   if (deg != null) {
     const L = m.lead;
-    const pad = L.len > 1;
-    tone(a, {
+    const pad = L.len > 1 && !L.fm; // a bell rings long but strikes at once
+    const o = {
       type: L.wave, t, f0: midiHz(degreeMidi(kit, deg + shift, L.oct)), attack: pad ? len * 0.25 : 0.006,
       dur: len * L.len, peak: L.gain, cut: L.cut, q: 1.5,
-    });
+    };
+    if (L.fm) fm(a, { ...o, ...L.fm });
+    else tone(a, o);
   }
   const hit = m.drum[c.step % m.drum.length];
   DRUM[hit]?.(a, t);

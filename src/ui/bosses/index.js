@@ -1,4 +1,4 @@
-// The ten bosses, drawn from their baked sprites (bake.js; painters in bosses/<kind>.js).
+// The eleven bosses, drawn from their baked sprites (bake.js; painters in bosses/<kind>.js).
 //   drawBoss(ctx, world, look, t, q?)        world space, after the bunkers, before the aliens (so
 //                                            minions launched from the boss fly over it; ruling R27)
 //   drawBossLights(ctx, world, look, t, k, q?)  only the lights, at strength k: Neon Rain's darkness pass

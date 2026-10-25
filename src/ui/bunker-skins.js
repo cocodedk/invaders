@@ -131,4 +131,22 @@ function gravestone(x, y, w, h, P) {
   return [P.fill, stone + streak + pit + 0.16 * (1 - y / h) + (ry === 1 ? 0.1 : 0) - (ry === 12 ? 0.1 : 0)];
 }
 
-export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container, gravestone };
+// Aurora Kingdom: a block of glacier ice. Blue in its depths and darker toward the foot, old snowfall
+// laid down in bands, bubbles frozen in it (a bright core in a dark ring), hairline fractures, a frost
+// of grain; and a cap of snow on the roof, ragged along its lower edge.
+function glacier(x, y, w, h, P) {
+  const cap = 3 + noise2(x, 0, 16, 3) * 7;
+  if (y < cap) return [P.accent, (y < 2 ? 0.2 : 0.02) + grain(x, y, 0.12) + (hash2(x, y) > 0.97 ? 0.2 : 0) - (y > cap - 2 ? 0.1 : 0)];
+  const [gx, gy] = [Math.floor(x / 12), Math.floor(y / 12)];
+  if (hash2(gx + 5, gy + 3) > 0.6) { // a bubble somewhere in this cell
+    const r = 1.3 + hash2(gy, gx + 9) * 1.5;
+    const d2 = (x - (gx + 0.2 + hash2(gx, gy) * 0.6) * 12) ** 2 + (y - (gy + 0.2 + hash2(gy + 7, gx) * 0.6) * 12) ** 2;
+    if (d2 < r * r) return [P.light, 0.45];
+    if (d2 < (r + 1.2) ** 2) return [P.dark, -0.3];
+  }
+  if (Math.abs(noise2(x, y, 20, 14) - 0.5) < 0.012 || (Math.abs(noise2(x + 70, y, 15, 6) - 0.5) < 0.008 && y > 12)) return [P.dark, -0.4]; // a fracture
+  const band = Math.sin(y * 0.55 + noise2(x, y, 30, 8) * 4) * 0.08;
+  return [P.fill, 0.34 * (1 - y / h) - 0.4 * (y / h) ** 2 + band + (noise2(x, y, 9, 5) - 0.5) * 0.22 + grain(x, y, 0.1)];
+}
+
+export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container, gravestone, glacier };

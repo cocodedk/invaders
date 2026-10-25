@@ -16,6 +16,20 @@ function plain(ctx, p) {
   }
   ctx.globalAlpha = Math.min(1, f * 3);
   ctx.fillStyle = p.color;
+  if (p.kind === 'shard') { // a sliver of glass: a thin triangle turning as it falls, a bright edge on it
+    const a = (p.max - p.life) * 11 + p.vx * 0.02;
+    const [c, d] = [Math.cos(a) * s * 1.7, Math.sin(a) * s * 1.7];
+    ctx.beginPath();
+    ctx.moveTo(p.x + c, p.y + d);
+    ctx.lineTo(p.x - d * 0.45, p.y + c * 0.45);
+    ctx.lineTo(p.x - c * 0.7, p.y - d * 0.7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    return;
+  }
   if (p.kind === 'debris') { // tumbling chips: the box turns with the particle's age
     const a = (p.max - p.life) * 9 + p.vx * 0.01;
     const w = s * (0.6 + 0.4 * Math.abs(Math.cos(a)));

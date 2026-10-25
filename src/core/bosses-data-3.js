@@ -1,7 +1,8 @@
 import { boss, weak, armor, atk, minion, phase } from './bosses-kit.js';
 
-// The bosses of worlds 9 and 10, both breather bosses that never charge: they sway, hover, then circle.
-// Both rest high enough that every part is below the HUD (R28), and the Count no lower than the behemoth.
+// The bosses of worlds 9-11, the side-world bosses, none of which charges: they sway, hover, then circle.
+// All rest high enough that every part is below the HUD (R28); the Count and the wyrm sit no lower
+// than the behemoth.
 
 // The boss of world 9: the Abyssal behemoth, a sea beast rising out of the harbour. Its maw breathes
 // the laser, its gills fan out spray, its crest rains, and its claws send the divers.
@@ -19,7 +20,7 @@ const behemoth = boss('behemoth', 'Abyssal behemoth', 255, { w: 640, h: 330 }, [
     atk('aimed', 2.4, 'maw'),
     atk('fan', 4, 'gillL', { count: 3, spread: 0.5 }),
     atk('fan', 4, 'gillR', { count: 3, spread: 0.5 }),
-  ], { rate: 0.9, minions: [minion('carrier', 1, 4.5, 'crest')] }),
+  ], { rate: 1, minions: [minion('carrier', 1, 4.5, 'crest')] }),
   phase(0.3, 'hover', [
     atk('rain', 3.4, 'crest', { count: 6, spread: 420 }),
     atk('laser', 7, 'maw'),
@@ -69,4 +70,44 @@ const count = boss('count', 'Crimson Count', 270, { w: 700, h: 340 }, [
   ], { minions: [minion('diver', 3, 9, 'wingR'), minion('carrier', 1, 4.5, 'collar')] }),
 ]);
 
-export const BOSSES3 = [behemoth, count];
+// The boss of world 11: the Crystal Wyrm, a serpent of ice rising out of the glacier. The crest and
+// the head stand over its coils; the maw hangs at the centre, bottom, and a glowing crystal node
+// sits in each coil above the low outer coils, so shots from below always find a weak part. The
+// eyes shoot aimed bolts, the gems fan and loose the ice shards (shuriken), the maw breathes the
+// frost laser and an ice-nova ring, the crest rains hail, and the coils send the snow owls (divers).
+// A step harder than the behemoth for its shards and its denser mix, easier than the hive queen: it
+// never charges, and it moves at 1.0-1.25 (the queen at 1.4). It rests at 260 and its head sits low
+// in the frame (top -105), so at the top of its orbit the face is just clear of the HUD (R28); the
+// coils end no lower than the Count's claws.
+const wyrm = boss('wyrm', 'Crystal Wyrm', 260, { w: 700, h: 340 }, [
+  armor('crest', 0, -135, 240, 44, 8),
+  armor('head', 0, -55, 140, 100, 10),
+  weak('maw', 0, 35, 110, 80, 82),
+  weak('gemL', -185, 0, 80, 80, 52),
+  weak('gemR', 185, 0, 80, 80, 52),
+  armor('coilL', -270, 90, 160, 100, 5),
+  armor('coilR', 270, 90, 160, 100, 5),
+], [
+  phase(0.65, 'sway', [
+    atk('aimed', 2.3, 'head'),
+    atk('fan', 3.2, 'gemL', { count: 3, spread: 0.5 }),
+    atk('shuriken', 3.2, 'gemR'),
+  ], { rate: 1, minions: [minion('carrier', 1, 4.5, 'crest')] }),
+  phase(0.3, 'hover', [
+    atk('aimed', 2, 'head'),
+    atk('shuriken', 2.6, 'gemL'),
+    atk('fan', 3.2, 'gemR', { count: 4, spread: 0.6 }),
+    atk('rain', 3.3, 'crest', { count: 6, spread: 420 }),
+    atk('laser', 6.4, 'maw'),
+  ], { rate: 1.1, minions: [minion('diver', 3, 9, 'coilL'), minion('carrier', 1, 4.5, 'crest')] }),
+  phase(0, 'orbit', [
+    atk('aimed', 1.8, 'head'),
+    atk('shuriken', 2.8, 'gemL'),
+    atk('shuriken', 2.8, 'gemR'),
+    atk('ring', 3.8, 'maw', { count: 14 }),
+    atk('rain', 3, 'crest', { count: 8, spread: 520 }),
+    atk('laser', 6, 'maw'),
+  ], { rate: 1.25, minions: [minion('diver', 4, 6.5, 'coilR'), minion('carrier', 1, 4.5, 'crest')] }),
+]);
+
+export const BOSSES3 = [behemoth, count, wyrm];

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { installCanvas, recorder } from './dom-kit.js';
+import { installCanvas, recorder, sink } from './dom-kit.js';
 
 // Every look's art direction resolves against the registries (a typo in a kind or a body name would
 // otherwise show only on that world's screen), under stand-in canvases that swallow every call.
@@ -97,4 +97,71 @@ test("the thunder lights the sky behind the silhouettes only while lightning str
   const [strike, stutter, glow] = [0.02, 0.1, 0.17].map((age) => Math.max(...washes(age)));
   assert.ok(strike > 0.5 && stutter < strike * 0.6 && glow > stutter, `strike, stutter, second glow: ${strike} ${stutter} ${glow}`);
   assert.ok(washes(0.215).every((a) => a < 0.3), 'and it dies away with the flash');
+});
+
+test("Aurora Kingdom's castle windows burn pale gold, its spires and cliff lips follow the aurora, two ships keep a lantern lit, the lighthouse and the water are marked", () => {
+  const look = LOOKS[10];
+  assert.equal(look.world, 11);
+  const [far, mid, near] = buildLayers(look, 5);
+  assert.ok(far.lights.filter((l) => look.layers[0].window.includes(l.color)).length >= 14, 'windows lit in the castle');
+  assert.ok(far.lights.filter((l) => l.mode === 'aurora').length >= 8, 'spires and peaks catch the aurora');
+  assert.ok(mid.lights.filter((l) => l.mode === 'aurora').length >= 5, 'the cliff lips glow green with it');
+  const lanterns = mid.lights.filter((l) => l.color === look.layers[1].lamp && l.r === 38);
+  assert.equal(lanterns.length, 2, 'a lantern burning on two ships');
+  assert.ok(near.signs.some((s) => s.water) && near.signs.some((s) => s.lamp), 'the water and the lantern are marked for the flourishes');
+  assert.ok(near.lights.some((l) => l.r >= 50 && l.mode === 'steady'), "the lighthouse's lamp");
+  assert.equal(far.signs.length, 0);
+});
+
+test("the aurora's curtains drift and fold for minutes without meeting themselves again", async () => {
+  const { CURTAINS, sample, lightAt } = await import('../../src/ui/aurora-model.js');
+  const hem = (c, t) => Array.from({ length: 24 }, (_, i) => sample(c, i * 80, t, { y: 0, h: 0, b: 0 }).y);
+  const apart = (a, b) => a.reduce((s, v, i) => s + Math.abs(v - b[i]), 0) / a.length;
+  for (let c = 0; c < CURTAINS.length; c++) {
+    const shots = [0, 20, 45, 90, 150, 240, 400, 700].map((t) => hem(c, t));
+    for (let i = 0; i < shots.length; i++) for (let j = i + 1; j < shots.length; j++) assert.ok(apart(shots[i], shots[j]) > 2,`curtain ${c}: minute ${i} and ${j} alike`);
+    assert.ok(Math.max(...shots[0]) - Math.min(...shots[0]) > 30, `curtain ${c} folds`);
+  }
+  for (let t = 0; t < 600; t += 7.3) for (let x = 0; x < 1920; x += 130) assert.ok(lightAt(x, t) >= 0 && lightAt(x, t) <= 1);
+  const lights = Array.from({ length: 80 }, (_, i) => lightAt(300, i * 9));
+  assert.ok(Math.max(...lights) - Math.min(...lights) > 0.35, 'bright patches come and go');
+});
+
+test('the aurora is a few hundred slices at full quality, fewer at half, and leaves the transform as it found it', () => {
+  const look = LOOKS[10];
+  const draw = (quality) => {
+    const { ctx, calls } = recorder();
+    drawFlourishes(ctx, { ...env(look, [], 33.3), quality }, 'sky');
+    return { images: calls.filter(([k]) => k === 'drawImage').length, last: calls.filter(([k]) => k === 'setTransform').at(-1) };
+  };
+  const [full, half] = [draw(1), draw(0.5)];
+  assert.ok(full.images >= 150 && full.images <= 420, `${full.images} drawImage calls`);
+  assert.ok(half.images < full.images * 0.6, `${half.images} at half quality`);
+  assert.equal(full.last[1], sink, 'the transform is set back to the one it started with');
+});
+
+test("the aurora's light shimmers on the water, the lighthouse beam sweeps and the snow squall comes only now and then", () => {
+  const look = LOOKS[10];
+  const layers = buildLayers(look, 5);
+  const frames = (phase, n, dt, test) => {
+    let hit = 0;
+    for (let i = 0; i < n; i++) {
+      const { ctx, calls } = recorder();
+      drawFlourishes(ctx, env(look, layers, i * dt), phase);
+      if (test(calls)) hit++;
+    }
+    return hit;
+  };
+  assert.ok(['aurora', 'auroraglint', 'lighthouse', 'squall'].every((f) => look.flourish.includes(f)));
+  const water = frames('near', 400, 0.7, (c) => c.filter(([k]) => k === 'drawImage').length > 12);
+  assert.ok(water > 40, `${water} of 400 frames with the aurora in the water`);
+  const turned = new Set();
+  for (let i = 0; i < 40; i++) {
+    const { ctx, calls } = recorder();
+    drawFlourishes(ctx, env(look, layers, i * 0.3), 'near');
+    turned.add(calls.filter(([k]) => k === 'scale').map((c) => c[1].toFixed(2)).join());
+  }
+  assert.ok(turned.size > 12, `${turned.size} different beam angles over 12 s`);
+  const squalls = frames('front', 3000, 0.1, (c) => c.some(([k]) => k === 'stroke'));
+  assert.ok(squalls > 100 && squalls < 1200, `${squalls} of 3000 frames in a squall`);
 });

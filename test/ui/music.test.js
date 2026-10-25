@@ -79,3 +79,25 @@ test("Hollow Night's loop tolls a low bell on the bar, over an organ drone and p
   assert.ok([...pcs].every((pc) => [1, 2, 4, 5, 7, 9, 10].includes(pc)), `every pluck is D harmonic minor: ${[...pcs]}`);
   assert.ok(pcs.has(1), 'the leading tone, C sharp, is in the arpeggio');
 });
+
+test("Aurora Kingdom's loop strikes celesta bells in E lydian over a choir that swells in on each bar, a soft drum and sleigh bells", () => {
+  const nodes = fakeAudio();
+  const c = startLoop(nodes, { music: { mood: 'aurora', root: 'E', scale: 'lydian', bpm: 84 } });
+  fillLoop(c, 5.8); // one 16-step pass at 84 bpm, and a little over
+  const osc = nodes.ctx.nodes.filter((n) => n.kind === 'Oscillator');
+  const first = (n) => n.frequency.calls[0]?.[1] ?? n.frequency.value;
+  const bells = osc.filter((n) => n.type === 'sine' && first(n) > 600 && first(n) < 2100);
+  assert.ok(bells.length >= 10, `${bells.length} bell strikes`);
+  const pitchClass = (n) => (Math.round(12 * Math.log2(first(n) / 440)) + 69) % 12;
+  const pcs = new Set(bells.map(pitchClass));
+  assert.ok([...pcs].every((pc) => [4, 6, 8, 10, 11, 1, 3].includes(pc)), `every bell is E lydian: ${[...pcs]}`);
+  assert.ok(pcs.has(10), 'the raised fourth, A sharp, is in the tune');
+  assert.ok(osc.some((n) => Math.abs(first(n) - 987.77 * 3.51) < 1), 'each bell has its inharmonic FM partner');
+  const choir = osc.filter((n) => n.type === 'sawtooth');
+  assert.equal(choir.length, 12, 'three notes of two detuned voices, on each of the two bars');
+  assert.ok(choir.some((n) => n.detune.value < 0) && choir.some((n) => n.detune.value > 0), 'detuned both ways');
+  assert.ok(choir.every((n) => n.stopAt - n.frequency.calls[0][2] > 3), 'long pads that swell in slowly');
+  assert.ok(osc.filter((n) => Math.abs(first(n) - 123.47) < 0.5).length >= 2, 'a soft drum on each bar');
+  const shake = nodes.ctx.nodes.filter((n) => n.kind === 'BiquadFilter' && n.type === 'bandpass' && first(n) >= 5000);
+  assert.ok(shake.length >= 10, `${shake.length} sleigh-bell rattles`);
+});

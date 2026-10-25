@@ -5,6 +5,7 @@
 import { W, H, makeCanvas, rgba, shade, glow, lin } from './sprites.js';
 import { makeRng } from '../core/rng.js';
 import { paintLayer } from './parallax-shapes.js';
+import { lightAt } from './aurora-model.js';
 
 const MARGIN = 160; // spare width each side, so a shift never shows an edge
 const SHIFT = 0.15; // px of layer shift per px of ship offset, at speed 1
@@ -45,6 +46,7 @@ const MODES = {
   pulse: (t, p) => 0.55 + 0.45 * Math.sin(t * 2.2 + p.ph * 6),
   blink: (t, p) => ((t * 0.8 + p.ph) % 1 < 0.18 ? 1 : 0.08),
   flicker: (t, p) => 0.6 + 0.25 * Math.sin(t * 13 + p.ph * 40) + 0.15 * Math.sin(t * 31 + p.ph * 9),
+  aurora: (t, p) => 0.12 + 0.88 * lightAt(p.x - MARGIN, t), // follows the aurora overhead (Aurora Kingdom)
 };
 
 export function drawLights(ctx, L, x0, t, alpha = 1) {

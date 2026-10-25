@@ -11,7 +11,7 @@ import { SIDE } from './levels-3.js';
 // The wave shorthand `w` and its role letters are explained in levels-2.js.
 
 const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon',
-  'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night'];
+  'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom'];
 
 export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i] }));
 

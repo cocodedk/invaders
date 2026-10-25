@@ -1,4 +1,4 @@
-// Drawing kit for the alien painters (aliens/w1.js .. w10.js). Every painter draws centred on (0, 0)
+// Drawing kit for the alien painters (aliens/w1.js .. w11.js). Every painter draws centred on (0, 0)
 // in world px into two contexts: `b`, the body (opaque, source-over, dark INK outline so it reads on
 // any sky), and `l`, the lights (eyes, neon, cores), which are drawn additively over the body and are
 // all that survives Neon Rain's darkness. Paint-time only (sprites are baked once), so gradients and

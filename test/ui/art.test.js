@@ -13,7 +13,7 @@ import { crackStage } from '../../src/ui/aliens/index.js';
 import { SKINS } from '../../src/ui/bunker-skins.js';
 import { FRAMES, ICONS } from '../../src/ui/pickup-skins.js';
 import { rgb } from '../../src/ui/sprites.js';
-import { recorder } from './dom-kit.js';
+import { installCanvas, recorder } from './dom-kit.js';
 
 const at = (maxHp, hp) => crackStage({ role: 'armored', hp, maxHp });
 
@@ -116,4 +116,53 @@ test("Hollow Night's headstones are weathered stone: mortar, moss, cracks, no tw
   assert.ok(seen.get('accent') > 120, `${seen.get('accent')} px of moss`);
   assert.ok(seen.get('dark') > 250, `${seen.get('dark')} px of mortar and cracks`);
   assert.ok(seen.get('fill') > BUNKER.w * BUNKER.h * 0.55, 'mostly stone');
+});
+
+test('every Aurora Kingdom guard burns on its lights layer on both beats: the hearts, eyes, crystal core and tusk', () => {
+  const look = LOOKS[10];
+  assert.equal(look.world, 11);
+  for (const role of ROLE_LIST) {
+    for (const f of [0, 1]) {
+      const [b, l] = [recorder(), recorder()];
+      art(look)[role](b.ctx, l.ctx, f, look.palette.alien[role]);
+      const lit = l.calls.filter(([k]) => ['fill', 'fillRect', 'stroke'].includes(k)).length;
+      assert.ok(lit >= 5, `${role} frame ${f}: ${lit} fills and strokes of light`);
+    }
+  }
+  assert.equal(art(look).crack, '#5ad0ff', 'the golem and the crystal crack blue');
+});
+
+test("Aurora Kingdom's glacier is blue ice: a cap of snow, bubbles frozen in it, fractures, mostly clear ice", () => {
+  const P = {};
+  for (const k of ['fill', 'light', 'dark', 'edge', 'accent']) P[k] = rgb(LOOKS[10].bunker[k]);
+  const seen = new Map();
+  const capDepth = new Set();
+  for (let y = 0; y < BUNKER.h; y++) {
+    for (let x = 0; x < BUNKER.w; x++) {
+      const [c] = SKINS.glacier(x, y, BUNKER.w, BUNKER.h, P);
+      const name = Object.entries(P).find(([, v]) => v === c)?.[0];
+      seen.set(name, (seen.get(name) ?? 0) + 1);
+      if (name === 'accent') capDepth.add(y);
+    }
+  }
+  assert.ok(seen.get('accent') > 300 && Math.max(...capDepth) < 14, `${seen.get('accent')} px of snow, no deeper than row ${Math.max(...capDepth)}`);
+  assert.ok(seen.get('light') > 60, `${seen.get('light')} px of bubbles`);
+  assert.ok(seen.get('dark') > 120, `${seen.get('dark')} px of bubble rim and fracture`);
+  assert.ok(seen.get('fill') > BUNKER.w * BUNKER.h * 0.6, 'mostly ice');
+});
+
+test("Aurora Kingdom's pickup rim is a ring of frost crystals, sixteen of them", () => {
+  const { ctx, calls } = recorder();
+  FRAMES[11](ctx, '#ffd45a');
+  assert.ok(calls.filter(([k]) => k === 'rotate').length >= 16, 'one turn for each crystal');
+  assert.ok(calls.filter(([k]) => k === 'fill').length >= 17, 'a prism each and the dark middle');
+});
+
+test("the shuriken twist's star is ice in Aurora Kingdom alone, and every other world's is as it was", async () => {
+  installCanvas(64);
+  const { bulletKit } = await import('../../src/ui/bullet-sprites.js');
+  assert.deepEqual(LOOKS.filter((l) => l.star).map((l) => [l.world, l.star]), [[11, 'ice']]);
+  const steel = (look) => bulletKit({ ...look, star: undefined }).star;
+  assert.notEqual(bulletKit(LOOKS[10]).star, steel(LOOKS[10]), 'world 11 throws shards');
+  for (const look of LOOKS.filter((l) => l.world !== 11)) assert.equal(bulletKit(look).star, steel(look), `w${look.world} keeps its steel star`);
 });

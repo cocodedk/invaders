@@ -1,8 +1,8 @@
 // Sound patches of the eight world twists: Neon Rain's thunder, Twin Suns' gusts, Ronin Moon's
-// shuriken cut, Hive's acid, Code Rain's teleport glitch and bullet-time swell, Iron Dawn's wrecks
+// shuriken cut (an ice shard shattering, in Aurora Kingdom), Hive's acid, Code Rain's teleport glitch and bullet-time swell, Iron Dawn's wrecks
 // that reassemble, Event Horizon's well swallowing bullets, and Arcade Origin's warbling saucer.
 // A patch is (a, o) -> seconds (audio-kit.js); a.tail is a stereo panner when the sound has an x.
-import { tone, hiss, fm, wobble, crush } from './audio-kit.js';
+import { tone, hiss, fm, wobble, crush, noteHz } from './audio-kit.js';
 
 // Sweep the sound's panner from one side to the other over `secs`.
 function sweep(a, from, to, secs) {
@@ -10,6 +10,16 @@ function sweep(a, from, to, secs) {
   if (!p) return;
   p.setValueAtTime(from, a.t);
   p.linearRampToValueAtTime(to, a.t + secs);
+}
+
+// Aurora Kingdom's shards are ice: a glassy crack, splinters tinkling down and a little chime on a
+// note of the scale that climbs with the x the shard broke at (five bands across the screen).
+function shatter(a, o) {
+  hiss(a, { type: 'highpass', f0: 7000, f1: 3200, dur: 0.06, peak: 0.2 });
+  [5200, 6900, 4300].forEach((f, i) => tone(a, { t: a.t + 0.02 + i * 0.03, f0: f, f1: f * 0.94, dur: 0.08, peak: 0.035 - i * 0.007 }));
+  const degree = [2, 4, 6, 7, 9][Math.min(4, Math.max(0, Math.floor((o.x ?? 0) / 384)))];
+  fm(a, { t: a.t + 0.04, f0: noteHz(a.kit, degree, 5), ratio: 3.51, index: 0.8, dur: 0.5, peak: 0.06 });
+  return 0.6;
 }
 
 export const WORLD = {
@@ -29,7 +39,8 @@ export const WORLD = {
     hiss(a, { type: 'highpass', f0: 5200, attack: 0.5, dur: 0.9, peak: 0.08 }); // the sand hiss on top
     return 1.9;
   },
-  cut(a) { // a shot slices a shuriken: a steel shing
+  cut(a, o) { // a shot slices a shuriken: a steel shing (an ice shard shatters)
+    if (a.kit.style === 'aurora') return shatter(a, o);
     fm(a, { f0: 3100, ratio: 1.41, index: 0.8, dur: 0.38, peak: 0.07 });
     hiss(a, { type: 'highpass', f0: 6400, f1: 2800, dur: 0.06, peak: 0.14 });
     return 0.42;
