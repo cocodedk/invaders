@@ -4,14 +4,23 @@
 // Colours: look.bunker { fill, light, dark, edge, accent?, skin } (skin: bunker-skins.js).
 import { makeCanvas, rgb, glow } from './sprites.js';
 import { SKINS } from './bunker-skins.js';
+import { createBunker } from '../core/bunkers.js';
 
 const baked = new WeakMap(); // bunker -> { canvas, count, look }
+const whole = new Map(); // w * 1000 + h -> the solid pixels of a bunker of that size before any carve
+
+// The share of the bunker shot away so far, 0 to 1: the skin of a world that soils as it wears reads it as P.worn.
+function wornShare(b, count) {
+  const key = b.w * 1000 + b.h;
+  if (!whole.has(key)) whole.set(key, createBunker(0, 0, b.w, b.h).solid);
+  return Math.max(0, 1 - count / whole.get(key));
+}
 
 function bake(b, look, count, canvas) {
   const { w, h, mask } = b;
   const g = canvas.getContext('2d');
   const img = g.createImageData(w, h);
-  const P = {};
+  const P = { worn: wornShare(b, count) };
   for (const k of ['fill', 'light', 'dark', 'edge', 'accent']) P[k] = rgb(look.bunker[k] ?? look.bunker.light);
   const { light, dark, edge } = P;
   const skin = SKINS[look.bunker.skin] ?? SKINS.plain;

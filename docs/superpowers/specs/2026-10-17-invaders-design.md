@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 16 cinematic worlds × 5 levels = 80 levels, free 2D
+as beautiful as Barrage (`../artillery`): 17 cinematic worlds × 5 levels = 85 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56; worlds 9–16 follow their own difficulty, R57–R64).
+    (R54, R56; worlds 9–17 follow their own difficulty, R57–R65).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -227,6 +227,26 @@ quoted lines, so the repo can be public.
     30, 23 and 26 times at reaction lag 10, and 30, 19, 22, 15 and 5 at lag 15, against world 6's
     39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: within noise. World 15, re-run on the new rules,
     clears exactly as before.
+  - **World 17, from ash to air (R65).** The user asked for a world where cigarettes, tobacco and
+    addiction must be defeated and health is won, at difficulty 10/10, "yet send help once in a
+    while". It is a city choked by smoke, giant cigarettes standing among its towers like chimneys;
+    the aliens are the habit itself (cigarettes, butts, pipes, cigars and plain packs, no brand, no
+    logo, nobody smoking). The city heals as it is won, drawing only: the smog thins and the sky
+    turns blue by level and by waves cleared, and the boss's fall leaves a clear morning. The help
+    is the twist, `breath`, new and the only one that helps: 14 s into play and every 24 s after,
+    in waves and the boss fight alike, a front of fresh air rises from the bottom of the field to
+    the HUD's edge in 0.8 s and wipes every enemy bullet it passes over (a swept test, so none slips
+    by; a wiped bullet is settled and never a near miss, R37). Beams pass through it, and nothing
+    else is touched. No power is world 17's own. `d` is 0.86, 0.89, 0.92, 0.96, 1.0, so
+    `armorBonus` applies, and the world is tuned with the breath included to world 7's, the
+    hardest in the game, and no harder. Its boss, the Craving, never charges. Like the titan it
+    kills in its hover phase, with homing shots and a laser from its maw, and it rests at 380, the
+    lowest of the bosses, so its shots start near the ship as the titan's do from its cannons. On
+    the headless run (40 seeds) levels 1–4 clear 26, 22, 23 and 15 times at reaction lag 10 and
+    19, 7, 8 and 5 at lag 15, against world 7's 30, 29, 18, 15 and 20, 4, 7, 3: within noise. On
+    120 seeds the Craving falls 11 and 9 times, the titan 12 and 6. The breath helps the slower
+    hand most: without it the Craving falls 11 and 6 times, so it is worth nothing at lag 10 and
+    half again at lag 15. World 16, re-run on the new rules, clears exactly as before.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -252,6 +272,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 14 | Ember Carnival | fireworks night at the fair | a lakeside fair at night: a Ferris wheel, big tops, a roller coaster on the far shore, fireworks over the water | about one alien in five is a shell whose death bursts like a firework, hurting everything within 160 px and setting off other shells in a chain (new, ruling R62) | The Grand Carousel |
 | 15 | Lantern Deep | deep sea under a sunken kingdom | a drowned kingdom's spires, kelp forests, a whale's skeleton and a reef, all lit by its own creatures | world 8's gravity well, drawn as a maelstrom; and two powers of its own, pearls and trident (new, ruling R63) | The Lantern Leviathan |
 | 16 | Glass Cathedral | stained-glass cathedral at dawn | a half-ruined nave open to a dawn sky: tall jewel-coloured windows, a great rose window, columns and flying buttresses, shafts of coloured light | world 7's reassemble, drawn as gargoyles whose shards hang in the air and mend; and its own power, the mirror twin (new, ruling R64) | The Vesper Moth |
+| 17 | Ash to Air | a smog-choked city that heals | a city under brown smog, giant cigarettes smoking among the towers like chimneys, ash falling; level by level the smog lifts, the sky turns blue and parks, trees and kites come back | the breath: every 24 s a front of fresh air sweeps up the field and wipes the enemy bullets it passes (new, ruling R65) | The Craving |
 
 ## Look and effects
 

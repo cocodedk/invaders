@@ -19,6 +19,8 @@
 //   slowPower  true while the slow power runs (the same tint; its own flag, so the two never clear each other)
 //   density   1, or less when the quality scaler halves particle spawns
 //   shieldT   fx.time of the last shield flare (react-fight throttles on it); time = real seconds run
+//   breathBudget  { n, t }: the sparkles world 17's breath may still show now (full to start with) and the fx.time it was last topped
+//             up at; no other world touches it (react-breath.js; the leaf and twinkle particle kinds it adds are drawn by ui/breath-fx-view.js)
 // stepFx takes real frame time. Particles, rings, flashes, pop-ups and slices follow `slow` so slow
 // motion shows; the shake does not.
 import { stepParticles } from './particles.js';
@@ -29,12 +31,14 @@ import { MID_X, MID_Y } from '../core/kinds.js';
 const SLOW_FACTOR = 0.3;
 const SLOWMO_SECS = 0.8; // real seconds
 const CAP = 64; // per list, oldest dropped
+export const BREATH_BURST = 6; // wiped bullets that may sparkle at once (the breath's budget starts with this many)
 
 export function createFx() {
   return {
     particles: [], rings: [], flashes: [], popups: [], slices: [],
     shake: 0, shakeX: 0, shakeY: 0, slow: 1, slowLeft: 0, time: 0,
     bulletTime: false, slowPower: false, density: 1, shieldT: -1,
+    breathBudget: { n: BREATH_BURST, t: 0 },
   };
 }
 

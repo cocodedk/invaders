@@ -17,19 +17,23 @@
 .lobby-total { color: var(--gold); margin-left: 0.8rem; letter-spacing: 0.06em; }
 
 /* Both rows fit the 54 rem screen: the main row is a poster (13.2 rem) over five reels (about
-   11.7 rem). The side row ("also showing") is a second shelf on the same eight 8.8 rem columns (76.7 rem
-   wide), so every side world's banner hangs directly under one main poster: eight lobby cards, each a
-   short banner of the print (3.5 rem: the world's name and tagline) over five slimmer reels, 11 rem tall
-   in all. A ninth side world would need a new fit. Measured at 1280, 1600 and 1920 wide (the screen is
-   always 96 x 54 rem, so the rem figures hold at all three; px figures are at 1280): seven 10.2 rem
-   banners (the old fit) make 76.8 rem, eight make 87.9, which fits but stands 5.6 rem proud of the main row
-   on each side with the label 1.5 rem from the screen's edge; two side rows of four overflow the screen
-   by 3.5 rem and push Back off it; a poster beside its reels needs 118 rem. The 8.8 rem banner keeps the
-   longest title ("GLASS CATHEDRAL", 7.7 rem of the 8.8) on one line at 10 px, and a seven-digit
-   score ("1,004,324") inside its reel. "Also showing" hangs in the margin outside the row. */
-.posters, .side { display: grid; grid-template-columns: repeat(8, 8.8rem); gap: 0.9rem; }
+   11.7 rem). The side row ("also showing") is a second shelf under it of nine lobby cards, each a short
+   banner of the print (3.5 rem: the world's name and tagline) over five slimmer reels, 11 rem tall in all,
+   on the main row's own 8.8 rem columns and 0.9 rem gaps, so it is 86.4 rem wide to the main row's 76.7,
+   centred: each card stands half a column off the posters, brick fashion (lobby-nav.js step). Measured at
+   1280, 1600 and 1920 wide (the screen is always 96 x 54 rem, so the rem figures hold at all three; px
+   figures are at 1280): the shelf stands 4.85 rem proud of the main row on each side, its label 2.2 rem
+   from the screen's edge, and Back ends at 51.6 to 52 of 54 rem, so nothing scrolls. The 8.8 rem banner
+   keeps the longest title ("GLASS CATHEDRAL", 7.7 rem of the 8.8) on one line at 10 px, and a
+   seven-digit score ("1,004,324") inside its reel. Squeezing nine into the main row's 76.7 rem makes the
+   banner 7.7 rem (the title 8.9 px, the tagline 6.6 px) and 8.2 rem with 0.4 rem gaps (9.4 px and 7 px),
+   against 10 px and 7.5 px now, and either way no card stands under anything; a ninth card hung past the
+   main row's right edge ends at 96 rem, on the screen's edge; the free corner beside Back is 28 x 4.4 rem,
+   too small for a card of reels. "Also showing" hangs in the margin outside the row. */
+.posters, .side { display: grid; gap: 0.9rem; }
+.posters { grid-template-columns: repeat(8, 8.8rem); }
 .poster { --accent: #fff; display: flex; flex-direction: column; gap: 0.6rem; transition: transform 0.2s ease; }
-.side { position: relative; align-items: start; }
+.side { position: relative; align-items: start; grid-template-columns: repeat(9, 8.8rem); }
 .side .poster { gap: 0.3rem; }
 .side .poster-art { box-sizing: border-box; width: 100%; height: 3.5rem; aspect-ratio: auto; }
 .side .poster-canvas { object-fit: cover; object-position: 50% 22%; }

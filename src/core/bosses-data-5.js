@@ -1,8 +1,8 @@
 import { boss, weak, armor, atk, minion, phase } from './bosses-kit.js';
 
-// The bosses of world 16 on, the side-world boss of the Glass Cathedral. Like the other side-world
-// bosses it never charges: it sways, hovers, then circles. It rests high enough that every part is
-// below the HUD (R28), and ends no lower than the grimoire.
+// The bosses of worlds 16-17, the side-world bosses of the Glass Cathedral and of Ash to Air. Like the
+// other side-world bosses they never charge: they sway, hover, then circle. They rest high enough that
+// every part is below the HUD (R28), and end no lower than the grimoire.
 
 // The Vesper Moth, a colossal moth whose wings are stained-glass windows. The crown (its head and
 // feathered antennae) tops it; the rose-window jewel of the thorax sits at its heart with the banded
@@ -51,4 +51,55 @@ const moth = boss('moth', 'The Vesper Moth', 260, { w: 760, h: 340 }, [
   ], { rate: 1.7, minions: [minion('diver', 3, 8.5, 'wingR'), minion('carrier', 1, 4.5, 'crown')] }),
 ]);
 
-export const BOSSES5 = [moth];
+// The Craving, a giant of smoke on a throne of ash: a crown of half-smoked cigarettes on top, ember eyes
+// at the sides of the head with the burning maw between them, a smoke arm ending in a grasping claw on
+// each flank, and the glowing rim of the ashtray under the head, where its butts smoulder. The eyes take
+// aim; the claws fan; the crown rains embers and ash; the tray breathes rings; the maw fires the laser
+// and homing shots from the hover phase on (an eye joins the homing in the last). World 17 is the
+// hardest world, so this is a world-7-hard boss, tuned against the titan with the breath included: the
+// titan's hover phase kills with homing shots and a laser, and so does this one's. It is heavier than
+// the titan (hp 268 against 225) and rests at 380, the lowest of all bosses (the low point of its orbit
+// keeps the tray above ARENA_FLOOR), so its shots start near the ship, as the titan's do from its
+// cannons; its rates (the pace it moves at) are near the titan's. The crown's top is 158 above the
+// centre, so at the top of its orbit every part is well clear of the HUD (R28). The tray shields the
+// maw from below as the abdomen shields the moth's heart, and the eyes are open to the sides of it. No
+// two parts touch.
+const craving = boss('craving', 'The Craving', 380, { w: 740, h: 340 }, [
+  armor('crown', 0, -118, 280, 80, 8),
+  weak('maw', 0, -14, 150, 112, 92),
+  armor('clawL', -288, -10, 150, 200, 7),
+  armor('clawR', 288, -10, 150, 200, 7),
+  weak('eyeL', -150, -36, 110, 76, 52),
+  weak('eyeR', 150, -36, 110, 76, 52),
+  weak('tray', 0, 96, 280, 88, 50),
+], [
+  phase(0.65, 'sway', [
+    atk('aimed', 3.2, 'eyeL'),
+    atk('aimed', 3.2, 'eyeR'),
+    atk('fan', 3.0, 'clawL', { count: 3, spread: 0.45 }),
+    atk('fan', 3.1, 'clawR', { count: 3, spread: 0.45 }),
+    atk('rain', 3.8, 'crown', { count: 6, spread: 460 }),
+  ], { rate: 0.9, minions: [minion('carrier', 1, 4.5, 'crown')] }),
+  phase(0.3, 'hover', [
+    atk('aimed', 3.2, 'eyeL'),
+    atk('aimed', 3.2, 'eyeR'),
+    atk('fan', 2.8, 'clawL', { count: 4, spread: 0.65 }),
+    atk('fan', 2.8, 'clawR', { count: 4, spread: 0.65 }),
+    atk('rain', 3.4, 'crown', { count: 7, spread: 480 }),
+    atk('ring', 4.6, 'tray', { count: 14 }),
+    atk('homing', 2.8, 'maw'),
+    atk('laser', 7, 'maw'),
+  ], { rate: 1.0, minions: [minion('diver', 2, 11, 'clawL'), minion('carrier', 1, 4.5, 'crown')] }),
+  phase(0, 'orbit', [
+    atk('aimed', 3.4, 'eyeL'),
+    atk('aimed', 3.4, 'eyeR'),
+    atk('fan', 2.8, 'clawL', { count: 6, spread: 0.9 }),
+    atk('fan', 3.0, 'clawR', { count: 5, spread: 0.8 }),
+    atk('rain', 3.2, 'crown', { count: 9, spread: 520 }),
+    atk('ring', 4.4, 'tray', { count: 16 }),
+    atk('laser', 6, 'maw'),
+    atk('homing', 3.2, 'eyeL'),
+  ], { rate: 1.2, minions: [minion('diver', 3, 9, 'clawR'), minion('carrier', 1, 4.5, 'crown')] }),
+]);
+
+export const BOSSES5 = [moth, craving];

@@ -41,7 +41,7 @@ const hue = (h) => {
 };
 
 test('world 15 is registered as Lantern Deep and every level of it gets this look', () => {
-  assert.equal(LOOKS.length, 16);
+  assert.equal(LOOKS.length, 17);
   assert.equal(look.world, 15);
   assert.equal(WORLDS[14].name, 'Lantern Deep');
   assert.equal(lookFor(levelById('w15-3')), look);

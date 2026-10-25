@@ -66,7 +66,7 @@ test('decodeRun rejects every truncation of a valid run', () => {
 
 // One level of every world: the wave levels carry formations and bunkers, the boss levels carry
 // attacks and minions, and each world its own twist (gusts, teleports, gravity, ...).
-const PER_WORLD = ['w1-4', 'w2-5', 'w3-4', 'w4-5', 'w5-3', 'w6-5', 'w7-4', 'w8-5', 'w9-3', 'w10-3', 'w11-4', 'w12-5', 'w13-4', 'w14-4', 'w15-4', 'w16-4'];
+const PER_WORLD = ['w1-4', 'w2-5', 'w3-4', 'w4-5', 'w5-3', 'w6-5', 'w7-4', 'w8-5', 'w9-3', 'w10-3', 'w11-4', 'w12-5', 'w13-4', 'w14-4', 'w15-4', 'w16-4', 'w17-4'];
 
 for (const id of PER_WORLD) {
   test(`${id}: random keys and pointer, run then replay, give the same state, score and events`, () => {

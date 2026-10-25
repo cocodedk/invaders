@@ -84,6 +84,22 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_16)) {
   });
 }
 
+// World 17 adds one twist (the breath) and the Craving boss: none of it may touch any other world, world 16
+// included. The breath's state is made for world 17 alone, the state hash adds nothing elsewhere and its
+// rule draws no rng. These are two wave levels of world 16 and its boss level, taken on commit 034947a,
+// the last before world 17, and held to the same rule as the fingerprints above.
+const BEFORE_WORLD_17 = {
+  'w16-1': {fold: -110221412, end: '1770:61750:d8ab5150e7e46df0', pickup: 8, power: 7, kill: 65, shipHit: 0, fire: 195},
+  'w16-3': {fold: -1388976173, end: '1870:117150:1202745a8ac3ae67', pickup: 4, power: 6, kill: 105, shipHit: 0, fire: 260},
+  'w16-5': {fold: 727350091, end: '2200:19900:adfab4efcdff2620', pickup: 6, power: 7, kill: 8, shipHit: 0, fire: 131},
+};
+
+for (const [id, expected] of Object.entries(BEFORE_WORLD_17)) {
+  test(`${id} plays out exactly as it did before world 17`, () => {
+    assert.deepEqual(fingerprint(id), expected);
+  });
+}
+
 test('the replay version stays 8, and the six powers stay the six', () => {
   assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 8);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);

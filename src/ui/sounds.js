@@ -10,7 +10,9 @@
 // shells sound through `burst`, pitched by where and how far down the chain it goes off (sfx-carnival.js).
 // World 15's pearls sound where they wipe a bullet (`pearlBlock`) or strike an alien (`pearlHit`), and each
 // trident shot adds a zip to the ship's own shot, which keeps the beat (sfx-deep.js). World 16's mirror twin
-// pings with every shot of the ship, at the twin's x on the other side of the field (sfx-glass.js).
+// pings with every shot of the ship, at the twin's x on the other side of the field (sfx-glass.js). World 17's
+// help sounds when a wave of fresh air starts to rise (`breath`, as long as the rise) and ticks for each enemy bullet
+// it wipes (`cleanse`, at the bullet's x, thinned hard in audio.js), sfx-breath.js.
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X, WIDTH } from '../core/kinds.js';
 
@@ -79,6 +81,8 @@ export function eventSounds(events, world, play) {
       case 'burst': play('burst', { x: e.x, depth: e.depth }); break;
       case 'pearlBlock': play('pearlBlock', at(e)); break;
       case 'pearlHit': play('pearlHit', at(e)); break;
+      case 'breath': play('breath', { dur: e.dur }); break;
+      case 'cleanse': play('cleanse', at(e)); break;
       default: break; // SILENT
     }
   }

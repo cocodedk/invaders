@@ -15,7 +15,9 @@
 //   parts: { [id | base]: (b, l, p, S) } (margin: px of canvas round a part's rect for art that
 //   overhangs it, 34 by default; margins overrides it per part id),
 //   opened?: { [id]: painter } (art once a phase opens the part), rage?: [(l, S) | null per phase]
-//   (extra hull lights that fade in with that phase), live?(ctx, boss, t, k, own, since)
+//   (extra hull lights that fade in with that phase), behind?(ctx, boss, t) (a live body drawn right after the
+//   hull and under the hull's lights and the parts: opaque, own pass only, cached sprites; the Craving's churning smoke),
+//   live?(ctx, boss, t, k, own, since)
 //   (per-frame extras in boss coordinates, 'lighter', cached sprites only; k is the light
 //   strength, since when the phase began; anything opaque only when `own`, the boss's own pass,
 //   since the darkness pass runs live again over the aliens), warm?() (paints the cached sprites
@@ -40,8 +42,9 @@ import galleon from './galleon.js';
 import carousel from './carousel.js';
 import angler from './angler.js';
 import moth from './moth.js';
+import craving from './craving.js';
 
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler, moth };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler, moth, craving };
 const cache = new Map();
 
 export function painterFor(mod, id) {

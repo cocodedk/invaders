@@ -30,10 +30,10 @@ const MAX_VOICES = 36;
 const GAP = {
   shot: 0.045, enemyShot: 0.07, laserWarn: 0.25, hit: 0.05, bossHit: 0.055, kill: 0.035, boom: 0.06, nearMiss: 0.2,
   shield: 0.12, bunker: 0.09, cut: 0.06, acid: 0.15, teleport: 0.12, absorb: 0.1, move: 0.03, count: 0.05, warn: 0.12,
-  cannonL: 0.1, cannonR: 0.1, escortShot: 0.09, broadsideOn: 0.15, burst: 0.09, pearlBlock: 0.06, pearlHit: 0.07, tridentZip: 0.09, mirrorShot: 0.09,
+  cannonL: 0.1, cannonR: 0.1, escortShot: 0.09, broadsideOn: 0.15, burst: 0.09, pearlBlock: 0.06, pearlHit: 0.07, tridentZip: 0.09, mirrorShot: 0.09, cleanse: 0.07,
 };
 const MUST = new Set(['blast', 'bossDeath', 'phase', 'cleared', 'failed', 'bomb', 'shipHit', 'select', 'star',
-  'braam', 'impact', 'riser', 'clap']);
+  'braam', 'impact', 'riser', 'clap', 'breath']);
 const MASTER = 0.85;
 const MUSIC = 0.32; // the loops sit about 10 dB under the effects (offline RMS check)
 

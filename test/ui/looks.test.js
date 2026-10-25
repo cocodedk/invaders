@@ -9,6 +9,7 @@ const { LOOKS } = await import('../../src/ui/looks/index.js');
 const { BODIES } = await import('../../src/ui/sky-bodies.js');
 const { buildSky } = await import('../../src/ui/sky.js');
 const { buildLayers } = await import('../../src/ui/parallax.js');
+const { buildHealLayers } = await import('../../src/ui/heal-layers.js');
 const { drawAmbient } = await import('../../src/ui/ambient.js');
 const { drawFlourishes } = await import('../../src/ui/flourish.js');
 
@@ -22,7 +23,7 @@ test('every look has a sky body, three layers and ambient entries that exist and
   for (const look of LOOKS) {
     assert.ok(BODIES[look.body], `w${look.world} body ${look.body}`);
     buildSky(look);
-    const layers = buildLayers(look, 3);
+    const layers = look.heal ? buildHealLayers(look, 3, { h: 0 }) : buildLayers(look, 3); // world 17's layers are baked twice (createView)
     assert.equal(layers.length, 3, `w${look.world} layers`);
     for (const phase of ['sky', 'mid', 'front', 'screen']) {
       drawAmbient(globalThis.document.createElement().getContext(), look, phase, { t: 2.7, drift: 40, wind: 0, world: {} });

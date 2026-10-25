@@ -36,8 +36,10 @@ export const powersFor = (level) => DROPS[level.world] ?? POWERS;
 // is one too (R62): some aliens are shells that burst when they die (fireworks.js). World 15 reuses
 // world 8's gravity well, drawn there as a maelstrom, so its twist repeats world 8's. World 16 reuses
 // world 7's reassemble, drawn there as shattered glass that mends itself, so its twist repeats world 7's.
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble'];
-export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth'];
+// World 17's breath is a twist of its own (R65): now and then a front of fresh air sweeps up the
+// screen and wipes every enemy bullet it touches (twists-3.js).
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath'];
+export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth', 'craving'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
 // HUD_BOTTOM; nothing that must be seen or shot may sit behind them.

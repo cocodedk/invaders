@@ -62,7 +62,7 @@ test('the pickups swept up at the clear chime one after another, a caught one at
 test('each world has its own sound style, root and scale from its look', () => {
   const styles = LOOKS.map((l) => kitFor(l.music).style);
   assert.equal(new Set(styles).size, LOOKS.length, styles.join());
-  assert.equal(Object.keys(STYLES).length, 16, 'a style for each of the 16 worlds');
+  assert.equal(Object.keys(STYLES).length, 17, 'a style for each of the 17 worlds');
   for (const look of LOOKS) {
     const kit = kitFor(look.music);
     assert.equal(kit.root, NOTES[look.music.root], look.music.root);
@@ -134,7 +134,7 @@ test('every music style is well formed', () => {
     const m = s.music;
     assert.ok(m.div > 0 && m.seq.length > 0 && m.drum.length > 0, name);
     for (const d of m.seq) assert.ok(d === null || Number.isInteger(d), `${name} seq`);
-    assert.match(m.drum, /^[kthsbpcjfzmvroyaugldwnqx.]+$/, `${name} drum`);
+    assert.match(m.drum, /^[kthsbpcjfzmvroyaugldwnqxHDEIi.]+$/, `${name} drum`);
     assert.ok(m.lead.gain > 0 && m.lead.gain < 0.2, `${name} lead gain`);
     if (m.lead.fm) assert.ok(m.lead.fm.ratio > 0 && m.lead.fm.index > 0, `${name} lead fm`);
   }

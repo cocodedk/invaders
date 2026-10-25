@@ -1,7 +1,7 @@
 // Sound patches of the stingers and the menus. The stingers play in the world's scale and its lead
 // voice (chip square, noir saw, koto pluck and taiko, cosmic organ, aurora bells, archive violin, armada
-// horns, carnival steam whistle, abyss theremin, glass harmonica...), so a clear in Ronin Moon sounds like
-// Ronin Moon. Menu sounds are short, soft and in key. A patch is (a, o) -> seconds.
+// horns, carnival steam whistle, abyss theremin, glass harmonica, breath flute...), so a clear in Ronin Moon
+// sounds like Ronin Moon. Menu sounds are short, soft and in key. A patch is (a, o) -> seconds.
 import { tone, hiss, fm, wobble, noteHz } from './audio-kit.js';
 
 // The world's lead voice for melodic stingers: tone options for a note of `dur` seconds.
@@ -22,6 +22,7 @@ const LEAD = {
   carnival: { type: 'sine', peak: 0.11, attack: 0.03 }, // a steam whistle: a pure note, a breath on it and an octave ringing over
   abyss: { type: 'sine', peak: 0.1, attack: 0.07 }, // a theremin: a pure note a hand makes waver, with a glassy ring over it
   glass: { type: 'sine', peak: 0.09, attack: 0.06 }, // a glass harmonica: a pure note bowed in, a twin beating against it
+  breath: { type: 'triangle', peak: 0.1, attack: 0.025 }, // a clear flute: a bright, clean note with its octave and a high partner over it
 };
 
 function note(a, degree, octave, t, dur, peak = 1) {
@@ -46,6 +47,10 @@ function note(a, degree, octave, t, dur, peak = 1) {
   if (a.kit.style === 'glass') { // the bow: a twin a few cents off beats against the note, and a thin octave sounds over both
     tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak * 0.8, detune: 5 });
     tone(a, { ...v, t, f0: f * 2, dur, peak: v.peak * peak * 0.12 });
+  }
+  if (a.kit.style === 'breath') { // the hope in it: an octave and a twelfth ringing over the note, pure, no beating and no shake
+    tone(a, { type: 'sine', t, f0: f * 2, dur, peak: v.peak * peak * 0.3 });
+    tone(a, { type: 'sine', t, f0: f * 3, dur: dur * 0.8, peak: v.peak * peak * 0.08 });
   }
   if (['noir', 'brass', 'monster', 'armada'].includes(a.kit.style)) tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak * 0.7, detune: 12 });
 }

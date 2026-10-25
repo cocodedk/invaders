@@ -1,8 +1,9 @@
 import { w, lv } from './levels-2.js';
 
-// Level data for worlds 14-16, in the shorthand explained in levels-2.js (levels-3.js is full). All three
+// Level data for worlds 14-17, in the shorthand explained in levels-2.js (levels-3.js is full). All four
 // are side worlds beside the main run, like worlds 9-13: their own d (difficulty.js) puts world 14 a notch
-// above world 13, world 15 a notch above world 14 and world 16 a notch above world 15.
+// above world 13, world 15 a notch above world 14 and world 16 a notch above world 15. World 17 is the
+// hardest world of all, with the hardest d, and its levels are written for that.
 export const SIDE2 = [
   // 14 Ember Carnival: clockwork prizes from the booths, stuffed with powder. Tin drones (g) march
   // in dense blocks, firework rockets (d) dive out of the smoke, jack-in-the-box turrets (u) fire
@@ -103,5 +104,40 @@ export const SIDE2 = [
       w('orbit', 3, 'uca', 'aimed', 1.3),
     ], true),
     lv(162241),
+  ],
+  // 17 Ash to Air: a city choked by smoke, the habit itself against you. Lit cigarettes (g) march in
+  // wide rows, flicked butts (d) dive trailing smoke, tobacco pipes (u) puff and fire, fat cigars (a)
+  // hold the line and plain packs (c) carry. The hardest world, with its help as hard as world 7: fast
+  // waves, many gunner rows, fans, rings and aimed shots, and a laser now and then. The breath (the
+  // twist) sweeps the bullets away every 24 s, so the fire is heavy and the waves are quick. Armored rows are
+  // few, one to a wave and only on some, because the cigars are costly at this d and re-forming is
+  // world 7's, not this world's. Clean-air filters (bunkers) stand on the second and fourth.
+  [
+    lv(170391, [
+      w('grid', 8, 'uggd', 'aimed', 1.15),
+      w('dive', 6, 'dug', 'fan', 1.2),
+      w('sway', 6, 'ugug', 'fan', 1.2),
+      w('escort', 3, 'gcu', 'ring', 1.25),
+    ]),
+    lv(170862, [
+      w('sway', 8, 'ugdg', 'fan', 1.2),
+      w('split', 8, 'udgu', 'aimed', 1.25),
+      w('rain', 6, 'gag', 'laser', 1.25),
+      w('escort', 3, 'uca', 'ring', 1.3),
+    ], true),
+    lv(171347, [
+      w('spiral', 8, 'ugug', 'ring', 1.25),
+      w('grid', 8, 'ugd', 'fan', 1.3),
+      w('dive', 8, 'dgu', 'aimed', 1.3),
+      w('escort', 4, 'gca', 'fan', 1.35),
+    ]),
+    lv(171814, [
+      w('orbit', 6, 'ugu', 'ring', 1.3),
+      w('rain', 8, 'dgu', 'fan', 1.35),
+      w('sway', 6, 'gag', 'laser', 1.35),
+      w('split', 8, 'dug', 'aimed', 1.4),
+      w('escort', 3, 'uca', 'fan', 1.4),
+    ], true),
+    lv(172259),
   ],
 ];

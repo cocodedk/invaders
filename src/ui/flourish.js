@@ -19,6 +19,7 @@ import { FLOURISH13 } from './flourish-13.js';
 import { FLOURISH_SWAY } from './flourish-deep-sway.js';
 import { FLOURISH_MAELSTROM } from './flourish-maelstrom.js';
 import { FLOURISH_GLASS } from './flourish-glass.js';
+import { FLOURISH_SMOG } from './flourish-smog.js';
 
 function beam(color, len = 1000, top = 240) {
   const c = makeCanvas(top, len);
@@ -167,7 +168,7 @@ const FLOURISH = {
   flares: { far: flares, neonfar: flares },
   mist: { near: mist }, shooting: { sky: shooting }, ...FLOURISH2, ...FLOURISH3, ...FLOURISH4, ...FLOURISH5, ...FLOURISH6, ...FLOURISH7, ...FLOURISH8, ...FLOURISH9, ...FLOURISH10, ...FLOURISH11,
   ...FLOURISH12, ...FLOURISH13, ...FLOURISH_SWAY, ...FLOURISH_MAELSTROM,
-  ...FLOURISH_GLASS,
+  ...FLOURISH_GLASS, ...FLOURISH_SMOG,
 };
 
 export function drawFlourishes(ctx, env, phase, x0 = 0, top = 0) {

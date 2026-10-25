@@ -1,4 +1,4 @@
-// Per-world art direction, one data file per world (w1.js .. w16.js), plain data:
+// Per-world art direction, one data file per world (w1.js .. w17.js), plain data:
 //   sky       gradient stops [[at, colour], ...] top to bottom
 //   body      what is baked into the sky (sky-bodies.js); haze: colour far layers fade toward
 //   layers    3 parallax bands, far to near (parallax.js; kinds in parallax-shapes.js and the files it imports)
@@ -10,6 +10,9 @@
 //   bunker    { fill, light, dark, edge, accent?, skin } (skin: a texture in bunker-skins.js)
 //   power     tint per pickup kind: every POWERS kind plus bomb and life (shapes per world:
 //             pickup-skins.js); music: { mood, root, scale, bpm }
+//   heal      true: world 17's healing (heal.js, heal-view.js): the look also carries cleanSky + cleanBody (the clean morning's
+//             sky), hazeClean, and per layer colorClean, rimClean, hazeClean and over (a green overlay); the view bakes
+//             a smog and a clean twin of the sky and every layer and crossfades them
 //   dark      how dark the darkness twist makes the world (screen-view.js; default 0.66)
 //   star      'steel' (default) | 'ice': what the shuriken twist's throwing star is made of (bullet-sprites.js)
 //   tint      { shade, glow }: the frame's wash in bullet time and the slow power, default Code Rain's green (screen-view.js)
@@ -29,7 +32,8 @@ import w13 from './w13.js';
 import w14 from './w14.js';
 import w15 from './w15.js';
 import w16 from './w16.js';
+import w17 from './w17.js';
 
-export const LOOKS = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16].map((look, i) => ({ world: i + 1, ...look }));
+export const LOOKS = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w17].map((look, i) => ({ world: i + 1, ...look }));
 
 export const lookFor = (level) => LOOKS[(level.world ?? 1) - 1] ?? LOOKS[0];

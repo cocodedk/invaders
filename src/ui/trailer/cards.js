@@ -119,6 +119,11 @@ export const VOICES = [
     ['{kills}', 'SHATTERED INTO LIGHT.'],
     ['{near} IN THE SHARDS.', '{time} OF STAINED LIGHT.'],
   ],
+  [ // Ash to Air: a city choked by smoke, the habit as the enemy, the fight to quit and heal
+    ['THE SMOKE HAS A HOLD.', 'TAKE BACK EVERY BREATH.'],
+    ['{kills}', 'STUBBED OUT FOR GOOD.'],
+    ['{near} IN THE HAZE.', '{time} SMOKE-FREE.', 'BREATHE.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

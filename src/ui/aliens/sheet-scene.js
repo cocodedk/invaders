@@ -2,6 +2,7 @@
 //   w16scene   sky, parallax, ambient and flourishes at time &t= (seconds, default 6), the world's first level run
 //              &sim= seconds (default 4, the autopilot flying: a formation, shots, effects), and (&twin=1) the
 //              mirror power running with its shots
+//   (world 17: &h=0..1 pins the healing, heal.js; without it the first level is at h 0)
 //   w16boss    the world's boss at rest, drawn whole: &phase=0|1|2, &t=, &hurt=wingL:0.5,heart:0 (the share of hp
 //              each named part has left, to see its damage), &dead=ids (parts destroyed), &hud=0 hides the HUD
 // One frame, drawn once, so a headless screenshot with --virtual-time-budget catches it.
@@ -52,6 +53,7 @@ export function drawScene(canvas, n, boss) {
   }
   const view = createView(canvas, level, true);
   view.showHud = boss ? q.get('hud') !== '0' : false;
+  if (view.heal && q.has('h')) view.heal.force = Number(q.get('h')); // world 17: &h=0..1 pins the healing
   if (boss) bossWorld(world, n, q);
   if (q.get('twin') === '1') {
     world.ship.power = { kind: 'mirror', left: 6 };

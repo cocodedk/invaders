@@ -25,6 +25,11 @@ import { warmArmada } from './warm-armada.js';
 import { warmCarnival } from './warm-carnival.js';
 import { warmDeep } from './warm-deep.js';
 import { warmGlass } from './warm-glass.js';
+import { warmBreath } from './warm-breath.js';
+import { createHeal, stepHeal, healOf } from './heal.js';
+import { buildHealLayers } from './heal-layers.js';
+import { drawHealSky, healSkies } from './heal-view.js';
+import { drawBreathWake, drawBreath } from './breath-view.js';
 import { drawBullets } from './bullets-view.js';
 import { drawLasers, drawBeam, drawShots } from './lasers-view.js';
 import { drawShip } from './ship-view.js';
@@ -35,7 +40,7 @@ import { drawHud } from './hud.js';
 import { createQuality } from './quality.js';
 
 // warm (default true) bakes the level's aliens and boss with all their damage art (and world 13's, 14's, 15's and 16's
-// sprites, warm-armada.js, warm-carnival.js, warm-deep.js and warm-glass.js); a poster, which draws one frame and has baked what it draws, passes false.
+// sprites, warm-armada.js, warm-carnival.js, warm-deep.js and warm-glass.js, and world 17's, warm-breath.js); a poster, which draws one frame and has baked what it draws, passes false.
 export function createView(canvas, level, warm = true) {
   const look = lookFor(level);
   if (warm) {
@@ -45,10 +50,14 @@ export function createView(canvas, level, warm = true) {
     warmCarnival(look);
     warmDeep(look);
     warmGlass(look);
+    warmBreath(look);
   }
+  const heal = look.heal ? createHeal() : null; // world 17: the healing city, a smog and a clean twin of the sky and layers (heal.js)
+  const skies = heal && healSkies(look, level); // the smog sky and the clean one, baked once per look (heal-view.js)
+  if (heal) heal.sky = skies.clean;
   return {
     canvas, ctx: canvas.getContext('2d'), level, look,
-    sky: buildSky(look, level), layers: buildLayers(look, level.seed ?? 1),
+    sky: skies ? skies.smog : buildSky(look, level), layers: heal ? buildHealLayers(look, level.seed ?? 1, heal) : buildLayers(look, level.seed ?? 1), heal,
     quality: createQuality(), cache: {}, hud: { lag: null }, showHud: true,
     lastT: null, drift: 0, fit: { w: 0, h: 0, dpr: 0, s: 1, ox: 0, oy: 0 }, lift: 0,
   };
@@ -94,6 +103,7 @@ function field(ctx, v, world, fx, t, env, amb) {
     if (i === 1) drawFlourishes(ctx, env, 'mid', x0, top);
   });
   drawFlourishes(ctx, env, 'near');
+  drawBreathWake(ctx, v, world, t); // world 17: the smog parts where the breath has passed (breath-view.js)
   drawBunkers(ctx, world, look);
   drawBoss(ctx, world, look, t, q); // under the aliens: minions launch from it and fly over it (R27)
   drawAliens(ctx, world, look, t);
@@ -103,6 +113,7 @@ function field(ctx, v, world, fx, t, env, amb) {
   drawBullets(ctx, world, look, t, q);
   drawBeam(ctx, world, look, t);
   drawShots(ctx, world, look, t);
+  drawBreath(ctx, v, world, t); // world 17: the front of fresh air and the craft that lead it
   drawShip(ctx, world, look, t);
   drawFx(ctx, fx);
   drawAmbient(ctx, look, 'front', amb);
@@ -115,6 +126,7 @@ export function drawFrame(v, world, fx, t = 0, film = null) {
   const dt = v.lastT == null ? 0 : clamp(t - v.lastT, 0, 0.1);
   v.lastT = t;
   v.drift += (world.wind || 0) * dt * 0.9;
+  if (v.heal) stepHeal(v.heal, world, dt);
   const f = fit(v);
   const ctx = v.ctx;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -125,9 +137,10 @@ export function drawFrame(v, world, fx, t = 0, film = null) {
   ctx.rect(0, 0, W, H);
   ctx.clip();
   const env = { v, world, fx, t, quality: v.quality.level };
-  const amb = { t, drift: v.drift, wind: world.wind || 0, world };
+  const amb = { t, drift: v.drift, wind: world.wind || 0, world, heal: healOf(v) };
   ctx.translate(0, -v.lift);
-  ctx.drawImage(v.sky, 0, 0);
+  if (v.heal) drawHealSky(ctx, v.sky, v.heal);
+  else ctx.drawImage(v.sky, 0, 0);
   drawAmbient(ctx, v.look, 'sky', amb);
   drawFlourishes(ctx, env, 'sky');
   field(ctx, v, world, fx, t, env, amb);

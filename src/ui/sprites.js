@@ -129,6 +129,13 @@ export function byColor(make) {
   };
 }
 
+// byColor for a sprite with variants: one sprite per (variant, colour), made by make(variant, color) on first use. A lookup is an
+// array read and a Map get, as byColor's is, and a variant's Map and recipe are built when that variant is first asked for.
+export function byVariant(make) {
+  const by = [];
+  return (v, color) => (by[v] ??= byColor((c) => make(v, c)))(color);
+}
+
 // Additive glow blob: hot centre fading out through `color`. Draw with 'lighter'.
 export const glow = byColor((color) => cached('g' + color, 64, 64, radial([
   [0, rgba(color, 1)], [0.2, rgba(color, 0.55)], [0.5, rgba(color, 0.16)], [1, rgba(color, 0)],

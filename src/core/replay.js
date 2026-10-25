@@ -21,9 +21,9 @@ export { TICK };
 // and slow powers, the extra life, R53; drops from any alien and heavier enemy fire, R54; 7: a carrier
 // in every boss phase, R55; 8: more drops in the late worlds, R56). World 13's two rules (R61: the
 // wingmen power and the broadside twist), world 14's (R62: the fireworks), world 15's (R63: the
-// pearls and the trident powers) and world 16's (R64: the mirror power) are scoped to their worlds and
-// draw no rng elsewhere, so the version stays 8: test/core/worlds-unchanged.test.js pins that worlds
-// 1-15 play as they did.
+// pearls and the trident powers), world 16's (R64: the mirror power) and world 17's (R65: the breath) are
+// scoped to their worlds and draw no rng elsewhere, so the version stays 8: test/core/worlds-unchanged.test.js
+// pins that worlds 1-16 play as they did.
 const RUN_V = 8;
 
 // The storable form of a finished run. `level` is a level or its id; `result` is { score, stars }.

@@ -1,12 +1,9 @@
-// Per-world pickup skins (look.world 1..16). A pickup must still read as "catch me" in every world,
-// so the falling capsule keeps its dark middle, coloured rim, pulse and turning dashes
-// (pickups-view.js); a world changes the rim's shape and redraws some icons in its own idiom.
+// Per-world pickup skins (look.world 1..17). A pickup must still read as "catch me" in every world, so the falling capsule
+// keeps its dark middle, coloured rim, pulse and turning dashes (pickups-view.js); a world changes the rim's shape and redraws some icons.
 //   FRAMES[world](g, color)        the capsule's rim, centred, inside a 60 x 60 sprite (baked)
-//   ICONS[world][kind](g, color)   replaces drawIcon's default for that kind (centred, ~30 px);
-//                                  also drawn by the HUD every frame, so plain paths only
-//                                  (pickup-icons.js worlds 1-4, pickup-icons-2.js worlds 5-8, pickup-wheel.js
-//                                  the wingmen of world 13, pickup-deep.js world 15's frame and its two
-//                                  icons, pickup-glass.js world 16's frame and the mirror's icon)
+//   ICONS[world][kind](g, color)   replaces drawIcon's default for that kind (centred, ~30 px); also drawn by the HUD every frame, so
+//                                  plain paths only (pickup-icons.js 1-4, pickup-icons-2.js 5-8, pickup-wheel.js 13, pickup-deep.js 15,
+//                                  pickup-glass.js 16 with the mirror's icon; pickup-leaf.js is world 17's wreath of leaves, a frame only)
 import { INK, rgba, shade, lin } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
@@ -17,6 +14,7 @@ import { wheel, ICONS13 } from './pickup-wheel.js';
 import { bulbs } from './pickup-bulbs.js';
 import { shells, ICONS15 } from './pickup-deep.js';
 import { quatrefoil, ICONS16 } from './pickup-glass.js';
+import { leaves } from './pickup-leaf.js';
 
 export const disc = (g, r) => {
   g.fillStyle = 'rgba(8,10,20,0.88)';
@@ -193,6 +191,7 @@ export const FRAMES = {
   14: bulbs, // a marquee's ring of bulbs (pickup-bulbs.js)
   15: shells, // a ring of scallop shells and pearls (pickup-deep.js)
   16: quatrefoil, // a gothic quatrefoil of gold tracery set with glass jewels (pickup-glass.js)
+  17: leaves, // a wreath of fresh green leaves, their veins in the power's colour (pickup-leaf.js)
 };
 
 export const ICONS = { ...ICONS1, ...ICONS2, 13: ICONS13, 15: ICONS15, 16: ICONS16 };

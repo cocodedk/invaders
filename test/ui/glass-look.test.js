@@ -29,7 +29,7 @@ const contrast = (a, b) => {
 const dist = (a, b) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]));
 
 test('world 16 is registered as the Glass Cathedral and every level of it gets this look', () => {
-  assert.equal(LOOKS.length, 16);
+  assert.equal(LOOKS.length, 17);
   assert.equal(look.world, 16);
   assert.equal(WORLDS[15].name, 'Glass Cathedral');
   const level = levelById('w16-3');

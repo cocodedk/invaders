@@ -1,7 +1,7 @@
-// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w16.js).
+// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w17.js).
 // Pure data and maths, shared by the sound effects (one flavour per world) and the music loop.
 //   kitFor(music) -> { style, root, scale, bpm, wave, cut, wet, pitch }
-//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass
+//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass breath
 //     root   semitone of the root above C; scale: semitone steps of the scale
 //     wave   the oscillator most of the world's tones use; cut: their lowpass ceiling (Hz);
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
@@ -23,7 +23,9 @@
 //     stabbed, g a glockenspiel on the chord's fifth (its octave on the second bar), l and d a slow heart's lub and
 //     dub, w a harp pluck climbing and falling through the chord, n a low pad swelling in, q a choir bowing a chord in
 //     over a low root, x a tubular bell (the chord's root high in the first bar of a pair, its fifth low in the second),
-//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js.
+//     H a heart's lub on a beat with a bass pulse on the chord's root, D its dub with the bass an octave up, I a long
+//     inhale swelling in, i a gasp, E an exhale falling away, . rest), bars: how many bars before the seq shifts.
+//     Their patches are in music-drums.js (H D I i E in music-breath.js).
 export const NOTES = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
 
 export const SCALES = {
@@ -38,6 +40,7 @@ export const SCALES = {
   mixolydian: [0, 2, 4, 5, 7, 9, 10], // the major with a flat seventh: a fairground's tunes
   pentatonic: [0, 3, 5, 7, 10], // the minor pentatonic: five notes with no semitone, so nothing played on it clashes
   melodic: [0, 2, 3, 5, 7, 9, 11], // the melodic minor going up: a minor key with the sixth and seventh raised, a dawn over ruins
+  harmonicmajor: [0, 2, 4, 5, 7, 8, 11], // the major with a flat sixth: bright, with an ache in it, and a leading tone that climbs home
 };
 
 export const STYLES = {
@@ -138,6 +141,21 @@ export const STYLES = {
       lead: { wave: 'sine', oct: 4, cut: 4200, attack: 2, hold: 2.5, len: 3, gain: 0.06, bow: 3 },
       div: 3, seq: [4, null, null, 2, null, null, 0, null, null, 1, null, null, 2, null, null, 4, null, null, 7, null, null, null, null, null],
       drum: 'q..x..f..f.xq..x..f..f.x' },
+  },
+  // 4/4 at 140 bpm, four bars of sixteenth-note steps to a pass: a heart racing (a lub on every beat, a dub an eighth later)
+  // with a bass pulsing on it, root and octave in turn, breath for percussion (an exhale after the downbeat, an inhale
+  // swelling through the last beat and a half, two gasps to close the fourth bar) and a supersaw lead that climbs from the
+  // fifth to the high fifth, sighing once on the flat sixth. The chord holds eight bars: home for sixteen, then the flat
+  // sixth (a bright lift, the lead soaring to G6) and the fourth (a minor chord, the leading tone pulling back home).
+  breath: {
+    mood: 'breath', wave: 'triangle', cut: 5200, wet: 0.4, pitch: 1.06,
+    music: { vol: 0.77, drone: { wave: 'sawtooth', oct: 2, cut: 420, fifth: true, gain: 0.012 },
+      lead: { wave: 'sawtooth', oct: 4, cut: 3600, attack: 0.5, hold: 2, len: 4, gain: 0.075, bow: 6 },
+      div: 4, seq: [4, null, null, 7, null, null, 8, null, null, 9, null, null, 8, null, null, null,
+        7, null, null, null, 5, null, null, null, 4, null, null, null, 7, null, null, null,
+        7, null, null, 9, null, null, 11, null, null, 10, null, null, 9, null, null, null,
+        8, null, null, 7, null, null, 6, null, null, 7, null, null, null, null, null, null],
+      drum: 'HED.H.D.HID.H.D.HED.H.D.HID.H.D.HED.H.D.HID.H.D.HED.H.D.H.D.HiDi' },
   },
 };
 

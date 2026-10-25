@@ -31,6 +31,9 @@ const points = (list) => list.map((p) => `${round(p.x)},${round(p.y)}`);
 const fuseParts = ({ twist }) =>
   (twist.fuses?.length ? [twist.fuses.length, ...twist.fuses.map((f) => `${round(f.x)},${round(f.y)},${f.depth},${round(f.at)}`)] : []);
 
+// The breath (world 17), when it is that world: the countdown to the next one and how far the front has risen.
+const breathParts = ({ twist }) => (twist.rise === undefined ? [] : [round(twist.timer), twist.rise === null ? '-' : round(twist.rise)]);
+
 export function stateHash(world) {
   const { ship, boss } = world;
   const parts = [
@@ -39,6 +42,7 @@ export function stateHash(world) {
     ship.reserve?.kind, round(ship.reserve?.left ?? 0),
     ...(ship.broadside > 0 ? [round(ship.broadside)] : []), // world 13's side guns; shut elsewhere, so nothing is added
     ...fuseParts(world), // world 14's lit fuses; none elsewhere, so nothing is added
+    ...breathParts(world), // world 17's breath; no rise elsewhere, so nothing is added
     world.aliens.length, ...world.aliens.map((a) => `${a.id},${round(a.x)},${round(a.y)},${a.hp},${a.mode}`),
     world.shots.length, ...points(world.shots),
     world.bullets.length, ...points(world.bullets),

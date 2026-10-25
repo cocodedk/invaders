@@ -26,6 +26,7 @@ import { drawScene } from './sheet-scene.js';
 import { drawMending } from '../mending-view.js';
 import { drawMirrorShots } from '../shots-glass.js';
 import { WRECK_TIME } from '../../core/twists-2.js';
+import { breathSheet } from './sheet-breath.js';
 
 const BIG = 2.6;
 
@@ -107,5 +108,6 @@ export function drawSheet(canvas, id) {
   if (look.world === 14) shells(g, look);
   if (look.world === 15) powers(g, look);
   if (look.world === 16) glass(g, look);
+  if (look.world === 17) breathSheet(g); // the breath's craft, air and wake (sheet-breath.js)
   label(g, 'BUNKERS · PICKUPS · SAUCER · WRECK', 40, 1060);
 }

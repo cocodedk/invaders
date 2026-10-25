@@ -20,6 +20,7 @@ import { makeRun, decodeRun, replay, stateHash, TICK } from '../../src/core/repl
 //                   time (the boss: the autopilot's wave runs keep too far from every bullet)
 //   w7 reassemble   a wreck hangs in the formation, and breaks or stands up again
 //   w8 gravity      the well swallows bullets and shots
+//   w17 breath      a front of air starts every 24 s from the 14th, and wipes bullets as it rises
 const FLIGHTS = [
   ['w1-3', 'saucer'],
   ['w2-2', 'lightning'],
@@ -30,6 +31,8 @@ const FLIGHTS = [
   ['w6-5', 'bulletTime', 'bossPhase', 'bossDeath'],
   ['w7-1', 'wreck', 'wreckDown', 'reassemble'],
   ['w8-5', 'absorb', 'bossPhase', 'bossDeath'],
+  ['w17-2', 'breath', 'cleanse'],
+  ['w17-5', 'breath', 'cleanse', 'bossPhase', 'bossDeath'],
 ];
 
 function fly(level) {

@@ -3,8 +3,9 @@
 // poster over its reels; under them, "also showing", the side worlds (difficulty.js isSide), each a
 // short banner over its reels (lobby.css). Every reel is open from the start.
 // Keys (lobby-nav.js): left/right change world within a row (same reel), up/down change reel and
-// run on into the nearest world of the row below or above, down from the last row's last reel
-// reaches Back, Enter plays, Esc goes back. The mouse focuses on hover and plays on click.
+// run on into the nearest world of the row below or above (the one at the same place when two tie:
+// lobby-nav.js step), down from the last row's last reel reaches Back, Enter plays, Esc goes back.
+// The mouse focuses on hover and plays on click.
 //   lobbyScreen({ best, start(level), back(), focusId }) -> screen   best: storage allBest()
 // Posters not baked yet (posters.js bakes them in idle slices) show their sky, and develop in as
 // soon as they are ready (update).
@@ -52,11 +53,6 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
   const cols = WORLDS.map((w) => poster(w, best, start));
   const rows = [false, true].map((side) => cols.flatMap((c, i) => (isSide(c.world) === side ? [i] : [])))
     .filter((row) => row.length);
-  const mid = (i) => {
-    const r = cols[i].el.getBoundingClientRect();
-    return r.left + r.width / 2;
-  };
-  const near = (w, row) => row.reduce((a, b) => (Math.abs(mid(b) - mid(w)) < Math.abs(mid(a) - mid(w)) ? b : a));
   const total = Object.values(best).reduce((n, b) => n + b.stars, 0);
   const backBtn = button('Back', () => { play('back'); back(); }, 'btn');
   el.append(
@@ -89,7 +85,7 @@ export function lobbyScreen({ best, start, back, focusId = 'w1-1' }) {
       const move = MOVE[code];
       if (move) {
         lastReel = document.activeElement;
-        const to = step(at, move, rows, grid[0].length, near);
+        const to = step(at, move, rows, grid[0].length);
         return focusItem(to ? grid[to[0]][to[1]] : backBtn), true;
       }
       if (isConfirm(code)) return document.activeElement.click(), true;

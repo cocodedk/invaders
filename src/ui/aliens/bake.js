@@ -1,4 +1,4 @@
-// The alien sprite cache. Each world's painters (w1.js .. w16.js) are run once per role and frame into
+// The alien sprite cache. Each world's painters (w1.js .. w17.js) are run once per role and frame into
 // offscreen canvases: a body, its lights (drawn additively), a white hit-flash silhouette and the
 // body's damage (cracks.js). Per frame the game only blits these.
 //   art(look)                         the world's module with defaults filled in: rate (frames/s),
@@ -30,10 +30,11 @@ import w13 from './w13.js';
 import w14 from './w14.js';
 import w15 from './w15.js';
 import w16 from './w16.js';
+import w17 from './w17.js';
 
 const SIZE = 96; // px, a sprite canvas's edge at scale 1; the alien's centre is its centre
 export const ROLE_LIST = ['grunt', 'diver', 'gunner', 'armored', 'carrier'];
-const ART = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16];
+const ART = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w17];
 const DEFAULTS = { rate: 2, sync: false, bob: 0, halo: 0.25, crack: null };
 
 const sets = new Map(); // world -> scale -> { [role or extra name]: set } (shelf, below)

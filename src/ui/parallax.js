@@ -6,34 +6,43 @@ import { W, H, makeCanvas, rgba, shade, glow, lin } from './sprites.js';
 import { makeRng } from '../core/rng.js';
 import { paintLayer } from './parallax-shapes.js';
 import { lightAt } from './aurora-model.js';
+import { drawHealLayer, lightsK } from './heal-view.js';
 
-const MARGIN = 160; // spare width each side, so a shift never shows an edge
+export const MARGIN = 160; // spare width each side, so a shift never shows an edge
 const SHIFT = 0.15; // px of layer shift per px of ship offset, at speed 1
+
+// The tail of a baked layer, over everything painted on c so far: the lights get their glow sprites; the atmospheric haze fades
+// far layers toward the horizon colour at their tops; a thin lit rim along every top edge gives the silhouettes definition.
+// mode 'clean' (world 17's twin, heal-layers.js) takes the look's and layer's clean haze, rim and colour in place of the smog ones;
+// its lights are thrown away, so they get no sprites.
+export function finishLayer(c, w, h, L, out, look, mode = 'smog') {
+  const clean = mode === 'clean';
+  if (!clean) for (const p of out.lights) p.sprite = glow(p.color);
+  const amt = L.haze ?? Math.max(0.06, 0.4 - L.speed * 0.7);
+  const [haze, hazeAmt] = clean ? [look.hazeClean, L.hazeClean ?? amt] : [look.haze, amt];
+  const g = c.getContext('2d');
+  g.globalCompositeOperation = 'source-atop';
+  g.fillStyle = lin(g, 0, 0, 0, h, [[0, rgba(haze, hazeAmt)], [0.7, rgba(haze, hazeAmt * 0.2)], [1, rgba(haze, 0)]]);
+  g.fillRect(0, 0, w, h);
+  const rim = makeCanvas(w, h);
+  const r = rim.getContext('2d');
+  r.drawImage(c, 0, 0);
+  r.globalCompositeOperation = 'source-in';
+  r.fillStyle = (clean ? L.rimClean : L.rim) ?? shade(clean ? L.colorClean : L.color, 0.28);
+  r.fillRect(0, 0, w, h);
+  g.globalCompositeOperation = 'destination-over';
+  g.drawImage(rim, 0, -2);
+  g.globalCompositeOperation = 'source-over';
+}
 
 export function buildLayers(look, seed) {
   return look.layers.map((L, i) => {
     const w = W + MARGIN * 2;
     const h = L.height;
     const c = makeCanvas(w, h);
-    const g = c.getContext('2d');
     const out = { lights: [], signs: [] };
-    paintLayer(g, w, h, makeRng(seed * 101 + i * 7), L, out);
-    for (const p of out.lights) p.sprite = glow(p.color);
-    // atmospheric haze: far layers fade toward the horizon colour at their tops
-    const hazeAmt = L.haze ?? Math.max(0.06, 0.4 - L.speed * 0.7);
-    g.globalCompositeOperation = 'source-atop';
-    g.fillStyle = lin(g, 0, 0, 0, h, [[0, rgba(look.haze, hazeAmt)], [0.7, rgba(look.haze, hazeAmt * 0.2)], [1, rgba(look.haze, 0)]]);
-    g.fillRect(0, 0, w, h);
-    // a thin lit rim along every top edge gives the silhouettes definition
-    const rim = makeCanvas(w, h);
-    const r = rim.getContext('2d');
-    r.drawImage(c, 0, 0);
-    r.globalCompositeOperation = 'source-in';
-    r.fillStyle = L.rim ?? shade(L.color, 0.28);
-    r.fillRect(0, 0, w, h);
-    g.globalCompositeOperation = 'destination-over';
-    g.drawImage(rim, 0, -2);
-    g.globalCompositeOperation = 'source-over';
+    paintLayer(c.getContext('2d'), w, h, makeRng(seed * 101 + i * 7), L, out);
+    finishLayer(c, w, h, L, out, look);
     return { canvas: c, top: H - h, speed: L.speed, lights: out.lights, signs: out.signs, far: i === 0 };
   });
 }
@@ -66,8 +75,9 @@ export function drawLights(ctx, L, x0, t, alpha = 1) {
 export function drawLayers(ctx, layers, shipX, t, quality, between) {
   layers.forEach((L, i) => {
     const x0 = layerX(L, shipX);
-    ctx.drawImage(L.canvas, x0, L.top);
-    if (L.lights.length && !(L.far && quality < 1)) drawLights(ctx, L, x0, t);
+    if (L.heal) drawHealLayer(ctx, L, x0); // world 17: the smog and clean twins crossfaded by the healing (heal-view.js)
+    else ctx.drawImage(L.canvas, x0, L.top);
+    if (L.lights.length && !(L.far && quality < 1)) drawLights(ctx, L, x0, t, lightsK(L));
     if (between) between(i, x0, L.top);
   });
 }

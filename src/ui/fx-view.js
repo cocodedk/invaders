@@ -6,6 +6,7 @@ import { pageSprite } from './ambient-4.js';
 import { drawBloom } from './burst-view.js';
 import { drawBubble } from './bubble-view.js';
 import { drawMend, drawScatter } from './mending-fx-view.js';
+import { drawLeaf, drawTwinkle } from './breath-fx-view.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { flashK } from '../fx/fx.js';
 import { TAU } from '../core/math.js';
@@ -44,6 +45,10 @@ function plain(ctx, p) {
     ctx.restore();
     return;
   }
+  if (p.kind === 'leaf') { // a leaf riding the breath's air (world 17): breath-fx-view.js
+    drawLeaf(ctx, p);
+    return;
+  }
   if (p.kind === 'debris') { // tumbling chips: the box turns with the particle's age
     const a = (p.max - p.life) * 9 + p.vx * 0.01;
     const w = s * (0.6 + 0.4 * Math.abs(Math.cos(a)));
@@ -56,6 +61,10 @@ function plain(ctx, p) {
 function hot(ctx, p) {
   const f = p.life / p.max;
   ctx.globalAlpha = f;
+  if (p.kind === 'twinkle') { // a four-point star where a bullet was wiped (world 17)
+    drawTwinkle(ctx, p);
+    return;
+  }
   if (p.kind === 'spark') {
     ctx.strokeStyle = p.color;
     ctx.lineWidth = Math.max(1, p.size);

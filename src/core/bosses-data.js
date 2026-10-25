@@ -5,7 +5,7 @@ import { BOSSES4 } from './bosses-data-4.js';
 import { BOSSES5 } from './bosses-data-5.js';
 
 // The first four bosses (worlds 1-4); bosses-data-2.js holds worlds 5-8, bosses-data-3.js worlds 9-12,
-// bosses-data-4.js worlds 13-15, bosses-data-5.js world 16.
+// bosses-data-4.js worlds 13-15, bosses-data-5.js worlds 16-17.
 // Each is built from its world's look: parts are where the picture needs them, the attack mix is
 // what the world shoots.
 // Layouts keep a clear column to some weak part from below at every moment of the fight (the boss

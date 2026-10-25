@@ -21,7 +21,8 @@ test('Glass Cathedral plays the glass style, in B melodic minor at 63 bpm: a roo
   assert.deepEqual(SCALES.melodic, [0, 2, 3, 5, 7, 9, 11]);
   for (const [name, s] of Object.entries(STYLES)) if (name !== 'glass') assert.notEqual(s.mood, 'glass');
   const others = LOOKS.filter((l) => l.world !== 16);
-  assert.equal(others.length, 15);
+  assert.equal(others.length, LOOKS.length - 1);
+  assert.ok(others.length >= 15);
   for (const look of others) {
     assert.notEqual(look.music.root, 'B', `w${look.world}: the root is Glass Cathedral's alone`);
     assert.notEqual(look.music.scale, 'melodic', `w${look.world}: so is the scale`);
