@@ -12,12 +12,17 @@ export const ROLES = {
 export const FORMATIONS = ['grid', 'sway', 'dive', 'spiral', 'split', 'escort', 'rain', 'orbit'];
 export const PATTERNS = ['aimed', 'fan', 'ring', 'spiral', 'laser', 'rain', 'homing', 'shuriken'];
 export const POWERS = ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow'];
-// World 13 alone also drops 'wingmen' (R61: two escorts that fire with the ship). POWERS stays the six, so
-// the drop list and the rng draw of every other world are what they always were; powersFor picks
-// the list a level's drops come from.
+// World 13 alone also drops 'wingmen' (R61: two escorts that fire with the ship), and world 15 alone
+// 'pearls' and 'trident' (R63: a ring of pearls round the ship, and a shot that runs through everything).
+// POWERS stays the six, so the drop list and the rng draw of every other world are what they always
+// were; powersFor picks the list a level's drops come from.
 export const WINGMEN = 'wingmen';
+export const PEARLS = 'pearls';
+export const TRIDENT = 'trident';
 export const POWERS_13 = [...POWERS, WINGMEN];
-export const powersFor = (level) => (level.world === 13 ? POWERS_13 : POWERS);
+export const POWERS_15 = [...POWERS, PEARLS, TRIDENT];
+const DROPS = { 13: POWERS_13, 15: POWERS_15 };
+export const powersFor = (level) => DROPS[level.world] ?? POWERS;
 
 // World order: WORLDS[i].twist is TWISTS[i] and WORLDS[i].boss is BOSSES[i].
 // World 9 reuses Twin Suns' storm wind, so its twist repeats world 3's; world 10 reuses Neon Rain's
@@ -25,9 +30,10 @@ export const powersFor = (level) => (level.world === 13 ? POWERS_13 : POWERS);
 // ice shards, so its twist repeats world 4's; world 12 reuses Code Rain's glitch, drawn there as
 // pages and gold dust, so its twist repeats world 6's. World 13's broadside is a twist of its own
 // (R61): any pickup caught opens the ship's side guns for a while (powerups.js). World 14's fireworks
-// is one too (R62): some aliens are shells that burst when they die (fireworks.js).
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks'];
-export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel'];
+// is one too (R62): some aliens are shells that burst when they die (fireworks.js). World 15 reuses
+// world 8's gravity well, drawn there as a maelstrom, so its twist repeats world 8's.
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity'];
+export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
 // HUD_BOTTOM; nothing that must be seen or shot may sit behind them.

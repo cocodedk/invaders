@@ -15,6 +15,10 @@ function oom(a, t, n) {
   hiss(a, { t, type: 'highpass', f0: 8000, dur: 0.04, peak: 0.03 });
 }
 
+// The harp's arpeggio: chord degrees (root, fourth, fifth, octave...), one for every second step, seven long against
+// the loop's eight so it phases a little each bar and never plays the same figure twice running.
+const HARP = [0, 2, 3, 5, 3, 2, 1];
+
 export const DRUM = {
   k: (a, t) => tone(a, { t, f0: 150, f1: 44, dur: 0.18, peak: 0.26 }),
   t: (a, t) => {
@@ -75,6 +79,24 @@ export const DRUM = {
   },
   g: (a, t, n) => { // a glockenspiel tinkling the chord's fifth, and its octave on the next bar
     fm(a, { t, f0: noteHz(a.kit, n.shift + (oddBar(n) ? 7 : 4), 5), ratio: 3.51, index: 1.3, dur: 0.45, peak: 0.1, cut: 8000 });
+  },
+  l: (a, t) => { // a giant's heart: the lub, a deep thump on the root that sags away
+    const f = noteHz(a.kit, 0, 2);
+    tone(a, { t, f0: f * 1.2, f1: f * 0.5, dur: 0.26, peak: 0.26 });
+    hiss(a, { t, type: 'lowpass', f0: 280, dur: 0.06, peak: 0.07 });
+  },
+  d: (a, t) => { // ...and the dub, lighter and a little higher
+    const f = noteHz(a.kit, 0, 2);
+    tone(a, { t, f0: f * 1.45, f1: f * 0.6, dur: 0.18, peak: 0.15 });
+  },
+  w: (a, t, n) => { // a harp plucked on the chord, a whole-number FM partner making it a string, ringing long in the deep
+    const d = n.shift + HARP[(n.step >> 1) % HARP.length];
+    fm(a, { t, f0: noteHz(a.kit, d, 4), ratio: 3, index: 2.4, dur: 1.5, peak: 0.075, cut: 6000 });
+  },
+  n: (a, t, n) => { // a low pad swelling in: the chord's root, fourth and fifth, each two detuned voices
+    for (const d of [0, 2, 3]) {
+      for (const detune of [-7, 8]) tone(a, { type: 'triangle', t, f0: noteHz(a.kit, n.shift + d, 3), detune, attack: 1.2, dur: 2.6, peak: 0.03, cut: 700 });
+    }
   },
   v: (a, t) => { // strings bowing a chord in: root, third, fifth and octave, each two detuned sawtooth voices, the bow opening the filter
     for (const d of [0, 2, 4, 7]) {

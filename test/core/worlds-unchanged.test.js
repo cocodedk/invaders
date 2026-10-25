@@ -50,6 +50,23 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_14)) {
   });
 }
 
+// World 15 adds two powers (the pearls and the trident) and the angler boss, none of which may touch any
+// other world, world 14 included: the powers drop in world 15 alone (powersFor), the shot only changes
+// under the trident, the pearls' cooldown field exists only on an alien a pearl has hit, and the state
+// hash adds nothing. These are two wave levels of world 14 and its boss level, taken on commit 5a73adc,
+// the last before world 15, and held to the same rule as the fingerprints above.
+const BEFORE_WORLD_15 = {
+  'w14-1': {fold: 1160065178, end: '1015:63150:bdaf78b1838f40da', pickup: 1, power: 0, kill: 65, shipHit: 0, fire: 131},
+  'w14-3': {fold: -1414366089, end: '2147:123450:4e681d5b208b53ec', pickup: 11, power: 11, kill: 113, shipHit: 0, fire: 290},
+  'w14-5': {fold: -1318605307, end: '1885:19250:ea00eaf9ff70dffa', pickup: 5, power: 3, kill: 5, shipHit: 0, fire: 269},
+};
+
+for (const [id, expected] of Object.entries(BEFORE_WORLD_15)) {
+  test(`${id} plays out exactly as it did before world 15`, () => {
+    assert.deepEqual(fingerprint(id), expected);
+  });
+}
+
 test('the replay version stays 8, and the six powers stay the six', () => {
   assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 8);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);

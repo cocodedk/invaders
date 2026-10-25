@@ -4,6 +4,7 @@ import { laserHits } from './patterns.js';
 import { SHIP_R, hitShip } from './ship.js';
 import { hurtAlien, isSwooping } from './aliens.js';
 import { shotsVsBoss } from './boss-hit.js';
+import { stepPearls } from './pearls.js';
 import { sweepBunkers } from './bunkers.js';
 import { awardKill } from './scoring.js';
 import { lightFuse } from './fireworks.js';
@@ -13,10 +14,29 @@ import { cutShuriken } from './twists.js';
 // Who hits whom. Projectiles are tested along the path they flew this tick (from where their
 // velocity says they were to where they are), so a fast shot cannot tunnel through anything.
 
+// A trident bolt (world 15) is not spent on an alien: it hurts every alien its path crossed this tick
+// that it has not hurt before, nearest to where the path started first, and flies on. The ids it has
+// hurt are kept in s.pierced, so a bolt that stays on an alien for several ticks hurts it once.
+function pierceAliens(world, s, dt) {
+  const px = s.x - s.vx * dt;
+  const py = s.y - s.vy * dt;
+  const reach = (ALIEN_R + s.r) ** 2;
+  const far = (a) => (a.x - px) ** 2 + (a.y - py) ** 2;
+  const crossed = world.aliens.filter((a) => a.hp > 0 && !s.pierced.includes(a.id) && segDist2(px, py, s.x, s.y, a.x, a.y) <= reach);
+  for (const a of crossed.sort((p, q) => far(p) - far(q))) {
+    s.pierced.push(a.id);
+    hurtAlien(world, a, s.dmg ?? 1);
+  }
+}
+
 // Each shot is spent on the alien it meets first, the nearest to where it started this tick.
 function shotsVsAliens(world, dt) {
   for (const s of world.shots) {
     if (s.life <= 0) continue;
+    if (s.trident) {
+      pierceAliens(world, s, dt);
+      continue;
+    }
     const px = s.x - s.vx * dt;
     const py = s.y - s.vy * dt;
     const reach = (ALIEN_R + s.r) ** 2;
@@ -105,7 +125,9 @@ function bulletsVsShip(world, dt) {
 
 // The dead (shots with life 0, aliens with hp 0, bullets with life 0) are pruned by the caller.
 // Cover comes before the ship, so a bullet that crosses a bunker on its way down never lands, and
-// so does a cut (Ronin Moon), so a star cut on the ship's own tick never lands either.
+// so does a cut (Ronin Moon), so a star cut on the ship's own tick never lands either. The pearls
+// (world 15) guard the ship from there too: they wipe the bullets that got past the cover, before the
+// ship's own test.
 // `slow` is how long the enemy bullets moved this tick (less than dt in bullet time).
 export function collide(world, dt, slow = dt) {
   shotsVsAliens(world, dt);
@@ -114,5 +136,6 @@ export function collide(world, dt, slow = dt) {
   rams(world);
   vsBunkers(world, world.bullets, slow);
   if (world.level.twist === 'shuriken') cutShuriken(world, dt);
+  stepPearls(world, dt, slow);
   bulletsVsShip(world, slow);
 }

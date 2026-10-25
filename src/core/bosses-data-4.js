@@ -1,8 +1,8 @@
 import { boss, weak, armor, atk, minion, phase } from './bosses-kit.js';
 
-// The bosses of worlds 13 and 14, the side-world bosses of the Sunset Armada and the Ember Carnival.
-// Like the other side-world bosses they never charge: they sway, hover, then circle. Each rests high
-// enough that every part is below the HUD (R28), and ends no lower than the grimoire.
+// The bosses of worlds 13-15, the side-world bosses of the Sunset Armada, the Ember Carnival and the
+// Lantern Deep. Like the other side-world bosses they never charge: they sway, hover, then circle. Each
+// rests high enough that every part is below the HUD (R28), and ends no lower than the grimoire.
 
 // The Thunder Galleon, a dreadnought airship of brass and patched sail. The mast (mainmast and
 // crow's nest) stands over the deck; the lit bridge sits at the centre and the furnace-keel hangs
@@ -85,4 +85,49 @@ const carousel = boss('carousel', 'The Grand Carousel', 260, { w: 700, h: 340 },
   ], { rate: 1.3, minions: [minion('diver', 3, 8.5, 'horseR'), minion('carrier', 1, 4.5, 'crown')] }),
 ]);
 
-export const BOSSES4 = [galleon, carousel];
+// The Lantern Leviathan, a colossal anglerfish of the lightless deep. The crest (its dorsal spines, from
+// which the lure's stalk rises) tops it; the open maw sits at its heart with the row of belly lights
+// beneath it, and a huge pale eye at each side and a pectoral fin out on each flank, so shots from
+// below always find a weak part. The eyes take aim and fire fans; the maw only fires the laser, in the
+// last phase, because the maelstrom (world 15's gravity well, at 960, 300) lies just under it at rest
+// and drinks its bolts; the crest drops spines (rain, falling); the belly breathes rings; the fins
+// send the divers. The world's own powers (the pearls, the trident) help a great deal against it, so
+// it fires faster than the carousel (rates 1.15, 1.15, 1.6). About the carousel's weight and no lower than it: it rests at 260 with the crest's top at
+// the HUD's edge and the maw low in the frame (top -65), so at the top of its orbit the maw and the
+// eyes are well clear of the HUD (R28). The lure (the art's) stays above the crest, under y -158.
+const angler = boss('angler', 'The Lantern Leviathan', 260, { w: 700, h: 340 }, [
+  armor('crest', 0, -114, 180, 92, 8),
+  weak('maw', 0, -15, 180, 100, 80),
+  armor('finL', -270, -30, 120, 150, 7),
+  armor('finR', 270, -30, 120, 150, 7),
+  weak('eyeL', -155, -45, 90, 90, 46),
+  weak('eyeR', 155, -45, 90, 90, 46),
+  weak('belly', 0, 96, 200, 80, 40),
+], [
+  phase(0.65, 'sway', [
+    atk('aimed', 4.6, 'eyeL'),
+    atk('aimed', 4.6, 'eyeR'),
+    atk('fan', 3.5, 'eyeL', { count: 3, spread: 0.5 }),
+    atk('fan', 3.6, 'eyeR', { count: 3, spread: 0.5 }),
+    atk('rain', 4.5, 'crest', { count: 5, spread: 420 }),
+  ], { rate: 1.15, minions: [minion('carrier', 1, 4.5, 'crest')] }),
+  phase(0.3, 'hover', [
+    atk('aimed', 4, 'eyeL'),
+    atk('aimed', 4, 'eyeR'),
+    atk('fan', 2.8, 'eyeL', { count: 4, spread: 0.7 }),
+    atk('fan', 2.8, 'eyeR', { count: 4, spread: 0.7 }),
+    atk('rain', 3.4, 'crest', { count: 7, spread: 450 }),
+    atk('ring', 5.6, 'belly', { count: 12 }),
+  ], { rate: 1.15, minions: [minion('diver', 2, 10, 'finL'), minion('carrier', 1, 4.5, 'crest')] }),
+  phase(0, 'orbit', [
+    atk('aimed', 4, 'eyeL'),
+    atk('aimed', 4, 'eyeR'),
+    atk('fan', 2.8, 'eyeL', { count: 6, spread: 0.9 }),
+    atk('fan', 3, 'eyeR', { count: 5, spread: 0.8 }),
+    atk('rain', 3.2, 'crest', { count: 7, spread: 470 }),
+    atk('ring', 5.2, 'belly', { count: 14 }),
+    atk('laser', 6.4, 'maw'),
+  ], { rate: 1.6, minions: [minion('diver', 3, 8.5, 'finR'), minion('carrier', 1, 4.5, 'crest')] }),
+]);
+
+export const BOSSES4 = [galleon, carousel, angler];

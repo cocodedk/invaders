@@ -109,6 +109,11 @@ export const VOICES = [
     ['{kills}', 'WENT UP IN SMOKE.'],
     ['{near} IN THE SPARKS.', '{time} OF FIREWORKS.'],
   ],
+  [ // Lantern Deep: the sea floor under a drowned kingdom, every creature lit, the lights a lure
+    ['A THOUSAND FATHOMS DOWN,', 'NEVER FOLLOW THE LIGHT.'],
+    ['{kills}', 'SANK INTO THE DARK.'],
+    ['{near} IN THE GLOW.', '{time} WITHOUT SURFACING.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

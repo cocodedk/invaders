@@ -17,22 +17,30 @@
 .lobby-total { color: var(--gold); margin-left: 0.8rem; letter-spacing: 0.06em; }
 
 /* Both rows fit the 54 rem screen: the main row is a poster (13.2 rem) over five reels (about
-   11.7 rem). The side row's six worlds, each a smaller poster beside its smaller reels, make a frieze
-   of their own, 87.8 rem wide on the 96 rem screen (the main row is 76.7): six cards will not fit the
-   main row's width and keep six-digit scores legible. The poster is as tall as its reels and shows the
-   middle of the print; its 5.8 rem is what "CARNIVAL" needs. The card pitch (14.8 rem) keeps every
-   main world clearly nearest one side card (lobby-nav.test.js). "Also showing" hangs in the margin
-   outside the row. */
+   11.7 rem). The side row ("also showing") is a second shelf as wide as the first (76.7 rem): seven
+   lobby cards, each a short banner of the print (3.5 rem: the world's name and tagline) over five
+   slimmer reels, 11 rem tall in all. Measured at 1280, 1600 and 1920 wide: a poster beside its reels
+   needs 103.6 rem for seven (87.8 for six), and squeezed to 4.2 rem it is a sliver whose name is 9 px
+   at 1280; two side rows overflow the screen by 2 to 2.6 rem, and still by 0.6 with the main posters
+   cut to squares. The reels are 10.2 rem wide, so even seven-digit scores fit. "Also showing" hangs in
+   the margin outside the row. */
 .posters { display: grid; grid-template-columns: repeat(8, 8.8rem); gap: 0.9rem; }
 .poster { --accent: #fff; display: flex; flex-direction: column; gap: 0.6rem; transition: transform 0.2s ease; }
-.side { position: relative; display: flex; align-items: center; justify-content: center; gap: 1rem; }
-.side .poster { flex-direction: row; align-items: stretch; gap: 0.4rem; }
-.side .poster-art { width: 5.8rem; aspect-ratio: auto; }
-.side .poster-canvas { object-fit: cover; }
-.side .reels { width: 7.4rem; gap: 0.2rem; }
-.side .reel { grid-template-columns: 1.2rem auto 1fr; gap: 0.25rem; padding: 0.16rem 0.26rem; font-size: 0.74rem; }
-.side .reel-n { width: 1.2rem; height: 1.2rem; font-size: 0.7rem; }
-.side .reel .stars, .side .reel-best { font-size: 0.74rem; }
+.side { position: relative; display: flex; align-items: flex-start; justify-content: center; gap: 0.9rem; }
+.side .poster { width: 10.2rem; gap: 0.3rem; }
+.side .poster-art { box-sizing: border-box; width: 100%; height: 3.5rem; aspect-ratio: auto; }
+.side .poster-canvas { object-fit: cover; object-position: 50% 22%; }
+.side .poster-world { top: 4.4cqw; left: 5cqw; right: auto; text-align: left; font-size: 5.4cqw; }
+.side .poster-type { left: 5cqw; right: 5cqw; bottom: 4.4cqw; text-align: left; }
+.side .poster-art::after { background: linear-gradient(90deg, rgba(0, 0, 0, 0.84), rgba(0, 0, 0, 0.56) 60%, rgba(0, 0, 0, 0.12)),
+  linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 55%); }
+.side .poster-name { font-size: 8.8cqw; white-space: nowrap; text-shadow: 0 0.08rem 0.2rem #000, 0 0 0.5rem #000; }
+.side .poster-tag { margin: 1.2cqw 0 0; font-size: 5.4cqw; line-height: 1.2; }
+.side .poster-bill { display: none; }
+.side .reels { gap: 0.12rem; }
+.side .reel { grid-template-columns: 1.05rem auto 1fr; gap: 0.3rem; padding: 0.08rem 0.32rem; font-size: 0.78rem; }
+.side .reel-n { width: 1.05rem; height: 1.05rem; font-size: 0.7rem; }
+.side .reel .stars, .side .reel-best { font-size: 0.78rem; }
 .side-label { position: absolute; right: 100%; top: 50%; margin-right: 0.8rem; writing-mode: vertical-rl;
   transform: translateY(-50%) rotate(180deg); font-size: 0.8rem; font-weight: 900;
   letter-spacing: 0.32em; text-transform: uppercase; color: var(--gold); }

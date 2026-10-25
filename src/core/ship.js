@@ -2,8 +2,9 @@ import { approach, clamp } from './math.js';
 import { emit } from './util.js';
 import { MID_X, WIDTH } from './kinds.js';
 
-// The player's ship: movement, the gun (and how spread, rapid, homing, the wingmen and the broadside
-// change it), and what a hit does.
+// The player's ship: movement, the gun (and how spread, rapid, homing, the wingmen, the broadside and the
+// trident change it), and what a hit does. The pearls (world 15) guard the ship but leave the gun alone:
+// pearls.js.
 
 export const SHIP_R = 14; // hit radius
 export const SHIP_SPEED = 720; // px/s
@@ -64,8 +65,15 @@ export function escortsOf(ship) {
 // A ship shot: r 5, 1.5 s of life, 1 damage.
 const bolt = (x, y, vx, vy) => ({ pattern: 'shot', x, y, vx, vy, r: 5, life: 1.5, dmg: 1 });
 
+// The trident power's shot (world 15): the same bolt, r 7, marked `trident` for the drawing. It runs
+// through every alien and boss part in its path and hurts each once (collide.js, boss-hit.js); the ids
+// it has hurt are kept in `pierced`, an array so the shot clones and hashes plainly. Bunkers still stop it.
+export const TRIDENT_R = 7;
+const trident = (x, y, vx, vy) => ({ ...bolt(x, y, vx, vy), r: TRIDENT_R, trident: true, pierced: [] });
+
 // One trigger pull: a single shot, or the spread's five. Rapid only shortens the wait. A homing shot
-// is the single shot, slower, with `seek`: stepBullet steers it toward the nearest alien ahead. Under
+// is the single shot, slower, with `seek`: stepBullet steers it toward the nearest alien ahead. The
+// trident's is the single shot as a trident bolt, at the base rate. Under
 // the wingmen each escort fires a copy of the straight shot from its own place (the power is the
 // running one, so the ship's own shot is that straight one). While the broadside is open (world 13)
 // the volley also sends one shot straight out of each side, level with the ship; 'sideShot' says
@@ -78,7 +86,7 @@ function shoot(world) {
   const speed = power === 'homing' ? HOMING_SPEED : SHOT_SPEED;
   for (const deg of power === 'spread' ? SPREAD : [0]) {
     const a = (deg * Math.PI) / 180;
-    const shot = bolt(at.x, at.y, Math.sin(a) * speed, -Math.cos(a) * speed);
+    const shot = (power === 'trident' ? trident : bolt)(at.x, at.y, Math.sin(a) * speed, -Math.cos(a) * speed);
     if (power === 'homing') shot.seek = HOMING_TURN;
     world.shots.push(shot);
   }

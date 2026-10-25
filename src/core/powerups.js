@@ -8,7 +8,8 @@ import { awardPickup } from './scoring.js';
 // What the dead drop (every carrier, and a killDrop(d) share of the other aliens), and what the ship
 // does with it. Exports: makePickup, dropPickup, dropOnKill, stepPickups, sweepPickups, tickPower,
 // powerTime, POWER_TIME, BROADSIDE_TIME, BOMB_MAX, KILL_DROP, LATE_DROP, killDrop.
-//   pickup = { kind, x, y, vy, r }  kind is one of POWERS (world 13 also 'wingmen'), 'bomb' or 'life' (makePickup).
+//   pickup = { kind, x, y, vy, r }  kind is one of POWERS (world 13 also 'wingmen', world 15 also 'pearls'
+//     and 'trident'), 'bomb' or 'life' (makePickup).
 //   ship.power = null | { kind, left }  the one running. A new power starts at its full time and the
 //     one it displaces, with its time left, waits in ship.reserve = null | { kind, left } (R53): a
 //     newer displacement overwrites the reserve, and the reserve does not tick while it waits.
@@ -16,12 +17,13 @@ import { awardPickup } from './scoring.js';
 //   ship.broadside = seconds the side guns have left (world 13's twist, R61): any pickup caught there,
 //     a power, a bomb or a life, sets it to BROADSIDE_TIME (another catch sets it back to that), and
 //     tickPower counts it down. While it is above 0 every volley also fires out of both sides (shoot).
-// The effects live where they act: the gun in ship.js (spread, rapid, homing, wingmen, broadside), the
-// shield in hitShip, the beam and the bomb in weapons.js, slow in enemyDt (twists-2.js). Every pickup
+// The effects live where they act: the gun in ship.js (spread, rapid, homing, wingmen, broadside, trident),
+// the pearls in pearls.js (called by collide.js), the shield in hitShip, the beam and the bomb in
+// weapons.js, slow in enemyDt (twists-2.js). Every pickup
 // collected scores (awardPickup), and the clear sweeps up the ones still falling (sweepPickups).
 
 export const POWER_TIME = 10; // s
-const TIMES = { slow: 6 }; // s: the powers that do not last POWER_TIME
+const TIMES = { slow: 6 }; // s: the powers that do not last POWER_TIME (the pearls and the trident do)
 export const powerTime = (kind) => TIMES[kind] ?? POWER_TIME;
 export const BROADSIDE_TIME = 6; // s the side guns stay open after a catch (world 13)
 export const BOMB_MAX = 3;
@@ -45,7 +47,8 @@ export const killDrop = (d) => KILL_DROP + LATE_DROP * d * d;
 export const makePickup = (kind, x, y) => ({ kind, x, y, vy: FALL, r: PICKUP_R });
 
 // A pickup falls from `from`: 20 % a bomb, 5 % a life (at full lives that 5 % is a power instead), the
-// rest one of the six powers (seven in world 13, which adds the wingmen: powersFor).
+// rest one of the six powers (seven in world 13, which adds the wingmen, eight in world 15, which adds
+// the pearls and the trident: powersFor).
 export function dropPickup(world, from) {
   const r = rand(world.rng);
   const life = r >= BOMB_SHARE && r < BOMB_SHARE + LIFE_SHARE && world.ship.lives < LIVES;

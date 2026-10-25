@@ -1,15 +1,16 @@
-// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w14.js).
+// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w15.js).
 // Pure data and maths, shared by the sound effects (one flavour per world) and the music loop.
 //   kitFor(music) -> { style, root, scale, bpm, wave, cut, wet, pitch }
-//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival
+//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss
 //     root   semitone of the root above C; scale: semitone steps of the scale
 //     wave   the oscillator most of the world's tones use; cut: their lowpass ceiling (Hz);
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
 //   STYLES[style].music: the loop's voices (music.js)
 //     vol: the loop's level, trimmed so every world's loop measures about -36 dBFS RMS offline
-//     drone: { wave, oct, cut, fifth, gain? (0.05) }   lead: { wave, oct, cut, cut1?, hold?, len (of a step), gain, fm? }
+//     drone: { wave, oct, cut, fifth, gain? (0.05) }   lead: { wave, oct, cut, cut1?, hold?, attack?, glide?, len (of a step), gain, fm? }
 //     (cut1: the lead's filter opens from cut to cut1 over each note, a brass swell; hold: steps a note keeps its
-//     level before it dies away over len, an organ's note rather than a plucked one)
+//     level before it dies away over len, an organ's note rather than a plucked one; attack: steps it takes to
+//     swell in; glide: it slides toward the next note of the tune as it sounds, a whale's call)
 //     (fm: { ratio, index } makes the lead an FM tone that strikes at once and rings len steps: a bell on an
 //     inharmonic ratio, a plucked string on a whole one)
 //     div: steps per beat, seq: scale degrees per step (null rests), drum: per-step hit letters
@@ -18,8 +19,9 @@
 //     m a music-box bell on the step's note, v strings bowing a chord in, r a snare roll into the next step,
 //     o a short string note of the chord (root, fifth, third, fifth), u a tuba note on the chord's root and a hat's
 //     tick (its fifth on every second bar of six steps), y the same under a cymbal crash, a the band organ's chord
-//     stabbed, g a glockenspiel on the chord's fifth (its octave on the second bar), . rest), bars: how many bars
-//     before the seq shifts. Their patches are in music-drums.js.
+//     stabbed, g a glockenspiel on the chord's fifth (its octave on the second bar), l and d a slow heart's lub and
+//     dub, w a harp pluck climbing and falling through the chord, n a low pad swelling in, . rest), bars: how many
+//     bars before the seq shifts. Their patches are in music-drums.js.
 export const NOTES = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
 
 export const SCALES = {
@@ -32,6 +34,7 @@ export const SCALES = {
   harmonic: [0, 2, 3, 5, 7, 8, 11], // harmonic minor: the minor with its leading tone
   major: [0, 2, 4, 5, 7, 9, 11],
   mixolydian: [0, 2, 4, 5, 7, 9, 10], // the major with a flat seventh: a fairground's tunes
+  pentatonic: [0, 3, 5, 7, 10], // the minor pentatonic: five notes with no semitone, so nothing played on it clashes
 };
 
 export const STYLES = {
@@ -111,6 +114,17 @@ export const STYLES = {
     music: { vol: 1.07, drone: { wave: 'square', oct: 2, cut: 480, fifth: true, gain: 0.012 },
       lead: { wave: 'square', oct: 4, cut: 3400, hold: 0.55, len: 0.4, gain: 0.05 },
       div: 2, seq: [7, null, 4, 5, 4, 2, 4, null, 5, 6, 4, null], drum: 'ygasasugasar' },
+  },
+  // Two bars of four slow beats (a step a sixteenth, 54 bpm): a whale's call, four long sine notes that swell in and
+  // slide toward the next, over low pads swelling in, a harp plucking the chord, and a giant's heart beating (a lub and
+  // a dub) on the first and third beats. The echo is the deep.
+  abyss: {
+    mood: 'abyss', wave: 'triangle', cut: 4800, wet: 0.58, pitch: 0.96,
+    music: { vol: 0.935, drone: { wave: 'sine', oct: 2, cut: 600, fifth: true, gain: 0.012 },
+      lead: { wave: 'sine', oct: 4, attack: 4, glide: true, len: 9, gain: 0.15 },
+      div: 4, seq: [0, null, null, null, null, null, null, null, null, null, 2, null, null, null, null, null,
+        3, null, null, null, null, null, null, null, null, null, 1, null, null, null, null, null],
+      drum: 'ldn.w.w.ldw.w.w.ldn.w...ldw.w.w.' },
   },
 };
 

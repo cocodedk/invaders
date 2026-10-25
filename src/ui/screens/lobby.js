@@ -1,7 +1,7 @@
 // Level select as a cinema lobby: a poster per world (its boss fight, rendered by the game) with
 // five reels showing best stars and best score. The main run's worlds stand in the first row, each
-// poster over its reels; under them, "also showing", the side worlds (difficulty.js isSide), each
-// poster beside its reels. Every reel is open from the start.
+// poster over its reels; under them, "also showing", the side worlds (difficulty.js isSide), each a
+// short banner over its reels (lobby.css). Every reel is open from the start.
 // Keys (lobby-nav.js): left/right change world within a row (same reel), up/down change reel and
 // run on into the nearest world of the row below or above, down from the last row's last reel
 // reaches Back, Enter plays, Esc goes back. The mouse focuses on hover and plays on click.

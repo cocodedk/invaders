@@ -4,8 +4,10 @@ import { ON, POWER } from '../../src/ui/sfx-power.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { kitFor } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
-import { POWERS } from '../../src/core/kinds.js';
+import { POWERS_13, POWERS_15 } from '../../src/core/kinds.js';
 import { node } from './audio-kit.js';
+
+const ALL = [...new Set([...POWERS_13, ...POWERS_15])]; // the six, world 13's wingmen, and world 15's pearls and trident
 
 // A stand-in AudioContext: every node a patch makes, and whether each source was started and stopped.
 function fakeVoice(kit) {
@@ -36,9 +38,9 @@ const peak = (nodes) => Math.max(...nodes
 const pitches = (nodes) => nodes.filter((x) => x.kind === 'Oscillator').map((x) => x.frequency.calls[0][1]);
 
 test('every power switches on with a patch of its own, quiet as the others are, that stops what it starts', () => {
-  assert.equal(new Set(POWERS.map((kind) => ON[kind])).size, POWERS.length, 'one patch per power, none shared');
+  assert.equal(new Set(ALL.map((kind) => ON[kind])).size, ALL.length, 'one patch per power, none shared');
   for (const look of LOOKS) {
-    for (const kind of POWERS) {
+    for (const kind of ALL) {
       const { a, nodes } = fakeVoice(kitFor(look.music));
       ON[kind](a);
       assert.ok(sources(nodes).length > 0, `${kind} makes a sound`);

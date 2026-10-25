@@ -83,13 +83,33 @@ function entry(ax, ay, bx, by, r, p) {
   return t0;
 }
 
+// A trident bolt (world 15) is not spent on a part: it hurts every live part its path crossed this
+// tick that it has not hurt before, the one entered first first, and flies on. Plates and bare hulls
+// do not stop it; each part takes the damage by its own rule (hurtPart). The ids go in s.pierced.
+function pierceParts(world, s, parts, dt) {
+  const px = s.x - s.vx * dt;
+  const py = s.y - s.vy * dt;
+  const crossed = parts
+    .map((p) => ({ p, u: p.hp > 0 && !s.pierced.includes(p.id) ? entry(px, py, s.x, s.y, s.r, p) : Infinity }))
+    .filter((c) => c.u < Infinity)
+    .sort((a, b) => a.u - b.u);
+  for (const { p } of crossed) {
+    s.pierced.push(p.id);
+    hurtPart(world, p, s.dmg ?? 1, s);
+  }
+}
+
 // Each ship shot still flying is spent on the first live part its path crossed this tick, which
-// takes the damage (a plate in front of a weak point shields it).
+// takes the damage (a plate in front of a weak point shields it). A trident bolt runs through them all.
 export function shotsVsBoss(world, dt) {
   const parts = liveParts(world);
   if (!parts.length) return;
   for (const s of world.shots) {
     if (s.life <= 0) continue;
+    if (s.trident) {
+      pierceParts(world, s, parts, dt);
+      continue;
+    }
     let best = null;
     let first = Infinity;
     for (const p of parts) {

@@ -97,6 +97,15 @@ export function stopLoop(c) {
   setTimeout(() => { for (const n of c.made) n.disconnect(); }, (FADE + 1) * 1000);
 }
 
+// The scale degree of the tune's next note after `step` (the same note when it is the only one).
+function nextNote(seq, step) {
+  for (let k = 1; k <= seq.length; k++) {
+    const d = seq[(step + k) % seq.length];
+    if (d != null) return d;
+  }
+  return seq[step % seq.length];
+}
+
 function stepAt(c, t) {
   const { m, kit, a } = c;
   const len = 60 / kit.bpm / m.div;
@@ -106,9 +115,10 @@ function stepAt(c, t) {
     const L = m.lead;
     const pad = L.len > 1 && !L.fm; // a bell rings long but strikes at once
     const o = {
-      type: L.wave, t, f0: midiHz(degreeMidi(kit, deg + shift, L.oct)), attack: pad ? len * 0.25 : 0.006,
+      type: L.wave, t, f0: midiHz(degreeMidi(kit, deg + shift, L.oct)), attack: L.attack != null ? len * L.attack : pad ? len * 0.25 : 0.006,
       dur: len * L.len, hold: len * (L.hold ?? 0), peak: L.gain, cut: L.cut, cut1: L.cut1, q: 1.5,
     };
+    if (L.glide) o.f1 = midiHz(degreeMidi(kit, nextNote(m.seq, c.step) + shift, L.oct)); // a call sliding on to the next note
     if (L.fm) fm(a, { ...o, ...L.fm });
     else tone(a, o);
   }

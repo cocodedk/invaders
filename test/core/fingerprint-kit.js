@@ -9,8 +9,9 @@ import { finished } from '../../src/core/util.js';
 // `ticks` ticks: the state hash every 10 s (it covers the tick, score, rng state, positions, pickups
 // and powers) folded into one number, the hash at the end, and how many events of each of a few
 // kinds came out. worlds-unchanged.test.js pins these for worlds 1-12 as they were before world 13
-// (commit 1ddc0b8) and for three levels of world 13 as they were before world 14 (commit cd58e7f), so
-// any change to a rule that is not the world's own shows up there.
+// (commit 1ddc0b8), for three levels of world 13 as they were before world 14 (commit cd58e7f) and
+// for three levels of world 14 as they were before world 15 (commit 5a73adc), so any change to a rule
+// that is not the world's own shows up there.
 const KINDS = ['pickup', 'power', 'kill', 'shipHit', 'fire'];
 
 export function fingerprint(id, ticks = 3600) {

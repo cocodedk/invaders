@@ -1,9 +1,11 @@
 // Sound patches of the eight world twists: Neon Rain's thunder, Twin Suns' gusts, Ronin Moon's
 // shuriken cut (an ice shard shattering, in Aurora Kingdom), Hive's acid, Code Rain's teleport glitch and
 // bullet-time swell (a page fluttering and a harp note, and a string chord held, in Starlit Archive), Iron
-// Dawn's wrecks that reassemble, Event Horizon's well swallowing bullets, and Arcade Origin's warbling saucer.
+// Dawn's wrecks that reassemble, Event Horizon's well swallowing bullets (a glassy bloop, in Lantern Deep's
+// maelstrom), and Arcade Origin's warbling saucer.
 // A patch is (a, o) -> seconds (audio-kit.js); a.tail is a stereo panner when the sound has an x.
 import { tone, hiss, fm, wobble, crush, noteHz } from './audio-kit.js';
+import { bloop } from './sfx-deep.js';
 import { WIDTH } from '../core/kinds.js';
 
 // Sweep the sound's panner from one side to the other over `secs`.
@@ -121,7 +123,8 @@ export const WORLD = {
     tone(a, { t: t + 0.04, f0: 140, f1: 52, dur: 0.2, peak: 0.34 });
     return t - a.t + 0.3;
   },
-  absorb(a) { // the well swallows a bullet: a dark falling thoom
+  absorb(a, o) { // the well swallows a bullet: a dark falling thoom (the maelstrom blips)
+    if (a.kit.style === 'abyss') return bloop(a, o);
     tone(a, { f0: 330, f1: 26, dur: 0.75, peak: 0.11 });
     hiss(a, { type: 'lowpass', f0: 700, f1: 50, dur: 0.6, peak: 0.06 });
     return 0.9;

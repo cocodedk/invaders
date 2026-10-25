@@ -6,8 +6,9 @@ import { BOSS } from './react-boss.js';
 import { WORLD } from './react-world.js';
 import { ARMADA } from './react-armada.js';
 import { CARNIVAL } from './react-carnival.js';
+import { DEEP } from './react-deep.js';
 
-const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL };
+const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP }; // DEEP last: it wraps fire, hit, kill and absorb
 
 // Every event type fx reacts to.
 export const REACTS = Object.keys(HANDLERS);

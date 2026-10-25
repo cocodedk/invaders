@@ -15,6 +15,7 @@ const ROAR = {
   archive: ['triangle', 0.85, 0, 3],
   armada: ['sawtooth', 0.78, 0, 2.5],
   carnival: ['square', 0.95, 0, 2],
+  abyss: ['sine', 0.8, 0, 1],
 };
 
 function roar(a, h, dur, fall) {
@@ -70,6 +71,13 @@ function roar(a, h, dur, fall) {
     wobble(a, groan.frequency, 8, 12, t, dur); // the beam straining, a stick-slip shudder
     const creak = hiss(a, { t, type: 'bandpass', f0: 820, f1: 430, q: 10, attack: 0.15, dur: dur * 0.8, peak: 0.12 });
     wobble(a, creak.gain, 14, 0.07, t, dur * 0.8, 'square');
+  }
+  if (a.kit.style === 'abyss') { // the Leviathan's moan: a whale's call that climbs and then sags (two sweeps with a slow vibrato) over a sub swell
+    const moan = (t, f0, f1, attack, len) => wobble(a, tone(a, { t, f0, f1, attack, dur: len, peak: 0.12 }).frequency, 4.5, f0 * 0.03, t, attack + len);
+    moan(a.t + 0.05, 150 + h * 15, 420, dur * 0.35, dur * 0.35);
+    moan(a.t + dur * 0.45, 420, 170, 0.06, dur * 0.55);
+    tone(a, { f0: 52, f1: 66, attack: dur * 0.7, dur: dur * 0.4, peak: 0.22 });
+    hiss(a, { type: 'lowpass', f0: 160, f1: 60, attack: dur * 0.6, dur: dur * 0.5, peak: 0.1 });
   }
   if (a.kit.style === 'carnival') { // the Carousel's band organ: a seventh chord swells in on square pipes, over a ratchet cranked ever faster
     [0, 2, 4, 6].forEach((d) => [-9, 9].forEach((detune) => tone(a, {

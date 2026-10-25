@@ -2,10 +2,11 @@
 //   two big rows    every role, frame 0 then frame 1, baked at BIG x so the detail is real
 //   a 1:1 strip     per role: frame 0, frame 1, the hit flash, cracked 1, cracked 2, as in the game
 //   the last row    a bunker fresh and carved, the eight pickups, the saucer and the wreck (if any); world 14's
-//                   five shells instead
+//                   five shells instead; world 15's pearls and trident (the two powers' pickups, the ship with its
+//                   pearls and three trident shots)
 import { clamp } from '../../core/math.js';
 import { WORLDS } from '../../core/levels.js';
-import { POWERS } from '../../core/kinds.js';
+import { POWERS, POWERS_15 } from '../../core/kinds.js';
 import { W, H } from '../sprites.js';
 import { createBunker, hitBunker, BUNKER } from '../../core/bunkers.js';
 import { LOOKS } from '../looks/index.js';
@@ -16,6 +17,8 @@ import { drawPickups } from '../pickups-view.js';
 import { roleSprites, extraSprites, ROLE_LIST } from './bake.js';
 import { cracked } from './cracks.js';
 import { drawShells } from '../shell-view.js';
+import { drawShip } from '../ship-view.js';
+import { drawTridents } from '../shots-deep.js';
 
 const BIG = 2.6;
 
@@ -48,6 +51,15 @@ function shells(g, look) {
   label(g, 'SHELLS', 1370, 1010);
 }
 
+// World 15: the ship with its three pearls and, ahead of it, trident shots (the last two have run through two aliens).
+function powers(g, look) {
+  const ship = { alive: true, lives: 3, invuln: 0, x: 1760, y: 950, vx: 0, vy: 0, power: { kind: 'pearls', left: 5 } };
+  drawShip(g, { ship }, look, 1.3);
+  const bolt = (x, y, n) => ({ x, y, vx: 0, vy: -1100, trident: true, pierced: Array.from({ length: n }, (_, i) => i) });
+  drawTridents(g, [bolt(1500, 1000, 0), bolt(1560, 1000, 2), bolt(1620, 1000, 4)], 1.3);
+  label(g, 'PEARLS · TRIDENT', 1740, 1060);
+}
+
 export function drawSheet(canvas, id) {
   const n = clamp(parseInt(String(id).replace(/\D/g, ''), 10) || 1, 1, LOOKS.length);
   const look = LOOKS[n - 1];
@@ -70,12 +82,13 @@ export function drawSheet(canvas, id) {
   label(g, 'FRAME 1', 40, 690);
   label(g, '1:1 · FRAME 0 · FRAME 1 · FLASH · CRACK 1 · CRACK 2', 40, 830);
   bunkers(g, look);
-  const pickups = [...POWERS, 'bomb', 'life'].map((kind, k) => ({ kind, x: 560 + k * 92, y: 935 }));
+  const pickups = [...(look.world === 15 ? POWERS_15 : POWERS), 'bomb', 'life'].map((kind, k) => ({ kind, x: 560 + k * 92, y: 935 }));
   drawPickups(g, { pickups }, look, 0.3);
   [['saucer', 1340], ['wreck', 1520]].forEach(([name, x]) => {
     const s = extraSprites(look, name, 1.5);
     if (s) put(g, s, s.body[0], 0, x, 935);
   });
   if (look.world === 14) shells(g, look);
+  if (look.world === 15) powers(g, look);
   label(g, 'BUNKERS · PICKUPS · SAUCER · WRECK', 40, 1060);
 }

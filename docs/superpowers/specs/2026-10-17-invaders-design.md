@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 14 cinematic worlds × 5 levels = 70 levels, free 2D
+as beautiful as Barrage (`../artillery`): 15 cinematic worlds × 5 levels = 75 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56; worlds 9–14 follow their own difficulty, R57–R62).
+    (R54, R56; worlds 9–15 follow their own difficulty, R57–R63).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -61,6 +61,13 @@ quoted lines, so the repo can be public.
     world 13, whose drops pick from the six powers plus `wingmen`; every other world draws from the
     six exactly as before, so its play and its replays are unchanged (pinned by fingerprints of 14
     levels across worlds 1–12) and `RUN_V` stays 8.
+  - **Pearls and trident, world 15's own powers (R63).** The user asked for some special superpowers.
+    Pearls: three pearls circle the ship 78 px out, a turn every 1.2 s. They wipe the enemy bullets
+    they touch (not beams) and deal 1 damage to the aliens they touch, each alien at most once every
+    0.25 s. Trident: the shot pierces every alien and boss part in its path, hurting each once, but
+    stops at bunkers. Both last 10 s, with the ring and the reserve of R53. They drop only in world
+    15, whose drops pick from the six plus `pearls` and `trident`. Every other world draws exactly as
+    before, pinned by fingerprints now running through world 14.
   - **One runs at a time, one waits (R53).** A new power starts with its full time and the running one,
     with the time it had left, waits in a one-slot reserve; when the running one ends the reserve takes
     over and goes on from there. The reserve does not tick while it waits, and a newer pickup that
@@ -188,6 +195,21 @@ quoted lines, so the repo can be public.
     its levels 1–5 clear 38, 30, 32, 26 and 21 times at reaction lag 10, and 30, 17, 24, 18 and 7
     at lag 15, against world 6's 39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: within noise. World 13,
     re-run on the new rules, clears exactly as before.
+  - **World 15, the deep sea (R63).** The user asked for one more world of my own with some
+    special superpowers. It is the deep sea under a sunken kingdom, with two powers that drop in
+    world 15 alone, beside the six. Pearls: three pearls circle the ship 78 px out, a turn every
+    1.2 s. A pearl wipes any enemy bullet it touches (not a beam), and it deals 1 damage to an
+    alien it touches; that alien is then spared by the pearls for 0.25 s. Trident: the ship's
+    shot becomes a trident that passes through every alien and boss part in its path, hurting
+    each once, but still stops at bunkers. Both last 10 s, like the other powers, and wait in the
+    reserve the same way. The twist is world 8's gravity well, unchanged in the core, drawn as a
+    maelstrom with its own sprite, effects and sound. `d` is 0.72, 0.74, 0.77, 0.79, 0.82, a notch
+    above world 14 because the powers help. Its boss, the Lantern Leviathan, never charges. The
+    well lies just under it at rest and swallows what its maw fires, so its eyes take aim, and the
+    maw only fires the laser, a beam the well does not bend. On the headless run (40 seeds) its
+    levels 1–5 clear 39, 31, 31, 21 and 23 times at reaction lag 10, and 32, 15, 27, 11 and 8 at
+    lag 15, against world 6's 39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: within noise. World 14,
+    re-run on the new rules, clears exactly as before.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -211,6 +233,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 12 | Starlit Archive | celestial library fantasy | a library at the edge of the universe: shelf towers in an indigo nebula, floating islands of books, constellations drawn in gold | aliens blink between slots in a whirl of pages; near misses drop into a sepia-gold bullet time (Code Rain's, ruling R60) | Grand Grimoire |
 | 13 | Sunset Armada | airship battle at golden hour | a sea of clouds under a huge low sun, floating islands with waterfalls, brass-and-canvas airships | catching any pickup opens the side guns for 6 s: every volley also fires left and right (new, ruling R61); and its own power, Wingmen | Thunder Galleon |
 | 14 | Ember Carnival | fireworks night at the fair | a lakeside fair at night: a Ferris wheel, big tops, a roller coaster on the far shore, fireworks over the water | about one alien in five is a shell whose death bursts like a firework, hurting everything within 160 px and setting off other shells in a chain (new, ruling R62) | The Grand Carousel |
+| 15 | Lantern Deep | deep sea under a sunken kingdom | a drowned kingdom's spires, kelp forests, a whale's skeleton and a reef, all lit by its own creatures | world 8's gravity well, drawn as a maelstrom; and two powers of its own, pearls and trident (new, ruling R63) | The Lantern Leviathan |
 
 ## Look and effects
 

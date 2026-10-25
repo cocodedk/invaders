@@ -2,7 +2,9 @@
 // y down; the frame is 1920x1080):
 //   particles [see particles.js]
 //   rings     shockwaves   { x, y, r, r0, maxR, width, color, kind, life, max }
-//             r eases from r0 to maxR; r0 > maxR is an inward ring. kind 'ring'|'lens'|'charge'|'shield'|'bloom'
+//             r eases from r0 to maxR; r0 > maxR is an inward ring. kind 'ring'|'lens'|'charge'|'shield'|'bloom'|'bubble'
+//             ('bloom' is a firework burst, world 14; 'bubble' a bullet the maelstrom swallows, world 15: it also
+//             carries wx, wy, a0, d0, turns, size and seed, and bubble-view.js draws it from its age)
 //   flashes   glow flashes { x, y, r, color, alpha, full, ramp, tag, life, max }
 //             full: lights the whole frame (x, y, r unused); ramp: the share of its life spent
 //             brightening before it fades (0 fades from the start, 1 a charge that peaks at its end);
