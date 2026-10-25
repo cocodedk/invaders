@@ -123,7 +123,7 @@ function gravestone(x, y, w, h, P) {
   const moss = noise2(x, y, 13, 7) + 0.24 * (y / h) + (joint ? 0.14 : 0);
   if (Math.abs(noise2(x, y, 22, 11) - 0.5) < 0.011 || (Math.abs(noise2(x + 90, y, 17, 12) - 0.5) < 0.008 && y > 14)) return [P.dark, -0.35]; // a crack
   if (moss > 0.86) return [P.accent, (noise2(x, y, 4, 2) - 0.5) * 0.5 + 0.1]; // moss
-  if (joint) return [P.dark, joint && moss > 0.7 ? 0.1 : -0.2];
+  if (joint) return [P.dark, moss > 0.7 ? 0.1 : -0.2];
   if (hash2(x, y) > 0.994) return [P.light, 0.35]; // lichen
   const stone = (hash2(col + row * 13, 6) - 0.5) * 0.3 + (noise2(x, y, 9, 3) - 0.5) * 0.34 + grain(x, y, 0.14);
   const streak = noise2(x * 3, y * 0.22, 5, 2) > 0.68 ? -0.17 : 0;

@@ -7,7 +7,7 @@ const GREEN = '#7dff5a'; // witch-fire
 
 // A jack-o'-lantern: ribbed lobes, a curled stem and leaf, a face carved through to the candle. On
 // frame 1 the jaw drops and it spits: embers fall from the mouth toward the ship.
-function gunner(b, l, f, c) {
+export function gunner(b, l, f, c) {
   const open = f ? 1.35 : 1;
   const lobes = [[-17, 8.4], [17, 8.4], [-9, 11.6], [9, 11.6], [0, 14]];
   for (const [x, rx] of lobes) {
@@ -20,25 +20,19 @@ function gunner(b, l, f, c) {
     b.quadraticCurveTo(x + (x < 0 ? -2 : 2), 4, x, 24);
     line(b, rgba('#4a1a02', 0.4), 1.8);
   }
-  b.fillStyle = '#4e5a22'; // the stem, with a curl and a leaf
-  path(b, [[-3.4, -14], [-2, -24], [3, -24], [4.6, -14]]);
+  path(b, [[-3.4, -14], [-2, -24], [3, -24], [4.6, -14]]); // the stem, with a curl and a leaf
   ink(b, lin(b, -4, 0, 5, 0, [[0, '#7a8a38'], [1, '#2e3a12']]), 2);
   b.beginPath();
   b.moveTo(3, -22);
   b.bezierCurveTo(12, -26, 14, -17, 9, -16);
   line(b, INK, 3.4);
-  b.beginPath();
-  b.moveTo(3, -22);
-  b.bezierCurveTo(12, -26, 14, -17, 9, -16);
   line(b, '#7a9a38', 1.6);
   path(b, [[-3, -18], [-12, -24], [-17, -17], [-8, -15]]);
   ink(b, '#5a7a28', 1.6);
   gloss(b, -12, -8, 6, 11, 0.4, 0.3);
   const face = (g, k) => { // the carved face; k stretches the mouth
     const poly = (pts, mouth = false) => {
-      g.beginPath();
-      pts.forEach(([x, y], i) => g[i ? 'lineTo' : 'moveTo'](x, mouth ? 8 + (y - 8) * k : y));
-      g.closePath();
+      path(g, mouth ? pts.map(([x, y]) => [x, 8 + (y - 8) * k]) : pts);
       g.fill();
     };
     for (const s of [-1, 1]) poly([[s * 17, -9], [s * 4, -3], [s * 12, 3]]);
@@ -72,7 +66,7 @@ const half = (y) => (y < -14 ? 11 + ((y + 35) / 21) * 12 : 23 - ((y + 14) / 49) 
 
 // An iron-banded coffin standing on end, rattling between frames. Its seams leak green light, more so
 // on the beat it rocks left; the damage (cracks.js) splits the lid in the same green.
-function armored(b, l, f, c) {
+export function armored(b, l, f, c) {
   for (const g of [b, l]) g.rotate(f ? 0.05 : -0.05);
   b.save(); // the box under the lid, a little wider
   b.scale(1.1, 1.03);
@@ -136,7 +130,6 @@ function armored(b, l, f, c) {
   both((s) => { // a ring handle each side
     ellipse(b, s * (half(-3) + 2), -3, 3.4, 5);
     line(b, INK, 4.4);
-    ellipse(b, s * (half(-3) + 2), -3, 3.4, 5);
     line(b, '#7a7a90', 2);
   });
   gloss(b, -12, -16, 4.5, 11, 0.32, 0.2);
@@ -161,5 +154,3 @@ function armored(b, l, f, c) {
   eye(l, 0, 30, 1.7, GREEN, 3.4);
   bloom(l, 0, 0, 40, GREEN, 0.1 + f * 0.08);
 }
-
-export { gunner, armored as coffin };

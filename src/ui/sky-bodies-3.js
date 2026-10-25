@@ -40,10 +40,8 @@ function harvestmoon(g) {
   g.beginPath();
   g.arc(x, y, r, 0, TAU);
   g.clip();
-  for (const [dx, dy, s, a] of [[-0.3, -0.1, 0.5, 0.2], [0.25, 0.25, 0.42, 0.18], [0.1, -0.45, 0.3, 0.14], [-0.5, 0.4, 0.28, 0.14]]) {
-    g.globalAlpha = a;
-    g.drawImage(soft('#8a7050'), x + dx * r - s * r, y + dy * r - s * r, s * r * 2, s * r * 2);
-  }
+  const maria = [[-0.3, -0.1, 0.5, 0.2], [0.25, 0.25, 0.42, 0.18], [0.1, -0.45, 0.3, 0.14], [-0.5, 0.4, 0.28, 0.14]];
+  blobs(g, maria.map(([dx, dy, s, a]) => [x + dx * r, y + dy * r, s * r, '#8a7050', a]));
   CRATERS.forEach(([dx, dy, k]) => {
     const [cx, cy, cr] = [x + dx * r, y + dy * r, k * r];
     g.globalAlpha = 0.34;

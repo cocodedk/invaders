@@ -1,6 +1,6 @@
 // More flourishes (contract in flourish.js): Hollow Night's bats and witch crossing the harvest moon,
 // and the thunder that throws the castle into black relief against a lightning-white sky.
-import { W, rgba, hash, glow, soft, cached, lin, lighter, normal } from './sprites.js';
+import { W, rgba, hash, glow, soft, cached, byColor, lin, lighter, normal } from './sprites.js';
 import { MOON } from './sky-bodies-3.js';
 import { TAU } from '../core/math.js';
 
@@ -32,24 +32,28 @@ const paintBat = (frame) => cached('bat' + frame, 64, 40, (g) => {
 });
 
 const WING = [0, 1, 2, 1];
-let batFrames = null; // the three sprites, found once, so a flock asks for them without building a key
-export const bat = (frame) => (batFrames ??= [0, 1, 2].map(paintBat))[frame]; // also the Count's swarm (bosses/count.js)
+const bat = byColor(paintBat); // by frame, not colour: a bare Map get, so a flock builds no key
+export const batBeat = (n) => bat(WING[n & 3]); // the bat on wing-beat n; also the Count's swarm (bosses/count.js)
+
+const SLOWEST = 250; // px/s, the slowest bat of the flock; the others add up to 60 more
+const GONE = (W + 170) / SLOWEST + 8 * 0.17 + 0.5; // s into the flight after which every bat is across: W + 170 px at SLOWEST, the last one 8 x 0.17 + 0.5 s late
 
 // A flock of nine crossing the moon from one side, now and then, each bat flapping to its own beat.
 function bats(ctx, { t }) {
   const PERIOD = 17;
   const slot = Math.floor(t / PERIOD);
   const lt = t - slot * PERIOD - 1.5;
-  if (lt < 0 || hash(slot * 5) > 0.7) return;
+  if (lt < 0 || lt > GONE || hash(slot * 5) > 0.7) return;
   const dir = hash(slot * 5 + 1) < 0.5 ? 1 : -1;
   const y0 = MOON.y + (hash(slot * 5 + 2) - 0.5) * 120;
   for (let i = 0; i < 9; i++) {
     const age = lt - i * 0.17 - hash(slot * 17 + i) * 0.5;
-    const x = dir > 0 ? -80 + age * (250 + hash(i + 90) * 60) : W + 80 - age * (250 + hash(i + 90) * 60);
+    const v = SLOWEST + hash(i + 90) * 60;
+    const x = dir > 0 ? -80 + age * v : W + 80 - age * v;
     if (x < -90 || x > W + 90) continue;
     const s = 0.75 + hash(i + 91) * 0.65;
     const y = y0 + Math.sin(age * 1.7 + i) * 34 + (hash(i + 92) - 0.5) * 150;
-    ctx.drawImage(bat(WING[Math.floor(t * 9 + i * 1.7) & 3]), x - 32 * s, y - 22 * s, 64 * s, 40 * s);
+    ctx.drawImage(batBeat(Math.floor(t * 9 + i * 1.7)), x - 32 * s, y - 22 * s, 64 * s, 40 * s);
   }
 }
 
@@ -97,7 +101,6 @@ const witch = () => cached('witch', 240, 130, (g) => {
   g.lineTo(128, 102);
   g.closePath();
   g.fill();
-  g.lineWidth = 5;
   g.beginPath(); // the arm reaching for the handle
   g.moveTo(148, 58);
   g.quadraticCurveTo(168, 66, 176, 80);
@@ -177,7 +180,7 @@ const wash = () => cached('thunder', 4, 256, (g, w, h) => {
   g.fillRect(0, 0, w, h);
 });
 
-function thunder(ctx, { fx }) {
+function thunder(ctx, { fx, quality }) {
   for (const f of fx.flashes) {
     if (f.tag !== 'lightning') continue;
     const age = f.max - f.life;
@@ -186,7 +189,7 @@ function thunder(ctx, { fx }) {
     ctx.globalAlpha = k * (0.25 + 0.4 * f.alpha);
     ctx.drawImage(wash(), 0, 0, W, 800);
     ctx.globalAlpha = k * 0.3;
-    ctx.drawImage(soft('#e8e0ff'), MOON.x - 700, 120, 1400, 800);
+    if (!(quality < 1)) ctx.drawImage(soft('#e8e0ff'), MOON.x - 700, 120, 1400, 800); // the moon's glow is as many pixels again as the wash: half quality goes without
     normal(ctx);
   }
 }

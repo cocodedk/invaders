@@ -36,9 +36,10 @@ test("every part of the Count, and his hull, paints lights: eyes, heart, claws, 
 
 // A boss to draw live extras for: parts at their places, every one alive.
 const boss = (phase) => ({ x: 0, y: 0, phase, parts: def.parts.map((p) => ({ ...p, x: p.dx, y: p.dy })) });
-const images = (b, t) => {
+// `own`: the boss's own pass; `since`: when the phase began (long ago unless said).
+const images = (b, t, own = true, since = -1e9) => {
   const { ctx, calls } = recorder();
-  art.live(ctx, b, t, 1);
+  art.live(ctx, b, t, 1, own, since);
   return calls.filter(([k]) => k === 'drawImage').length;
 };
 
@@ -50,15 +51,18 @@ test('the heart beats and the eyes burn at rest; the cape runs with light in the
 });
 
 test('the swarm spirals out of the heart when the phase begins, and keeps its place once it is gone', () => {
-  const b = boss(1);
-  images(b, 10); // seen in the hover phase
-  b.phase = 2;
-  const [began, later] = [10.1, 14].map((t) => images(b, t));
+  const b = boss(2);
+  const [began, later] = [10.1, 14].map((t) => images(b, t, true, 10.1));
   assert.ok(later >= began, 'bats fade in');
   const dead = boss(2);
   dead.parts.find((p) => p.id === 'heart').hp = 0;
   // The heart usually falls before the last phase, so the bats circle its wreck: only its glows go.
   assert.ok(images(dead, 14) > later - 10, 'the swarm outlives the heart');
+});
+
+test("the darkness pass draws the bats' eyes again but not their bodies, which would cover the aliens", () => {
+  const b = boss(2);
+  assert.equal(images(b, 14, true) - images(b, 14, false), 30, 'one body a bat, in the own pass only');
 });
 
 test('a dying part leaves no glow behind in the live extras', () => {

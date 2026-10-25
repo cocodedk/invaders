@@ -10,7 +10,7 @@ export default {
   body: 'harvestmoon',
   haze: '#3c1a58',
   layers: [
-    { kind: 'castle', color: '#140a24', height: 760, speed: 0.06, roughness: 0.8, rim: '#a8522c', haze: 0.22, at: 1330, window: ['#ffb347', '#ffd27a', '#ff9a3a'] },
+    { kind: 'castle', color: '#140a24', height: 760, speed: 0.06, roughness: 0.8, rim: '#a8522c', haze: 0.22, window: ['#ffb347', '#ffd27a', '#ff9a3a'] },
     { kind: 'deadwood', color: '#0b0618', height: 430, speed: 0.22, roughness: 0.7, rim: '#4a2a5a', lamp: '#7dff5a', window: '#ff9a3a' },
     { kind: 'graveyard', color: '#04020a', height: 190, speed: 0.55, roughness: 0.6, rim: '#3a2a52', haze: 0, lamp: '#ff8a1e' },
   ],

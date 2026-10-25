@@ -22,7 +22,6 @@ function coat(b, l, S) {
   path(b, COAT);
   ink(b, lin(b, -96, 0, 96, 0, [[0, shade(hull, 0.16)], [0.3, hull], [0.7, hull], [1, shade(hull, 0.16)]]), 3.6);
   b.save();
-  path(b, COAT);
   b.clip();
   b.fillStyle = lin(b, 0, -96, 0, 150, [[0, rgba('#ffffff', 0.12)], [0.3, rgba('#ffffff', 0)], [1, rgba('#000000', 0.5)]]);
   b.fillRect(-100, -100, 200, 252);
@@ -69,9 +68,6 @@ function coat(b, l, S) {
     b.moveTo(s * 40, -52);
     b.quadraticCurveTo(s * 38, -4, 0, 20);
     line(b, '#05020a', 3.8);
-    b.beginPath();
-    b.moveTo(s * 40, -52);
-    b.quadraticCurveTo(s * 38, -4, 0, 20);
     b.setLineDash([3.2, 2.4]);
     line(b, BRASS, 2.4);
     b.setLineDash([]);
@@ -101,17 +97,8 @@ export function ghost(l, S, k, a) {
     l.translate(-SHOULDER[0], -SHOULDER[1]);
     l.beginPath();
     edge(l);
-    l.closePath();
     l.fillStyle = rgba(weak, 0.07 * a);
     l.fill();
-    l.restore();
-    l.save();
-    l.scale(s, 1);
-    l.translate(...SHOULDER);
-    l.scale(k, k);
-    l.translate(-SHOULDER[0], -SHOULDER[1]);
-    l.beginPath();
-    edge(l);
     neon(l, weak, 1.2, 0.5 * a);
     for (const [x, y] of EDGE.slice(0, 8)) {
       path(l, [SHOULDER, [x, y]], true);

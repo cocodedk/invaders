@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { installCanvas, sink } from './dom-kit.js';
+import { installCanvas, recorder } from './dom-kit.js';
 import { POWERS } from '../../src/core/kinds.js';
 import { createWorld } from '../../src/core/world.js';
 import { levelById } from '../../src/core/levels.js';
@@ -13,15 +13,6 @@ const { drawHud } = await import('../../src/ui/hud.js');
 const { LOOKS } = await import('../../src/ui/looks/index.js');
 
 const TOP = -Math.PI / 2; // where a ring starts draining
-
-function recorder() {
-  const calls = [];
-  const ctx = new Proxy({}, {
-    get: (o, k) => (k in o ? o[k] : (...args) => { calls.push([k, ...args]); return sink; }),
-    set: (o, k, v) => ((o[k] = v), true),
-  });
-  return { ctx, calls };
-}
 
 test('every pickup kind draws an icon of its own, in the default set and in every world', () => {
   const kinds = [...POWERS, 'bomb', 'life'];

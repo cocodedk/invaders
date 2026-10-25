@@ -48,14 +48,15 @@ function hullLights(ctx, b, B, t, k, q) {
 }
 
 // Everything lit above the part bodies: their lights, the module's live extras, the charge-ups.
-function lights(ctx, b, B, look, t, k) {
+// `own`: the boss's own pass, not the darkness pass drawn again over the aliens.
+function lights(ctx, b, B, look, t, k, own) {
   ctx.globalCompositeOperation = 'lighter';
   partLights(ctx, b, B, look, t, k);
   if (B.mod.live) {
     ctx.save();
     ctx.translate(b.x, b.y);
     ctx.globalAlpha = 1;
-    B.mod.live(ctx, b, t, k);
+    B.mod.live(ctx, b, t, k, own, phaseMemo(b, t).at);
     ctx.restore();
   }
   warns(ctx, b, B, look, t, k);
@@ -76,7 +77,7 @@ export function drawBoss(ctx, world, look, t, q = 1) {
   hullLights(ctx, b, B, t, 1, q);
   halos(ctx, b, look.palette.boss, t, 1);
   partBodies(ctx, b, B, look, t);
-  lights(ctx, b, B, look, t, 1);
+  lights(ctx, b, B, look, t, 1, true);
 }
 
 export function drawBossLights(ctx, world, look, t, k, q = 1) {
@@ -89,5 +90,5 @@ export function drawBossLights(ctx, world, look, t, k, q = 1) {
   }
   hullLights(ctx, b, B, t, k, q);
   halos(ctx, b, look.palette.boss, t, k);
-  lights(ctx, b, B, look, t, k);
+  lights(ctx, b, B, look, t, k, false);
 }

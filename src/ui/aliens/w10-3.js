@@ -1,18 +1,17 @@
 // World 10, Hollow Night, the last of the guests (see w10.js): the witch's cauldron, brew bubbling green
 // over a fire.
-import { path, ink, lin, rad, rgba, shade, eye, bloom, gloss, line, ellipse, both, INK, TAU } from './kit.js';
+import { path, ink, lin, rad, rgba, shade, eye, bloom, gloss, line, ellipse, both, INK } from './kit.js';
 import { FIRE } from './w10-2.js';
 
 // A witch's cauldron: a round black pot on three legs with a lip and ring handles, soot on its belly,
 // a ladle in it; the brew glows green in its mouth with bubbles popping, vapour rising; flames lick up
 // the underside (the lights), moving between frames.
-function carrier(b, l, f, c) {
+export function carrier(b, l, f, c) {
   both((s) => {
     path(b, [[s * 19, 18], [s * 11, 19], [s * 8, 33], [s * 17, 33]]);
     ink(b, lin(b, 0, 18, 0, 33, [[0, '#2c2c36'], [1, '#0a0a10']]), 2.4);
     ellipse(b, s * 29, -1, 5.4, 8); // the ring handle
     line(b, INK, 5);
-    ellipse(b, s * 29, -1, 5.4, 8);
     line(b, '#5a5a6c', 2.4);
     path(b, [[s * 24, -4], [s * 28, -6], [s * 28, 2], [s * 24, 3]]);
     ink(b, '#2a2a34', 1.6);
@@ -50,9 +49,6 @@ function carrier(b, l, f, c) {
   b.moveTo(3, -10);
   b.lineTo(17, -31);
   line(b, INK, 5.6);
-  b.beginPath();
-  b.moveTo(3, -10);
-  b.lineTo(17, -31);
   line(b, '#8a5a2a', 3);
   ellipse(b, 0, -10, 29, 8);
   ink(b, lin(b, 0, -18, 0, -2, [[0, '#7a7a90'], [0.5, '#34343e'], [1, '#15151c']]), 3);
@@ -62,8 +58,7 @@ function carrier(b, l, f, c) {
   b.ellipse(0, -10.5, 24, 5.4, 0, Math.PI * 1.1, Math.PI * 1.9);
   line(b, rgba('#ffffff', 0.4), 1.2);
   const bubbles = f ? [[-4, -11.5, 2.8], [11, -9.6, 3.2], [-14, -9.6, 1.9], [17, -12, 1.4]] : [[-11, -11.5, 3], [6, -9.5, 2.3], [14, -11.6, 1.7], [-1, -12.4, 1.3]];
-  l.beginPath();
-  l.ellipse(0, -10.5, 23, 5, 0, 0, TAU);
+  ellipse(l, 0, -10.5, 23, 5);
   l.fillStyle = rad(l, 0, -10.5, 0, 24, [[0, rgba('#e8ffd0', 0.95)], [0.45, rgba(c, 0.85)], [1, rgba(shade(c, -0.4), 0.5)]]);
   l.fill();
   for (const [x, y, r] of bubbles) { // bubbles on the surface, rings with a lit lip
@@ -92,5 +87,3 @@ function carrier(b, l, f, c) {
   }
   bloom(l, 0, 30, 30, '#ff7a14', 0.45);
 }
-
-export { carrier as cauldron };

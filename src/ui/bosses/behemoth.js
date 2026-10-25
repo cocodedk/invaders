@@ -7,6 +7,7 @@
 import { path, sym, both, ink, line, bloom, neon, rgba, shade, lin } from './kit.js';
 import { glow, hash } from '../sprites.js';
 import { PARTS, hide, barnacles } from './behemoth-parts.js';
+import { alive, glowAt } from './parts.js';
 
 // Dorsal spines along the shoulder (the right side, mirrored): [x, y on the hide's edge, length, lean].
 const SPINES = [[100, -99, 38, 0.1], [150, -113, 46, 0.22], [190, -106, 56, 0.38], [230, -84, 62, 0.52], [268, -59, 58, 0.68], [300, -14, 48, 0.85]];
@@ -109,14 +110,6 @@ const spines = (a, w) => (l, S) => {
   }));
 };
 
-const alive = (b, id) => b.parts.find((p) => p.id === id && p.hp > 0);
-
-// Glow at a part's centre (boss coordinates), `dx` px aside.
-function at(ctx, b, p, color, dx, dy, r, a) {
-  ctx.globalAlpha = a;
-  ctx.drawImage(glow(color), p.x - b.x + dx - r, p.y - b.y + dy - r, r * 2, r * 2);
-}
-
 export default {
   pad: 60,
   crack: '#4ff3ff',
@@ -135,21 +128,21 @@ export default {
   live(ctx, b, t, k) {
     const ph = b.phase;
     const maw = alive(b, 'maw');
-    if (maw) at(ctx, b, maw, '#4ff3ff', 0, 0, 74 + 14 * Math.sin(t * (2.4 + ph * 1.2)), k * (0.2 + 0.14 * Math.sin(t * (2.4 + ph * 1.2))));
+    if (maw) glowAt(ctx, b, maw, '#4ff3ff', 0, 0, 74 + 14 * Math.sin(t * (2.4 + ph * 1.2)), k * (0.2 + 0.14 * Math.sin(t * (2.4 + ph * 1.2))));
     for (const id of ['gillL', 'gillR']) {
       const g = alive(b, id);
-      if (g) at(ctx, b, g, '#4ff3ff', 0, 0, 46, k * (0.32 + 0.22 * Math.sin(t * 3.1 + (id === 'gillR' ? Math.PI : 0))));
+      if (g) glowAt(ctx, b, g, '#4ff3ff', 0, 0, 46, k * (0.32 + 0.22 * Math.sin(t * 3.1 + (id === 'gillR' ? Math.PI : 0))));
     }
     const skull = alive(b, 'skull');
     if (skull && ph > 0) {
       for (const s of [-1, 1]) {
         const a = k * (ph === 1 ? 0.55 : 0.9) * (0.85 + 0.15 * Math.sin(t * 6 + s));
-        at(ctx, b, skull, '#ff2a1a', s * 40, -1, 32, a);
-        at(ctx, b, skull, '#ff7a5a', s * 40, -1, 11, a);
+        glowAt(ctx, b, skull, '#ff2a1a', s * 40, -1, 32, a);
+        glowAt(ctx, b, skull, '#ff7a5a', s * 40, -1, 11, a);
       }
     }
     const crest = alive(b, 'crest');
-    if (crest && ph > 0) for (const [x, y] of CREST_TIPS) at(ctx, b, crest, '#4ff3ff', x, y + 3, 14 + 4 * ph, k * 0.3 * ph);
+    if (crest && ph > 0) for (const [x, y] of CREST_TIPS) glowAt(ctx, b, crest, '#4ff3ff', x, y + 3, 14 + 4 * ph, k * 0.3 * ph);
     for (let i = 0; i < DRIPS.length; i++) {
       const tau = (t / (1.5 + hash(i + 40) * 1.4) + hash(i + 41)) % 1;
       ctx.globalAlpha = k * (1 - tau) * 0.6;
@@ -161,7 +154,7 @@ export default {
       const s = id === 'clawL' ? 1 : -1;
       for (const [i, dx] of [[0, -4], [1, 9]]) {
         const tau = (t / 1.7 + i * 0.5 + (s > 0 ? 0 : 0.25)) % 1;
-        at(ctx, b, c, '#bfeceb', s * dx, -66 + tau * tau * 150, 4, k * (1 - tau) * 0.6);
+        glowAt(ctx, b, c, '#bfeceb', s * dx, -66 + tau * tau * 150, 4, k * (1 - tau) * 0.6);
       }
     }
     ctx.globalAlpha = 1;

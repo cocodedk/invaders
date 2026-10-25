@@ -1,7 +1,8 @@
 // The castle of Hollow Night (the far layer) on a crag over the foothills, its windows lit warm; the
 // dead wood (parallax-gothic-2.js) and the graveyard (parallax-graves.js) are registered with it. See parallax-shapes.js for the painter
-// contract. L.at is the frame x the great castle stands at (under the moon), L.window its lit colours.
+// contract. The great castle stands under the moon (MOON.x), L.window its lit colours.
 import { W, rgba } from './sprites.js';
+import { MOON } from './sky-bodies-3.js';
 import { pick } from '../core/rng.js';
 import { profile, waves } from './parallax-kit.js';
 import { pane, lancet, spire, merlons } from './parallax-gothic-kit.js';
@@ -42,8 +43,10 @@ function tower(g, out, rng, L, x, base, w, h, spireH = 0) {
   const rows = Math.max(1, Math.floor(h / 70));
   for (let i = 0; i < rows; i++) {
     const y = base - 36 - i * 62 - rng() * 10;
-    if (i % 2 === 0 || w > 60) pane(g, out, rng, x + (rng() - 0.5) * (w - 22) * (w > 60 ? 1 : 0), y, 8, 17, pick(rng, L.window));
-    else {
+    if (i % 2 === 0) {
+      rng(); // unused, kept so the draws after it, and the seeded layout with them, stay as they were
+      pane(g, out, rng, x, y, 8, 17, pick(rng, L.window));
+    } else {
       g.fillStyle = rgba('#0a0412', 0.8);
       g.fillRect(x - 1.5, y - 14, 3, 14); // an arrow slit
       g.fillStyle = L.color;
@@ -53,7 +56,7 @@ function tower(g, out, rng, L, x, base, w, h, spireH = 0) {
 
 // Broken towers on a far hill, a lit window or two: a ruin, `s` times the castle's size.
 function ruin(g, out, rng, L, x, y, s) {
-  tower(g, out, rng, L, x, y + 4, 60 * s, 170 * s, 0);
+  tower(g, out, rng, L, x, y + 4, 60 * s, 170 * s);
   g.beginPath(); // the broken crown
   g.moveTo(x - 36 * s, y - 170 * s - 4);
   g.lineTo(x - 14 * s, y - 196 * s);
@@ -103,7 +106,7 @@ function crag(g, rng, cx, top, base) {
 }
 
 function castle(g, w, h, rng, L, out) {
-  const cx = L.at + (w - W) / 2;
+  const cx = MOON.x + (w - W) / 2;
   const top = h * 0.45;
   const hills = waves(rng, 3, 0.0035);
   profile(g, w, h, (x) => h * (0.64 + 0.05 * hills(x)));

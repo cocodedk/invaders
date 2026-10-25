@@ -7,7 +7,7 @@
 //   warmPosters(allowed)   start baking in idle slices; allowed() says whether now is a menu
 //   bakeStep() -> bool     one slice of the next poster (false once all ten are done)
 //   posterFor(world) -> canvas | null      TAGLINES[world - 1]: each world's line      reelName(level)
-import { LEVELS } from '../../core/levels.js';
+import { LEVELS, WORLDS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
 import { autopilot } from '../../core/autopilot.js';
 import { TICK } from '../../core/kinds.js';
@@ -81,7 +81,7 @@ function* bake(world) {
 let current = null;
 function bakeStep() {
   if (!current) {
-    const world = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].find((wd) => !posters.has(wd));
+    const world = WORLDS.find((wd) => !posters.has(wd.id))?.id;
     if (!world) return false;
     current = bake(world);
   }

@@ -3,6 +3,7 @@
 // jack-o'-lanterns lit on the ground, each carved face five layer lights that burn through
 // the dark. L.lamp is the pumpkins' colour. See parallax-shapes.js for the painter contract.
 import { rgba, shade } from './sprites.js';
+import { path } from './aliens/kit.js';
 import { pick } from '../core/rng.js';
 import { profile, waves } from './parallax-kit.js';
 import { TAU } from '../core/math.js';
@@ -52,9 +53,7 @@ function pumpkin(g, rng, out, L, x, y, r) {
   g.strokeStyle = '#3a4a1c';
   g.stroke();
   const cut = (pts, sx) => {
-    g.beginPath();
-    pts.forEach(([px, py], i) => g[i ? 'lineTo' : 'moveTo'](x + px * sx * r, cy + py * r));
-    g.closePath();
+    path(g, pts.map(([px, py]) => [x + px * sx * r, cy + py * r]));
     g.fillStyle = '#ffd24a';
     g.fill();
   };

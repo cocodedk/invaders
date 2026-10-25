@@ -4,7 +4,7 @@
 // phase (harsher each time; the fortress's trench slides open into a reactor hum), and the death:
 // a scream, a groan as the hull snaps, blasts rising through the chain to the white-out.
 // The boss sounds like its world: the roar and the charge take the world's style (sound-data.js).
-import { tone, hiss, fm, wobble, crush, noteHz } from './audio-kit.js';
+import { tone, hiss, fm, wobble, crush, noteHz, bell } from './audio-kit.js';
 
 // The roar's voice per style: [oscillator wave, pitch, glide steps, waveshaper amount].
 const ROAR = {
@@ -31,10 +31,7 @@ function roar(a, h, dur, fall) {
     hiss(a, { type: 'lowpass', f0: 500, f1: 110, attack: 0.2, dur, peak: 0.1 });
   }
   if (a.kit.style === 'gothic') { // a great bell struck and left ringing, and a bat's shriek cutting over it
-    const f = noteHz(a.kit, 0, 3);
-    fm(a, { f0: f, ratio: 2.41, index: 2.6, dur: dur * 1.2, peak: 0.16, cut: 2600 });
-    tone(a, { f0: f * 0.5, dur: dur * 1.2, peak: 0.14 });
-    tone(a, { f0: f * 1.19, dur, peak: 0.06 });
+    bell(a, { index: 2.6, dur: [dur * 1.2, dur * 1.2, dur], peak: [0.16, 0.14, 0.06] });
     const t = a.t + 0.18;
     const shriek = tone(a, { type: 'sawtooth', t, f0: 2600 + h * 500, f1: 5600, attack: 0.03, dur: dur * 0.55, peak: 0.035, cut: 7000, q: 5 });
     wobble(a, shriek.frequency, 24 + h * 8, 420, t, dur * 0.55);

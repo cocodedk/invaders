@@ -42,15 +42,15 @@ test("Tidal Siege's far city is lit windows and red beacons only: no neon, no bi
 });
 
 test("Tidal Siege's sheet lightning flashes now and then and is dark between", () => {
-  const calls = [];
-  const ctx = new Proxy({}, { get: (o, k) => (k in o ? o[k] : (...a) => { if (k === 'drawImage') calls.push(a); }), set: (o, k, v) => ((o[k] = v), true) });
+  const { ctx, calls } = recorder();
+  const images = () => calls.filter(([k]) => k === 'drawImage').length;
   const look = LOOKS[8];
   assert.ok(look.flourish.includes('sheet'));
   let lit = 0;
   for (let i = 0; i < 1200; i++) {
-    const before = calls.length;
+    const before = images();
     drawFlourishes(ctx, env(look, [], i * 0.05), 'sky');
-    if (calls.length > before) lit++;
+    if (images() > before) lit++;
   }
   assert.ok(lit > 20 && lit < 300, `${lit} of 1200 frames lit`);
 });

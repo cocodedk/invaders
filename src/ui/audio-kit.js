@@ -128,3 +128,12 @@ export function crush(a, amount, dest = a.out) {
 
 // A note of the world's scale: degree 0 is its root, a scale's length of degrees is an octave.
 export const noteHz = (kit, degree, octave = 5) => midiHz(degreeMidi(kit, degree, octave));
+
+// A low bell on the world's root: the struck prime with its metallic overtones, a hum an octave
+// down and a minor third above. dur and peak are [prime, hum, third]; t defaults to a.t.
+export function bell(a, { t, index, dur, peak }) {
+  const f = noteHz(a.kit, 0, 3);
+  fm(a, { t, f0: f, ratio: 2.41, index, dur: dur[0], peak: peak[0], cut: 2600 });
+  tone(a, { t, f0: f * 0.5, dur: dur[1], peak: peak[1] });
+  tone(a, { t, f0: f * 1.19, dur: dur[2], peak: peak[2] });
+}

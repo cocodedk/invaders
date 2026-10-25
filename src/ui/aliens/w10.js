@@ -3,9 +3,9 @@
 // and the coffin are in w10-2.js, the cauldron in w10-3.js. Everything that glows is on the lights
 // layer, so the eye holes, the carved faces, the brew and the embers are what Hollow Night's darkness
 // leaves of them. Sprites face down, toward the ship.
-import { path, ink, lin, rad, rgba, shade, eye, bloom, gloss, line, ellipse, both, INK, TAU } from './kit.js';
-import { gunner, coffin } from './w10-2.js';
-import { cauldron } from './w10-3.js';
+import { path, ink, lin, rad, rgba, shade, eye, bloom, gloss, line, ellipse, both, INK } from './kit.js';
+import { gunner, armored } from './w10-2.js';
+import { carrier } from './w10-3.js';
 
 // A sheet ghost: a dome of cloth falling to a rippling hem that sways between frames, two arms
 // lifted under the sheet, folds hanging from the shoulders, eye holes and a wailing mouth.
@@ -62,18 +62,15 @@ function grunt(b, l, f, c) {
   both((s) => {
     ellipse(b, s * 9, -8, 4.8, 7.6);
     ink(b, '#0a0612', 1.8);
-    const g = rad(l, s * 9, -8, 0, 8, [[0, '#ffffff'], [0.3, '#a8ffa0'], [0.7, rgba('#5aff4a', 0.8)], [1, rgba('#5aff4a', 0)]]);
-    l.fillStyle = g;
-    l.beginPath();
-    l.ellipse(s * 9, -8, 4.6, 7.4, 0, 0, TAU);
+    ellipse(l, s * 9, -8, 4.6, 7.4);
+    l.fillStyle = rad(l, s * 9, -8, 0, 8, [[0, '#ffffff'], [0.3, '#a8ffa0'], [0.7, rgba('#5aff4a', 0.8)], [1, rgba('#5aff4a', 0)]]);
     l.fill();
     eye(l, s * 9, -8, 2.6 + f * 0.5, '#7dff5a', 4.2);
   });
   ellipse(b, 0, 10, 3.6 + f * 1.4, 5.4 + f * 3);
   ink(b, '#0a0612', 1.8);
+  ellipse(l, 0, 10, 3.2 + f * 1.4, 5 + f * 3);
   l.fillStyle = rgba('#5aff4a', 0.28 + f * 0.1);
-  l.beginPath();
-  l.ellipse(0, 10, 3.2 + f * 1.4, 5 + f * 3, 0, 0, TAU);
   l.fill();
   bloom(l, 0, -2, 36, '#aef0c8', 0.2);
 }
@@ -109,18 +106,15 @@ function diver(b, l, f, c) {
     for (const t of tips) { // the finger bones, a thin lit edge on each
       path(b, [wrist, t], true);
       line(b, INK, 3.2);
-      path(b, [wrist, t], true);
       line(b, shade(c, -0.35), 1.4);
     }
     path(b, [[s * 6, -7], wrist], true);
     line(b, INK, 4);
-    path(b, [[s * 6, -7], wrist], true);
     line(b, shade(c, -0.25), 2.2);
-    path(b, [[wrist[0], wrist[1]], [wrist[0] + s * 4, wrist[1] - 7], [wrist[0] + s * 1, wrist[1] - 2]]);
+    path(b, [wrist, [wrist[0] + s * 4, wrist[1] - 7], [wrist[0] + s, wrist[1] - 2]]);
     ink(b, '#d8d0c8', 1.2); // the thumb claw
   });
-  b.beginPath(); // the body, furred
-  b.ellipse(0, 4, 9.5, 14, 0, 0, TAU);
+  ellipse(b, 0, 4, 9.5, 14); // the body, furred
   ink(b, rad(b, -3, -2, 1, 16, [[0, shade(c, -0.15)], [1, shade(c, -0.8)]]), 2.6);
   b.save();
   b.clip();
@@ -158,4 +152,4 @@ function diver(b, l, f, c) {
   bloom(l, 0, -2, 26, '#ff2a3a', 0.12);
 }
 
-export default { rate: 2, bob: 2, halo: 0.2, crack: '#9dff5a', grunt, diver, gunner, armored: coffin, carrier: cauldron };
+export default { rate: 2, bob: 2, halo: 0.2, crack: '#9dff5a', grunt, diver, gunner, armored, carrier };

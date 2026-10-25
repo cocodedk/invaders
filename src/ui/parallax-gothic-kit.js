@@ -1,5 +1,5 @@
-// Gothic shapes shared by the painters of Hollow Night's three layers (parallax-gothic.js, -2.js and
-// parallax-graves.js): pointed windows that glow, roofs and parapets.
+// Gothic shapes shared by the painters of Hollow Night's castle and dead wood (parallax-gothic.js and
+// -2.js): pointed windows that glow, roofs and parapets.
 import { rgba } from './sprites.js';
 import { pick } from '../core/rng.js';
 
@@ -18,6 +18,8 @@ export function lancet(g, x, y, w, h) {
 
 // A lit window: the pane, a dark mullion and transom, and a glow on the layer's lights.
 export function pane(g, out, rng, x, y, w, h, color, mode = null) {
+  const { a, b, c, d, e, f } = g.getTransform(); // the light goes on the layer, in whatever frame the pane is drawn
+  const [lx, ly] = [x, y - h * 0.45];
   g.save();
   lancet(g, x, y, w, h);
   g.fillStyle = rgba(color, 0.92);
@@ -31,7 +33,7 @@ export function pane(g, out, rng, x, y, w, h, color, mode = null) {
   g.lineTo(x + w / 2, y - h * 0.5);
   g.stroke();
   g.restore();
-  out.lights.push({ x, y: y - h * 0.45, r: Math.max(w, h) * 1.3, color, mode: mode ?? pick(rng, MODES), ph: rng(), a: 0.9 });
+  out.lights.push({ x: a * lx + c * ly + e, y: b * lx + d * ly + f, r: Math.max(w, h) * 1.3, color, mode: mode ?? pick(rng, MODES), ph: rng(), a: 0.9 });
 }
 
 // A cone of roof with sagging sides, flared eaves and a finial: the tip is at (x, y - h).

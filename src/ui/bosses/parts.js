@@ -7,6 +7,9 @@
 //   partLights(ctx, b, B, look, t, k)  their lights (weak points pulse; fissures and opened ports
 //                                      fade in with a burst), at strength k
 //   warns(ctx, b, B, look, t, k)       a charge-up on every part about to fire
+//   alive(b, id), glowAt(ctx, b, p, color, dx, dy, r, a)
+//                                      for a module's live extras: a part still standing, and a
+//                                      glow at a part's centre, dx, dy aside, in boss coordinates
 // What changed when (hit, crack, open) is this module's own memory, a WeakMap per part; a part
 // first seen already open or cracked is drawn finished, so a frozen dev frame or a cloned world
 // never replays the transition. Nothing on world or fx is written.
@@ -18,6 +21,13 @@ const FLASH = 0.06; // s a part shows white after losing hp
 const OPEN = 1.6; // s a part takes to slide open (the fortress trench)
 const CRACK = 0.6; // s a plate takes to split open
 const NEVER = -1e9;
+
+export const alive = (b, id) => b.parts.find((p) => p.id === id && p.hp > 0);
+
+export function glowAt(ctx, b, p, color, dx, dy, r, a) {
+  ctx.globalAlpha = a;
+  ctx.drawImage(glow(color), p.x - b.x + dx - r, p.y - b.y + dy - r, r * 2, r * 2);
+}
 
 export function partStage(p) {
   if (p.hp >= p.max) return 0;

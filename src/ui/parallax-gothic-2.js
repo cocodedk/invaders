@@ -76,7 +76,7 @@ function tree(g, rng, out, L, x, base, s) {
 }
 
 // A scarecrow on its post, arms out on a crossbar in ragged sleeves, a sagging hat, straw hanging.
-function scarecrow(g, rng, x, base) {
+function scarecrow(g, x, base) {
   g.fillRect(x - 3, base - 96, 6, 100);
   g.fillRect(x - 40, base - 78, 80, 5);
   g.beginPath();
@@ -149,8 +149,6 @@ function chapel(g, rng, out, L, x, base) {
   g.fillRect(-1, -150, 2, 10);
   pane(g, out, rng, 0, -50, 8, 20, L.window);
   g.restore();
-  const lit = out.lights[out.lights.length - 1]; // pane put its light in the belfry's turned frame
-  [lit.x, lit.y] = [x + 100, base - 55];
   out.lights.push({ x: x + 100, y: base - 128, r: 22, color: L.window, mode: 'flicker', ph: rng(), a: 0.6 }); // a lantern up in the belfry
 }
 
@@ -166,7 +164,7 @@ function deadwood(g, w, h, rng, L, out) {
       chapel(g, rng, out, L, x + 60, base);
       x += 340;
     } else if (n === 5) {
-      scarecrow(g, rng, x, base);
+      scarecrow(g, x, base);
       x += 160;
     } else {
       tree(g, rng, out, L, x, base, 0.7 + rng() * 0.55);

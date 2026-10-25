@@ -29,8 +29,7 @@ function head(b, l, p, S) {
     b.fillStyle = rad(b, s * 16, -6, 0, 15, [[0, rgba('#2a0a3a', 0.8)], [0.6, rgba('#2a0a3a', 0.45)], [1, rgba('#2a0a3a', 0)]]); // the socket
     b.fillRect(s * 16 - 15, -21, 30, 30);
     b.fillStyle = rgba('#ffffff', 0.22); // the cheekbone catching the light
-    b.beginPath();
-    b.ellipse(s * 24, 4, 7, 3, s * 0.6, 0, TAU);
+    ellipse(b, s * 24, 4, 7, 3, s * 0.6);
     b.fill();
   });
   b.fillStyle = rad(b, 0, -4, 10, 48, [[0, rgba('#000000', 0)], [1, rgba('#1a0a2a', 0.5)]]);
@@ -130,7 +129,6 @@ function heart(b, l, p, S) {
   outline(b);
   ink(b, rad(b, -10, -14, 2, 46, [[0, '#ffb0bc'], [0.25, '#f02a4a'], [0.7, '#9a0c28'], [1, '#3a0412']]), 2.4);
   b.save();
-  outline(b);
   b.clip();
   for (const [x, y] of [[-30, -10], [-14, -26], [14, -26], [30, -10], [22, 14], [0, 30], [-22, 14]]) { // facets
     path(b, [[0, 2], [x, y]], true);
@@ -142,7 +140,6 @@ function heart(b, l, p, S) {
   b.restore();
   ellipse(b, 0, -43, 6, 6.6); // the ring it hangs from
   line(b, INK_HAIR, 5);
-  ellipse(b, 0, -43, 6, 6.6);
   line(b, BRASS, 2.4);
   gloss(b, -16, -14, 8, 3.4, 0.6, -0.6);
   outline(l);
@@ -151,7 +148,6 @@ function heart(b, l, p, S) {
   l.fillStyle = rad(l, 0, 0, 0, 38, [[0, rgba('#ff8a9a', 0.9)], [0.5, rgba(weak, 0.55)], [1, rgba(weak, 0.1)]]);
   l.fill();
   l.restore();
-  outline(l);
   neon(l, weak, 1.5, 0.8);
   eye(l, 0, 2, 5, '#ffe0e6', 5);
   bloom(l, 0, 0, 56, weak, 0.45);

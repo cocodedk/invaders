@@ -19,6 +19,9 @@ const SCALLOP = EDGE.slice(1).map(([x, y], i) => {
   return [mx + ((SHOULDER[0] - mx) / d) * 15, my + ((SHOULDER[1] - my) / d) * 15, x, y];
 });
 
+// The point u of the way from the shoulder to p.
+export const along = ([x, y], u) => [SHOULDER[0] + (x - SHOULDER[0]) * u, SHOULDER[1] + (y - SHOULDER[1]) * u];
+
 // Add the wing's edge (top, tip, scallops) to the current path of g.
 export function edge(g) {
   g.moveTo(...SHOULDER);
@@ -40,7 +43,6 @@ function wing(b, l, p, S) {
   outline(b);
   ink(b, lin(b, -350, 0, -80, 0, [[0, shade(plate, -0.55)], [0.3, plate], [0.75, shade(plate, 0.06)], [1, shade(plate, -0.6)]]), 3.6);
   b.save();
-  outline(b);
   b.clip();
   EDGE.slice(0, -1).forEach(([x, y], i) => { // a pleat between each pair of ribs, drawn soft: dark at the ribs, a sheen between
     const [nx, ny] = EDGE[i + 1];
@@ -49,10 +51,12 @@ function wing(b, l, p, S) {
     b.fill();
   });
   for (let i = 0; i < 9; i++) { // veins in the cloth, faint
-    const [x, y] = EDGE[i % 8];
+    const p = EDGE[i % 8];
+    const [cx, cy] = along(p, 0.6);
+    const [ex, ey] = along(p, 0.86);
     b.beginPath();
-    b.moveTo(SHOULDER[0] + (x - SHOULDER[0]) * 0.34, SHOULDER[1] + (y - SHOULDER[1]) * 0.34);
-    b.quadraticCurveTo(SHOULDER[0] + (x - SHOULDER[0]) * 0.6 + (i % 3 - 1) * 14, SHOULDER[1] + (y - SHOULDER[1]) * 0.6, SHOULDER[0] + (x - SHOULDER[0]) * 0.86, SHOULDER[1] + (y - SHOULDER[1]) * 0.86 + 6);
+    b.moveTo(...along(p, 0.34));
+    b.quadraticCurveTo(cx + (i % 3 - 1) * 14, cy, ex, ey + 6);
     line(b, rgba('#000000', 0.16), 1.2);
   }
   b.fillStyle = lin(b, 0, -150, 0, 120, [[0, rgba('#000000', 0.35)], [0.3, rgba('#000000', 0)], [0.8, rgba('#000000', 0)], [1, rgba('#000000', 0.3)]]);
@@ -73,7 +77,6 @@ function wing(b, l, p, S) {
   for (const [x, y] of EDGE) { // ribs, a spur past the edge at each point
     path(b, [SHOULDER, [x, y]], true);
     line(b, '#05020a', 4.4);
-    path(b, [SHOULDER, [x, y]], true);
     line(b, shade(hull, 0.36), 1.5);
   }
   EDGE.slice(0, 7).forEach(([x, y], i) => {
@@ -116,7 +119,6 @@ function collar(b, l, p, S) {
     flap(b, s);
     ink(b, lin(b, s * 36, 0, s * 120, 0, [[0, shade(plate, -0.45)], [0.5, plate], [1, shade(plate, -0.3)]]), 3.4);
     b.save();
-    flap(b, s);
     b.clip();
     for (let i = 0; i < 4; i++) { // pleats climbing the flap
       path(b, [[s * (44 + i * 15), 30], [s * (68 + i * 8), 4 - i * 4]], true);

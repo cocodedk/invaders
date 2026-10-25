@@ -15,8 +15,10 @@
 //   parts: { [id | base]: (b, l, p, S) } (margin: px of canvas round a part's rect for art that
 //   overhangs it, 34 by default; margins overrides it per part id),
 //   opened?: { [id]: painter } (art once a phase opens the part), rage?: [(l, S) | null per phase]
-//   (extra hull lights that fade in with that phase), live?(ctx, boss, t, k) (per-frame extras
-//   in boss coordinates, 'lighter', cached sprites only; k is the light strength) }.
+//   (extra hull lights that fade in with that phase), live?(ctx, boss, t, k, own, since)
+//   (per-frame extras in boss coordinates, 'lighter', cached sprites only; k is the light
+//   strength, since when the phase began; anything opaque only when `own`, the boss's own pass,
+//   since the darkness pass runs live again over the aliens) }.
 // S = { def, pal: look.palette.boss, look, W, H, pad }; b, l are the body and lights contexts.
 import { makeCanvas, white } from '../sprites.js';
 import { bossDef } from '../../core/bosses-data.js';
