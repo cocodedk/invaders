@@ -121,6 +121,10 @@ function stepAt(c, t) {
     if (L.glide) o.f1 = midiHz(degreeMidi(kit, nextNote(m.seq, c.step) + shift, L.oct)); // a call sliding on to the next note
     if (L.fm) fm(a, { ...o, ...L.fm });
     else tone(a, o);
+    if (L.bow) { // bowed glass: a twin a few cents off the note beats against it, and a thin octave sounds over both
+      tone(a, { ...o, detune: L.bow, peak: o.peak * 0.8 });
+      tone(a, { ...o, f0: o.f0 * 2, peak: o.peak * 0.12 });
+    }
   }
   const hit = m.drum[c.step % m.drum.length];
   DRUM[hit]?.(a, t, { deg: deg == null ? null : deg + shift, shift, step: c.step });

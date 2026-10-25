@@ -1,7 +1,8 @@
 // Sound patches of the power-ups and the smart bomb: pickups chime in the world's scale (an extra life
 // climbs it), each power switches on with its own gesture (ON, by kind; world 13's wingmen sound a horn
-// call, world 15's pearls a glass chime and its trident a metal ring) and winds down when it ends, the laser
-// hums while it burns, and the bomb inhales before it lands. A patch is (a, o) -> seconds (audio-kit.js).
+// call, world 15's pearls a glass chime and its trident a metal ring, world 16's mirror a bowed-glass
+// swell) and winds down when it ends, the laser hums while it burns, and the bomb inhales before it lands.
+// A patch is (a, o) -> seconds (audio-kit.js).
 import { tone, hiss, fm, wobble, noteHz, panOf } from './audio-kit.js';
 
 export const ON = {
@@ -39,6 +40,11 @@ export const ON = {
   trident(a) { // a trident struck: a bright ring of metal, three prongs a root, a fifth and an octave
     hiss(a, { type: 'highpass', f0: 6500, f1: 3000, dur: 0.05, peak: 0.14 });
     [[0, 0.06], [3, 0.045], [5, 0.035]].forEach(([d, peak]) => fm(a, { f0: noteHz(a.kit, d, 5), ratio: 2.76, index: 1.4, dur: 0.62, peak, cut: 9000 }));
+  },
+  mirror(a) { // a glass twin appearing: three notes of the scale bowed in together, each a pair a few cents apart that beats, and a glint as it arrives
+    [[0, 0.06], [2, 0.045], [4, 0.035]].forEach(([d, peak]) => [0, 5].forEach((detune) => tone(a, { f0: noteHz(a.kit, d, 5), detune, attack: 0.3, dur: 0.35, peak })));
+    fm(a, { t: a.t + 0.3, f0: noteHz(a.kit, 7, 5), ratio: 2.32, index: 1, dur: 0.4, peak: 0.05, cut: 8000 });
+    hiss(a, { t: a.t + 0.3, type: 'highpass', f0: 8000, dur: 0.05, peak: 0.04 });
   },
   slow(a) { // time thickening: everything swoops down
     tone(a, { type: 'sawtooth', f0: 760, f1: 110, dur: 0.5, peak: 0.1, cut: 2400, cut1: 300 });

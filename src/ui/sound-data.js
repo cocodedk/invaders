@@ -1,16 +1,17 @@
-// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w15.js).
+// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w16.js).
 // Pure data and maths, shared by the sound effects (one flavour per world) and the music loop.
 //   kitFor(music) -> { style, root, scale, bpm, wave, cut, wet, pitch }
-//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss
+//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass
 //     root   semitone of the root above C; scale: semitone steps of the scale
 //     wave   the oscillator most of the world's tones use; cut: their lowpass ceiling (Hz);
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
 //   STYLES[style].music: the loop's voices (music.js)
 //     vol: the loop's level, trimmed so every world's loop measures about -36 dBFS RMS offline
-//     drone: { wave, oct, cut, fifth, gain? (0.05) }   lead: { wave, oct, cut, cut1?, hold?, attack?, glide?, len (of a step), gain, fm? }
+//     drone: { wave, oct, cut, fifth, gain? (0.05) }   lead: { wave, oct, cut, cut1?, hold?, attack?, glide?, bow?, len (of a step), gain, fm? }
 //     (cut1: the lead's filter opens from cut to cut1 over each note, a brass swell; hold: steps a note keeps its
 //     level before it dies away over len, an organ's note rather than a plucked one; attack: steps it takes to
-//     swell in; glide: it slides toward the next note of the tune as it sounds, a whale's call)
+//     swell in; glide: it slides toward the next note of the tune as it sounds, a whale's call; bow: cents a twin voice
+//     sits off the note, so the pair beats, with a thin octave over both: bowed glass)
 //     (fm: { ratio, index } makes the lead an FM tone that strikes at once and rings len steps: a bell on an
 //     inharmonic ratio, a plucked string on a whole one)
 //     div: steps per beat, seq: scale degrees per step (null rests), drum: per-step hit letters
@@ -20,8 +21,9 @@
 //     o a short string note of the chord (root, fifth, third, fifth), u a tuba note on the chord's root and a hat's
 //     tick (its fifth on every second bar of six steps), y the same under a cymbal crash, a the band organ's chord
 //     stabbed, g a glockenspiel on the chord's fifth (its octave on the second bar), l and d a slow heart's lub and
-//     dub, w a harp pluck climbing and falling through the chord, n a low pad swelling in, . rest), bars: how many
-//     bars before the seq shifts. Their patches are in music-drums.js.
+//     dub, w a harp pluck climbing and falling through the chord, n a low pad swelling in, q a choir bowing a chord in
+//     over a low root, x a tubular bell (the chord's root high in the first bar of a pair, its fifth low in the second),
+//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js.
 export const NOTES = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
 
 export const SCALES = {
@@ -35,6 +37,7 @@ export const SCALES = {
   major: [0, 2, 4, 5, 7, 9, 11],
   mixolydian: [0, 2, 4, 5, 7, 9, 10], // the major with a flat seventh: a fairground's tunes
   pentatonic: [0, 3, 5, 7, 10], // the minor pentatonic: five notes with no semitone, so nothing played on it clashes
+  melodic: [0, 2, 3, 5, 7, 9, 11], // the melodic minor going up: a minor key with the sixth and seventh raised, a dawn over ruins
 };
 
 export const STYLES = {
@@ -125,6 +128,16 @@ export const STYLES = {
       div: 4, seq: [0, null, null, null, null, null, null, null, null, null, 2, null, null, null, null, null,
         3, null, null, null, null, null, null, null, null, null, 1, null, null, null, null, null],
       drum: 'ldn.w.w.ldw.w.w.ldn.w...ldw.w.w.' },
+  },
+  // 6/8, four bars to a pass (a step an eighth note, 63 dotted-quarter beats a minute): a glass harmonica bowing a hymn-like
+  // line (fifth, third, root, second, third, fifth, octave held), each note swelling in, held and dying away, over a choir
+  // bowing in on every second bar, tubular bells ringing a high root and a low fifth, and a soft frame drum on the second bar.
+  glass: {
+    mood: 'glass', wave: 'sine', cut: 6000, wet: 0.64, pitch: 1.07,
+    music: { vol: 0.67, drone: { wave: 'sine', oct: 2, cut: 700, fifth: true, gain: 0.012 },
+      lead: { wave: 'sine', oct: 4, cut: 4200, attack: 2, hold: 2.5, len: 3, gain: 0.06, bow: 3 },
+      div: 3, seq: [4, null, null, 2, null, null, 0, null, null, 1, null, null, 2, null, null, 4, null, null, 7, null, null, null, null, null],
+      drum: 'q..x..f..f.xq..x..f..f.x' },
   },
 };
 

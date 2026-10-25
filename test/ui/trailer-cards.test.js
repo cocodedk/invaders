@@ -36,7 +36,7 @@ test('the borrowed-line guard finds a guarded line by its hash, anywhere in a ca
 });
 
 test('every world has three cards of one to three lines, and every placeholder is a known stat', () => {
-  assert.equal(VOICES.length, 15);
+  assert.equal(VOICES.length, 16);
   for (const [w, cards] of VOICES.entries()) {
     assert.equal(cards.length, 3, `world ${w + 1}`);
     const used = new Set();
@@ -54,7 +54,7 @@ test('every world has three cards of one to three lines, and every placeholder i
 });
 
 test('cards fill every placeholder for every world, and read well for zeros, ones and big numbers', () => {
-  for (let world = 1; world <= 15; world++) {
+  for (let world = 1; world <= 16; world++) {
     for (const stats of ALL) {
       const cards = cardsFor(world, stats);
       assert.equal(cards.length, 3);
@@ -114,6 +114,7 @@ test('on a boss level the stat card names the boss that fell, in every world', (
   assert.deepEqual(cardsFor(13, { ...ZERO, boss: 'galleon' })[1], ['THE THUNDER GALLEON', 'RAN OUT OF SKY.']);
   assert.deepEqual(cardsFor(14, { ...ZERO, boss: 'carousel' })[1], ['THE GRAND CAROUSEL', 'WENT UP IN SMOKE.']);
   assert.deepEqual(cardsFor(15, { ...ZERO, boss: 'angler' })[1], ['THE LANTERN LEVIATHAN', 'SANK INTO THE DARK.']);
+  assert.deepEqual(cardsFor(16, { ...ZERO, boss: 'moth' })[1], ['THE VESPER MOTH', 'SHATTERED INTO LIGHT.']);
   for (const [i, w] of WORLDS.entries()) {
     for (const stats of ALL) {
       const lines = cardsFor(w.id, { ...stats, boss: w.boss }).flat();

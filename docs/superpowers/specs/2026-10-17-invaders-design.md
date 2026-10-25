@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 15 cinematic worlds × 5 levels = 75 levels, free 2D
+as beautiful as Barrage (`../artillery`): 16 cinematic worlds × 5 levels = 80 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -37,7 +37,7 @@ quoted lines, so the repo can be public.
   - armored — 3 hp, sparks and cracks per hit;
   - carrier — glows, 1 hp, always drops a pickup: a power-up, a bomb or an extra life. Every other
     formation alien drops one too, 3 % of the time in world 1, climbing to 12 % at the end of world 8
-    (R54, R56; worlds 9–15 follow their own difficulty, R57–R63).
+    (R54, R56; worlds 9–16 follow their own difficulty, R57–R64).
 - **Formations** (pure functions `slotPosition(kind, t, slot)`): `grid` (classic march: step
   sideways, drop at the edge, speed up as it thins), `sway`, `dive` (swooping dives from the sides),
   `spiral` (enters along a spiral, then holds), `split` (a column that splits into two arcs),
@@ -68,6 +68,12 @@ quoted lines, so the repo can be public.
     stops at bunkers. Both last 10 s, with the ring and the reserve of R53. They drop only in world
     15, whose drops pick from the six plus `pearls` and `trident`. Every other world draws exactly as
     before, pinned by fingerprints now running through world 14.
+  - **Mirror, world 16's own power (R64).** A glass twin of the ship flies at its mirror image across
+    the field's centre line (x 1920 − the ship's, the same y), for 10 s with the ring and the reserve
+    of R53. Each time the ship fires, the twin fires one straight shot from its own muzzle. It cannot
+    be hit, collects nothing and does nothing else. It drops only in world 16, whose drops pick from
+    the six plus `mirror`; every other world draws exactly as before, pinned by fingerprints now
+    running through world 15.
   - **One runs at a time, one waits (R53).** A new power starts with its full time and the running one,
     with the time it had left, waits in a one-slot reserve; when the running one ends the reserve takes
     over and goes on from there. The reserve does not tick while it waits, and a newer pickup that
@@ -210,6 +216,17 @@ quoted lines, so the repo can be public.
     levels 1–5 clear 39, 31, 31, 21 and 23 times at reaction lag 10, and 32, 15, 27, 11 and 8 at
     lag 15, against world 6's 39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: within noise. World 14,
     re-run on the new rules, clears exactly as before.
+  - **World 16, the glass cathedral (R64).** The user asked for another world. It is a half-ruined
+    cathedral of stained glass at dawn, with one power that drops in world 16 alone, the mirror
+    twin above. The twist is world 7's reassemble, unchanged in the core, drawn as a gargoyle whose
+    shards hang in the air and fly back together, with its own sprite, effects and sound. `d` is
+    0.74, 0.77, 0.79, 0.82, 0.84, a notch above world 15. A gargoyle that stands up again is costly
+    at this `d`, so every level carries a row of them, but only one or two. Its boss, the Vesper
+    Moth, never charges; with no well to drink its bolts and the twin doubling the ship's gun, it
+    fires faster than the Leviathan. On the headless run (40 seeds) its levels 1–5 clear 39, 26,
+    30, 23 and 26 times at reaction lag 10, and 30, 19, 22, 15 and 5 at lag 15, against world 6's
+    39, 30, 34, 21, 17 and 34, 19, 27, 14, 4: within noise. World 15, re-run on the new rules,
+    clears exactly as before.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -234,6 +251,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 13 | Sunset Armada | airship battle at golden hour | a sea of clouds under a huge low sun, floating islands with waterfalls, brass-and-canvas airships | catching any pickup opens the side guns for 6 s: every volley also fires left and right (new, ruling R61); and its own power, Wingmen | Thunder Galleon |
 | 14 | Ember Carnival | fireworks night at the fair | a lakeside fair at night: a Ferris wheel, big tops, a roller coaster on the far shore, fireworks over the water | about one alien in five is a shell whose death bursts like a firework, hurting everything within 160 px and setting off other shells in a chain (new, ruling R62) | The Grand Carousel |
 | 15 | Lantern Deep | deep sea under a sunken kingdom | a drowned kingdom's spires, kelp forests, a whale's skeleton and a reef, all lit by its own creatures | world 8's gravity well, drawn as a maelstrom; and two powers of its own, pearls and trident (new, ruling R63) | The Lantern Leviathan |
+| 16 | Glass Cathedral | stained-glass cathedral at dawn | a half-ruined nave open to a dawn sky: tall jewel-coloured windows, a great rose window, columns and flying buttresses, shafts of coloured light | world 7's reassemble, drawn as gargoyles whose shards hang in the air and mend; and its own power, the mirror twin (new, ruling R64) | The Vesper Moth |
 
 ## Look and effects
 

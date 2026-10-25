@@ -1,11 +1,11 @@
 // The lobby's posters, drawn by the game itself: each world's boss level is run a few seconds with
 // the autopilot and one frame of it is rendered (sky, parallax, boss, ship, effects; no HUD), then
 // cropped to a 2:3 poster round the boss. Kept for the session (no image files).
-// A bake comes in six slices (the run-up, the world's alien sprites, its boss, world 15's own sprites, the
-// view, the frame), one per idle period while the title or the lobby is up, so no single frame carries a whole poster
+// A bake comes in seven slices (the run-up, the world's alien sprites, its boss, world 15's and world 16's own sprites,
+// the view, the frame), one per idle period while the title or the lobby is up, so no single frame carries a whole poster
 // and nothing is baked while a level plays.
 //   warmPosters(allowed)   start baking in idle slices; allowed() says whether now is a menu
-//   bakeStep() -> bool     one slice of the next poster (false once all fifteen are done)
+//   bakeStep() -> bool     one slice of the next poster (false once all sixteen are done)
 //   posterFor(world) -> canvas | null      TAGLINES[world - 1]: each world's line      reelName(level)
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
@@ -18,6 +18,7 @@ import { lookFor } from '../looks/index.js';
 import { warmAliens } from '../aliens/bake.js';
 import { bossArt } from '../bosses/bake.js';
 import { warmDeep } from '../warm-deep.js';
+import { warmGlass } from '../warm-glass.js';
 import { createView, drawFrame } from '../view.js';
 import { makeCanvas, W } from '../sprites.js';
 import { clamp } from '../../core/math.js';
@@ -38,11 +39,12 @@ export const TAGLINES = [
   'The wind is on our side.',
   'One spark is all it takes.',
   'Never follow the light.',
+  'Every color cuts.',
 ];
 
 const FRAME_W = 768;
 const FRAME_H = 432;
-const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6]; // s into each boss fight: in place, mid-attack
+const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6]; // s into each boss fight: in place, mid-attack
 const LIT = 0.4; // s of effects before the frame (muzzle flashes, sparks); the run-up before has none
 const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
 const CROP_H = 900;
@@ -72,6 +74,8 @@ function* bake(world) {
   bossArt(look, level.boss); // drawn whole: none of the fight's damage art (warmBoss)
   yield;
   warmDeep(look); // Lantern Deep's caustics, maelstrom and sway are heavy to bake: not in the frame's slice
+  yield;
+  warmGlass(look); // so are the Glass Cathedral's light and glass: a slice of their own
   yield;
   const frame = makeCanvas(FRAME_W, FRAME_H);
   const view = createView(frame, level, false); // sky and parallax; the sprites above are already baked

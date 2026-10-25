@@ -5,6 +5,7 @@
 // a scream, a groan as the hull snaps, blasts rising through the chain to the white-out.
 // The boss sounds like its world: the roar and the charge take the world's style (sound-data.js).
 import { tone, hiss, fm, wobble, crush, noteHz, bell } from './audio-kit.js';
+import { glassRoar } from './sfx-glass.js';
 
 // The roar's voice per style: [oscillator wave, pitch, glide steps, waveshaper amount].
 const ROAR = {
@@ -19,6 +20,7 @@ const ROAR = {
 };
 
 function roar(a, h, dur, fall) {
+  if (a.kit.style === 'glass') return glassRoar(a, h, dur); // the Moth: a great bell tolled over an organ cluster, no growl
   const [type, p, steps, drive] = ROAR[a.kit.style] ?? ROAR.noir;
   const dest = crush(a, drive + h * 1.5);
   const f = 72 * p;

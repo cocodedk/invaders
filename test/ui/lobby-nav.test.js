@@ -54,52 +54,47 @@ test('every reel is reachable from the first by the arrows', () => {
   assert.equal(seen.size, 50);
 });
 
-// World 15 makes the side row seven lobby cards, a second shelf as wide as the main row (lobby.css:
-// 76.8 rem against 76.7). Card centres in rem, measured in Chromium on the real lobby at 1280, 1600 and
-// 1920 wide (they agree to 0.1 rem): main world w at 14.05 + 9.7 w, the side cards at 14.7 + 11.1 k. Down
-// from every main world lands on the card under or beside it, by at least 1.4 rem; the middle card stands
-// exactly between worlds 4 and 5, so going up from it reaches either.
-const ROWS15 = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14]];
-const mid = (w) => (w < 8 ? 14.05 + 9.7 * w : 14.7 + 11.1 * (w - 8));
+// World 16 makes the side row eight banners on the same eight columns as the main row (lobby.css: both
+// 76.7 rem wide). Card centres in rem, measured in Chromium on the real lobby at 1280, 1600 and 1920 wide
+// (they agree to 0.01 rem): main world w and side card w - 8 both at 14.05 + 9.7 k. So down from every
+// main world lands on the card straight under it, and up from a side card comes back to the world straight
+// over it; there are no near ties for `near` to settle.
+const ROWS16 = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]];
+const mid = (w) => 14.05 + 9.7 * (w % 8);
 const nearest = (w, row) => row.reduce((a, b) => (Math.abs(mid(b) - mid(w)) < Math.abs(mid(a) - mid(w)) ? b : a));
-const go15 = (at, key) => step(at, MOVE[key], ROWS15, 5, nearest);
+const go16 = (at, key) => step(at, MOVE[key], ROWS16, 5, nearest);
 
-test('a seven-card side row wraps on itself, one card at a time, and reaches world 15', () => {
-  assert.deepEqual(go15([13, 2], 'ArrowRight'), [14, 2], 'world 14 to world 15');
-  assert.deepEqual(go15([14, 2], 'ArrowRight'), [8, 2]);
-  assert.deepEqual(go15([8, 2], 'ArrowLeft'), [14, 2]);
-  assert.deepEqual(go15([14, 2], 'ArrowLeft'), [13, 2]);
-  assert.deepEqual(go15([10, 1], 'ArrowRight'), [11, 1]);
-  assert.deepEqual(go15([10, 1], 'ArrowLeft'), [9, 1]);
+test('an eight-card side row wraps on itself, one card at a time, and reaches world 16', () => {
+  assert.deepEqual(go16([14, 2], 'ArrowRight'), [15, 2], 'world 15 to world 16');
+  assert.deepEqual(go16([15, 2], 'ArrowRight'), [8, 2]);
+  assert.deepEqual(go16([8, 2], 'ArrowLeft'), [15, 2]);
+  assert.deepEqual(go16([15, 2], 'ArrowLeft'), [14, 2]);
+  assert.deepEqual(go16([10, 1], 'ArrowRight'), [11, 1]);
+  assert.deepEqual(go16([10, 1], 'ArrowLeft'), [9, 1]);
 });
 
-test('down from the main row lands on the nearest of the seven side cards, and up comes back to the nearest main world', () => {
-  const below = [8, 9, 10, 11, 11, 12, 13, 14]; // the side card under main worlds 0..7
-  for (const [w, card] of below.entries()) assert.deepEqual(go15([w, 4], 'ArrowDown'), [card, 0], `world ${w + 1}`);
-  const above = [0, 1, 2, null, 5, 6, 7]; // the main world over side cards 0..6; the middle card has two
-  for (const [k, w] of above.entries()) {
-    const to = go15([8 + k, 0], 'ArrowUp');
-    assert.equal(to[1], 4, 'the last reel above');
-    if (w === null) assert.ok([3, 4].includes(to[0]), 'one of the two beside it');
-    else assert.equal(to[0], w, `side card ${k + 1}`);
+test('down from the main row lands on the side card straight under it, and up comes back to the world over it', () => {
+  for (let w = 0; w < 8; w++) {
+    assert.deepEqual(go16([w, 4], 'ArrowDown'), [8 + w, 0], `down from world ${w + 1}`);
+    assert.deepEqual(go16([8 + w, 0], 'ArrowUp'), [w, 4], `up from world ${9 + w}`);
   }
-  assert.equal(go15([14, 4], 'ArrowDown'), null, 'the last row leaves for Back');
-  assert.equal(go15([8, 4], 'ArrowDown'), null);
+  assert.equal(go16([15, 4], 'ArrowDown'), null, 'the last row leaves for Back');
+  assert.equal(go16([8, 4], 'ArrowDown'), null);
 });
 
-test('with the seventh side card every one of the 75 reels is reachable by the arrows', () => {
+test('with the eighth side card every one of the 80 reels is reachable by the arrows', () => {
   const seen = new Set(['0,0']);
   const queue = [[0, 0]];
   while (queue.length) {
     const at = queue.pop();
     for (const key of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']) {
-      const to = go15(at, key);
+      const to = go16(at, key);
       if (to && !seen.has(to.join())) {
         seen.add(to.join());
         queue.push(to);
       }
     }
   }
-  assert.equal(seen.size, 75);
-  for (let r = 0; r < 5; r++) assert.ok(seen.has(`14,${r}`), `world 15, reel ${r + 1}`);
+  assert.equal(seen.size, 80);
+  for (let r = 0; r < 5; r++) assert.ok(seen.has(`15,${r}`), `world 16, reel ${r + 1}`);
 });

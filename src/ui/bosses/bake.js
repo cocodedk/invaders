@@ -39,8 +39,9 @@ import grimoire from './grimoire.js';
 import galleon from './galleon.js';
 import carousel from './carousel.js';
 import angler from './angler.js';
+import moth from './moth.js';
 
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler, moth };
 const cache = new Map();
 
 export function painterFor(mod, id) {

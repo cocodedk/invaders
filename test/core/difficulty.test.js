@@ -79,7 +79,16 @@ test('world 15 runs a notch above world 14, rising within the world, armorBonus 
   own.forEach((d, i) => assert.ok(d > difficulty(14, i + 1) && d - difficulty(14, i + 1) < 0.03, `w15-${i + 1} just above w14-${i + 1}`));
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
   assert.equal(isSide(15), true);
-  assert.equal(isSide(16), false);
+});
+
+test('world 16 runs a notch above world 15, rising within the world, armorBonus on', () => {
+  const own = [1, 2, 3, 4, 5].map((i) => difficulty(16, i));
+  assert.deepEqual(own, [0.74, 0.77, 0.79, 0.82, 0.84]);
+  own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w16-${i + 1}`));
+  own.forEach((d, i) => assert.ok(d > difficulty(15, i + 1) && d - difficulty(15, i + 1) < 0.04, `w16-${i + 1} just above w15-${i + 1}`));
+  assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
+  assert.equal(isSide(16), true);
+  assert.equal(isSide(17), false);
 });
 
 test('scaled gives the documented range at d = 0 and d = 1', () => {

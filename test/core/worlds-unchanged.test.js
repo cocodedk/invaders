@@ -67,6 +67,23 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_15)) {
   });
 }
 
+// World 16 adds one power (the mirror twin) and the moth boss, and reuses world 7's reassemble twist:
+// none of it may touch any other world, world 15 included. The power drops in world 16 alone
+// (powersFor), the twin's shot exists only under the power, and the state hash adds nothing. These are
+// two wave levels of world 15 and its boss level, taken on commit f7a807a, the last before world 16,
+// and held to the same rule as the fingerprints above.
+const BEFORE_WORLD_16 = {
+  'w15-1': {fold: 637999455, end: '1223:68000:3ff656749779fd50', pickup: 4, power: 3, kill: 65, shipHit: 0, fire: 97},
+  'w15-3': {fold: -1765978172, end: '2012:112150:a40120dd9e252faf', pickup: 6, power: 7, kill: 105, shipHit: 0, fire: 211},
+  'w15-5': {fold: 18795663, end: '2818:21500:ccb9fa24539b8bc0', pickup: 6, power: 10, kill: 11, shipHit: 0, fire: 382},
+};
+
+for (const [id, expected] of Object.entries(BEFORE_WORLD_16)) {
+  test(`${id} plays out exactly as it did before world 16`, () => {
+    assert.deepEqual(fingerprint(id), expected);
+  });
+}
+
 test('the replay version stays 8, and the six powers stay the six', () => {
   assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 8);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);

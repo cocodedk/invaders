@@ -1,6 +1,6 @@
 /* The level select as a cinema lobby: a marquee with chasing bulbs, the main run's posters in
    lightboxes, each over its five reels (its showtimes) with stars and best score, and under them,
-   "also showing", the side worlds, each poster beside its reels. */
+   "also showing", the side worlds, each a short banner over its reels. */
 .lobby, .cinema { gap: 1rem; padding: 1.6rem 2rem 1.4rem; }
 .lobby .sub, .cinema .sub { font-size: 1.3rem; }
 .lobby {
@@ -17,17 +17,20 @@
 .lobby-total { color: var(--gold); margin-left: 0.8rem; letter-spacing: 0.06em; }
 
 /* Both rows fit the 54 rem screen: the main row is a poster (13.2 rem) over five reels (about
-   11.7 rem). The side row ("also showing") is a second shelf as wide as the first (76.7 rem): seven
-   lobby cards, each a short banner of the print (3.5 rem: the world's name and tagline) over five
-   slimmer reels, 11 rem tall in all. Measured at 1280, 1600 and 1920 wide: a poster beside its reels
-   needs 103.6 rem for seven (87.8 for six), and squeezed to 4.2 rem it is a sliver whose name is 9 px
-   at 1280; two side rows overflow the screen by 2 to 2.6 rem, and still by 0.6 with the main posters
-   cut to squares. The reels are 10.2 rem wide, so even seven-digit scores fit. "Also showing" hangs in
-   the margin outside the row. */
-.posters { display: grid; grid-template-columns: repeat(8, 8.8rem); gap: 0.9rem; }
+   11.7 rem). The side row ("also showing") is a second shelf on the same eight 8.8 rem columns (76.7 rem
+   wide), so every side world's banner hangs directly under one main poster: eight lobby cards, each a
+   short banner of the print (3.5 rem: the world's name and tagline) over five slimmer reels, 11 rem tall
+   in all. A ninth side world would need a new fit. Measured at 1280, 1600 and 1920 wide (the screen is
+   always 96 x 54 rem, so the rem figures hold at all three; px figures are at 1280): seven 10.2 rem
+   banners (the old fit) make 76.8 rem, eight make 87.9, which fits but stands 5.6 rem proud of the main row
+   on each side with the label 1.5 rem from the screen's edge; two side rows of four overflow the screen
+   by 3.5 rem and push Back off it; a poster beside its reels needs 118 rem. The 8.8 rem banner keeps the
+   longest title ("GLASS CATHEDRAL", 7.7 rem of the 8.8) on one line at 10 px, and a seven-digit
+   score ("1,004,324") inside its reel. "Also showing" hangs in the margin outside the row. */
+.posters, .side { display: grid; grid-template-columns: repeat(8, 8.8rem); gap: 0.9rem; }
 .poster { --accent: #fff; display: flex; flex-direction: column; gap: 0.6rem; transition: transform 0.2s ease; }
-.side { position: relative; display: flex; align-items: flex-start; justify-content: center; gap: 0.9rem; }
-.side .poster { width: 10.2rem; gap: 0.3rem; }
+.side { position: relative; align-items: start; }
+.side .poster { gap: 0.3rem; }
 .side .poster-art { box-sizing: border-box; width: 100%; height: 3.5rem; aspect-ratio: auto; }
 .side .poster-canvas { object-fit: cover; object-position: 50% 22%; }
 .side .poster-world { top: 4.4cqw; left: 5cqw; right: auto; text-align: left; font-size: 5.4cqw; }
@@ -35,7 +38,7 @@
 .side .poster-art::after { background: linear-gradient(90deg, rgba(0, 0, 0, 0.84), rgba(0, 0, 0, 0.56) 60%, rgba(0, 0, 0, 0.12)),
   linear-gradient(0deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 55%); }
 .side .poster-name { font-size: 8.8cqw; white-space: nowrap; text-shadow: 0 0.08rem 0.2rem #000, 0 0 0.5rem #000; }
-.side .poster-tag { margin: 1.2cqw 0 0; font-size: 5.4cqw; line-height: 1.2; }
+.side .poster-tag { margin: 1.2cqw 0 0; font-size: 6.4cqw; line-height: 1.2; }
 .side .poster-bill { display: none; }
 .side .reels { gap: 0.12rem; }
 .side .reel { grid-template-columns: 1.05rem auto 1fr; gap: 0.3rem; padding: 0.08rem 0.32rem; font-size: 0.78rem; }

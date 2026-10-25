@@ -13,7 +13,7 @@ test('world 15 alone drops the pearls and the trident: eight powers, the six fir
   assert.deepEqual(POWERS_15, [...POWERS, 'pearls', 'trident']);
   assert.equal(powersFor({ world: 15 }), POWERS_15);
   assert.equal(powersFor({ world: 13 }), POWERS_13, 'world 13 keeps its wingmen');
-  for (const n of [1, 6, 12, 14, 16]) assert.equal(powersFor({ world: n }), POWERS, `world ${n}`);
+  for (const n of [1, 6, 12, 14, 17]) assert.equal(powersFor({ world: n }), POWERS, `world ${n}`);
   const w = createWorld(level([wave()], 0, { world: 15 }), 99);
   for (let i = 0; i < 1000; i++) hurtAlien(w, { id: i, role: 'carrier', x: 500, y: 200, hp: 1 }, 1);
   const count = (k) => w.pickups.filter((p) => p.kind === k).length;

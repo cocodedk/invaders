@@ -1,4 +1,4 @@
-// Per-world pickup skins (look.world 1..15). A pickup must still read as "catch me" in every world,
+// Per-world pickup skins (look.world 1..16). A pickup must still read as "catch me" in every world,
 // so the falling capsule keeps its dark middle, coloured rim, pulse and turning dashes
 // (pickups-view.js); a world changes the rim's shape and redraws some icons in its own idiom.
 //   FRAMES[world](g, color)        the capsule's rim, centred, inside a 60 x 60 sprite (baked)
@@ -6,7 +6,7 @@
 //                                  also drawn by the HUD every frame, so plain paths only
 //                                  (pickup-icons.js worlds 1-4, pickup-icons-2.js worlds 5-8, pickup-wheel.js
 //                                  the wingmen of world 13, pickup-deep.js world 15's frame and its two
-//                                  icons)
+//                                  icons, pickup-glass.js world 16's frame and the mirror's icon)
 import { INK, rgba, shade, lin } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
@@ -16,6 +16,7 @@ import { gilt } from './pickup-gilt.js';
 import { wheel, ICONS13 } from './pickup-wheel.js';
 import { bulbs } from './pickup-bulbs.js';
 import { shells, ICONS15 } from './pickup-deep.js';
+import { quatrefoil, ICONS16 } from './pickup-glass.js';
 
 export const disc = (g, r) => {
   g.fillStyle = 'rgba(8,10,20,0.88)';
@@ -191,6 +192,7 @@ export const FRAMES = {
   13: wheel, // a ship's wheel (pickup-wheel.js)
   14: bulbs, // a marquee's ring of bulbs (pickup-bulbs.js)
   15: shells, // a ring of scallop shells and pearls (pickup-deep.js)
+  16: quatrefoil, // a gothic quatrefoil of gold tracery set with glass jewels (pickup-glass.js)
 };
 
-export const ICONS = { ...ICONS1, ...ICONS2, 13: ICONS13, 15: ICONS15 };
+export const ICONS = { ...ICONS1, ...ICONS2, 13: ICONS13, 15: ICONS15, 16: ICONS16 };

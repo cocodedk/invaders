@@ -1,8 +1,8 @@
 import { w, lv } from './levels-2.js';
 
-// Level data for worlds 14-15, in the shorthand explained in levels-2.js (levels-3.js is full). Both are
-// side worlds beside the main run, like worlds 9-13: their own d (difficulty.js) puts world 14 a notch
-// above world 13 and world 15 a notch above world 14.
+// Level data for worlds 14-16, in the shorthand explained in levels-2.js (levels-3.js is full). All three
+// are side worlds beside the main run, like worlds 9-13: their own d (difficulty.js) puts world 14 a notch
+// above world 13, world 15 a notch above world 14 and world 16 a notch above world 15.
 export const SIDE2 = [
   // 14 Ember Carnival: clockwork prizes from the booths, stuffed with powder. Tin drones (g) march
   // in dense blocks, firework rockets (d) dive out of the smoke, jack-in-the-box turrets (u) fire
@@ -69,5 +69,39 @@ export const SIDE2 = [
       w('orbit', 3, 'uca', 'aimed', 1.3),
     ], true),
     lv(152241),
+  ],
+  // 16 Glass Cathedral: a half-ruined nave under a dawn sky, where everything is glass, lead and stone.
+  // Stained-glass beetles (g) sway in wide rows, glass swallows (d) dart down from the vault, candle
+  // wisps in lanterns (u) fire, stone gargoyles with glass wings (a) hold the line and gilded reliquaries
+  // (c) carry. Paced like world 6, a notch harder than world 15: aimed shots, fans, rain and spirals.
+  // Every level has a row of gargoyles, because a gargoyle that falls stands up again unless it is shot
+  // while it hangs shattered (the twist). The rows are few, because the mending makes each one costly
+  // at this d, and every level has a wave eight wide, where the mirror twin covers the far flank.
+  // Stained-glass panels (bunkers) stand on the second and fourth.
+  [
+    lv(160417, [
+      w('dive', 6, 'dgdg', 'aimed', 1.0),
+      w('sway', 8, 'gdgg', 'fan', 1.0),
+      w('escort', 3, 'gca', 'rain', 1.05),
+    ]),
+    lv(160884, [
+      w('rain', 8, 'gdgg', 'aimed', 1.1),
+      w('dive', 6, 'dugd', 'fan', 1.1),
+      w('split', 8, 'gagd', 'rain', 1.1),
+      w('orbit', 3, 'aca', 'spiral', 1.15),
+    ], true),
+    lv(161333, [
+      w('grid', 8, 'gdgag', 'fan', 1.0),
+      w('sway', 8, 'dgdg', 'aimed', 1.05),
+      w('spiral', 6, 'dugd', 'aimed', 1.15),
+      w('escort', 3, 'aca', 'rain', 1.2),
+    ]),
+    lv(161796, [
+      w('rain', 8, 'dgag', 'fan', 1.2),
+      w('sway', 6, 'dgdg', 'rain', 1.2),
+      w('split', 8, 'gdg', 'fan', 1.2),
+      w('orbit', 3, 'uca', 'aimed', 1.3),
+    ], true),
+    lv(162241),
   ],
 ];

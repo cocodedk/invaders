@@ -24,6 +24,7 @@ import { warmBoss } from './bosses/bake.js';
 import { warmArmada } from './warm-armada.js';
 import { warmCarnival } from './warm-carnival.js';
 import { warmDeep } from './warm-deep.js';
+import { warmGlass } from './warm-glass.js';
 import { drawBullets } from './bullets-view.js';
 import { drawLasers, drawBeam, drawShots } from './lasers-view.js';
 import { drawShip } from './ship-view.js';
@@ -33,8 +34,8 @@ import { drawFilm } from './film-view.js';
 import { drawHud } from './hud.js';
 import { createQuality } from './quality.js';
 
-// warm (default true) bakes the level's aliens and boss with all their damage art (and world 13's, 14's and 15's
-// sprites, warm-armada.js, warm-carnival.js and warm-deep.js); a poster, which draws one frame and has baked what it draws, passes false.
+// warm (default true) bakes the level's aliens and boss with all their damage art (and world 13's, 14's, 15's and 16's
+// sprites, warm-armada.js, warm-carnival.js, warm-deep.js and warm-glass.js); a poster, which draws one frame and has baked what it draws, passes false.
 export function createView(canvas, level, warm = true) {
   const look = lookFor(level);
   if (warm) {
@@ -43,6 +44,7 @@ export function createView(canvas, level, warm = true) {
     warmArmada(look);
     warmCarnival(look);
     warmDeep(look);
+    warmGlass(look);
   }
   return {
     canvas, ctx: canvas.getContext('2d'), level, look,

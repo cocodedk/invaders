@@ -3,10 +3,13 @@
 //   a 1:1 strip     per role: frame 0, frame 1, the hit flash, cracked 1, cracked 2, as in the game
 //   the last row    a bunker fresh and carved, the eight pickups, the saucer and the wreck (if any); world 14's
 //                   five shells instead; world 15's pearls and trident (the two powers' pickups, the ship with its
-//                   pearls and three trident shots)
+//                   pearls and three trident shots); world 16's mirror pickup, three wrecks of the mending at
+//                   three ages and the twin's glass bolts
+//   dev.html?sheet=w16scene&t=7 (&twin=1)  and  ?sheet=w16boss&phase=1&hurt=wingL:0.5: a whole frame of the look and
+//                   the boss at rest (sheet-scene.js)
 import { clamp } from '../../core/math.js';
 import { WORLDS } from '../../core/levels.js';
-import { POWERS, POWERS_15 } from '../../core/kinds.js';
+import { POWERS, POWERS_15, POWERS_16 } from '../../core/kinds.js';
 import { W, H } from '../sprites.js';
 import { createBunker, hitBunker, BUNKER } from '../../core/bunkers.js';
 import { LOOKS } from '../looks/index.js';
@@ -19,6 +22,10 @@ import { cracked } from './cracks.js';
 import { drawShells } from '../shell-view.js';
 import { drawShip } from '../ship-view.js';
 import { drawTridents } from '../shots-deep.js';
+import { drawScene } from './sheet-scene.js';
+import { drawMending } from '../mending-view.js';
+import { drawMirrorShots } from '../shots-glass.js';
+import { WRECK_TIME } from '../../core/twists-2.js';
 
 const BIG = 2.6;
 
@@ -60,11 +67,20 @@ function powers(g, look) {
   label(g, 'PEARLS · TRIDENT', 1740, 1060);
 }
 
+// World 16: three wrecks of the mending at three ages (just fallen, hanging, about to stand), and the twin's glass bolts.
+function glass(g, look) {
+  [0.5, 1.4, 1.95].forEach((age, k) => drawMending(g, { x: 1500 + k * 150, y: 930, left: WRECK_TIME - age, slot: { row: k, col: 2 } }, look, 1.3 + k));
+  const shot = (x, y) => ({ x, y, vx: 0, vy: -1400, mirror: true });
+  drawMirrorShots(g, [shot(1850, 960), shot(1890, 920)], 1.3);
+  label(g, 'WRECKS · MIRROR BOLTS', 1440, 1000);
+}
+
 export function drawSheet(canvas, id) {
   const n = clamp(parseInt(String(id).replace(/\D/g, ''), 10) || 1, 1, LOOKS.length);
   const look = LOOKS[n - 1];
   canvas.width = W;
   canvas.height = H;
+  if (/scene|boss/.test(String(id))) return drawScene(canvas, n, /boss/.test(String(id))); // the whole look in one frame (sheet-scene.js)
   const g = canvas.getContext('2d');
   g.drawImage(buildSky(look), 0, 0);
   label(g, `W${n} · ${WORLDS[n - 1].name.toUpperCase()} · ALIEN SHEET`, 40, 44, 'left', look.palette.accent);
@@ -82,7 +98,7 @@ export function drawSheet(canvas, id) {
   label(g, 'FRAME 1', 40, 690);
   label(g, '1:1 · FRAME 0 · FRAME 1 · FLASH · CRACK 1 · CRACK 2', 40, 830);
   bunkers(g, look);
-  const pickups = [...(look.world === 15 ? POWERS_15 : POWERS), 'bomb', 'life'].map((kind, k) => ({ kind, x: 560 + k * 92, y: 935 }));
+  const pickups = [...(look.world === 15 ? POWERS_15 : look.world === 16 ? POWERS_16 : POWERS), 'bomb', 'life'].map((kind, k) => ({ kind, x: 560 + k * 92, y: 935 }));
   drawPickups(g, { pickups }, look, 0.3);
   [['saucer', 1340], ['wreck', 1520]].forEach(([name, x]) => {
     const s = extraSprites(look, name, 1.5);
@@ -90,5 +106,6 @@ export function drawSheet(canvas, id) {
   });
   if (look.world === 14) shells(g, look);
   if (look.world === 15) powers(g, look);
+  if (look.world === 16) glass(g, look);
   label(g, 'BUNKERS · PICKUPS · SAUCER · WRECK', 40, 1060);
 }

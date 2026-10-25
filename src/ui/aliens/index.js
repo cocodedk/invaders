@@ -12,7 +12,8 @@
 // silhouette for FLASH s after a hit) and its lights ('lighter'); frames alternate at the world's
 // rate, some worlds bob, swoopers lean into the swoop. The flash is the renderer's own memory: a
 // WeakMap of the hp each alien had when last drawn. Nothing on world or fx is written. In world 14 a shell
-// (alien.shell) wears a lit fuse and a glow on top of its sprite (shell-view.js).
+// (alien.shell) wears a lit fuse and a glow on top of its sprite (shell-view.js); in world 16 a wreck is a cloud of
+// glass shards (mending-view.js).
 import { glow } from '../sprites.js';
 import { clamp } from '../../core/math.js';
 import { WRECK_TIME } from '../../core/twists-2.js';
@@ -20,6 +21,8 @@ import { isSwooping } from '../../core/aliens.js';
 import { art, roleSprites, extraSprites } from './bake.js';
 import { cracked, crackLights } from './cracks.js';
 import { drawShells } from '../shell-view.js';
+import { drawMending } from '../mending-view.js';
+import { GLASS_WORLD } from '../glass-kit.js';
 
 const FLASH = 0.09; // s
 const seen = new WeakMap(); // alien -> { hp, at }
@@ -82,6 +85,10 @@ function halos(ctx, list, look, A, t) {
 }
 
 function wreck(ctx, w, look, t) {
+  if (look.world === GLASS_WORLD) { // world 16: a cloud of glass shards that mends itself (mending-view.js)
+    drawMending(ctx, w, look, t);
+    return;
+  }
   const hurry = WRECK_TIME - w.left; // 0 just fell .. 2 about to rise
   const pulse = 0.5 + 0.5 * Math.sin(t * (5 + hurry * 9));
   const own = extraSprites(look, 'wreck');

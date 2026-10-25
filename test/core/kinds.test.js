@@ -16,6 +16,6 @@ test('kind lists are the agreed names in the agreed order', () => {
   assert.deepEqual(FORMATIONS, ['grid', 'sway', 'dive', 'spiral', 'split', 'escort', 'rain', 'orbit']);
   assert.deepEqual(PATTERNS, ['aimed', 'fan', 'ring', 'spiral', 'laser', 'rain', 'homing', 'shuriken']);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);
-  assert.deepEqual(TWISTS, ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity']);
-  assert.deepEqual(BOSSES, ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler']);
+  assert.deepEqual(TWISTS, ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble']);
+  assert.deepEqual(BOSSES, ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth']);
 });

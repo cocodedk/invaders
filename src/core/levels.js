@@ -13,7 +13,7 @@ import { SIDE2 } from './levels-4.js';
 
 const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon',
   'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
-  'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep'];
+  'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral'];
 
 export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i] }));
 

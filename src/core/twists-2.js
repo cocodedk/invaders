@@ -107,11 +107,12 @@ function standUp(w) {
   return { mode: 'return', t: DIVE_TIME / 2, dive: { fx: w.x, fy: w.y - RISE, ax: w.x, ay: w.y } };
 }
 
-// Damage a wreck (the damage seam, damage.js). It is removed in reassemble().
+// Damage a wreck (the damage seam, damage.js). It is removed in reassemble(). 'wreckDown' names the wreck's slot
+// and the time it had left, so a drawing of the hanging wreck can break up from where its pieces were.
 export function hurtWreck(world, w, dmg) {
   if (w.hp <= 0) return;
   w.hp -= dmg;
-  if (w.hp <= 0) emit(world, 'wreckDown', { x: w.x, y: w.y });
+  if (w.hp <= 0) emit(world, 'wreckDown', { x: w.x, y: w.y, row: w.slot.row, col: w.slot.col, left: w.left });
 }
 
 export function reassemble(world, dt) {

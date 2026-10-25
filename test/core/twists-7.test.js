@@ -47,10 +47,14 @@ test('reassemble: a wreck hangs in the formation, so the alien stands up where t
 test('reassemble: a shot wreck is gone for good, and a reborn alien leaves no second wreck', () => {
   const w = playing(armored('reassemble'));
   killOne(w);
-  shotAt(w, w.wrecks[0]);
+  const wreck = w.wrecks[0];
+  shotAt(w, wreck);
   step(w);
   assert.equal(w.wrecks.length, 0);
-  assert.equal(ofType(drain(w), 'wreckDown').length, 1);
+  const downs = ofType(drain(w), 'wreckDown');
+  assert.equal(downs.length, 1);
+  assert.deepEqual([downs[0].row, downs[0].col], [wreck.slot.row, wreck.slot.col], 'naming the slot it hung in');
+  assert.ok(downs[0].left > 0 && downs[0].left <= 2, 'and the time it had left');
   seconds(w, 3);
   assert.equal(w.aliens.length, 2, 'it did not come back');
   const next = playing(armored('reassemble'));

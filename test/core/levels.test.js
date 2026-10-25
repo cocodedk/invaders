@@ -19,18 +19,18 @@ function assertWaveValid(w, at) {
   assert.ok(aliens(w) <= 40, `${at} has ${aliens(w)} aliens`);
 }
 
-test('WORLDS has the 15 worlds with names, twists and bosses in the spec order', () => {
-  assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+test('WORLDS has the 16 worlds with names, twists and bosses in the spec order', () => {
+  assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
   assert.deepEqual(WORLDS.map((w) => w.name), ['Arcade Origin', 'Neon Rain', 'Twin Suns',
     'Ronin Moon', 'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
-    'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep']);
+    'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral']);
   assert.deepEqual(WORLDS.map((w) => w.twist), TWISTS);
   assert.deepEqual(WORLDS.map((w) => w.boss), BOSSES);
 });
 
-test('there are 75 levels, in order, with unique ids that match world and index', () => {
-  assert.equal(LEVELS.length, 75);
-  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 75);
+test('there are 80 levels, in order, with unique ids that match world and index', () => {
+  assert.equal(LEVELS.length, 80);
+  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 80);
   LEVELS.forEach((l, i) => {
     assert.equal(l.world, Math.floor(i / 5) + 1);
     assert.equal(l.index, (i % 5) + 1);
@@ -45,7 +45,7 @@ test('every level has an integer seed (all distinct), its difficulty and its wor
     assert.equal(l.twist, WORLDS[l.world - 1].twist, `${l.id} twist`);
     assert.equal(typeof l.bunkers, 'boolean', `${l.id} bunkers`);
   }
-  assert.equal(new Set(LEVELS.map((l) => l.seed)).size, 75);
+  assert.equal(new Set(LEVELS.map((l) => l.seed)).size, 80);
 });
 
 test('every wave of every level is valid against kinds.js', () => {
@@ -61,7 +61,7 @@ test('wave levels have 3 to 5 waves and at least one carrier', () => {
 });
 
 test('boss levels name their world boss and have no waves or bunkers', () => {
-  assert.equal(bossLevels.length, 15);
+  assert.equal(bossLevels.length, 16);
   for (const l of bossLevels) {
     assert.equal(l.boss, BOSSES[l.world - 1], l.id);
     assert.ok(!('waves' in l), `${l.id} has waves`);
@@ -70,7 +70,7 @@ test('boss levels name their world boss and have no waves or bunkers', () => {
 });
 
 test('each world uses at least 4 different formations across its wave levels', () => {
-  for (let world = 1; world <= 15; world++) {
+  for (let world = 1; world <= 16; world++) {
     const used = new Set(waveLevels.filter((l) => l.world === world)
       .flatMap((l) => l.waves.map((w) => w.formation)));
     assert.ok(used.size >= 4, `world ${world} uses only ${[...used]}`);
@@ -143,6 +143,22 @@ test('world 15 has reef bunkers on levels 2 and 4 only, divers in most waves and
   assert.equal(levelById('w15-5').boss, 'angler');
 });
 
+test('world 16 has stained-glass bunkers on levels 2 and 4 only, and on every level an armored row and a wide one', () => {
+  const w16 = waveLevels.filter((x) => x.world === 16);
+  assert.equal(w16.length, 4);
+  assert.deepEqual(w16.map((l) => l.bunkers), [false, true, false, true]);
+  assert.ok(w16.every((l) => l.twist === 'reassemble'), "world 7's reassemble, drawn as glass that mends itself");
+  const waves = w16.flatMap((l) => l.waves);
+  // Re-forming gargoyles are costly at this d (a row of eight made w16-1 a third harder at lag 15), so
+  // the levels carry armored rows sparingly: enough on every level for the twist to show.
+  for (const l of w16) assert.ok(l.waves.some((x) => x.roles.includes('armored')), `${l.id} has an armored row, for the twist`);
+  for (const l of w16) assert.ok(l.waves.some((x) => x.cols >= 8), `${l.id} has a wave 8+ columns wide, for the mirror twin`);
+  assert.ok(new Set(waves.map((x) => x.pattern)).size >= 4, 'a mix of bullet patterns');
+  assert.deepEqual(w16.map((l) => l.seed), [160417, 160884, 161333, 161796]);
+  assert.equal(levelById('w16-5').boss, 'moth');
+  assert.equal(levelById('w16-5').seed, 162241);
+});
+
 test('levels are plain data: a JSON round trip changes nothing', () => {
   assert.deepEqual(JSON.parse(JSON.stringify(LEVELS)), LEVELS);
 });
@@ -164,6 +180,6 @@ test('DEMO_LEVEL is a gentle world 1 level: a 6x3 grunt grid, then a sway with o
 
 test('levelById finds every level and returns undefined for an unknown id', () => {
   for (const l of LEVELS) assert.equal(levelById(l.id), l);
-  assert.equal(levelById('w16-1'), undefined);
+  assert.equal(levelById('w17-1'), undefined);
   assert.equal(levelById(''), undefined);
 });

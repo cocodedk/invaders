@@ -7,6 +7,7 @@ import { laserSegment, LASER_WARN } from '../core/patterns.js';
 import { MUZZLE } from '../core/ship.js';
 import { drawBalls } from './shots-armada.js';
 import { drawTridents } from './shots-deep.js';
+import { drawMirrorShots } from './shots-glass.js';
 
 function warning(ctx, b, s, color, t) {
   const k = 1 - b.warn / LASER_WARN;
@@ -77,7 +78,8 @@ export function drawBeam(ctx, world, look, t) {
 }
 
 // Ship shots: a soft coloured streak, a white core, a glow at the head; world 13's side shots are balls, and
-// world 15's trident shots three-pronged bolts (shots-deep.js).
+// world 15's trident shots three-pronged bolts (shots-deep.js) and world 16's mirror twin's shots slim bolts of
+// glass (shots-glass.js).
 export function drawShots(ctx, world, look, t = 0) {
   const shots = world.shots;
   if (!shots.length) return;
@@ -85,7 +87,7 @@ export function drawShots(ctx, world, look, t = 0) {
   const path = (len) => {
     ctx.beginPath();
     for (const p of shots) {
-      if (p.broadside || p.trident) continue; // a cannon ball or a trident, not a streak (shots-armada.js, shots-deep.js)
+      if (p.broadside || p.trident || p.mirror) continue; // a cannon ball, a trident or a glass bolt, not a streak (shots-armada.js, shots-deep.js, shots-glass.js)
       const v = Math.hypot(p.vx, p.vy) || 1;
       ctx.moveTo(p.x, p.y);
       ctx.lineTo(p.x - (p.vx / v) * len, p.y - (p.vy / v) * len);
@@ -109,9 +111,10 @@ export function drawShots(ctx, world, look, t = 0) {
   ctx.lineWidth = 2;
   ctx.stroke();
   const g = glow(color);
-  for (const p of shots) if (!p.broadside && !p.trident) ctx.drawImage(g, p.x - 14, p.y - 14, 28, 28);
+  for (const p of shots) if (!p.broadside && !p.trident && !p.mirror) ctx.drawImage(g, p.x - 14, p.y - 14, 28, 28);
   ctx.globalCompositeOperation = 'source-over';
   ctx.lineCap = 'butt';
   drawBalls(ctx, shots, t);
   drawTridents(ctx, shots, t);
+  drawMirrorShots(ctx, shots, t);
 }

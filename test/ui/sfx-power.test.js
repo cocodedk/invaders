@@ -4,10 +4,10 @@ import { ON, POWER } from '../../src/ui/sfx-power.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { kitFor } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
-import { POWERS_13, POWERS_15 } from '../../src/core/kinds.js';
+import { POWERS_13, POWERS_15, POWERS_16 } from '../../src/core/kinds.js';
 import { node } from './audio-kit.js';
 
-const ALL = [...new Set([...POWERS_13, ...POWERS_15])]; // the six, world 13's wingmen, and world 15's pearls and trident
+const ALL = [...new Set([...POWERS_13, ...POWERS_15, ...POWERS_16])]; // the six, world 13's wingmen, world 15's pearls and trident, and world 16's mirror
 
 // A stand-in AudioContext: every node a patch makes, and whether each source was started and stopped.
 function fakeVoice(kit) {

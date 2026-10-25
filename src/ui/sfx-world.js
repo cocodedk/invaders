@@ -1,11 +1,12 @@
 // Sound patches of the eight world twists: Neon Rain's thunder, Twin Suns' gusts, Ronin Moon's
 // shuriken cut (an ice shard shattering, in Aurora Kingdom), Hive's acid, Code Rain's teleport glitch and
 // bullet-time swell (a page fluttering and a harp note, and a string chord held, in Starlit Archive), Iron
-// Dawn's wrecks that reassemble, Event Horizon's well swallowing bullets (a glassy bloop, in Lantern Deep's
-// maelstrom), and Arcade Origin's warbling saucer.
+// Dawn's wrecks that reassemble (glass that shatters, mends and tinkles, in Glass Cathedral), Event Horizon's
+// well swallowing bullets (a glassy bloop, in Lantern Deep's maelstrom), and Arcade Origin's warbling saucer.
 // A patch is (a, o) -> seconds (audio-kit.js); a.tail is a stereo panner when the sound has an x.
 import { tone, hiss, fm, wobble, crush, noteHz } from './audio-kit.js';
 import { bloop } from './sfx-deep.js';
+import { shatter as glassShatter, mend, tinkle } from './sfx-glass.js';
 import { WIDTH } from '../core/kinds.js';
 
 // Sweep the sound's panner from one side to the other over `secs`.
@@ -102,18 +103,21 @@ export const WORLD = {
     tone(a, { type: 'sawtooth', f0: 82, f1: 440, dur: 0.5, peak: 0.08, cut: 300, cut1: 2400 });
     return 0.6;
   },
-  wreck(a) { // a machine knocked flat, still twitching
+  wreck(a, o) { // a machine knocked flat, still twitching (a pane of glass shatters)
+    if (a.kit.style === 'glass') return glassShatter(a, o);
     tone(a, { f0: 170, f1: 58, dur: 0.22, peak: 0.26 });
     hiss(a, { type: 'lowpass', f0: 3200, f1: 280, dur: 0.32, peak: 0.2 });
     fm(a, { t: a.t + 0.1, f0: 820, ratio: 2.7, index: 2, dur: 0.12, peak: 0.04 });
     return 0.45;
   },
-  wreckDown(a) {
+  wreckDown(a, o) { // (the shards scatter, tinkling)
+    if (a.kit.style === 'glass') return tinkle(a, o);
     hiss(a, { type: 'lowpass', f0: 5000, f1: 250, dur: 0.4, peak: 0.32 });
     fm(a, { f0: 380, f1: 120, ratio: 1.41, index: 3.2, dur: 0.32, peak: 0.08, cut: 3200 });
     return 0.5;
   },
-  reassemble(a) { // a ratchet winding faster, a servo whine, a clunk
+  reassemble(a, o) { // a ratchet winding faster, a servo whine, a clunk (a reversed shimmer rising to a clink)
+    if (a.kit.style === 'glass') return mend(a, o);
     let t = a.t;
     for (let i = 0; i < 9; i++) {
       hiss(a, { t, type: 'highpass', f0: 2600 + i * 200, dur: 0.014, peak: 0.16 });

@@ -10,6 +10,7 @@ import { AMBIENT4 } from './ambient-4.js';
 import { AMBIENT5 } from './ambient-5.js';
 import { AMBIENT6 } from './ambient-6.js';
 import { AMBIENT7 } from './ambient-7.js';
+import { AMBIENT8 } from './ambient-8.js';
 
 const P = {}; // one scratch particle, refilled per index: no per-frame garbage
 function each(a, fn, from = 0, step = 1) {
@@ -124,7 +125,7 @@ const ADDITIVE = {
 export function drawAmbient(ctx, look, phase, env) {
   for (const a of look.ambient) {
     if (a.phase !== phase) continue;
-    const fn = KINDS[a.kind] ?? ADDITIVE[a.kind] ?? AMBIENT2[a.kind] ?? AMBIENT3[a.kind] ?? AMBIENT4[a.kind] ?? AMBIENT5[a.kind] ?? AMBIENT6[a.kind] ?? AMBIENT7[a.kind];
+    const fn = KINDS[a.kind] ?? ADDITIVE[a.kind] ?? AMBIENT2[a.kind] ?? AMBIENT3[a.kind] ?? AMBIENT4[a.kind] ?? AMBIENT5[a.kind] ?? AMBIENT6[a.kind] ?? AMBIENT7[a.kind] ?? AMBIENT8[a.kind];
     if (ADDITIVE[a.kind] || a.additive) ctx.globalCompositeOperation = 'lighter';
     fn(ctx, a, env.t, env.drift, env.wind, env.world);
     ctx.globalAlpha = 1;

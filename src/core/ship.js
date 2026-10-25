@@ -2,9 +2,9 @@ import { approach, clamp } from './math.js';
 import { emit } from './util.js';
 import { MID_X, WIDTH } from './kinds.js';
 
-// The player's ship: movement, the gun (and how spread, rapid, homing, the wingmen, the broadside and the
-// trident change it), and what a hit does. The pearls (world 15) guard the ship but leave the gun alone:
-// pearls.js.
+// The player's ship: movement, the gun (and how spread, rapid, homing, the wingmen, the mirror twin, the
+// broadside and the trident change it), and what a hit does. The pearls (world 15) guard the ship but leave
+// the gun alone: pearls.js.
 
 export const SHIP_R = 14; // hit radius
 export const SHIP_SPEED = 720; // px/s
@@ -62,6 +62,15 @@ export function escortsOf(ship) {
   return [-1, 1].map((k) => ({ x: clamp(ship.x + k * ESCORT_DX, ESCORT_EDGE, WIDTH - ESCORT_EDGE), y: ship.y }));
 }
 
+// The mirror power's twin (world 16), as a list like escortsOf's: the ship reflected across the field's
+// centre line, at its height. The zone is symmetric about that line, so the twin always flies inside it.
+// [] when the power is not running (or the ship is gone). The twin is only a place to fire from and to
+// draw: nothing hits it and it collects nothing, so no collision code reads it.
+export function twinOf(ship) {
+  if (ship.power?.kind !== 'mirror' || !ship.alive) return [];
+  return [{ x: WIDTH - ship.x, y: ship.y }];
+}
+
 // A ship shot: r 5, 1.5 s of life, 1 damage.
 const bolt = (x, y, vx, vy) => ({ pattern: 'shot', x, y, vx, vy, r: 5, life: 1.5, dmg: 1 });
 
@@ -75,7 +84,8 @@ const trident = (x, y, vx, vy) => ({ ...bolt(x, y, vx, vy), r: TRIDENT_R, triden
 // is the single shot, slower, with `seek`: stepBullet steers it toward the nearest alien ahead. The
 // trident's is the single shot as a trident bolt, at the base rate. Under
 // the wingmen each escort fires a copy of the straight shot from its own place (the power is the
-// running one, so the ship's own shot is that straight one). While the broadside is open (world 13)
+// running one, so the ship's own shot is that straight one); under the mirror the twin fires one
+// straight shot, marked `mirror` for the drawing. While the broadside is open (world 13)
 // the volley also sends one shot straight out of each side, level with the ship; 'sideShot' says
 // where, for the sound and the flash.
 function shoot(world) {
@@ -91,6 +101,7 @@ function shoot(world) {
     world.shots.push(shot);
   }
   for (const e of escortsOf(s)) world.shots.push(bolt(e.x, e.y - MUZZLE, 0, -speed));
+  for (const t of twinOf(s)) world.shots.push({ ...bolt(t.x, t.y - MUZZLE, 0, -speed), mirror: true });
   if (s.broadside > 0) sideGuns(world);
   emit(world, 'fire', { side: 'ship', x: at.x, y: at.y, power });
 }

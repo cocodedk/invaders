@@ -114,6 +114,11 @@ export const VOICES = [
     ['{kills}', 'SANK INTO THE DARK.'],
     ['{near} IN THE GLOW.', '{time} WITHOUT SURFACING.'],
   ],
+  [ // Glass Cathedral: dawn through a ruined nave of stained glass, every window an edge
+    ['DAWN THROUGH BROKEN GLASS.', 'EVERY COLOR CUTS.'],
+    ['{kills}', 'SHATTERED INTO LIGHT.'],
+    ['{near} IN THE SHARDS.', '{time} OF STAINED LIGHT.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

@@ -1,7 +1,7 @@
 // Sound patches of the stingers and the menus. The stingers play in the world's scale and its lead
 // voice (chip square, noir saw, koto pluck and taiko, cosmic organ, aurora bells, archive violin, armada
-// horns, carnival steam whistle, abyss theremin...), so a clear in Ronin Moon sounds like Ronin Moon. Menu sounds are
-// short, soft and in key. A patch is (a, o) -> seconds.
+// horns, carnival steam whistle, abyss theremin, glass harmonica...), so a clear in Ronin Moon sounds like
+// Ronin Moon. Menu sounds are short, soft and in key. A patch is (a, o) -> seconds.
 import { tone, hiss, fm, wobble, noteHz } from './audio-kit.js';
 
 // The world's lead voice for melodic stingers: tone options for a note of `dur` seconds.
@@ -21,6 +21,7 @@ const LEAD = {
   armada: { type: 'sawtooth', cut: 900, cut1: 3400, peak: 0.07, attack: 0.05 }, // a horn: the filter opens as the note swells
   carnival: { type: 'sine', peak: 0.11, attack: 0.03 }, // a steam whistle: a pure note, a breath on it and an octave ringing over
   abyss: { type: 'sine', peak: 0.1, attack: 0.07 }, // a theremin: a pure note a hand makes waver, with a glassy ring over it
+  glass: { type: 'sine', peak: 0.09, attack: 0.06 }, // a glass harmonica: a pure note bowed in, a twin beating against it
 };
 
 function note(a, degree, octave, t, dur, peak = 1) {
@@ -41,6 +42,10 @@ function note(a, degree, octave, t, dur, peak = 1) {
   if (a.kit.style === 'abyss') { // the hand shakes the note (5.8 Hz, wider than a violin's) and the glass rings an octave up
     wobble(a, lead.frequency, 5.8, f * 0.012, t + dur * 0.2, dur * 0.8);
     fm(a, { t, f0: f * 2, ratio: 3.51, index: 0.9, dur, peak: v.peak * peak * 0.3 });
+  }
+  if (a.kit.style === 'glass') { // the bow: a twin a few cents off beats against the note, and a thin octave sounds over both
+    tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak * 0.8, detune: 5 });
+    tone(a, { ...v, t, f0: f * 2, dur, peak: v.peak * peak * 0.12 });
   }
   if (['noir', 'brass', 'monster', 'armada'].includes(a.kit.style)) tone(a, { ...v, t, f0: f, dur, peak: v.peak * peak * 0.7, detune: 12 });
 }

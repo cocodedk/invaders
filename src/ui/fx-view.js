@@ -5,6 +5,7 @@ import { INK, rgba, glow, soft } from './sprites.js';
 import { pageSprite } from './ambient-4.js';
 import { drawBloom } from './burst-view.js';
 import { drawBubble } from './bubble-view.js';
+import { drawMend, drawScatter } from './mending-fx-view.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { flashK } from '../fx/fx.js';
 import { TAU } from '../core/math.js';
@@ -72,6 +73,10 @@ function rings(ctx, fx) {
   for (const r of fx.rings) {
     if (r.kind === 'bloom') { // a firework burst (world 14): its own baked flower, burst-view.js
       drawBloom(ctx, r);
+      continue;
+    }
+    if (r.kind === 'mend' || r.kind === 'scatter') { // glass flying together or apart (world 16): the mending's rings, mending-fx-view.js
+      (r.kind === 'mend' ? drawMend : drawScatter)(ctx, r);
       continue;
     }
     if (r.kind === 'bubble') { // a bullet the maelstrom swallowed (world 15): a bubble spiralling down and popping, bubble-view.js

@@ -8,6 +8,7 @@ import { tomes } from './bunker-tomes.js';
 import { cargo } from './bunker-cargo.js';
 import { booth } from './bunker-booth.js';
 import { reef } from './bunker-reef.js';
+import { glassWall } from './bunker-glass.js';
 
 const grain = (x, y, a) => (hash2(x >> 1, y >> 1) - 0.5) * a;
 
@@ -153,4 +154,4 @@ function glacier(x, y, w, h, P) {
   return [P.fill, 0.34 * (1 - y / h) - 0.4 * (y / h) ** 2 + band + (noise2(x, y, 9, 5) - 0.5) * 0.22 + grain(x, y, 0.1)];
 }
 
-export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container, gravestone, glacier, tomes, cargo, booth, reef };
+export const SKINS = { plain, phosphor, kiosk, sandstone, shrine, resin, data, rubble, ice, container, gravestone, glacier, tomes, cargo, booth, reef, glass: glassWall };

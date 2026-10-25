@@ -98,6 +98,17 @@ export const DRUM = {
       for (const detune of [-7, 8]) tone(a, { type: 'triangle', t, f0: noteHz(a.kit, n.shift + d, 3), detune, attack: 1.2, dur: 2.6, peak: 0.03, cut: 700 });
     }
   },
+  q: (a, t, n) => { // a choir bowing in over two bars: the chord's root, third, fifth and octave, each two detuned sawtooth voices through a vowel's resonance, and the root low under them
+    for (const d of [0, 2, 4, 7]) {
+      for (const detune of [-7, 8]) tone(a, { type: 'sawtooth', t, f0: noteHz(a.kit, n.shift + d, 3), detune, attack: 1, hold: 1.2, dur: 1.4, peak: 0.024, cut: 900, cut1: 1500, q: 3 });
+    }
+    tone(a, { type: 'triangle', t, f0: noteHz(a.kit, n.shift, 2), attack: 1, hold: 1.2, dur: 1.4, peak: 0.07, cut: 500 });
+  },
+  x: (a, t, n) => { // a tubular bell: a struck tube (a free bar's partners, 2.76 times the note) ringing long, the chord's root high in the first bar of a pair and its fifth low in the second, and the mallet's tick
+    const high = n.step % 12 < 6;
+    fm(a, { t, f0: noteHz(a.kit, n.shift + (high ? 0 : 4), high ? 4 : 3), ratio: 2.76, index: 1.5, dur: 2.4, peak: 0.09, cut: 7000 });
+    hiss(a, { t, type: 'highpass', f0: 5000, dur: 0.02, peak: 0.03 });
+  },
   v: (a, t) => { // strings bowing a chord in: root, third, fifth and octave, each two detuned sawtooth voices, the bow opening the filter
     for (const d of [0, 2, 4, 7]) {
       for (const detune of [-8, 9]) tone(a, { type: 'sawtooth', t, f0: noteHz(a.kit, d, 3), detune, attack: 0.9, dur: 1.7, peak: 0.035, cut: 600, cut1: 2200 });

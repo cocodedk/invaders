@@ -1,13 +1,15 @@
 // The player's fighter: a chrome hull with a dark outline (it reads on any sky), wing-tip lights in
 // the world's accent, twin engine flames that stretch when it climbs, a fading wake behind its
 // motion, a roll into every sideways move, a shield bubble, and a blink while invulnerable. World 13's
-// wingmen and side guns are drawn with it (ship-armada.js), and world 15's pearls (ship-deep.js).
+// wingmen and side guns are drawn with it (ship-armada.js), world 15's pearls (ship-deep.js) and world 16's mirror
+// twin (ship-glass.js).
 // Stateless: everything comes from the ship's position, velocity and t.
 import { INK, rgba, glow, star, addGlow } from './sprites.js';
 import { clamp, TAU } from '../core/math.js';
 import { SHIP_SPEED } from '../core/ship.js';
 import { drawEscorts, drawGunPorts } from './ship-armada.js';
 import { drawPearls } from './ship-deep.js';
+import { drawTwin } from './ship-glass.js';
 
 // `alpha` is the ship's own (0.3 while it blinks), so the flames blink with it.
 function flames(ctx, s, accent, t, alpha) {
@@ -118,6 +120,7 @@ export function drawShip(ctx, world, look, t) {
   flames(ctx, s, accent, t, alpha);
   drawEscorts(ctx, s, look, t, alpha);
   drawPearls(ctx, s, look, t, alpha);
+  drawTwin(ctx, s, look, t, alpha);
   ctx.globalAlpha = alpha;
   const bank = clamp(s.vx / SHIP_SPEED, -1, 1);
   ctx.save();

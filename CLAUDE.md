@@ -1,6 +1,6 @@
 # Invaders — working notes
 
-A single-player cinematic arcade shooter for the browser and the Pi games menu: 15 cinematic worlds
+A single-player cinematic arcade shooter for the browser and the Pi games menu: 16 cinematic worlds
 x 5 levels, free 2D flight, formations, bosses, power-ups, and a movie trailer cut from your own
 run. The design is `docs/superpowers/specs/2026-10-17-invaders-design.md` and the build plan is
 `docs/superpowers/plans/2026-10-17-invaders.md`; the spec is the authority. Barrage
@@ -45,7 +45,7 @@ import across repos.
 
 ## Level data
 
-`src/core/levels.js`, `levels-2.js`, `levels-3.js` and `levels-4.js` hold the 75 levels in a shorthand:
+`src/core/levels.js`, `levels-2.js`, `levels-3.js` and `levels-4.js` hold the 80 levels in a shorthand:
 `w(formation, cols, 'roles', pattern, speed)` is one wave, `roles` being one letter per row (g grunt,
 d diver, u gunner, a armored, c carrier). A carrier row holds `cols` carriers, so carrier waves stay
 narrow. `test/core/levels.test.js` enforces the data rules (3-5 waves, at most 40 aliens a wave, a

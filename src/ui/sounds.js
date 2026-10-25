@@ -9,9 +9,10 @@
 // escorts' rattle with the ship's shot while the wingmen run (the fire event's power). World 14's firework
 // shells sound through `burst`, pitched by where and how far down the chain it goes off (sfx-carnival.js).
 // World 15's pearls sound where they wipe a bullet (`pearlBlock`) or strike an alien (`pearlHit`), and each
-// trident shot adds a zip to the ship's own shot, which keeps the beat (sfx-deep.js).
+// trident shot adds a zip to the ship's own shot, which keeps the beat (sfx-deep.js). World 16's mirror twin
+// pings with every shot of the ship, at the twin's x on the other side of the field (sfx-glass.js).
 import { CHAIN } from '../core/boss-phase.js';
-import { MID_X } from '../core/kinds.js';
+import { MID_X, WIDTH } from '../core/kinds.js';
 
 export const SILENT = {
   failed: 'the failed screen plays the stinger',
@@ -34,6 +35,7 @@ export function eventSounds(events, world, play) {
           if (e.power !== 'laser') play('shot', { power: e.power, x: e.x }); // the beam hums instead
           if (e.power === 'wingmen') play('escortShot', { x: e.x }); // the two escorts fire with the ship
           if (e.power === 'trident') play('tridentZip', { x: e.x }); // the shot is still a drum hit: the zip rides on it
+          if (e.power === 'mirror') play('mirrorShot', { x: WIDTH - e.x }); // the glass twin fires opposite the ship
         } else if (e.pattern === 'laser') play('laserWarn', at(e));
         else play('enemyShot', { pattern: e.pattern, boss: e.role === 'boss', x: e.x });
         break;
