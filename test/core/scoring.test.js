@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
 import { ROLES } from '../../src/core/kinds.js';
 import { stars } from '../../src/core/scoring.js';
 import { level, wave, step, seconds, playing, drain, ofType, shotAt } from './world-kit.js';
@@ -80,4 +81,10 @@ test('stars: 3 with no hits, 2 after one life lost, 1 after two, 0 unless cleare
   assert.deepEqual(earned, [3, 2, 1, 1]);
   w.state = 'failed';
   assert.equal(stars(w), 0);
+});
+
+test('every point is awarded in scoring.js, by the same rules in every level: no other core module writes the score', () => {
+  const dir = new URL('../../src/core/', import.meta.url);
+  const writes = (f) => /\.score\s*[+-]?=[^=]/.test(readFileSync(new URL(f, dir), 'utf8'));
+  assert.deepEqual(readdirSync(dir).filter((f) => f.endsWith('.js') && writes(f)), ['scoring.js']);
 });

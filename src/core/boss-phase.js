@@ -1,10 +1,10 @@
 import { bossDef } from './bosses-data.js';
 import { emit } from './util.js';
+import { awardBoss } from './scoring.js';
 
 // A boss's health and the story it tells: phases begin as hp falls through their thresholds, and
 // at 0 hp the boss dies. Everything here runs after anything that can change a part's hp.
 
-const BOSS_SCORE = 10000;
 export const CHAIN = 3; // s of destruction chain between the death and the clear
 
 // Begin phase `i`: fresh attack and minion countdowns, and the parts it opens (those become weak).
@@ -24,12 +24,12 @@ export function beginPhase(b, i) {
   return opened;
 }
 
-// The boss is dead: its score, an end to everything it was throwing, and the chain begins.
+// The boss is dead: its points (awardBoss), an end to everything it was throwing, and the chain begins.
 function die(world, b) {
   b.dying = CHAIN;
   b.blast = 0;
   b.warns.length = 0;
-  world.score += BOSS_SCORE;
+  const score = awardBoss(world);
   world.bullets.length = 0; // a wipe, not a dodge: no near miss (R37)
   for (const a of world.aliens) {
     if (a.minion && a.hp > 0) {
@@ -37,7 +37,7 @@ function die(world, b) {
       emit(world, 'explode', { x: a.x, y: a.y, size: 1 });
     }
   }
-  emit(world, 'bossDeath', { kind: b.kind, x: b.x, y: b.y, score: BOSS_SCORE });
+  emit(world, 'bossDeath', { kind: b.kind, x: b.x, y: b.y, score });
 }
 
 // When no weak point is left alive the plates crack open: every live armor part becomes weak (and

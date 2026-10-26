@@ -1,14 +1,17 @@
 import { ROLES } from './kinds.js';
 import { emit } from './util.js';
 
-// Points, the combo and stars. world.combo = { mult, timer }: every kill within COMBO_WINDOW of the
-// last raises mult by 1 (up to COMBO_MAX); timer counts down and mult falls back to 1 at 0. A pickup
-// is worth a flat PICKUP_POINTS, caught or swept up at the clear (R51): no multiplier, the combo
-// untouched, so it reads the same every time.
+// Points, the combo and stars: every point the score gets is awarded here, by the same rules in every
+// level of every world. world.combo = { mult, timer }: every kill within COMBO_WINDOW of the last
+// raises mult by 1 (up to COMBO_MAX); timer counts down and mult falls back to 1 at 0. A pickup is
+// worth a flat PICKUP_POINTS, caught or swept up at the clear (R51), and a boss's death a flat
+// BOSS_POINTS: no multiplier, the combo untouched, so they read the same every time.
 
 export const COMBO_WINDOW = 1.5;
 export const COMBO_MAX = 8;
+export const COMBO_HOT = 4; // from this multiplier the combo runs hot: the meter pulses, pop-ups turn gold, the kill sound sizzles
 const PICKUP_POINTS = 500;
+const BOSS_POINTS = 10000;
 const CLEAR_BONUS = 2000;
 const FLAWLESS_BONUS = 3000; // on top of CLEAR_BONUS when the ship was never hit
 
@@ -42,12 +45,21 @@ export function tickCombo(world, dt) {
   if (c.timer === 0) c.mult = 1;
 }
 
-export const clearBonus = (world) => CLEAR_BONUS + (world.hits === 0 ? FLAWLESS_BONUS : 0);
+// A boss is dead: its points go on the score. Returns them, for the event that announces the death.
+export function awardBoss(world) {
+  world.score += BOSS_POINTS;
+  return BOSS_POINTS;
+}
+
+// The level is cleared, wave level or boss alike: the clear bonus (and the flawless one when the ship
+// was never hit) goes on the score. Returns it, for the cleared event.
+export function awardClear(world) {
+  const bonus = CLEAR_BONUS + (world.hits === 0 ? FLAWLESS_BONUS : 0);
+  world.score += bonus;
+  return bonus;
+}
 
 export const MAX_STARS = 3;
 
 // 0 unless cleared; 3 with no hits, 2 after losing one life, 1 after more.
-export function stars(world) {
-  if (world.state !== 'cleared') return 0;
-  return world.hits === 0 ? MAX_STARS : world.hits === 1 ? 2 : 1;
-}
+export const stars = (world) => (world.state === 'cleared' ? Math.max(1, MAX_STARS - world.hits) : 0);

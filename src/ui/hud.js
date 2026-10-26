@@ -6,7 +6,7 @@
 // hud = the view's HUD state { lag } (the boss bar's trailing damage).
 import { W, rgba, shade, glow } from './sprites.js';
 import { approach, clamp, TAU } from '../core/math.js';
-import { COMBO_WINDOW, COMBO_MAX } from '../core/scoring.js';
+import { COMBO_WINDOW, COMBO_MAX, COMBO_HOT } from '../core/scoring.js';
 import { powerTime, BOMB_MAX } from '../core/powerups.js';
 import { LIVES } from '../core/ship.js';
 import { ENTER } from '../core/boss-move.js';
@@ -37,7 +37,7 @@ function score(ctx, world) {
 
 function combo(ctx, world, t) {
   const { mult, timer } = world.combo;
-  const hotK = mult >= COMBO_MAX ? 2 : mult >= 4 ? 1 : 0;
+  const hotK = mult >= COMBO_MAX ? 2 : mult >= COMBO_HOT ? 1 : 0;
   const x = 404;
   if (hotK === 2) { // burning: flames licking up round the meter
     ctx.globalCompositeOperation = 'lighter';

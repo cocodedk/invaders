@@ -4,6 +4,7 @@ import { addFlash, addPopup, addRing, BONUS_Y, startSlowMo } from './fx.js';
 import { debris, FIRE, powerColor, sparks, smoke } from './emit.js';
 import { clamp } from '../core/math.js';
 import { MID_X } from '../core/kinds.js';
+import { COMBO_MAX, COMBO_HOT } from '../core/scoring.js';
 import { fireFor } from './react-armada.js';
 
 const ROLE_COLORS = {
@@ -24,17 +25,17 @@ const BLASTS = [
   { flash: 520, ring: 760, sparks: 40, smoke: 10, shake: 30 },
 ];
 
-const comboColor = (mult) => (mult >= 8 ? '#ff7a3a' : mult >= 4 ? '#ffd24a' : mult >= 2 ? '#fff6c8' : '#ffffff');
+const comboColor = (mult) => (mult >= COMBO_MAX ? '#ff7a3a' : mult >= COMBO_HOT ? '#ffd24a' : mult >= 2 ? '#fff6c8' : '#ffffff');
 
 function kill(fx, ev, rng) {
   const carrier = ev.role === 'carrier';
   debris(fx, rng, ev.x, ev.y, carrier ? 12 : 8, ROLE_COLORS[ev.role] ?? ROLE_COLORS.grunt, 220);
   if (carrier) sparks(fx, rng, ev.x, ev.y, 10, 300, GOLD);
-  if (!ev.scored || !(ev.score > 0)) return;
+  if (!ev.scored) return;
   const mult = ev.mult ?? 1;
   addPopup(fx, {
     x: ev.x, y: ev.y - 18, text: '+' + ev.score, color: comboColor(mult),
-    scale: 1 + Math.min(mult, 8) * 0.08,
+    scale: 1 + Math.min(mult, COMBO_MAX) * 0.08,
   });
 }
 

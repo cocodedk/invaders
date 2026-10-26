@@ -7,7 +7,7 @@ import { stepPickups, sweepPickups, tickPower } from './powerups.js';
 import { stepBeam, stepBomb } from './weapons.js';
 import { collide } from './collide.js';
 import { stepBullet } from './patterns.js';
-import { tickCombo, clearBonus, stars } from './scoring.js';
+import { tickCombo, awardClear, stars } from './scoring.js';
 import { emit, prune } from './util.js';
 import { WIDTH, HEIGHT } from './kinds.js';
 
@@ -64,13 +64,12 @@ function won(world) {
 function settle(world) {
   if (won(world)) {
     sweepPickups(world);
-    const bonus = clearBonus(world);
-    world.score += bonus;
+    const bonus = awardClear(world);
     world.state = 'cleared';
     emit(world, 'cleared', { score: world.score, bonus, stars: stars(world) });
   } else if (world.ship.lives <= 0) {
     world.state = 'failed';
-    emit(world, 'failed', { score: world.score });
+    emit(world, 'failed');
   }
 }
 
