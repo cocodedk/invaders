@@ -14,9 +14,9 @@ import { SIDE2, PREVIEW } from './levels-4.js';
 const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon',
   'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
   'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky'];
-const FREE = [18]; // R67: the worlds whose levels fly free (ship.js zoneOf, collide.js)
+export const FREE_FROM = 18; // R67: every world from this one on flies free (ship.js zoneOf, collide.js); 1-17 keep the bottom strip
 
-export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i], free: FREE.includes(i + 1) }));
+export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i], free: i + 1 >= FREE_FROM }));
 
 // A level's world name, and its place in the world: 'Reel 3', or the boss level's 'Finale'.
 export const worldName = (level) => WORLDS[level.world - 1]?.name ?? '';

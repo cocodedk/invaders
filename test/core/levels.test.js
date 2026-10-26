@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { WORLDS, LEVELS, DEMO_LEVEL, levelById } from '../../src/core/levels.js';
+import { WORLDS, LEVELS, DEMO_LEVEL, FREE_FROM, levelById } from '../../src/core/levels.js';
 import { difficulty } from '../../src/core/difficulty.js';
 import { ROLES, FORMATIONS, PATTERNS, TWISTS, BOSSES } from '../../src/core/kinds.js';
 
@@ -19,14 +19,15 @@ function assertWaveValid(w, at) {
   assert.ok(aliens(w) <= 40, `${at} has ${aliens(w)} aliens`);
 }
 
-test('WORLDS has the 18 worlds with names, twists and bosses in the spec order; world 18 alone flies free and has no boss', () => {
+test('WORLDS has the 18 worlds with names, twists and bosses in the spec order; every world from 18 on flies free; 18 has no boss', () => {
   assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]);
   assert.deepEqual(WORLDS.map((w) => w.name), ['Arcade Origin', 'Neon Rain', 'Twin Suns',
     'Ronin Moon', 'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
     'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky']);
   assert.deepEqual(WORLDS.map((w) => w.twist), TWISTS);
   assert.deepEqual(WORLDS.map((w) => w.boss), [...BOSSES, undefined]);
-  assert.deepEqual(WORLDS.filter((w) => w.free).map((w) => w.id), [18]);
+  assert.equal(FREE_FROM, 18);
+  for (const w of WORLDS) assert.equal(w.free, w.id >= FREE_FROM, `world ${w.id} free`);
 });
 
 test('there are 86 levels, in order, with unique ids that match world and index: five a world, and world 18 has one', () => {
@@ -48,7 +49,7 @@ test('every level has an integer seed (all distinct), its difficulty and its wor
     assert.equal(typeof l.bunkers, 'boolean', `${l.id} bunkers`);
   }
   assert.equal(new Set(LEVELS.map((l) => l.seed)).size, LEVELS.length);
-  for (const l of LEVELS) assert.equal(l.free, l.world === 18 ? true : undefined, `${l.id} free`);
+  for (const l of LEVELS) assert.equal(l.free, l.world >= FREE_FROM ? true : undefined, `${l.id} free`);
 });
 
 test('every wave of every level is valid against kinds.js', () => {

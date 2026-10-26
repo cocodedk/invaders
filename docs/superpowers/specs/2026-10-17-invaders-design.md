@@ -26,6 +26,7 @@ flight, formations, bosses, power-ups — plus one feature no shooter has: your 
   ship flies level with the aliens. The user knows it changes the game's mechanics (R67).
 - World 18's side guns turn the tide, so make them a power-up: they drop like the other powers and
   catching them costs the medal; a bomb or a life no longer opens them (R67).
+- Free flight is liberating: make it the rule for every world from 18 on (R67).
 
 Assumptions (not stated, chosen here): English only; keyboard + mouse, no gamepad; installed on the
 Pi like Barrage; worlds evoke film genres under original names — no film titles, characters, logos or
@@ -274,7 +275,8 @@ quoted lines, so the repo can be public.
     half again at lag 15. World 16, re-run on the new rules, clears exactly as before.
   - **World 18, Anvil Sky: free flight (R67).** The user asked to fly at the aliens and hit them with
     their own bullets, tried first in a world of one level. It is a dogfight inside a thunderstorm at
-    dusk. Its levels carry `free` (world 18's alone; every other world plays exactly as before, pinned
+    dusk. Its levels carry `free` (every world from 18 on, `FREE_FROM`, flies free; worlds 1-17 keep the
+    bottom strip and play exactly as before, pinned
     by fingerprints of world 17, and the replay version stays 9), which changes three rules:
     - The ship flies anywhere under the HUD: the zone is y ∈ [150, 1040] instead of [620, 1040], so the ship's nose stays under the HUD panels
       (`ship.js zoneOf`). The pointer maps onto that zone too.
@@ -297,6 +299,8 @@ quoted lines, so the repo can be public.
     lands about 22 backfires a run in about 70 kills; one that strafes along the bottom drags almost
     every bullet but lands almost none, because nothing is below it. In Level Select it is the sneak
     preview, one card with one reel beside Back and Reset scores, not a tenth side poster.
+    A boss in free flight (flying into it, its attacks on a ship that can be anywhere) is not designed
+    yet: the first free world with a boss settles it.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
