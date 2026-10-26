@@ -14,7 +14,8 @@
   background: radial-gradient(circle, #fff1c2 0 0.22rem, rgba(255, 190, 80, 0.35) 0.3rem, transparent 0.42rem) 0 50% / 1.4rem 1rem repeat-x;
   filter: drop-shadow(0 0 0.4rem rgba(255, 180, 60, 0.9)); animation: chase 0.9s steps(2) infinite; }
 @keyframes chase { to { background-position: 1.4rem 50%; } }
-.lobby-total { color: var(--gold); margin-left: 0.8rem; letter-spacing: 0.06em; }
+.lobby-total, .lobby-rank { color: var(--gold); margin-left: 0.8rem; letter-spacing: 0.06em; }
+.lobby-rank { margin-left: 1.4rem; }
 
 /* Both rows fit the 54 rem screen: the main row is a poster (13.2 rem) over five reels (about
    11.7 rem). The side row ("also showing") is a second shelf under it of nine lobby cards, each a short
@@ -88,6 +89,9 @@
 }
 .reel-n { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; font-size: 0.82rem;
   font-weight: 900; color: #0b0d18; background: rgba(255, 255, 255, 0.72); }
+.reel-n { position: relative; }
+.reel-n .medal { position: absolute; right: -0.4rem; bottom: -0.32rem; margin: 0; font-size: 1rem; }
+.side .reel-n .medal { right: -0.3rem; bottom: -0.2rem; font-size: 0.7rem; }
 .reel.finale .reel-n { background: #ff5a4a; color: #fff; box-shadow: 0 0 0.6rem rgba(255, 70, 50, 0.7); }
 .reel .stars { font-size: 0.82rem; letter-spacing: 0.02em; }
 .reel-best { font-variant-numeric: tabular-nums; color: var(--ink-dim); font-size: 0.82rem; }

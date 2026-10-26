@@ -44,7 +44,7 @@ test('the clear sweeps up every pickup in the air: scored before `cleared`, none
   assert.ok(swept.every((e) => e.y < 400 && e.tick === ev.at(-1).tick), 'from where they were, on the clear tick');
   const [kill] = ofType(ev, 'kill');
   const [done] = ofType(ev, 'cleared');
-  assert.equal(done.score, before + kill.score + 2 * 500 + done.bonus, 'the cleared score includes them');
+  assert.equal(w.tally.base, before + kill.score + 2 * 500, 'the cleared score includes them');
   assert.equal(w.score, done.score);
   assert.equal(w.pickups.length, 0);
   assert.equal(w.ship.power, null, 'no power after the level');
@@ -61,7 +61,7 @@ test('a level cleared with no pickup in the air ends as before', () => {
   assert.equal(ofType(ev, 'sweep').length, 0);
   assert.equal(ev.at(-1).type, 'cleared');
   const [kill] = ofType(ev, 'kill');
-  assert.equal(w.score, before + kill.score + ev.at(-1).bonus);
+  assert.equal(w.tally.base, before + kill.score);
 });
 
 test('a pickup the ship touches on the clear tick is caught as usual, not swept', () => {
@@ -88,7 +88,7 @@ test('the clear and the ship\'s last life on one tick: cleared wins, and the pic
   const ends = types(ev).filter((t) => ['shipHit', 'sweep', 'cleared', 'failed'].includes(t));
   assert.deepEqual(ends, ['shipHit', 'sweep', 'cleared']);
   const [kill] = ofType(ev, 'kill');
-  assert.equal(w.score, before + kill.score + 500 + ev.at(-1).bonus, 'its 500 counts');
+  assert.equal(w.tally.base, before + kill.score + 500, 'its 500 counts');
   assert.equal(w.pickups.length, 0);
 });
 
@@ -105,7 +105,7 @@ test('a carrier killed on the clear tick drops its pickup, and the sweep takes i
   assert.deepEqual([swept.x, swept.y], [carrier.x, carrier.y], 'from where the carrier died');
   assert.equal(ofType(ev, 'pickup').length, 0, 'not caught');
   const [kill] = ofType(ev, 'kill');
-  assert.equal(w.score, before + kill.score + 500 + ev.at(-1).bonus);
+  assert.equal(w.tally.base, before + kill.score + 500);
   assert.equal(w.pickups.length, 0);
 });
 
@@ -133,6 +133,6 @@ test('a boss level: the destruction chain ends in the same sweep, before `cleare
   assert.equal(w.state, 'cleared');
   const ev = drain(w);
   assert.deepEqual(types(ev).slice(-2), ['sweep', 'cleared']);
-  assert.equal(w.score, before + 500 + ev.at(-1).bonus);
+  assert.equal(w.tally.base, before + 500);
   assert.equal(w.pickups.length, 0);
 });

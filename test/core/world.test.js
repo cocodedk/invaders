@@ -71,7 +71,8 @@ test('clearing the last wave clears the level: +2000, +3000 more with no hits', 
   const ev = drain(w);
   const [clear] = ofType(ev, 'cleared');
   assert.deepEqual([clear.bonus, clear.stars], [5000, 3]);
-  assert.equal(w.score, 100 + 200 + 5000, 'two kills at x1 and x2, then the bonus');
+  assert.equal(w.tally.base, 100 + 200, 'two kills at x1 and x2');
+  assert.equal(w.score, w.tally.total, 'then the round is tallied (scoring-tally.test.js)');
   assert.equal(clear.score, w.score);
   assert.equal(ofType(ev, 'waveClear')[0].last, true);
   assert.equal(stars(w), 3);

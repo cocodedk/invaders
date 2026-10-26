@@ -1,4 +1,4 @@
-/* Invaders screens: the title logo, the level title card, pause, results and failed. */
+/* Invaders screens: the title logo, the level title card, pause, results, failed and the confirm card. */
 
 /* ---- title -------------------------------------------------------------- */
 /* a soft scrim pooled behind the logo and menu: the battle stays visible round the edges */
@@ -62,6 +62,15 @@
 /* ---- pause ---------------------------------------------------------------- */
 .pause .menu { animation: rise 0.4s ease both; }
 
+/* ---- confirm (laid over the lobby: Reset scores) ------------------------- */
+.confirm.dim { z-index: 2; background: rgba(4, 5, 12, 0.88); }
+.confirm-text { margin: 0; max-width: 46rem; font-size: 1.7rem; font-weight: 700; line-height: 1.4; text-align: center; text-wrap: balance;
+  color: var(--ink-dim); }
+.btn-danger { color: #ffd9d4; border-color: rgba(255, 90, 74, 0.5);
+  background: linear-gradient(180deg, rgba(150, 30, 24, 0.55), rgba(90, 14, 12, 0.5)), var(--glass); }
+.btn-danger:focus { border-color: #ff5a4a; box-shadow: 0 0 0 0.3rem rgba(255, 90, 74, 0.32), 0 0 2.4rem rgba(255, 60, 40, 0.5);
+  background: linear-gradient(180deg, rgba(255, 90, 74, 0.45), rgba(190, 30, 20, 0.35)), var(--glass-hi); }
+
 /* ---- results and failed --------------------------------------------------- */
 .results { gap: 2.6rem; }
 .banner { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; text-align: center; }
@@ -79,6 +88,13 @@
 .result-line { display: flex; align-items: baseline; justify-content: center; gap: 1.2rem; margin: 0; }
 .result-cap { font-size: 1.4rem; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-dim); }
 .result-score { font: 900 4.4rem var(--display); font-variant-numeric: tabular-nums; }
+.result-tally { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; margin: 0.1rem 0 0.3rem; }
+.tally-line { margin: 0; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.05em; font-variant-numeric: tabular-nums; color: var(--ink-dim); }
+.tally-medal { color: var(--gold); font-weight: 800; }
+.tally-medal .medal { margin: 0 0.45em 0 0; font-size: 1.15em; }
+.result-promo { margin: 0.3rem 0 0; opacity: 0; font-size: 2.1rem; font-weight: 900; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold); text-shadow: 0 0 1.4rem rgba(255, 190, 60, 0.8); }
+.result-promo.shown { animation: slam 0.5s cubic-bezier(0.2, 1.5, 0.3, 1) both; }
 .result-best { margin: 0; font-size: 1.7rem; font-weight: 800; color: var(--ink-dim); letter-spacing: 0.06em; }
 .result-best.new { opacity: 0; color: #1a1205; background: linear-gradient(180deg, #fff3b8, var(--gold)); padding: 0.3rem 1.4rem;
   border-radius: 0.6rem; letter-spacing: 0.24em; text-transform: uppercase; box-shadow: 0 0 2rem rgba(255, 190, 60, 0.7); }
@@ -89,5 +105,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .logo, .logo-glow, .logo-shine, .logo-chroma, .banner-title, .card-bar span, .stars-big i.stamp { animation: none; }
-  .result-best.new.shown { animation: none; opacity: 1; }
+  .result-best.new.shown, .result-promo.shown { animation: none; opacity: 1; }
 }

@@ -4,11 +4,14 @@
 // which show the results or failed card. trailer/routes.js replaces those two to run the trailer or
 // the blooper first; each ends by calling flow.showResults(outcome) / flow.showFailed(outcome).
 //   outcome = { level, mode ('play' | 'try'), cleared, score, stars, best, newBest,
+//               tally (the world's tally of a cleared level: time, par, speed, the bonuses, medal; else null),
+//               promoted (the name of the rank this clear's medal reached, else null),
 //               recording: { level, seed, inputs, events, ticks, score, stars, state, tainted },
 //               saved: saveBestRun's answer at the clear ('saved' | 'unsaved' | 'skip'), session,
 //               view (the level's baked view: replay clips can draw on it without a bake) }
 import { LEVELS, worldName } from '../core/levels.js';
-import { store } from './storage.js';
+import { store, medalCount } from './storage.js';
+import { rankOf } from '../core/ranks.js';
 import { play, setBeam } from './audio.js';
 import { recording, runOf } from './session.js';
 import { finished } from '../core/util.js';
@@ -30,7 +33,10 @@ export function createFlow(r, stage) {
   const flow = {
     onEvent(scene, e) {
       if (e.type !== 'cleared' || scene.mode !== 'play') return;
-      scene.result = store.recordResult(scene.level.id, e);
+      const before = rankOf(medalCount(store.allBest())).index;
+      scene.result = store.recordResult(scene.level.id, e); // e carries score, stars and medal
+      const rank = rankOf(medalCount(store.allBest()));
+      scene.promoted = rank.index > before ? rank.name : null; // this clear's medal raised the rank
       const { level, mode, session } = scene;
       scene.saved = saveBestRun(store, { level, mode, cleared: true, score: e.score, run: runOf(session) });
     },
@@ -47,6 +53,7 @@ export function createFlow(r, stage) {
       const rec = recording(s);
       const o = {
         level: scene.level, mode: scene.mode, cleared, score: s.world.score, stars: rec.stars,
+        tally: cleared ? s.world.tally ?? null : null, promoted: scene.promoted ?? null,
         best: res.best, newBest: res.newBest, recording: rec, saved: scene.saved ?? 'skip',
         session: s, view: scene.view,
       };
@@ -65,7 +72,8 @@ export function createFlow(r, stage) {
       const next = demo ? r.goLobby : LEVELS[i + 1] && (() => r.startLevel(LEVELS[i + 1]));
       stage.show(resultsScreen({
         label: r.labelOf(level), title: demo ? 'You’re ready!' : level.boss ? 'Victory' : 'Cleared',
-        score: o.score, stars: o.stars, best: demo ? null : o.best, newBest: o.newBest && !demo, // the demo has no best
+        score: o.score, stars: o.stars, best: demo ? null : o.best, newBest: o.newBest && !demo,
+        tally: demo ? null : o.tally, promoted: demo ? null : o.promoted, // the demo has no best, tally, medal or rank
       }, {
         next, nextLabel: demo ? 'Pick a level' : 'Next',
         retry: demo ? r.startTry : () => r.startLevel(level), retryLabel: demo ? 'Again' : 'Retry',

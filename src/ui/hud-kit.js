@@ -1,4 +1,5 @@
-// HUD building blocks shared by hud.js: panels, text, and the small icons (ships for lives, bombs).
+// HUD building blocks shared by hud.js: panels, text, the small icons (ships for lives, bombs) and the
+// row that shows a count of them.
 import { INK, roundRect } from './sprites.js';
 import { TAU } from '../core/math.js';
 
@@ -67,4 +68,16 @@ export function bombIcon(ctx, x, y, color, full) {
     ctx.strokeStyle = 'rgba(255,255,255,0.25)';
     ctx.stroke();
   }
+}
+
+// A count of lives or bombs in `slots` places `pitch` px apart from x: while it fits, one icon a place
+// (full while held, an empty outline for each one missing); past that, one full icon and the count
+// as "×n" in the same space. icon is shipIcon or bombIcon, drawn in `color`.
+export function stockRow(ctx, n, slots, x, y, pitch, icon, color) {
+  if (n <= slots) {
+    for (let i = 0; i < slots; i++) icon(ctx, x + i * pitch, y, color, i < n);
+    return;
+  }
+  icon(ctx, x, y, color, true);
+  text(ctx, `×${n}`, x + pitch * 0.6, y + 2, 34, '#ffffff', 'left', 900); // +2: the digits' ink centres on y
 }

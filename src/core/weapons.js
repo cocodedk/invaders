@@ -35,6 +35,7 @@ export function stepBomb(world) {
   const s = world.ship;
   if (!s.alive || !s.bombPressed || s.bombs <= 0) return;
   s.bombs -= 1;
+  s.bombsUsed += 1;
   const cleared = world.bullets.length;
   world.bullets.length = 0; // a wipe, not a dodge: no near miss (R37)
   emit(world, 'bomb', { x: s.x, y: s.y, cleared, left: s.bombs });

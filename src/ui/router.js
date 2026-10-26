@@ -74,7 +74,13 @@ export function createRouter({ canvas, stage, input }) {
     leave('lobby');
     app.demo = null;
     warmPosters(menus);
-    stage.show(lobbyScreen({ best: store.allBest(), start: r.startLevel, back: r.goTitle, focusId: app.lastLevel }));
+    stage.show(lobbyScreen({
+      best: store.allBest(), start: r.startLevel, back: r.goTitle, focusId: app.lastLevel,
+      reset: () => { // Reset scores, confirmed: the lobby again with every best emptied
+        store.resetBest();
+        r.goLobby();
+      },
+    }));
   };
 
   // Show the level's card, bake its view behind it, then play. build(level) -> scene.

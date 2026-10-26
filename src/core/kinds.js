@@ -9,6 +9,7 @@ export const ROLES = {
   carrier: { hp: 1, score: 250, fire: 0 },
 };
 
+export const INTRO = 1.5; // s before play begins; the first wave flies in meanwhile
 export const FORMATIONS = ['grid', 'sway', 'dive', 'spiral', 'split', 'escort', 'rain', 'orbit'];
 export const PATTERNS = ['aimed', 'fan', 'ring', 'spiral', 'laser', 'rain', 'homing', 'shuriken'];
 export const POWERS = ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow'];

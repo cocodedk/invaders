@@ -146,9 +146,9 @@ test('a bomb key held since the intro is not a fresh press', () => {
   assert.equal(w.ship.bombs, 0);
 });
 
-test('bomb pickups add one up to a stock of 3, and are used up even at the cap', () => {
+test('bomb pickups add one each with no cap (R66): the stock counts up past 3', () => {
   const w = playing(lv(['grunt']));
-  for (const expected of [2, 3, 3]) {
+  for (const expected of [2, 3, 4, 5]) {
     pickupOnShip(w, 'bomb');
     step(w);
     assert.equal(w.ship.bombs, expected);

@@ -11,7 +11,7 @@ export { TICK };
 
 // A run is its level, its seed and the input of every tick: the core is deterministic, so
 // re-simulating those gives back every state and event of the run.
-//   run    { v: 8, level: 'w3-2', seed, ticks, inputs: <encoded>, score, stars }   (makeRun)
+//   run    { v: 9, level: 'w3-2', seed, ticks, inputs: <encoded>, score, stars }   (makeRun)
 // The inputs and their text form are in input-codec.js. RUN_V goes up whenever a rule change makes
 // the same inputs play out differently: an older run would replay diverged, so it is not read at all
 // (2: task 13a's rules: bullets spent on a blinking ship, near misses, the shuriken cut, boss minions,
@@ -23,8 +23,9 @@ export { TICK };
 // wingmen power and the broadside twist), world 14's (R62: the fireworks), world 15's (R63: the
 // pearls and the trident powers), world 16's (R64: the mirror power) and world 17's (R65: the breath) are
 // scoped to their worlds and draw no rng elsewhere, so the version stays 8: test/core/worlds-unchanged.test.js
-// pins that worlds 1-16 play as they did.
-const RUN_V = 8;
+// pins that worlds 1-16 play as they did. 9: R66, bombs and lives with no cap (a life drops at any
+// count) and the round tallied at the clear (its speed, the bombs and lives held).
+const RUN_V = 9;
 
 // The storable form of a finished run. `level` is a level or its id; `result` is { score, stars }.
 export const makeRun = (level, seed, inputs, result) => ({

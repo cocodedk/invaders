@@ -59,6 +59,15 @@ body.playing canvas#game { cursor: none; }
 
 .stars i { font-style: normal; color: rgba(255, 255, 255, 0.2); }
 .stars i.on { color: var(--gold); text-shadow: 0 0 0.6rem rgba(255, 190, 60, 0.75); }
+/* The medal mark (a level cleared without a power-up): a gold disc on a red and blue ribbon, drawn in
+   CSS and sized by the font like the stars it stands beside. */
+.medal { position: relative; display: inline-block; width: 0.7em; height: 1em; margin-left: 0.3em; vertical-align: -0.1em; }
+.medal::before { content: ""; position: absolute; inset: 0 0 auto; height: 0.62em;
+  background: linear-gradient(90deg, #e8483c 50%, #3a76e8 50%); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%); }
+.medal::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 0.62em; height: 0.62em; margin-left: -0.31em; border-radius: 50%;
+  background: radial-gradient(circle, transparent 0 40%, rgba(120, 70, 0, 0.6) 42% 52%, transparent 54%),
+    radial-gradient(circle at 35% 30%, #fff3b8, var(--gold) 55%, #d98a12);
+  box-shadow: 0 0 0.6em rgba(255, 190, 60, 0.75); }
 
 .toast {
   position: fixed; left: 50%; bottom: 9rem; transform: translate(-50%, 1rem); opacity: 0;

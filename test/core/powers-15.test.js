@@ -28,8 +28,8 @@ test('every other world makes the very draws it always made, and drops neither n
     const ref = { s: w.rng.s };
     for (let i = 0; i < 200; i++) hurtAlien(w, { id: i, role: 'carrier', x: 500, y: 200, hp: 1 }, 1);
     for (const p of w.pickups) {
-      const r = rand(ref);
-      assert.equal(p.kind, r < 0.2 ? 'bomb' : randPick(ref, list), `world ${world}`);
+      const r = rand(ref); // 20 % bomb, 5 % life, the rest a power
+      assert.equal(p.kind, r < 0.2 ? 'bomb' : r < 0.25 ? 'life' : randPick(ref, list), `world ${world}`);
       assert.ok(p.kind !== 'pearls' && p.kind !== 'trident', `world ${world}`);
     }
     assert.equal(w.rng.s, ref.s, `world ${world} drew nothing else`);

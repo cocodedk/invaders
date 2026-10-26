@@ -29,14 +29,14 @@ test('a drop lands inside the ship\'s reach even when the carrier died at the sc
 });
 
 
-test('1000 seeded carrier deaths at full lives: about 20 % bombs, never a life, the rest over all six powers', () => {
+test('1000 seeded carrier deaths at full lives: about 20 % bombs, about 5 % lives (no cap, R66), the rest over all six powers', () => {
   const w = createWorld(lv(['carrier']), 99);
   for (let i = 0; i < 1000; i++) hurtAlien(w, { id: i, role: 'carrier', x: 500, y: 200, hp: 1 }, 1);
   const count = (k) => w.pickups.filter((p) => p.kind === k).length;
   assert.equal(w.pickups.length, 1000);
   assert.ok(count('bomb') >= 160 && count('bomb') <= 240, `bombs ${count('bomb')}`);
-  assert.equal(count('life'), 0, 'a ship with every life has no use for one');
-  for (const k of POWERS) assert.ok(count(k) >= 100 && count(k) <= 170, `${k} ${count(k)}`); // 133 each: 80 % in six
+  assert.ok(count('life') >= 30 && count('life') <= 70, `lives ${count('life')}: a life drops at any count`);
+  for (const k of POWERS) assert.ok(count(k) >= 95 && count(k) <= 160, `${k} ${count(k)}`); // 125 each: 75 % in six
 });
 
 test('a pickup falls 160 px/s and is removed once it has left the screen', () => {

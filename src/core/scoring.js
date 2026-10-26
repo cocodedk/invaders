@@ -1,11 +1,16 @@
-import { ROLES } from './kinds.js';
+import { ROLES, INTRO } from './kinds.js';
 import { emit } from './util.js';
+import { clamp } from './math.js';
+import { parOf } from './pars.js';
 
 // Points, the combo and stars: every point the score gets is awarded here, by the same rules in every
 // level of every world. world.combo = { mult, timer }: every kill within COMBO_WINDOW of the last
 // raises mult by 1 (up to COMBO_MAX); timer counts down and mult falls back to 1 at 0. A pickup is
 // worth a flat PICKUP_POINTS, caught or swept up at the clear (R51), and a boss's death a flat
-// BOSS_POINTS: no multiplier, the combo untouched, so they read the same every time.
+// BOSS_POINTS: no multiplier, the combo untouched, so they read the same every time. The clear tallies
+// the round (R66): the clear bonus, BOMB_POINTS for each bomb held when none was fired, LIFE_POINTS for
+// each life held, and then the whole round times its speed (speedOf). A clear without a power-up
+// caught earns the level's medal (ranks.js).
 
 export const COMBO_WINDOW = 1.5;
 export const COMBO_MAX = 8;
@@ -14,6 +19,8 @@ const PICKUP_POINTS = 500;
 const BOSS_POINTS = 10000;
 const CLEAR_BONUS = 2000;
 const FLAWLESS_BONUS = 3000; // on top of CLEAR_BONUS when the ship was never hit
+export const BOMB_POINTS = 2000; // a bomb held at the clear, when not one was fired
+export const LIFE_POINTS = 3000; // a life held at the clear
 
 // An alien is dead (its hp is already 0). `scored` false is a ram: no points, the combo untouched.
 // The caller removes it from world.aliens.
@@ -51,12 +58,26 @@ export function awardBoss(world) {
   return BOSS_POINTS;
 }
 
-// The level is cleared, wave level or boss alike: the clear bonus (and the flawless one when the ship
-// was never hit) goes on the score. Returns it, for the cleared event.
+// The round's speed multiplier, `time` s of play against the level's `par`: x2 at half the par or
+// faster, x1 at the par or slower, straight between, to two decimals.
+export const speedOf = (time, par) => Math.round(100 * (1 + clamp((par - time) / (par / 2), 0, 1))) / 100;
+
+// The level is cleared, wave level or boss alike: the round is tallied and the score becomes its total
+// (to the nearest 10). world.tally = { time, par, speed, base, bonus, bombBonus, lifeBonus, total,
+// medal }: base is what play earned, bonus the clear (and flawless) bonus. Returns the tally.
 export function awardClear(world) {
+  const { ship } = world;
+  const time = world.t - INTRO;
+  const par = parOf(world.level);
+  const speed = speedOf(time, par);
+  const base = world.score;
   const bonus = CLEAR_BONUS + (world.hits === 0 ? FLAWLESS_BONUS : 0);
-  world.score += bonus;
-  return bonus;
+  const bombBonus = ship.bombsUsed === 0 ? BOMB_POINTS * ship.bombs : 0;
+  const lifeBonus = LIFE_POINTS * ship.lives;
+  const total = Math.round(((base + bonus + bombBonus + lifeBonus) * speed) / 10) * 10;
+  world.score = total;
+  world.tally = { time, par, speed, base, bonus, bombBonus, lifeBonus, total, medal: ship.powersUsed === 0 };
+  return world.tally;
 }
 
 export const MAX_STARS = 3;

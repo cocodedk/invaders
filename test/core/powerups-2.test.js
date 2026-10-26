@@ -61,7 +61,7 @@ test('a pickup of the running kind puts its remainder in the reserve', () => {
 
 // ---- the extra life ----------------------------------------------------------------------------
 
-test('a life pickup adds a life, capped at 3, scores like any pickup and emits only the pickup event', () => {
+test('a life pickup adds a life with no cap (R66), scores like any pickup and emits only the pickup event', () => {
   const w = playing(lv());
   w.ship.lives = 1;
   pickupOnShip(w, 'life');
@@ -75,8 +75,8 @@ test('a life pickup adds a life, capped at 3, scores like any pickup and emits o
     pickupOnShip(w, 'life');
     step(w);
   }
-  assert.equal(w.ship.lives, LIVES);
-  assert.equal(w.score, 2000, 'a life at full lives still scores');
+  assert.equal(w.ship.lives, 5, 'past the 3 a level starts with');
+  assert.equal(w.score, 2000);
 });
 
 test('the clear\'s sweep scores a life pickup but never grants it', () => {
@@ -88,16 +88,14 @@ test('the clear\'s sweep scores a life pickup but never grants it', () => {
   assert.equal(ofType(w.events, 'sweep').length, 1);
 });
 
-test('1000 seeded drops: no life at full lives; about 5 % below, bombs still about 20 %', () => {
+test('1000 seeded drops: about 5 % lives at any count, full lives and past them included (R66), bombs about 20 %', () => {
   const drops = (lives) => {
     const w = createWorld(lv(['carrier']), 99);
     w.ship.lives = lives;
     for (let i = 0; i < 1000; i++) hurtAlien(w, { id: i, role: 'carrier', x: 500, y: 200, hp: 1 }, 1);
     return (k) => w.pickups.filter((p) => p.kind === k).length;
   };
-  const full = drops(LIVES);
-  assert.equal(full('life'), 0);
-  for (const lives of [1, 2]) {
+  for (const lives of [1, LIVES, 7]) {
     const count = drops(lives);
     assert.ok(count('life') >= 30 && count('life') <= 70, `lives ${lives}: ${count('life')} lives`);
     assert.ok(count('bomb') >= 160 && count('bomb') <= 240, `lives ${lives}: ${count('bomb')} bombs`);

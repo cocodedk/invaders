@@ -17,6 +17,10 @@ flight, formations, bosses, power-ups — plus one feature no shooter has: your 
   and sci-fi film genres — think out of the box.
 - Approved the 8 worlds and the level rules; asked to be surprised with something nobody has done.
 - Barrage runs okay on the Pi.
+- The round's score weighs how fast it went (faster scores higher), pays for every bomb still held
+  when none was fired and for every life still held; bombs and lives count up with no cap of 3; a
+  button zeroes every level's scores; a level cleared without a power-up earns a medal, and medals
+  climb a ladder of ranks from the bottom up (R66).
 
 Assumptions (not stated, chosen here): English only; keyboard + mouse, no gamepad; installed on the
 Pi like Barrage; worlds evoke film genres under original names — no film titles, characters, logos or
@@ -26,7 +30,7 @@ quoted lines, so the repo can be public.
 
 - Logical frame 1920 × 1080, y down, letterboxed to fit. The ship flies anywhere in the player zone
   y ∈ [620, 1040], x ∈ [40, 1880]; max speed 720 px/s with a short ease (no ice-skating).
-- **Lives:** 3 per level. A hit costs one and gives 1.5 s of blinking invulnerability. At 0 lives the
+- **Lives:** 3 at the start of each level, with no cap above that (R66). A hit costs one and gives 1.5 s of blinking invulnerability. At 0 lives the
   level is failed → Retry or Level Select.
 - **Wave levels** (levels 1–4 of each world): 3–5 formations arrive in sequence; the level is cleared
   when the last one is destroyed.
@@ -115,19 +119,34 @@ quoted lines, so the repo can be public.
     boss, the saucer or a wreck.
   - **Slow:** enemies, their bullets and the boss run at 0.5× for 6 s. It does not stack with Code
     Rain's bullet time (never 0.25×), and the frame takes bullet time's tint while it runs.
-- **Smart bombs:** separate stock, start each level with 1, max 3. Clears all enemy bullets and
+- **Smart bombs:** separate stock, start each level with 1, no cap (R66; it was 3). Clears all enemy bullets and
   deals 3 damage to everything on screen (bosses: 8 % of max hp). Bomb pickups are 20 % of all drops
   (carriers' and, since R54, the others') instead of a power-up.
-- **Extra life:** a pickup like the bomb, not a power: +1 life, never above 3, and it makes no event
-  of its own beyond the pickup. A drop is one 5 % of the time, and only while the ship has fewer
-  than 3 lives (at full lives that 5 % is a power instead). It counts as a pickup for the flat 500.
+- **Extra life:** a pickup like the bomb, not a power: +1 life, with no cap (R66), and it makes no
+  event of its own beyond the pickup. A drop is one 5 % of the time, at any count of lives (before
+  R66, at 3 lives that 5 % was a power instead). It counts as a pickup for the flat 500.
 - **Scoring:** grunt 100, diver 150, gunner 200, armored 300, carrier 250, boss 10 000. Combo: each
   kill within 1.5 s of the last raises the multiplier by 1 (max ×8); 1.5 s without a kill resets it.
   Clear bonus 2 000 + 3 000 if no hits. Every pickup collected is worth a flat 500 (no multiplier);
   when the level clears, every pickup still falling is collected at once and streaks into the ship:
   its 500 counts toward the clear's score, its power or bomb does not (R51).
-- **Stars:** ★ cleared · ★★ cleared losing ≤ 1 life · ★★★ cleared with no hits. Best score and best
-  stars per level are saved in `localStorage`.
+  - **The round's tally (R66).** At the clear every point the round made (kills, pickups, the boss)
+    gets the clear and flawless bonuses, 2 000 for each bomb still held if not one was fired, and
+    3 000 for each life still held, and the sum is multiplied by the round's speed and rounded to 10.
+    The speed is `1 + clamp((par − t) / (par / 2), 0, 1)`: ×2 at half the par or faster, ×1 at par
+    or slower, a straight line between, where `t` is the seconds of play (the intro left out). Each
+    level's par is twice what the never-hit autopilot takes to clear it from the level's own seed,
+    rounded up to 5 s (`src/core/pars.js`, written by `scripts/pars.mjs`; a test checks it is
+    current), because a formula of waves and hp missed the measured clears by up to 4×. So ×2 needs
+    the bot's own pace; the user accepted that. Every scoring rule lives in `scoring.js` alone.
+  - **Medals and ranks (R66).** A level cleared without catching a power-up earns its medal (bombs
+    and lives do not count; a power swept up at the clear is not caught). The medal pays nothing;
+    once earned it is kept. The pilot's rank climbs with the medals held, from the bottom: Rookie 0,
+    Cadet 1, Pilot 3, Flight Lead 6, Ace 10, Squadron Ace 18, Wing Leader 30, Air Marshal 50 and
+    Legend at all 85 (`src/core/ranks.js`). The replay version is 9: a version 8 run is not replayed.
+- **Stars:** ★ cleared · ★★ cleared losing ≤ 1 life · ★★★ cleared with no hits. Best score, best
+  stars and the medal per level are saved in `localStorage`; Level Select's Reset scores (after a
+  confirm) zeroes all three for every level and keeps the Cinema's runs (R66).
 - **Difficulty** is a property of the level, not of progress: bullet speed, fire rate, formation
   speed and alien hp scale with `(world, level)` so world 8 is hard even when played first. The fire
   rate multiplier is `(0.6 + d) × 1.5` (0.9 at world 1 level 1, 2.4 at world 8 level 5; R54).
@@ -322,8 +341,10 @@ original run — the game state never does.
 
 Title (a live autopilot battle in a random world behind the logo) · Level Select (a cinema lobby:
 a poster per world, each with 5 level reels showing stars and best score; the main run's eight in
-a row, the side worlds under them, "also showing") · Play · Pause ·
-Trailer → Results (score, stars, best; Next / Retry / Select) · Blooper → Failed (Retry / Select) ·
+a row, the side worlds under them, "also showing"; the star total and the pilot's rank over them, a
+medal mark on each reel that holds one, Back and Reset scores under them) · Play · Pause ·
+Trailer → Results (score with its tally: time against par and the multiplier, the bombs and lives
+bonuses, the medal; stars, best, "Promoted to" a new rank; Next / Retry / Select) · Blooper → Failed (Retry / Select) ·
 Cinema · Watch, then try (below).
 
 **Watch, then try:** on first launch (and from the title screen) an autopilot plays a short demo
@@ -358,12 +379,14 @@ world = {
   level,                      // { id: 'w3-2', world: 3, index: 2, seed, waves | boss, bunkers, twist }
   t, tick,                    // seconds and ticks since start
   rng, scale, intro, gap, march, nextId, // a { s } rng state, scaled difficulty, the wave's march state
-  ship: { x, y, vx, vy, lives, invuln, power: null | { kind, left }, reserve: null | { kind, left }, bombs, cooldown, alive },
+  ship: { x, y, vx, vy, lives, invuln, power: null | { kind, left }, reserve: null | { kind, left }, bombs, cooldown, alive,
+          bombsUsed, powersUsed },   // the round's bombs fired and powers caught (R66)
   aliens: [alien], shots: [shot], bullets: [bullet], pickups: [pickup],
   bunkers: [{ x, y, w, h, mask }],
   boss: null | { kind, x, y, hp, maxHp, phase, parts: [{ id, dx, dy, w, h, hp, max, weak, armor, … }],
                  clock, enter, dying, blast, cd, mcd, warns },   // warns: attacks in their telegraph
   wave, score, combo: { mult, timer }, hits,
+  tally,                      // null, then at the clear { time, par, speed, base, bonus, bombBonus, lifeBonus, total, medal }
   state,                      // 'intro' | 'play' | 'cleared' | 'failed'
   events: [],                 // core pushes; main drains into fx, audio and the highlight log
   wind, slow, saucer, wrecks, well, twist, // the level's twist (twists.js)

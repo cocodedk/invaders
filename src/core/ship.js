@@ -27,10 +27,11 @@ export const FOLLOW = 12; // 1/s: how hard a pointer target pulls; speed is FOLL
 
 // reserve is the power a newer pickup displaced (powerups.js); bombHeld / bombPressed turn the bomb
 // key into an edge (stepShip); beam is whether the laser burns; broadside is the seconds the side guns
-// have left (world 13's twist, powerups.js), 0 when they are shut.
+// have left (world 13's twist, powerups.js), 0 when they are shut. bombsUsed and powersUsed count the bombs
+// fired and the power-ups caught this level, for the clear's bomb bonus and medal (scoring.js awardClear).
 export const createShip = () => ({
   x: MID_X, y: 1000, vx: 0, vy: 0, lives: LIVES, invuln: 0, power: null, reserve: null, bombs: 1, cooldown: 0,
-  alive: true, beam: false, bombHeld: false, bombPressed: false, broadside: 0,
+  alive: true, beam: false, bombHeld: false, bombPressed: false, broadside: 0, bombsUsed: 0, powersUsed: 0,
 });
 
 const SNAP = 0.5; // px: closer than this to a pointer target, the ship stops dead on it

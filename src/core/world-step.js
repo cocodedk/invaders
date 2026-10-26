@@ -64,9 +64,9 @@ function won(world) {
 function settle(world) {
   if (won(world)) {
     sweepPickups(world);
-    const bonus = awardClear(world);
+    const { bonus, medal } = awardClear(world); // the whole tally stays on world.tally
     world.state = 'cleared';
-    emit(world, 'cleared', { score: world.score, bonus, stars: stars(world) });
+    emit(world, 'cleared', { score: world.score, bonus, stars: stars(world), medal });
   } else if (world.ship.lives <= 0) {
     world.state = 'failed';
     emit(world, 'failed');

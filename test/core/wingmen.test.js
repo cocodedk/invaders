@@ -41,8 +41,8 @@ test('every other world keeps its six powers and the very draws it always made',
     const ref = { s: w.rng.s };
     for (let i = 0; i < 200; i++) hurtAlien(w, { id: i, role: 'carrier', x: 500, y: 200, hp: 1 }, 1);
     for (const p of w.pickups) {
-      const r = rand(ref); // the split: 20 % bomb, 5 % life (not at full lives), the rest a power
-      const want = r < 0.2 ? 'bomb' : randPick(ref, POWERS);
+      const r = rand(ref); // the split: 20 % bomb, 5 % life (at any count since R66), the rest a power
+      const want = r < 0.2 ? 'bomb' : r < 0.25 ? 'life' : randPick(ref, POWERS);
       assert.equal(p.kind, want, `world ${world}`);
     }
     assert.ok(w.pickups.every((p) => p.kind !== 'wingmen'));

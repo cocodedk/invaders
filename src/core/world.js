@@ -7,6 +7,7 @@ import { spawnBoss, stepBoss } from './boss.js';
 import { createTwist } from './twists.js';
 import { stepPlay } from './world-step.js';
 import { finished } from './util.js';
+import { INTRO } from './kinds.js';
 
 export { stars } from './scoring.js';
 
@@ -21,15 +22,13 @@ export { stars } from './scoring.js';
 // level's twist (twists.js).
 // `events` is only pushed to here; main drains it after every step.
 
-export const INTRO = 1.5; // s before play begins; the first wave flies in meanwhile
-
 export function createWorld(level, seed = level.seed) {
   const world = {
     level, rng: createRng(seed), scale: scaled(level.d), t: 0, tick: 0,
     ship: createShip(), aliens: [], shots: [], bullets: [], pickups: [],
     bunkers: level.bunkers ? layoutBunkers() : [], boss: null,
     wave: 0, gap: null, march: null, nextId: 1, intro: INTRO,
-    score: 0, combo: { mult: 1, timer: 0 }, hits: 0, state: 'intro', events: [],
+    score: 0, combo: { mult: 1, timer: 0 }, hits: 0, tally: null, state: 'intro', events: [],
   };
   if (level.waves) spawnWave(world);
   if (level.boss) spawnBoss(world, level.boss);

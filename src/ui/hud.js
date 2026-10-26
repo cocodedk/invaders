@@ -1,20 +1,21 @@
 // Heads-up display in the 1920 x 1080 frame, sized like Barrage's to read from across a room:
 // score and combo (top left; the meter pulses at x4 and burns at x8), the wave counter or the boss's
-// health bar (top centre), lives and bombs (top right) and the power-up's timer ring beside them, with
-// the power waiting in the reserve (R53) as a smaller ring and its seconds to the ring's left.
+// health bar (top centre), lives and bombs (top right; three slots each, past three one icon and ×n) and
+// the power-up's timer ring beside them, with the power waiting in the reserve (R53) as a smaller ring
+// and its seconds to the ring's left.
 // Every panel sits in the band y 16..HUD_BOTTOM (96), above the formation's top row.
 // hud = the view's HUD state { lag } (the boss bar's trailing damage).
 import { W, rgba, shade, glow } from './sprites.js';
 import { approach, clamp, TAU } from '../core/math.js';
 import { COMBO_WINDOW, COMBO_MAX, COMBO_HOT } from '../core/scoring.js';
-import { powerTime, BOMB_MAX } from '../core/powerups.js';
+import { powerTime } from '../core/powerups.js';
 import { LIVES } from '../core/ship.js';
 import { ENTER } from '../core/boss-move.js';
 import { bossDef } from '../core/bosses-data.js';
 import { worldName } from '../core/levels.js';
 import { fmt } from './format.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
-import { panel, text, label, shipIcon, bombIcon } from './hud-kit.js';
+import { panel, text, label, shipIcon, bombIcon, stockRow } from './hud-kit.js';
 import { drawIcon } from './pickups-view.js';
 
 const TOP = 16;
@@ -26,6 +27,7 @@ const MAIN = TOP + 55; // big number row
 // keeps 8 px clear of each.
 const COMBO_MID = 64.5;
 const COMBO_SIZE = 36;
+const BOMB_SLOTS = 3; // the bombs shown as slots; more are one icon and a count (lives: LIVES)
 
 let shown = { n: NaN, text: '' }; // the score as last formatted
 function score(ctx, world) {
@@ -153,8 +155,8 @@ function stock(ctx, world, look, t) {
   panel(ctx, x, TOP, 300, PH);
   label(ctx, 'LIVES', x + 24, CAP);
   label(ctx, 'BOMBS', x + 172, CAP);
-  for (let i = 0; i < LIVES; i++) shipIcon(ctx, x + 38 + i * 38, MAIN + 2, look.palette.accent, i < s.lives);
-  for (let i = 0; i < BOMB_MAX; i++) bombIcon(ctx, x + 186 + i * 36, MAIN + 2, look.power.bomb, i < s.bombs);
+  stockRow(ctx, s.lives, LIVES, x + 38, MAIN + 2, 38, shipIcon, look.palette.accent);
+  stockRow(ctx, s.bombs, BOMB_SLOTS, x + 186, MAIN + 2, 36, bombIcon, look.power.bomb);
   if (!s.power) return;
   ring(ctx, s, look, x - 58, TOP + PH / 2, t);
   if (s.reserve) reserve(ctx, s, look, x - 134, TOP + PH / 2);

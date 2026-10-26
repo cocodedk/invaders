@@ -17,7 +17,7 @@ const sample = () => {
 test('makeRun builds the storable run and decodeRun gives the playable one back', () => {
   const { inputs, run } = sample();
   assert.deepEqual(Object.keys(run).sort(), ['inputs', 'level', 'score', 'seed', 'stars', 'ticks', 'v']);
-  assert.equal(run.v, 8);
+  assert.equal(run.v, 9);
   assert.equal(run.level, 'w3-2');
   assert.equal(run.ticks, 900);
   assert.equal(typeof run.inputs, 'string');
@@ -30,7 +30,7 @@ test('decodeRun rejects the wrong version, bad shapes and bad encodings', () => 
   const { run } = sample();
   const bad = [
     null, undefined, 'garbage', 42, [], true, {},
-    { ...run, v: 0 }, { ...run, v: 1 }, { ...run, v: 2 }, { ...run, v: 3 }, { ...run, v: 4 }, { ...run, v: 5 }, { ...run, v: 6 }, { ...run, v: 7 }, { ...run, v: 9 }, { ...run, v: '8' }, { ...run, v: undefined },
+    { ...run, v: 0 }, { ...run, v: 1 }, { ...run, v: 2 }, { ...run, v: 3 }, { ...run, v: 4 }, { ...run, v: 5 }, { ...run, v: 6 }, { ...run, v: 7 }, { ...run, v: 8 }, { ...run, v: 10 }, { ...run, v: '9' }, { ...run, v: undefined },
     { ...run, level: 'w9-9' }, { ...run, level: 3 }, { ...run, level: undefined },
     { ...run, seed: -1 }, { ...run, seed: 1.5 }, { ...run, seed: 2 ** 32 }, { ...run, seed: '7' },
     { ...run, ticks: 899 }, { ...run, ticks: -1 }, { ...run, ticks: MAX_TICKS + 1 }, { ...run, ticks: 'x' },
@@ -47,11 +47,12 @@ test('decodeRun rejects the wrong version, bad shapes and bad encodings', () => 
 // the formations kept clear of the HUD (R41) a version 3 run, and pickups worth points and swept up
 // at the clear (R51) a version 4 run, and the power reserve, the homing and slow powers and the extra
 // life (R53) a version 5 run, a carrier in every boss phase (R55) a version 6 run, and more drops in
-// the late worlds (R56) a version 7 run, so none is replayed at all.
-test('a version 1 to 7 run, saved under older rules, decodes to null', () => {
+// the late worlds (R56) a version 7 run, and the round tallied at the clear (R66) a version 8 run, so
+// none is replayed at all.
+test('a version 1 to 8 run, saved under older rules, decodes to null', () => {
   const { run } = sample();
-  for (const v of [1, 2, 3, 4, 5, 6, 7]) assert.equal(decodeRun(JSON.parse(JSON.stringify({ ...run, v }))), null, `v ${v}`);
-  assert.notEqual(decodeRun(JSON.parse(JSON.stringify(run))), null, 'the same run as version 8 is fine');
+  for (const v of [1, 2, 3, 4, 5, 6, 7, 8]) assert.equal(decodeRun(JSON.parse(JSON.stringify({ ...run, v }))), null, `v ${v}`);
+  assert.notEqual(decodeRun(JSON.parse(JSON.stringify(run))), null, 'the same run as version 9 is fine');
 });
 
 test('decodeRun rejects every truncation of a valid run', () => {

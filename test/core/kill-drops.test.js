@@ -65,14 +65,14 @@ test('kills in the hardest level drop about 12 % of the time', () => {
   assert.ok(n >= 1050 && n <= 1350, `${n} drops in ${N} kills`);
 });
 
-test('a chance drop uses the carrier split: about 20 % bombs, no life at full lives, all six powers', () => {
+test('a chance drop uses the carrier split: about 20 % bombs, about 5 % lives at full lives too (R66), all six powers', () => {
   const w = createWorld(lv(), 7);
   for (let i = 0; i < 40000; i++) hurtAlien(w, dead(i, ROLE_LIST[i % 4]), 1);
   const n = w.pickups.length; // about 1200
   const count = (k) => w.pickups.filter((p) => p.kind === k).length;
   assert.ok(n >= 1000 && n <= 1400, `${n} drops`);
   assert.ok(count('bomb') >= n * 0.15 && count('bomb') <= n * 0.25, `bombs ${count('bomb')} of ${n}`);
-  assert.equal(count('life'), 0, 'a ship with every life has no use for one');
+  assert.ok(count('life') >= n * 0.03 && count('life') <= n * 0.07, `lives ${count('life')} of ${n}`);
   for (const k of POWERS) assert.ok(count(k) > 0, k);
 });
 

@@ -1,13 +1,13 @@
 import { clamp, dist2 } from './math.js';
 import { rand, randPick } from './rng.js';
 import { powersFor, HEIGHT } from './kinds.js';
-import { SHIP_R, ZONE, LIVES } from './ship.js';
+import { SHIP_R, ZONE } from './ship.js';
 import { emit, prune } from './util.js';
 import { awardPickup } from './scoring.js';
 
 // What the dead drop (every carrier, and a killDrop(d) share of the other aliens), and what the ship
 // does with it. Exports: makePickup, dropPickup, dropOnKill, stepPickups, sweepPickups, tickPower,
-// powerTime, POWER_TIME, BROADSIDE_TIME, BOMB_MAX, KILL_DROP, LATE_DROP, killDrop.
+// powerTime, POWER_TIME, BROADSIDE_TIME, KILL_DROP, LATE_DROP, killDrop.
 //   pickup = { kind, x, y, vy, r }  kind is one of POWERS (world 13 also 'wingmen', world 15 also 'pearls'
 //     and 'trident', world 16 also 'mirror'), 'bomb' or 'life' (makePickup).
 //   ship.power = null | { kind, left }  the one running. A new power starts at its full time and the
@@ -26,11 +26,10 @@ export const POWER_TIME = 10; // s
 const TIMES = { slow: 6 }; // s: the powers that do not last POWER_TIME (the pearls, the trident and the mirror do)
 export const powerTime = (kind) => TIMES[kind] ?? POWER_TIME;
 export const BROADSIDE_TIME = 6; // s the side guns stay open after a catch (world 13)
-export const BOMB_MAX = 3;
 const PICKUP_R = 22;
 const FALL = 160; // px/s
 const BOMB_SHARE = 0.2; // of drops: a bomb instead of a power
-const LIFE_SHARE = 0.05; // of drops: an extra life, only while the ship is short of LIVES
+const LIFE_SHARE = 0.05; // of drops: an extra life (lives and bombs have no cap, R66)
 // R54: power-ups came only from carriers, about one a run. Any other formation alien now drops one
 // too, with this chance per kill (one rand), through the same split. Heavier enemy fire (FIRE_UP in
 // difficulty.js) pays for it. The pair was tuned on the headless balance run (all 40 levels, the
@@ -46,13 +45,12 @@ export const killDrop = (d) => KILL_DROP + LATE_DROP * d * d;
 // A pickup at (x, y), falling.
 export const makePickup = (kind, x, y) => ({ kind, x, y, vy: FALL, r: PICKUP_R });
 
-// A pickup falls from `from`: 20 % a bomb, 5 % a life (at full lives that 5 % is a power instead), the
-// rest one of the six powers (seven in world 13, which adds the wingmen, eight in world 15, which adds
-// the pearls and the trident, seven in world 16, which adds the mirror: powersFor).
+// A pickup falls from `from`: 20 % a bomb, 5 % a life, the rest one of the six powers (seven in world
+// 13, which adds the wingmen, eight in world 15, which adds the pearls and the trident, seven in world
+// 16, which adds the mirror: powersFor).
 export function dropPickup(world, from) {
   const r = rand(world.rng);
-  const life = r >= BOMB_SHARE && r < BOMB_SHARE + LIFE_SHARE && world.ship.lives < LIVES;
-  const kind = r < BOMB_SHARE ? 'bomb' : life ? 'life' : randPick(world.rng, powersFor(world.level));
+  const kind = r < BOMB_SHARE ? 'bomb' : r < BOMB_SHARE + LIFE_SHARE ? 'life' : randPick(world.rng, powersFor(world.level));
   world.pickups.push(makePickup(kind, clamp(from.x, ZONE.x0, ZONE.x1), from.y));
 }
 
@@ -76,10 +74,11 @@ function collect(world, p) {
   emit(world, 'pickup', awardPickup(world, p));
   if (world.level.twist === 'broadside') openBroadside(world);
   if (p.kind === 'bomb') {
-    ship.bombs = Math.min(BOMB_MAX, ship.bombs + 1);
+    ship.bombs += 1;
   } else if (p.kind === 'life') {
-    ship.lives = Math.min(LIVES, ship.lives + 1);
+    ship.lives += 1;
   } else {
+    ship.powersUsed += 1; // a power caught: no medal for this level (R66)
     if (ship.power) ship.reserve = ship.power; // waiting, not over: no event for it
     ship.power = { kind: p.kind, left: powerTime(p.kind) };
     emit(world, 'power', { kind: p.kind, on: true });

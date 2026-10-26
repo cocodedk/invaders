@@ -86,7 +86,7 @@ test('a full or blocked storage never crashes and keeps the score; the run lasts
   const store = createStorage(() => back);
   const o = outcome(store, 'w4-2', { score: 12000 });
   assert.equal(saveBestRun(store, o), 'unsaved');
-  assert.deepEqual(createStorage(() => back).best('w4-2'), { score: 12000, stars: 2 }, 'the score was kept');
+  assert.deepEqual(createStorage(() => back).best('w4-2'), { score: 12000, stars: 2, medal: false }, 'the score was kept');
   assert.equal(createStorage(() => back).bestRun('w4-2'), null, 'the run was not');
   assert.deepEqual(cinemaReels(store).map((r) => r.level.id), ['w4-2'], 'this session can still watch it');
   const broken = createStorage(() => { throw new Error('SecurityError'); });
@@ -120,7 +120,7 @@ test('a run whose encoded inputs pass the cap is not stored; the score and the s
   const huge = { ...runFor('w5-5', 60000), inputs: 'A'.repeat(MAX_RUN_CHARS + 1) };
   assert.equal(saveBestRun(store, outcome(store, 'w5-5', { score: 60000, run: huge })), 'skip');
   assert.equal(createStorage(() => back).bestRun('w5-5').score, 4000, 'the saved run is kept');
-  assert.deepEqual(createStorage(() => back).best('w5-5'), { score: 60000, stars: 2 }, 'the score was kept');
+  assert.deepEqual(createStorage(() => back).best('w5-5'), { score: 60000, stars: 2, medal: false }, 'the score was kept');
   assert.deepEqual(cinemaReels(store).map((r) => r.run.score), [4000]);
   const fits = { ...runFor('w6-5', 7000), inputs: 'A'.repeat(MAX_RUN_CHARS) }; // at the cap: stored
   assert.equal(saveBestRun(store, outcome(store, 'w6-5', { score: 7000, run: fits })), 'saved');
