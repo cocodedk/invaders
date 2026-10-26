@@ -1,5 +1,5 @@
 // Sound patches of Ash to Air's rules (world 17, the breath style of sound-data.js): the help that comes and the
-// Craving it comes against. Everything here is on the world's scale (D sharp harmonic major), where a chord of the
+// Craving it comes against. Everything here is on the world's scale (E flat major), where a chord of the
 // first, third and fifth degrees is a bright major one.
 //   breath   a wave of fresh air starts rising (the breath twist): a deep inhale, a sub climbing from the root toward the fifth under it, swelling
 //            into a bright major chord as the front tops out and ringing on: relief          (sounds.js 'breath')

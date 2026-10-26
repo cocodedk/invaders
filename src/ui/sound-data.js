@@ -23,9 +23,7 @@
 //     stabbed, g a glockenspiel on the chord's fifth (its octave on the second bar), l and d a slow heart's lub and
 //     dub, w a harp pluck climbing and falling through the chord, n a low pad swelling in, q a choir bowing a chord in
 //     over a low root, x a tubular bell (the chord's root high in the first bar of a pair, its fifth low in the second),
-//     H a heart's lub on a beat with a bass pulse on the chord's root, D its dub with the bass an octave up, I a long
-//     inhale swelling in, i a gasp, E an exhale falling away, . rest), bars: how many bars before the seq shifts.
-//     Their patches are in music-drums.js (H D I i E in music-breath.js).
+//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js.
 export const NOTES = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
 
 export const SCALES = {
@@ -40,7 +38,6 @@ export const SCALES = {
   mixolydian: [0, 2, 4, 5, 7, 9, 10], // the major with a flat seventh: a fairground's tunes
   pentatonic: [0, 3, 5, 7, 10], // the minor pentatonic: five notes with no semitone, so nothing played on it clashes
   melodic: [0, 2, 3, 5, 7, 9, 11], // the melodic minor going up: a minor key with the sixth and seventh raised, a dawn over ruins
-  harmonicmajor: [0, 2, 4, 5, 7, 8, 11], // the major with a flat sixth: bright, with an ache in it, and a leading tone that climbs home
 };
 
 export const STYLES = {
@@ -142,20 +139,19 @@ export const STYLES = {
       div: 3, seq: [4, null, null, 2, null, null, 0, null, null, 1, null, null, 2, null, null, 4, null, null, 7, null, null, null, null, null],
       drum: 'q..x..f..f.xq..x..f..f.x' },
   },
-  // 4/4 at 140 bpm, four bars of sixteenth-note steps to a pass: a heart racing (a lub on every beat, a dub an eighth later)
-  // with a bass pulsing on it, root and octave in turn, breath for percussion (an exhale after the downbeat, an inhale
-  // swelling through the last beat and a half, two gasps to close the fourth bar) and a supersaw lead that climbs from the
-  // fifth to the high fifth, sighing once on the flat sixth. The chord holds eight bars: home for sixteen, then the flat
-  // sixth (a bright lift, the lead soaring to G6) and the fourth (a minor chord, the leading tone pulling back home).
+  // 4/4 at 104 bpm, four bars of sixteenth-note steps to a pass: a clear morning after the smog. A soft electric piano
+  // (an FM tone on a whole ratio, struck and ringing out) sings a tune that rises to the octave and settles home, over
+  // a choir bowing in every second bar, a plucked bass on the offs of the second and third beats, a soft kick on one
+  // and three and a hat's tick on two and four. The chords go home for four passes, then C minor, then A flat, and back.
   breath: {
     mood: 'breath', wave: 'triangle', cut: 5200, wet: 0.4, pitch: 1.06,
-    music: { vol: 0.77, drone: { wave: 'sawtooth', oct: 2, cut: 420, fifth: true, gain: 0.012 },
-      lead: { wave: 'sawtooth', oct: 4, cut: 3600, attack: 0.5, hold: 2, len: 4, gain: 0.075, bow: 6 },
-      div: 4, seq: [4, null, null, 7, null, null, 8, null, null, 9, null, null, 8, null, null, null,
-        7, null, null, null, 5, null, null, null, 4, null, null, null, 7, null, null, null,
-        7, null, null, 9, null, null, 11, null, null, 10, null, null, 9, null, null, null,
-        8, null, null, 7, null, null, 6, null, null, 7, null, null, null, null, null, null],
-      drum: 'HED.H.D.HID.H.D.HED.H.D.HID.H.D.HED.H.D.HID.H.D.HED.H.D.H.D.HiDi' },
+    music: { vol: 0.868, drone: { wave: 'triangle', oct: 2, cut: 500, fifth: true, gain: 0.012 },
+      lead: { wave: 'sine', oct: 4, cut: 3200, len: 8, gain: 0.1, fm: { ratio: 1, index: 1.2 } },
+      div: 4, seq: [0, null, null, null, 2, null, 4, null, 7, null, null, null, 6, null, 4, null,
+        4, null, 5, null, 4, null, null, null, 2, null, null, null, 1, null, null, null,
+        2, null, null, null, 4, null, 5, null, 7, null, null, null, 6, null, 7, null,
+        4, null, null, null, 1, null, 2, null, 0, null, null, null, null, null, null, null],
+      drum: 'kq..h.z.k.z.h...k...h.z.k.z.h...kq..h.z.k.z.h...k...h.z.k.z.h.zz' },
   },
 };
 

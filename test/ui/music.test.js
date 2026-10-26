@@ -152,20 +152,20 @@ test("Sunset Armada's loop is a brass fanfare in G major over timpani on the dow
   assert.equal(bands(1900).length, 12, 'and a roll of six taps into the next bar, twice');
 });
 
-test("only Sunset Armada's loop opens its lead's filter or chops strings, only Ember Carnival's, Glass Cathedral's and Ash to Air's hold a lead note, only Lantern Deep's, Glass Cathedral's and Ash to Air's swell it in, Lantern Deep's slides it on and plays a heart, a harp and a pad, Glass Cathedral's and Ash to Air's bow it, Glass Cathedral's plays a choir and tubular bells, Ash to Air's a racing heart and breath, and only the first two roll a snare; every other loop is as it was", () => {
+test("only Sunset Armada's loop opens its lead's filter or chops strings, only Ember Carnival's and Glass Cathedral's hold a lead note, only Lantern Deep's and Glass Cathedral's swell it in, Lantern Deep's slides it on and plays a heart, a harp and a pad, Glass Cathedral's bows it and rings tubular bells, Glass Cathedral's and Ash to Air's play a choir, and only the first two roll a snare; every other loop is as it was", () => {
   for (const [name, s] of Object.entries(STYLES)) {
     const [armada, carnival, abyss, glass, breath] = [name === 'armada', name === 'carnival', name === 'abyss', name === 'glass', name === 'breath'];
     assert.equal(s.music.lead.cut1 !== undefined, armada, `${name} lead swell`);
-    assert.equal(s.music.lead.hold !== undefined, carnival || glass || breath, `${name} lead hold`);
+    assert.equal(s.music.lead.hold !== undefined, carnival || glass, `${name} lead hold`);
     assert.equal(s.music.lead.glide !== undefined, abyss, `${name} lead glide`);
-    assert.equal(s.music.lead.attack !== undefined, abyss || glass || breath, `${name} lead attack`);
-    assert.equal(s.music.lead.bow !== undefined, glass || breath, `${name} lead bow`);
+    assert.equal(s.music.lead.attack !== undefined, abyss || glass, `${name} lead attack`);
+    assert.equal(s.music.lead.bow !== undefined, glass, `${name} lead bow`);
     assert.equal(s.music.drum.includes('o'), armada, `${name} chopped strings`);
     assert.equal(s.music.drum.includes('r'), armada || carnival, `${name} snare roll`);
     assert.equal(/[yuag]/.test(s.music.drum), carnival, `${name} band`);
     assert.equal(/[ldwn]/.test(s.music.drum), abyss, `${name} heart, harp and pad`);
-    assert.equal(/[qx]/.test(s.music.drum), glass, `${name} choir and tubular bells`);
-    assert.equal(/[HDEIi]/.test(s.music.drum), breath, `${name} racing heart and breath`);
+    assert.equal(s.music.drum.includes('x'), glass, `${name} tubular bells`);
+    assert.equal(s.music.drum.includes('q'), glass || breath, `${name} choir`);
   }
   const nodes = fakeAudio();
   for (const look of LOOKS.filter((l) => !['armada', 'carnival', 'abyss', 'glass', 'breath'].includes(l.music.mood))) {
