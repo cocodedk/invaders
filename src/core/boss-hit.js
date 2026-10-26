@@ -99,6 +99,21 @@ function pierceParts(world, s, parts, dt) {
   }
 }
 
+// The live part of `parts` that projectile `p` entered first along its path this tick, or null.
+export function firstPart(parts, p, dt) {
+  let best = null;
+  let first = Infinity;
+  for (const q of parts) {
+    if (q.hp <= 0) continue;
+    const u = entry(p.x - p.vx * dt, p.y - p.vy * dt, p.x, p.y, p.r, q);
+    if (u < first) {
+      best = q;
+      first = u;
+    }
+  }
+  return best;
+}
+
 // Each ship shot still flying is spent on the first live part its path crossed this tick, which
 // takes the damage (a plate in front of a weak point shields it). A trident bolt runs through them all.
 export function shotsVsBoss(world, dt) {
@@ -110,16 +125,7 @@ export function shotsVsBoss(world, dt) {
       pierceParts(world, s, parts, dt);
       continue;
     }
-    let best = null;
-    let first = Infinity;
-    for (const p of parts) {
-      if (p.hp <= 0) continue;
-      const u = entry(s.x - s.vx * dt, s.y - s.vy * dt, s.x, s.y, s.r, p);
-      if (u < first) {
-        best = p;
-        first = u;
-      }
-    }
+    const best = firstPart(parts, s, dt);
     if (!best) continue;
     s.life = 0;
     hurtPart(world, best, s.dmg ?? 1, s);

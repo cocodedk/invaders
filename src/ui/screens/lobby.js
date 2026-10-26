@@ -5,9 +5,10 @@
 // Keys (lobby-nav.js): left/right change world within a row (same reel), up/down change reel and
 // run on into the nearest world of the row below or above (the one at the same place when two tie:
 // lobby-nav.js step), down from the last row's last reel reaches Back, Enter plays, Esc goes back.
-// Back and Reset scores stand side by side under the reels, and a free-flight world (world 18, one reel)
-// stands beside them as a compact "Sneak preview" card, in neither row: right and left move among Back,
-// Reset scores and the preview's reel, up returns to the last reel, Enter plays. Reset scores asks first
+// Back and Reset scores stand side by side under the reels, and a free-flight world (world 18, Anvil Sky: five reels and
+// its boss like any other) stands beside them as a compact card, in neither row: a banner (the poster's print, the "Free
+// flight" flag, the boss billed) and its five reels in a strip, as tall as the buttons. Right and left move among Back, Reset
+// scores and the card's reels in turn, up returns to the last reel, Enter plays. Reset scores asks first
 // (confirm.js, laid over the lobby: Cancel is focused, Esc cancels) and then calls reset(). The mouse
 // focuses on hover and plays on click.
 // Under the title: the star total, and the pilot's rank with the medals it is read from. A reel
@@ -41,8 +42,8 @@ function reel(level, best, start) {
   return r;
 }
 
-// A world's card: its poster over its reels, or, for a free-flight world, the compact preview (no boss
-// to bill: the world has none), its banner beside its one reel.
+// A world's card: its poster over its reels, or, for a free-flight world, the compact card of the foot row, its
+// banner beside its reels (lobby.css). Both bill the boss.
 function poster(world, best, start) {
   const look = lookFor({ world: world.id });
   const art = h('div', 'poster-art');
@@ -50,13 +51,14 @@ function poster(world, best, start) {
   const canvas = posterFor(world.id);
   if (canvas) art.append(canvas);
   art.append(
-    h('span', 'poster-world', world.free ? 'Sneak preview' : `World ${world.id}`),
+    h('span', 'poster-world', `World ${world.id}`),
     h('div', 'poster-type',
       h('h3', 'poster-name', world.name),
       h('p', 'poster-tag', TAGLINES[world.id - 1]),
-      !world.free && world.boss && h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
+      h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
+  if (world.free) art.append(h('span', 'poster-flag', 'Free flight'));
   const reels = LEVELS.filter((l) => l.world === world.id).map((l) => reel(l, best, start));
-  const el = h('article', world.free ? 'preview' : 'poster', art, h('div', 'reels', ...reels));
+  const el = h('article', world.free ? 'free' : 'poster', art, h('div', 'reels', ...reels));
   el.style.setProperty('--accent', look.palette.accent);
   return { el, art, reels, world: world.id, free: world.free };
 }
@@ -67,7 +69,7 @@ const RESET_TEXT = 'This resets the best score, stars and medal of every level. 
 export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
   const el = shell('lobby');
   const cols = WORLDS.map((w) => poster(w, best, start));
-  const previews = cols.filter((c) => c.free); // the sneak preview stands in the foot, in neither row
+  const flights = cols.filter((c) => c.free); // the free-flight world stands in the foot, in neither row
   const rows = [false, true].map((side) => cols.flatMap((c, i) => (!c.free && isSide(c.world) === side ? [i] : [])))
     .filter((row) => row.length);
   const total = Object.values(best).reduce((n, b) => n + b.stars, 0);
@@ -87,7 +89,7 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
     ask.el.classList.add('show');
     ask.focus.focus({ preventScroll: true });
   }, 'btn');
-  const foot = [backBtn, resetBtn, ...previews.flatMap((c) => c.reels)];
+  const foot = [backBtn, resetBtn, ...flights.flatMap((c) => c.reels)]; // left to right, the card's reels last
   el.append(
     h('header', 'marquee', h('span', 'bulbs'), h('h2', 'marquee-title', 'Now showing'), h('span', 'bulbs')),
     h('p', 'sub', `${WORLDS.length} worlds, ${LEVELS.length} reels. Every one is open. `,
@@ -95,7 +97,8 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
       h('span', 'lobby-rank', `Rank ${rankOf(medals).name} · ${medals} / ${LEVELS.length} medals`)),
     h('div', 'posters', ...rows[0].map((i) => cols[i].el)),
     rows[1] && h('div', 'side', h('span', 'side-label', 'Also showing'), ...rows[1].map((i) => cols[i].el)),
-    h('div', 'row', backBtn, resetBtn, ...previews.map((c) => c.el), h('span', 'hint', '← → world · ↑ ↓ reel · Enter play · Esc back')));
+    h('div', 'row', backBtn, resetBtn, ...flights.map((c) => c.el),
+      h('span', 'hint', h('span', null, '← → world · ↑ ↓ reel'), h('span', null, 'Enter play · Esc back'))));
   const grid = cols.map((c) => c.reels);
   const first = grid.flat().find((r) => r.dataset.id === focusId) ?? grid[0][0];
   let lastReel = foot.includes(first) ? grid[rows.at(-1).at(-1)].at(-1) : first; // up from the foot lands on a reel above
@@ -124,7 +127,7 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
       const move = MOVE[code];
       if (move) {
         lastReel = document.activeElement;
-        const to = step(at, move, rows, grid.map((g) => g.length));
+        const to = step(at, move, rows, grid[0].length);
         return focusItem(to ? grid[to[0]][to[1]] : backBtn), true;
       }
       if (isConfirm(code)) return document.activeElement.click(), true;

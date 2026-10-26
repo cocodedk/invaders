@@ -17,11 +17,11 @@ const { FLOURISH_STORM } = await import('../../src/ui/flourish-storm.js');
 
 const dist = (a, b) => Math.hypot(...rgb(a).map((v, i) => v - rgb(b)[i]));
 
-test('world 18 is registered as Anvil Sky and its one level gets this look', () => {
+test('world 18 is registered as Anvil Sky and its five levels, the boss level among them, get this look', () => {
   assert.equal(LOOKS[17], look);
   assert.equal(look.world, 18);
   assert.equal(WORLDS[17].name, 'Anvil Sky');
-  assert.equal(lookFor(levelById('w18-1')), look);
+  for (let i = 1; i <= 5; i++) assert.equal(lookFor(levelById(`w18-${i}`)), look, `w18-${i}`);
   assert.equal(look.bullet, 'orb');
 });
 

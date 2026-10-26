@@ -2,7 +2,7 @@ import { TWISTS, BOSSES } from './kinds.js';
 import { difficulty } from './difficulty.js';
 import { w, lv, LATE } from './levels-2.js';
 import { SIDE } from './levels-3.js';
-import { SIDE2, PREVIEW } from './levels-4.js';
+import { SIDE2, STORM } from './levels-4.js';
 
 // Level data, plain and serialisable. Each level, in order, is
 //   { id: 'w<world>-<index>', world, index, seed, d, twist, bunkers,
@@ -147,7 +147,7 @@ function level(world, index, { seed, bunkers, waves }) {
   return waves ? { ...base, waves } : { ...base, boss: home.boss };
 }
 
-export const LEVELS = [...EARLY, ...LATE, ...SIDE, ...SIDE2, ...PREVIEW].flatMap((specs, wi) =>
+export const LEVELS = [...EARLY, ...LATE, ...SIDE, ...SIDE2, ...STORM].flatMap((specs, wi) =>
   specs.map((spec, ii) => level(wi + 1, ii + 1, spec)));
 
 // World 1 at d = 0 for "Watch, then try": a 6x3 grunt grid, then one swaying trio around a carrier.

@@ -116,8 +116,9 @@ test('on a boss level the stat card names the boss that fell, in every world', (
   assert.deepEqual(cardsFor(15, { ...ZERO, boss: 'angler' })[1], ['THE LANTERN LEVIATHAN', 'SANK INTO THE DARK.']);
   assert.deepEqual(cardsFor(16, { ...ZERO, boss: 'moth' })[1], ['THE VESPER MOTH', 'SHATTERED INTO LIGHT.']);
   assert.deepEqual(cardsFor(17, { ...ZERO, boss: 'craving' })[1], ['THE CRAVING', 'STUBBED OUT FOR GOOD.']);
-  const withBoss = WORLDS.filter((w) => w.boss); // the lone level of world 18 has none
-  assert.equal(withBoss.length, 17);
+  assert.deepEqual(cardsFor(18, { ...ZERO, boss: 'ray' })[1], ['THE SQUALL RAY', "FELL TO THE STORM'S OWN FIRE."]);
+  const withBoss = WORLDS.filter((w) => w.boss);
+  assert.equal(withBoss.length, 18, 'every world has its boss, world 18 included');
   for (const w of withBoss) {
     for (const stats of ALL) {
       const lines = cardsFor(w.id, { ...stats, boss: w.boss }).flat();
@@ -128,19 +129,21 @@ test('on a boss level the stat card names the boss that fell, in every world', (
   }
 });
 
-// World 18 (Anvil Sky) is one wave level: there is no boss to fall, so its stat card counts the invaders and no
-// card, filled from any stats, reaches for a boss; the final card calls it a plain reel, never a finale.
-test("world 18's lone level has no boss: its cards count invaders and its final card says Reel 1", () => {
-  const w18 = WORLDS[17];
-  assert.equal(w18.boss, undefined);
+// World 18 (Anvil Sky) has four wave levels and a boss level, the Squall Ray: its stat card counts the invaders on a wave
+// level and names the boss on the last, and reads well either way (the line takes a singular boss and a plural count).
+test("world 18's wave levels count invaders and its boss level names the Squall Ray; the final card says Reel 1 and Finale", () => {
+  assert.equal(WORLDS[17].boss, 'ray');
   assert.deepEqual(cardsFor(18, TYPICAL)[0], ['THE STORM HAD TEETH.', 'THE PILOT TAUGHT IT', 'TO BITE BACK.']);
-  assert.deepEqual(cardsFor(18, TYPICAL)[1], ['47 INVADERS', 'MET THEIR OWN FIRE.']);
-  assert.deepEqual(cardsFor(18, ZERO)[1], ['NOT ONE INVADER', 'MET THEIR OWN FIRE.']);
-  assert.deepEqual(cardsFor(18, { ...TYPICAL, boss: undefined })[2], ['9 NEAR MISSES IN THE STORM.', '2 MINUTES OF BORROWED THUNDER.']);
+  assert.deepEqual(cardsFor(18, TYPICAL)[1], ['47 INVADERS', "FELL TO THE STORM'S OWN FIRE."]);
+  assert.deepEqual(cardsFor(18, ZERO)[1], ['NOT ONE INVADER', "FELL TO THE STORM'S OWN FIRE."]);
+  assert.deepEqual(cardsFor(18, { ...TYPICAL, boss: 'ray' })[1], ['THE SQUALL RAY', "FELL TO THE STORM'S OWN FIRE."]);
+  assert.deepEqual(cardsFor(18, { ...TYPICAL, boss: null })[2], ['9 NEAR MISSES IN THE STORM.', '2 MINUTES OF BORROWED THUNDER.']);
+  for (const stats of ALL) assert.ok(!cardsFor(18, { ...stats, boss: 'ray' }).flat().some((l) => l.includes('INVADER')), 'no invaders on the boss level');
   const f = finalCard({ level: levelById('w18-1'), stats: TYPICAL, stars: 3, score: 1004324, newBest: true });
   assert.equal(f.title, 'ANVIL SKY');
   assert.equal(f.kicker, 'WORLD 18 · REEL 1');
   assert.equal(f.score, '1,004,324');
+  assert.equal(finalCard({ level: levelById('w18-5'), stats: TYPICAL, stars: 3, score: 5, newBest: false }).kicker, 'WORLD 18 · FINALE');
   for (const line of [f.title, f.kicker, f.label, f.billing]) readsWell(line, 'final 18');
   const words = VOICES[17].flat().join(' ');
   assert.doesNotMatch(words, /\b(HE|HIM|HIS|SHE|HER|HERS)\b/, 'no gendered pronouns');

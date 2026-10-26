@@ -3,7 +3,8 @@ import { WIDTH, MID_X } from './kinds.js';
 
 // How a boss moves. Each style is a smooth function of the boss's own clock (which a phase's
 // `rate` speeds up), and the boss follows its goal at a bounded speed, so a change of phase glides
-// instead of jumping. Nothing here touches the player: a boss is shot at, never rammed.
+// instead of jumping. Nothing here touches the player: a boss is shot at, never rammed (in a free level, R67, touching a
+// live part costs the ship a life: free.js).
 
 export const ENTER = 2; // s the boss takes to fly in, during which it cannot be hurt
 const DROP = 340; // px above its resting place it starts

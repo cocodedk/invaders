@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ZONE, FREE_ZONE, zoneOf, SHIP_R } from '../../src/core/ship.js';
-import { DRAG_TURN } from '../../src/core/collide.js';
+import { DRAG_TURN } from '../../src/core/free.js';
 import { HUD_BOTTOM } from '../../src/core/kinds.js';
 import { wrapAngle } from '../../src/core/math.js';
 import { level, wave, step, seconds, playing, drain, ofType, input, holdAlien, bulletAt } from './world-kit.js';

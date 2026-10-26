@@ -124,9 +124,9 @@ export const VOICES = [
     ['{kills}', 'STUBBED OUT FOR GOOD.'],
     ['{near} IN THE HAZE.', '{time} SMOKE-FREE.', 'BREATHE.'],
   ],
-  [ // Anvil Sky: a storm of iron and lightning, the pilot turning its fire back on it; a lone level, no boss to name
+  [ // Anvil Sky: a storm of iron and lightning, the pilot turning its fire back on it
     ['THE STORM HAD TEETH.', 'THE PILOT TAUGHT IT', 'TO BITE BACK.'],
-    ['{kills}', 'MET THEIR OWN FIRE.'],
+    ['{kills}', "FELL TO THE STORM'S OWN FIRE."],
     ['{near} IN THE STORM.', '{time} OF BORROWED THUNDER.'],
   ],
 ];

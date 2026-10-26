@@ -7,6 +7,7 @@
 import { tone, hiss, fm, wobble, crush, noteHz, bell } from './audio-kit.js';
 import { glassRoar } from './sfx-glass.js';
 import { cravingRoar } from './sfx-breath.js';
+import { squallRoar } from './sfx-storm.js';
 
 // The roar's voice per style: [oscillator wave, pitch, glide steps, waveshaper amount].
 const ROAR = {
@@ -23,6 +24,7 @@ const ROAR = {
 function roar(a, h, dur, fall) {
   if (a.kit.style === 'glass') return glassRoar(a, h, dur); // the Moth: a great bell tolled over an organ cluster, no growl
   if (a.kit.style === 'breath') return cravingRoar(a, h, dur); // the Craving: a wheezing inhale, then a rasping, smoky roar
+  if (a.kit.style === 'anvil') return squallRoar(a, h, dur); // the Squall Ray: a thunderclap, a sharp crack and a long rolling rumble
   const [type, p, steps, drive] = ROAR[a.kit.style] ?? ROAR.noir;
   const dest = crush(a, drive + h * 1.5);
   const f = 72 * p;

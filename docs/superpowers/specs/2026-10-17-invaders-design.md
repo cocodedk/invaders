@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 17 cinematic worlds × 5 levels = 85 levels, free 2D
+as beautiful as Barrage (`../artillery`): 18 cinematic worlds × 5 levels = 90 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -27,6 +27,7 @@ flight, formations, bosses, power-ups — plus one feature no shooter has: your 
 - World 18's side guns turn the tide, so make them a power-up: they drop like the other powers and
   catching them costs the medal; a bomb or a life no longer opens them (R67).
 - Free flight is liberating: make it the rule for every world from 18 on (R67).
+- Finish world 18 with all its levels (R67).
 
 Assumptions (not stated, chosen here): English only; keyboard + mouse, no gamepad; installed on the
 Pi like Barrage; worlds evoke film genres under original names — no film titles, characters, logos or
@@ -150,7 +151,7 @@ quoted lines, so the repo can be public.
     and lives do not count; a power swept up at the clear is not caught). The medal pays nothing;
     once earned it is kept. The pilot's rank climbs with the medals held, from the bottom: Rookie 0,
     Cadet 1, Pilot 3, Flight Lead 6, Ace 10, Squadron Ace 18, Wing Leader 30, Air Marshal 50 and
-    Legend at every level's medal, 86 with world 18 (`src/core/ranks.js`). The replay version is 9: a version 8 run is not replayed.
+    Legend at every level's medal, 90 with world 18's five levels (`src/core/ranks.js`). The replay version is 9: a version 8 run is not replayed.
 - **Stars:** ★ cleared · ★★ cleared losing ≤ 1 life · ★★★ cleared with no hits. Best score, best
   stars and the medal per level are saved in `localStorage`; Level Select's Reset scores (after a
   confirm) zeroes all three for every level and keeps the Cinema's runs (R66).
@@ -275,32 +276,44 @@ quoted lines, so the repo can be public.
     half again at lag 15. World 16, re-run on the new rules, clears exactly as before.
   - **World 18, Anvil Sky: free flight (R67).** The user asked to fly at the aliens and hit them with
     their own bullets, tried first in a world of one level. It is a dogfight inside a thunderstorm at
-    dusk. Its levels carry `free` (every world from 18 on, `FREE_FROM`, flies free; worlds 1-17 keep the
-    bottom strip and play exactly as before, pinned
-    by fingerprints of world 17, and the replay version stays 9), which changes three rules:
+    dusk, five levels like any world (four wave levels and the Squall Ray). Its levels carry `free`
+    (every world from 18 on, `FREE_FROM`, flies free; worlds 1-17 keep the bottom strip and play exactly
+    as before, pinned by fingerprints of world 17, and the replay version stays 9), which changes these
+    rules (the collisions in `free.js`):
     - The ship flies anywhere under the HUD: the zone is y ∈ [150, 1040] instead of [620, 1040], so the ship's nose stays under the HUD panels
       (`ship.js zoneOf`). The pointer maps onto that zone too.
     - Any alien the ship touches rams it (a life lost, the alien gone, no score), not only a diver,
       because the ship can now fly into the formation.
-    - Every wave fires homing bullets, which turn toward the ship at 60°/s. A homing bullet notes its
+    - Most waves fire homing bullets, which turn toward the ship at 60°/s. A homing bullet notes its
       heading the first tick it flies; once the chase has turned it 45° off that course it is
-      dragged, for good, and a dragged bullet is spent on the first live alien it crosses and hurts
-      it 1: a kill scores and drops like any other, with a `backfire` event. A bullet still on its
-      first course passes through its own side, so a formation never shoots itself while the ship
-      waits below it.
+      dragged, for good, and a dragged bullet is spent on the first live alien it crosses, or else
+      the first live boss part, and hurts it 1 (a part by its own rule: weak 100 %, armour 25 %): a
+      kill scores and drops like any other, with a `backfire` event. A bullet still on its first
+      course passes through its own side, so a formation never shoots itself while the ship waits
+      below it.
+    - The boss's body rams: a ship that touches a live part loses a life and the boss takes nothing. A
+      blinking ship passes; a shielded one grazes it unharmed and silent.
     The side guns are world 18's own power, `sideguns`, one of seven in its drop list (`POWERS_18`):
     a catch opens world 13's side guns for 6 s (another catch sets them back to 6 s) and costs the
     level's medal like any power, but it leaves the running power and the reserve alone, so the guns
     fire beside it. A bomb or a life caught there opens nothing, so the level's twist is `free`, which
-    adds no rule of its own. Carriers come in two of the four waves; over 200 autopilot runs a run drops
-    about 11 pickups and the side guns about once, none in a third of the runs. One wave level, four
-    formations, `d` 0.5, no bunkers and no boss. The autopilot still fights from the bottom, which
-    clears it in under 30 s (par 65 s). A scripted flight that weaves around the formation's middle
-    lands about 22 backfires a run in about 70 kills; one that strafes along the bottom drags almost
-    every bullet but lands almost none, because nothing is below it. In Level Select it is the sneak
-    preview, one card with one reel beside Back and Reset scores, not a tenth side poster.
-    A boss in free flight (flying into it, its attacks on a ship that can be anywhere) is not designed
-    yet: the first free world with a boss settles it.
+    adds no rule of its own. On w18-1, where carriers come in two of the four waves, over 200 autopilot
+    runs a run drops about 11 pickups and the side guns about once, none in a third of the runs. The
+    wave levels mix in a fan, an aimed or a ring wave now and then, so the ship must dodge as well as
+    lure; carriers come in every level; no bunkers; `d` 0.5 to 0.7 (`OWN[18]`). The autopilot still
+    fights from the bottom, which clears every level. A scripted flight that weaves around w18-1's
+    formation lands about 22 backfires a run in about 70 kills; one that strafes along the bottom drags
+    almost every bullet but lands almost none, because nothing is below it.
+    The Squall Ray, a colossal manta of thundercloud, is built to be fought from every side: iron
+    plates on its spine and wings (armour), the storm heart glowing through its back behind the maw
+    (weak), the maw between its horn-fins at the bottom (weak), and a Tesla coil at each wing tip
+    (weak), below and past the wing, level with a ship that climbs beside it, where the side guns reach
+    it. The coils take aim, the wings fan, the spine rains lightning, the maw fires homing shots from
+    the first phase on (the ones the ship drags back into it) and the laser in the last, and the heart
+    throws shock rings from the second phase, so flying in close is paid for. It sways, hovers and
+    circles, never charges, rests at 280 and weighs 250 hp, a little above the moth's 234. In Level Select world 18
+    is its own card in the foot row beside Back and Reset scores (the side row is full at nine), marked
+    as the free-flight world, with its five reels.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -327,7 +340,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 15 | Lantern Deep | deep sea under a sunken kingdom | a drowned kingdom's spires, kelp forests, a whale's skeleton and a reef, all lit by its own creatures | world 8's gravity well, drawn as a maelstrom; and two powers of its own, pearls and trident (new, ruling R63) | The Lantern Leviathan |
 | 16 | Glass Cathedral | stained-glass cathedral at dawn | a half-ruined nave open to a dawn sky: tall jewel-coloured windows, a great rose window, columns and flying buttresses, shafts of coloured light | world 7's reassemble, drawn as gargoyles whose shards hang in the air and mend; and its own power, the mirror twin (new, ruling R64) | The Vesper Moth |
 | 17 | Ash to Air | a smog-choked city that heals | a city under brown smog, giant cigarettes smoking among the towers like chimneys, ash falling; level by level the smog lifts, the sky turns blue and parks, trees and kites come back | the breath: every 24 s a front of fresh air sweeps up the field and wipes the enemy bullets it passes (new, ruling R65) | The Craving |
-| 18 | Anvil Sky | a dogfight inside a thunderstorm (one level, R67) | dusk inside a storm: towering anvil clouds lit from within by lightning, rain curtains, a low orange sun under the cloud deck | free flight and dragged bullets; the side guns are a power there (R67) | none |
+| 18 | Anvil Sky | a dogfight inside a thunderstorm, the first free-flight world (R67) | dusk inside a storm: towering anvil clouds lit from within by lightning, rain curtains, a low orange sun under the cloud deck | free flight and dragged bullets; the side guns are a power there (R67) | the Squall Ray: a colossal manta of thundercloud, iron plates on its spine and wings, a storm heart glowing through its back, a Tesla coil at each wing tip |
 
 ## Look and effects
 

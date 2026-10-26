@@ -13,8 +13,9 @@
 // pings with every shot of the ship, at the twin's x on the other side of the field (sfx-glass.js). World 17's
 // help sounds when a wave of fresh air starts to rise (`breath`, as long as the rise) and ticks for each enemy bullet
 // it wipes (`cleanse`, at the bullet's x, thinned hard in audio.js), sfx-breath.js. World 18's side guns sound through world 13's
-// events (the patches branch on the world's sound style, sfx-storm.js), and a `backfire` (an enemy bullet turned on the alien that
-// fired it, at the alien's x) sounds a crack and a struck-iron ring.
+// events (the patches branch on the world's sound style, sfx-storm.js), and a `backfire` (an enemy bullet turned on the first alien it
+// crosses, or on a boss's part, at its x) sounds a crack and a struck-iron ring. The Squall Ray's roar, at each
+// `bossPhase` and at its `bossDeath`, is a thunderclap in that style (sfx-storm.js squallRoar, picked by sfx-boss.js).
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X, WIDTH } from '../core/kinds.js';
 

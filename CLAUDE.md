@@ -1,6 +1,6 @@
 # Invaders — working notes
 
-A single-player cinematic arcade shooter for the browser and the Pi games menu: 17 cinematic worlds
+A single-player cinematic arcade shooter for the browser and the Pi games menu: 18 cinematic worlds
 x 5 levels, free 2D flight, formations, bosses, power-ups, and a movie trailer cut from your own
 run. The design is `docs/superpowers/specs/2026-10-17-invaders-design.md` and the build plan is
 `docs/superpowers/plans/2026-10-17-invaders.md`; the spec is the authority. Barrage
@@ -18,7 +18,7 @@ import across repos.
 
 | Path | Contents | DOM? |
 |---|---|---|
-| `src/core/` | rng, ship, aliens, formations, bullet patterns, bunkers, power-ups, bombs, scoring, bosses (data + phase logic), twists, levels data, world, autopilot, replay (record/encode/re-sim), highlight picker. Pure, stepped by `dt`, randomness passed in. | no |
+| `src/core/` | rng, ship, aliens, formations, bullet patterns, bunkers, power-ups, bombs, scoring, bosses (data + phase logic), twists, free-flight collisions (`free.js`), levels data, world, autopilot, replay (record/encode/re-sim), highlight picker. Pure, stepped by `dt`, randomness passed in. | no |
 | `src/fx/` | particles, shockwaves, flashes, shake, pop-ups, slow-mo, film look state. Pure. | no |
 | `src/ui/` | canvas drawing per world (sky, parallax, aliens, boss, bunkers), ship, bullets, HUD, screens, trailer/cinema player, input, audio, storage, quality scaler. | yes |
 | `src/main.js` | boot, fixed-step loop, screen routing. | yes |
@@ -34,7 +34,7 @@ import across repos.
   randomness comes from an `rng` passed in, time from `dt`. Core iteration order must not depend on
   object-key order of data that changes at runtime (arrays only), so replays stay exact.
 - World is 1920x1080, y down. Logic steps at fixed `TICK = 1/60` s. Player zone y in [620, 1040],
-  x in [40, 1880]; ship max speed 720 px/s.
+  x in [40, 1880] (from world 18 on the ship flies free, y in [150, 1040]: `FREE_ZONE`); ship max speed 720 px/s.
 - Inputs are quantized before they reach the core: `dx, dy` in {-1, 0, 1}, `target` integer px or
   null, `fire`/`bomb` booleans.
 - `localStorage` wrapped in try/catch; the game works without it. Keys prefixed `invaders.`.
@@ -45,7 +45,7 @@ import across repos.
 
 ## Level data
 
-`src/core/levels.js`, `levels-2.js`, `levels-3.js` and `levels-4.js` hold the 85 levels in a shorthand:
+`src/core/levels.js`, `levels-2.js`, `levels-3.js` and `levels-4.js` hold the 90 levels in a shorthand:
 `w(formation, cols, 'roles', pattern, speed)` is one wave, `roles` being one letter per row (g grunt,
 d diver, u gunner, a armored, c carrier). A carrier row holds `cols` carriers, so carrier waves stay
 narrow. `test/core/levels.test.js` enforces the data rules (3-5 waves, at most 40 aliens a wave, a

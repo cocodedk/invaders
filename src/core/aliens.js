@@ -1,4 +1,5 @@
-import { ROLES } from './kinds.js';
+import { ROLES, ALIEN_R } from './kinds.js';
+import { segDist2 } from './math.js';
 import { makeSlots, slotPosition, entryPosition, diveCurve, clockRate } from './formations.js';
 import { emitPattern } from './patterns.js';
 import { rand, randBetween, randPick } from './rng.js';
@@ -161,4 +162,23 @@ export function stepAliens(world, dt) {
   if (world.state !== 'play') return;
   startDives(world, dt);
   fire(world, dt, spec.pattern);
+}
+
+// The live alien that projectile `p` met first along its path this tick (the nearest to where the path
+// started), or null.
+export function firstAlien(world, p, dt) {
+  const px = p.x - p.vx * dt;
+  const py = p.y - p.vy * dt;
+  const reach = (ALIEN_R + p.r) ** 2;
+  let best = null;
+  let bestD = Infinity;
+  for (const a of world.aliens) {
+    if (a.hp <= 0 || segDist2(px, py, p.x, p.y, a.x, a.y) > reach) continue;
+    const d = (a.x - px) ** 2 + (a.y - py) ** 2;
+    if (d < bestD) {
+      best = a;
+      bestD = d;
+    }
+  }
+  return best;
 }

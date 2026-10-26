@@ -1,7 +1,7 @@
 # Invaders
 
 A cinematic arcade shooter for the browser. Fly anywhere in the lower half of the screen, shoot down
-alien formations and beat a boss at the end of every world: 17 worlds and 85 levels, each world with
+alien formations and beat a boss at the end of every world: 18 worlds and 90 levels, each world with
 its own look, music and twist. Spread shot, laser, rapid fire, shield, homing shots,
 slow time, smart bombs and extra lives along the way (a second power-up waits in reserve while the
 first runs), and combos for the score. Sunset Armada, the thirteenth world, brings its own: wingmen, two
@@ -13,6 +13,11 @@ sixteenth, drops a mirror found nowhere else: a glass twin of your ship that fli
 gargoyles shatter when shot down, and the shards mend themselves unless you shoot them too. Ash to Air, the seventeenth, is
 the hardest world: the enemy is the habit itself, cigarettes, cigars and pipes led by the Craving, in a city choked with smog
 that heals as you win, from brown haze to clear sky. Every so often a breath of fresh air comes to help and sweeps the enemy bullets away.
+Anvil Sky, the eighteenth, is a dogfight inside a thunderstorm and the first world where the
+ship flies anywhere under the score panels, straight at the invaders; every world after it flies free too. The enemy's
+homing bullets turn to follow you: lead one far enough round and it turns on the first invader or boss part it crosses, so they
+die to their own fire. Touch an invader, or the boss, the Squall Ray, a manta of thundercloud, and you lose a life. The ship's
+side guns come as a power-up there.
 
 Clear a level and the game cuts a movie trailer from your own run, title cards and all. The Cinema
 on the title screen keeps your best run of every level. Lose one and you get the blooper instead.

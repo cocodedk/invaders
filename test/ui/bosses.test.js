@@ -12,7 +12,7 @@ const parts = (kind) => BOSS_DEFS.find((d) => d.kind === kind).parts.map((p) => 
 const dying = (kind, left) => ({ kind, dying: left, parts: parts(kind) });
 
 test('every boss has a hull painter and a painter for every one of its parts (the parts are the hit boxes)', () => {
-  assert.equal(Object.keys(BOSS_ART).length, 17);
+  assert.equal(Object.keys(BOSS_ART).length, 18);
   for (const def of BOSS_DEFS) {
     const art = BOSS_ART[def.kind];
     assert.ok(art, `${def.kind} has art`);

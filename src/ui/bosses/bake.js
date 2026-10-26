@@ -43,8 +43,9 @@ import carousel from './carousel.js';
 import angler from './angler.js';
 import moth from './moth.js';
 import craving from './craving.js';
+import ray from './ray.js';
 
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler, moth, craving };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler, moth, craving, ray };
 const cache = new Map();
 
 export function painterFor(mod, id) {

@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { installCanvas } from './dom-kit.js';
 
-// The lobby's posters are baked in idle slices. World 18 (Anvil Sky) has no boss level: its poster is taken from its
-// only level, and the bake must not throw (a throw in an idle slice would leave the baker stuck).
+// The lobby's posters are baked in idle slices, each from its world's boss level (world 18's is the Squall Ray's), and the
+// bake must not throw (a throw in an idle slice would leave the baker stuck).
 installCanvas();
 globalThis.requestIdleCallback = (fn) => setImmediate(fn);
 const { warmPosters, posterFor, TAGLINES } = await import('../../src/ui/screens/posters.js');
@@ -16,7 +16,7 @@ test('every world has its own tagline', () => {
   assert.equal(TAGLINES[17], 'Make their fire follow you.');
 });
 
-test('every world is baked into a poster, the world without a boss from its only level', async () => {
+test('every world is baked into a poster, each from its boss level', async () => {
   warmPosters(() => true);
   const done = () => WORLDS.every((w) => posterFor(w.id));
   for (let i = 0; i < 400 && !done(); i++) await new Promise((r) => setTimeout(r, 50));

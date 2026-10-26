@@ -19,21 +19,20 @@ function assertWaveValid(w, at) {
   assert.ok(aliens(w) <= 40, `${at} has ${aliens(w)} aliens`);
 }
 
-test('WORLDS has the 18 worlds with names, twists and bosses in the spec order; every world from 18 on flies free; 18 has no boss', () => {
+test('WORLDS has the 18 worlds with names, twists and bosses in the spec order; every world from 18 on flies free', () => {
   assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]);
   assert.deepEqual(WORLDS.map((w) => w.name), ['Arcade Origin', 'Neon Rain', 'Twin Suns',
     'Ronin Moon', 'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
     'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky']);
   assert.deepEqual(WORLDS.map((w) => w.twist), TWISTS);
-  assert.deepEqual(WORLDS.map((w) => w.boss), [...BOSSES, undefined]);
+  assert.deepEqual(WORLDS.map((w) => w.boss), BOSSES);
   assert.equal(FREE_FROM, 18);
   for (const w of WORLDS) assert.equal(w.free, w.id >= FREE_FROM, `world ${w.id} free`);
 });
 
-test('there are 86 levels, in order, with unique ids that match world and index: five a world, and world 18 has one', () => {
-  assert.equal(LEVELS.length, 86);
-  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 86);
-  assert.deepEqual(LEVELS.filter((l) => l.world === 18).map((l) => l.id), ['w18-1']);
+test('there are 90 levels, in order, with unique ids that match world and index: five a world', () => {
+  assert.equal(LEVELS.length, 90);
+  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 90);
   LEVELS.forEach((l, i) => {
     assert.equal(l.world, Math.floor(i / 5) + 1);
     assert.equal(l.index, (i % 5) + 1);
@@ -65,7 +64,7 @@ test('wave levels have 3 to 5 waves and at least one carrier', () => {
 });
 
 test('boss levels name their world boss and have no waves or bunkers', () => {
-  assert.equal(bossLevels.length, 17);
+  assert.equal(bossLevels.length, 18);
   for (const l of bossLevels) {
     assert.equal(l.boss, BOSSES[l.world - 1], l.id);
     assert.ok(!('waves' in l), `${l.id} has waves`);
@@ -109,7 +108,6 @@ test('DEMO_LEVEL is a gentle world 1 level: a 6x3 grunt grid, then a sway with o
 
 test('levelById finds every level and returns undefined for an unknown id', () => {
   for (const l of LEVELS) assert.equal(levelById(l.id), l);
-  assert.equal(levelById('w18-2'), undefined);
   assert.equal(levelById('w19-1'), undefined);
   assert.equal(levelById(''), undefined);
 });

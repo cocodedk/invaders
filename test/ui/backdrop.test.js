@@ -7,8 +7,7 @@ import { installCanvas } from './dom-kit.js';
 installCanvas();
 const { pickBackdrop } = await import('../../src/ui/scenes.js');
 
-// The draw is uniform over the wave levels, and world 18 has just the one of 69: 2000 draws miss it about once in
-// 4e12 runs (400 would miss it one run in 300).
+// The draw is uniform over the wave levels, and world 18 has four of 72: 2000 draws all but surely reach every world.
 const DRAWS = 2000;
 
 test('the backdrop is a wave level of any world, and never the world it is told to skip', () => {
@@ -18,7 +17,7 @@ test('the backdrop is a wave level of any world, and never the world it is told 
     assert.ok(level.waves, `${level.id} is a wave level`);
     worlds.add(level.world);
   }
-  assert.equal(worlds.size, 18, 'every world comes up, the sneak preview among them');
+  assert.equal(worlds.size, 18, 'every world comes up, world 18 among them');
   for (let skip = 1; skip <= 18; skip++) {
     const other = new Set();
     for (let i = 0; i < DRAWS; i++) {

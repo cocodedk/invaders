@@ -27,20 +27,29 @@ test('the bottom row holds Back and Reset scores side by side', () => {
   assert.equal(textOf(resetBtn), 'Reset scores');
 });
 
-test('right from Back reaches Reset and then the sneak preview, left returns, up goes back to the last reel from any of them', () => {
+test("right from Back reaches Reset and then the free-flight card's reels, left returns, up goes back to the last reel from any of them", () => {
   const { screen, backBtn, resetBtn, named, key, active } = lobby();
   screen.focus.focus(); // the first reel
   const reel = active();
   assert.ok(has(reel, 'reel'));
-  const preview = named('reel').find((r) => r.dataset.id === 'w18-1');
+  const [first, ...rest] = named('reel').filter((r) => /^w18-/.test(r.dataset.id));
+  const last = rest.at(-1);
+  assert.equal(rest.length, 4);
   backBtn.focus();
   key('ArrowRight');
   assert.equal(active(), resetBtn);
   key('ArrowRight');
-  assert.equal(active(), preview, 'the sneak preview stands right of Reset');
+  assert.equal(active(), first, "world 18's first reel stands right of Reset");
+  for (const r of rest) {
+    key('ArrowRight');
+    assert.equal(active(), r, 'and the rest follow it');
+  }
   key('ArrowRight');
-  assert.equal(active(), preview, 'nothing right of it');
-  key('ArrowLeft');
+  assert.equal(active(), last, 'nothing right of the last');
+  key('ArrowUp');
+  assert.equal(active(), reel, 'up from the last reel of the card');
+  last.focus();
+  for (let i = 0; i < 5; i++) key('ArrowLeft');
   assert.equal(active(), resetBtn);
   key('ArrowLeft');
   assert.equal(active(), backBtn);

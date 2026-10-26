@@ -142,12 +142,13 @@ export const SIDE2 = [
   ],
 ];
 
-// 18 Anvil Sky, the free-flight test (R67): one level, a dogfight inside a thunderstorm. Storm hornets
-// (g) swarm, lightning darts (d) dive, thunder turrets (u) fire, anvil-plated hulks (a) hold the line and
-// cargo balloons (c) carry. Every wave fires homing bullets, the ones the ship can drag into the aliens,
-// and the formations leave room to fly in among them; carriers come often, because any catch opens the
-// side guns (world 13's broadside). No bunkers: the whole sky is the ship's.
-export const PREVIEW = [
+// 18 Anvil Sky, the first free-flight world (R67): a dogfight inside a thunderstorm. Storm hornets (g)
+// swarm, lightning darts (d) dive, thunder turrets (u) fire, anvil-plated hulks (a) hold the line and
+// cargo balloons (c) carry. Most waves fire homing bullets, the ones the ship can drag into the aliens,
+// and the formations leave room to fly in among them; a fan, an aimed or a ring wave now and then makes
+// the ship dodge instead of lure. Carriers come in every level, for the side guns (world 18's power). No
+// bunkers: the whole sky is the ship's. The finale is the Squall Ray.
+export const STORM = [
   [
     lv(180417, [
       w('sway', 4, 'ucg', 'homing', 0.9),
@@ -155,5 +156,25 @@ export const PREVIEW = [
       w('split', 4, 'ucd', 'homing', 1.0),
       w('grid', 8, 'ugag', 'homing', 1.0),
     ]),
+    lv(180863, [
+      w('rain', 6, 'gdg', 'homing', 1.0),
+      w('escort', 4, 'gcg', 'homing', 1.0),
+      w('spiral', 8, 'ugd', 'homing', 1.05),
+      w('sway', 6, 'gag', 'fan', 1.05),
+    ]),
+    lv(181294, [
+      w('dive', 8, 'dgu', 'homing', 1.05),
+      w('orbit', 6, 'ucg', 'homing', 1.1),
+      w('grid', 8, 'udag', 'aimed', 1.1),
+      w('split', 8, 'gug', 'homing', 1.1),
+    ]),
+    lv(181738, [
+      w('spiral', 8, 'gugd', 'homing', 1.1),
+      w('rain', 8, 'dgg', 'ring', 1.15),
+      w('escort', 4, 'gcu', 'homing', 1.15),
+      w('sway', 8, 'gadg', 'homing', 1.15),
+      w('orbit', 6, 'gug', 'fan', 1.2),
+    ]),
+    lv(182191),
   ],
 ];

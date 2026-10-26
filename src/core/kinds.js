@@ -43,9 +43,9 @@ export const powersFor = (level) => DROPS[level.world] ?? POWERS;
 // World 17's breath is a twist of its own (R65): now and then a front of fresh air sweeps up the
 // screen and wipes every enemy bullet it touches (twists-3.js). World 18's rule is free flight (R67), which
 // its levels carry as `free`, so its twist 'free' adds nothing of its own; its side guns are a power
-// there, not a twist. It has one level and no boss, so no BOSSES entry.
+// there, not a twist. Its boss is the Squall Ray.
 export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath', 'free'];
-export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth', 'craving'];
+export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth', 'craving', 'ray'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
 // HUD_BOTTOM; nothing that must be seen or shot may sit behind them.

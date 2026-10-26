@@ -12,7 +12,7 @@
 // world 16 runs a notch above that again, because its mirror twin doubles the ship's gun;
 // world 17 runs the top of the scale (1.0 on its boss, as world 8's last level), because the help its breath
 // sends is paid for in that d: with it, its clear rates aim at world 7's.
-// world 18 is the free-flight test (R67), one level at a middle d while its rules are tried.
+// world 18 is the first free-flight world (R67), at a middle d (0.5 to 0.7) while its rules are new.
 const OWN = {
   9: [0.40, 0.43, 0.45, 0.48, 0.50],
   10: [0.30, 0.32, 0.34, 0.36, 0.38],
@@ -23,7 +23,7 @@ const OWN = {
   15: [0.72, 0.74, 0.77, 0.79, 0.82],
   16: [0.74, 0.77, 0.79, 0.82, 0.84],
   17: [0.86, 0.89, 0.92, 0.96, 1.0],
-  18: [0.50],
+  18: [0.50, 0.55, 0.60, 0.65, 0.70],
 };
 export const difficulty = (world, index) => OWN[world]?.[index - 1] ?? ((world - 1) * 5 + index - 1) / 39;
 

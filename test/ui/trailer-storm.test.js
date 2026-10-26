@@ -2,8 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { element, sink } from './dom-kit.js';
 
-// The trailer of a level with no boss to name (world 18, Anvil Sky: one wave level): it plays from the leader to the
-// final card in the world's own voice, and warms and names no boss.
+// The trailer of one of world 18's (Anvil Sky) wave levels, the first free-flight world: it plays from the leader to the
+// final card in the world's own voice, its stat card counting invaders (the boss level's names the Squall Ray, which
+// trailer-cards.test.js checks: its art is not needed to cut a wave level).
 globalThis.document = {
   createElement: (tag) => (tag === 'canvas' ? { width: 1, height: 1, getContext: () => sink } : element(tag)),
   addEventListener() {}, activeElement: null, hidden: false,
@@ -14,9 +15,9 @@ const { autopilot } = await import('../../src/core/autopilot.js');
 const { quantizeInput, TICK } = await import('../../src/core/replay.js');
 const { trailerScreen } = await import('../../src/ui/trailer/player.js');
 
-test("world 18's lone level cuts and plays a trailer to its final card, the stat card counting invaders", () => {
+test("a wave level of world 18 cuts and plays a trailer to its final card, the stat card counting invaders", () => {
   const level = levelById('w18-1');
-  assert.equal(level.boss, undefined);
+  assert.equal(level.boss, undefined, 'a wave level: no boss to name');
   const world = createWorld(level, level.seed);
   const inputs = [];
   while (world.state === 'play' || world.state === 'intro') {
@@ -45,6 +46,6 @@ test("world 18's lone level cuts and plays a trailer to its final card, the stat
   assert.equal(types.filter((t) => t === 'card').length, 3, 'three title cards');
   assert.equal(lines.length, 3);
   assert.equal(lines[0], 'THE STORM HAD TEETH. THE PILOT TAUGHT IT TO BITE BACK.');
-  assert.match(lines[1], /^\d[\d,]* INVADERS MET THEIR OWN FIRE\.$/, 'the stat card counts invaders: no boss fell');
+  assert.match(lines[1], /^\d[\d,]* INVADERS FELL TO THE STORM'S OWN FIRE\.$/, 'the stat card counts invaders: no boss fell');
   assert.match(lines[2], / IN THE STORM\. .+ OF BORROWED THUNDER\.$/);
 });
