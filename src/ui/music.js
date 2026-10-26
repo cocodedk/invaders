@@ -53,7 +53,8 @@ export function startLoop(nodes, look) {
     input.connect(echo).connect(fb).connect(echo);
     fb.connect(bus);
   }
-  const a = { ctx, t: ctx.currentTime, out: input, noise: nodes.noise, kit };
+  // out: through the echo when there is one; dry: past it, for a beat that must stay tight (music-breath.js)
+  const a = { ctx, t: ctx.currentTime, out: input, dry: bus, noise: nodes.noise, kit };
   const sources = droneVoice(a, m.drone, make);
   return { look, kit, m, a, bus, made, sources, next: ctx.currentTime + 0.1, step: 0 };
 }

@@ -129,7 +129,8 @@ quoted lines, so the repo can be public.
   kill within 1.5 s of the last raises the multiplier by 1 (max ×8); 1.5 s without a kill resets it.
   Clear bonus 2 000 + 3 000 if no hits. Every pickup collected is worth a flat 500 (no multiplier);
   when the level clears, every pickup still falling is collected at once and streaks into the ship:
-  its 500 counts toward the clear's score, its power or bomb does not (R51).
+  its 500 counts toward the clear's score, its power or bomb does not (R51). An armored alien that
+  reassembles from its wreck (worlds 7 and 16) pays again when it dies again, as the user ruled.
   - **The round's tally (R66).** At the clear every point the round made (kills, pickups, the boss)
     gets the clear and flawless bonuses, 2 000 for each bomb still held if not one was fired, and
     3 000 for each life still held, and the sum is multiplied by the round's speed and rounded to 10.

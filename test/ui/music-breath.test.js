@@ -141,3 +141,24 @@ test('the drone is a quiet triangle under it all, and the loop is wet with a dot
   assert.ok(near(echo[0].delayTime.value, (60 / 122) * 0.75, 1e-9), 'three quarters of a beat');
   assert.ok(m.vol > 0.65 && m.vol < 0.85, `${m.vol}: trimmed so the loop measures -26.4 dB offline, like the others`);
 });
+
+// Where a voice's sound goes: following its first connection, it meets the echo's input or goes past it to the bus.
+function route(c, n) {
+  for (let x = n, i = 0; x && i < 12; x = [...x.out][0], i++) {
+    if (x === c.a.out) return 'echo';
+    if (x === c.bus) return 'dry';
+  }
+  return null;
+}
+
+test('the beat plays dry, so each kick and clap lands once; the piano and the choir still ring through the echo', () => {
+  const { c, kick, bass, open, hands, lead, choir } = play();
+  assert.notEqual(c.a.out, c.bus, 'the loop has an echo send');
+  for (const [name, list] of [['kick', kick], ['bass', bass], ['open hat', open], ['clap', hands]]) {
+    assert.ok(list.length > 0, name);
+    for (const n of list) assert.equal(route(c, n), 'dry', name);
+  }
+  for (const n of lead) assert.equal(route(c, n), 'echo', 'piano');
+  assert.ok(choir.length > 0);
+  for (const n of choir) assert.equal(route(c, n), 'echo', 'choir');
+});

@@ -147,7 +147,7 @@ export const STYLES = {
   // passes, then C minor, then A flat, and back.
   breath: {
     mood: 'breath', wave: 'triangle', cut: 5200, wet: 0.4, pitch: 1.06,
-    music: { vol: 0.747, drone: { wave: 'triangle', oct: 2, cut: 500, fifth: true, gain: 0.012 },
+    music: { vol: 0.761, drone: { wave: 'triangle', oct: 2, cut: 500, fifth: true, gain: 0.012 },
       lead: { wave: 'sine', oct: 4, cut: 3200, len: 8, gain: 0.1, fm: { ratio: 1, index: 1.2 } },
       div: 4, seq: [0, null, null, null, 2, null, 4, null, 7, null, null, null, 6, null, 4, null,
         4, null, 5, null, 4, null, null, null, 2, null, null, null, 1, null, null, null,
