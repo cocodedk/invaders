@@ -1,11 +1,12 @@
-// The lobby's posters, drawn by the game itself: each world's boss level is run a few seconds with
-// the autopilot and one frame of it is rendered (sky, parallax, boss, ship, effects; no HUD), then
-// cropped to a 2:3 poster round the boss. Kept for the session (no image files).
+// The lobby's posters, drawn by the game itself: each world's boss level (a world without a boss, world 18,
+// its only level) is run a few seconds with the autopilot and one frame of it is rendered (sky, parallax,
+// boss, ship, effects; no HUD), then cropped to a 2:3 poster round the boss (the field's middle when there
+// is none). Kept for the session (no image files).
 // A bake comes in eight slices (the run-up, the world's alien sprites, its boss, worlds 15, 16 and 17's own sprites,
 // the view, the frame), one per idle period while the title or the lobby is up, so no single frame carries a whole poster
 // and nothing is baked while a level plays.
 //   warmPosters(allowed)   start baking in idle slices; allowed() says whether now is a menu
-//   bakeStep() -> bool     one slice of the next poster (false once all seventeen are done)
+//   bakeStep() -> bool     one slice of the next poster (false once all eighteen are done)
 //   posterFor(world) -> canvas | null      TAGLINES[world - 1]: each world's line      reelName(level)
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
@@ -42,11 +43,13 @@ export const TAGLINES = [
   'Never follow the light.',
   'Every color cuts.',
   'Take back every breath.',
+  'Make their fire follow you.',
 ];
 
 const FRAME_W = 768;
 const FRAME_H = 432;
-const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6]; // s into each boss fight: in place, mid-attack
+// s into each boss fight (world 18: into its wave level): in place, mid-attack
+const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6];
 const LIT = 0.4; // s of effects before the frame (muzzle flashes, sparks); the run-up before has none
 const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
 const CROP_H = 900;
@@ -55,7 +58,8 @@ const posters = new Map();
 export const posterFor = (world) => posters.get(world) ?? null;
 
 function* bake(world) {
-  const level = LEVELS.find((l) => l.world === world && l.boss);
+  const ofWorld = LEVELS.filter((l) => l.world === world);
+  const level = ofWorld.find((l) => l.boss) ?? ofWorld.at(-1); // a world without a boss: its last level
   const look = lookFor(level);
   const secs = AT[world - 1];
   const w = createWorld(level, level.seed);
@@ -73,7 +77,7 @@ function* bake(world) {
   yield;
   warmAliens(look);
   yield;
-  bossArt(look, level.boss); // drawn whole: none of the fight's damage art (warmBoss)
+  if (level.boss) bossArt(look, level.boss); // drawn whole: none of the fight's damage art (warmBoss)
   yield;
   warmDeep(look); // Lantern Deep's caustics, maelstrom and sway are heavy to bake: not in the frame's slice
   yield;

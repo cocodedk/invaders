@@ -9,8 +9,9 @@ import { CARNIVAL } from './react-carnival.js';
 import { DEEP } from './react-deep.js';
 import { GLASS } from './react-glass.js';
 import { BREATH } from './react-breath.js';
+import { STORM } from './react-storm.js';
 
-const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP, ...GLASS, ...BREATH }; // DEEP wraps fire, hit, kill and absorb, GLASS wraps fire again, power and the wreck's three; BREATH adds two events of its own (world 17's breath and its wiped bullets), wrapping nothing
+const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP, ...GLASS, ...BREATH, ...STORM }; // DEEP wraps fire, hit, kill and absorb, GLASS wraps fire again, power and the wreck's three; BREATH adds two events of its own (world 17's breath and its wiped bullets), wrapping nothing; STORM wraps ARMADA's sideShot and broadside (world 18 borrows the broadside) and adds backfire
 
 // Every event type fx reacts to.
 export const REACTS = Object.keys(HANDLERS);

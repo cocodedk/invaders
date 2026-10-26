@@ -1,9 +1,10 @@
 // Enemy bullets by pattern, in the world's colours: round orbs (or the world's own style: blaster
 // bolts, the cabinet's zigzags), drops for rain, pulsing seekers for homing, spinning throwing
-// stars, acid. Lasers are in lasers-view.js. One glow + one body sprite per bullet; at half quality
+// stars, acid; a homing bullet the ship has dragged round (world 18) is drawn as the ship's own (bullets-dragged.js). Lasers are in lasers-view.js. One glow + one body sprite per bullet; at half quality
 // the glow is skipped.
 import { glow } from './sprites.js';
 import { bulletKit } from './bullet-sprites.js';
+import { drawDragged } from './bullets-dragged.js';
 
 // A bullet's own animation offset: its heading and speed, which belong to the bullet (an index into
 // the list does not: it shifts whenever an earlier bullet is removed, and every star after it would
@@ -28,10 +29,11 @@ export function drawBullets(ctx, world, look, t, quality = 1) {
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = 0.75;
     const g = glow(enemy);
+    const mine = glow(look.palette.accent); // a dragged bullet (world 18) glows in the ship's colour
     for (const b of list) {
       if (b.pattern === 'laser') continue;
-      const r = b.r * (b.pattern === 'shuriken' ? 2.2 : 2.8);
-      ctx.drawImage(b.pattern === 'acid' ? glow('#b8ff3a') : g, b.x - r, b.y - r, r * 2, r * 2);
+      const r = b.r * (b.pattern === 'shuriken' ? 2.2 : b.dragged ? 3.4 : 2.8);
+      ctx.drawImage(b.pattern === 'acid' ? glow('#b8ff3a') : b.dragged ? mine : g, b.x - r, b.y - r, r * 2, r * 2);
     }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
@@ -45,6 +47,7 @@ export function drawBullets(ctx, world, look, t, quality = 1) {
     if (p === 'shuriken') rotated(ctx, m, b.x, b.y, t * 9 + phaseOf(b), K.star, 48 * (b.r / 18));
     else if (p === 'rain') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), K.drop);
     else if (p === 'acid') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy || 1), K.acid);
+    else if (b.dragged) drawDragged(ctx, m, b, look, t, phaseOf(b), quality); // the ship's now (world 18, bullets-dragged.js)
     else if (p === 'homing') {
       const pulse = 1 + 0.18 * Math.sin(t * 12 + phaseOf(b));
       const s = K.seeker;

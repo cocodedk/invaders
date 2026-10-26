@@ -1,7 +1,7 @@
-// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w17.js).
+// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w18.js).
 // Pure data and maths, shared by the sound effects (one flavour per world) and the music loop.
 //   kitFor(music) -> { style, root, scale, bpm, wave, cut, wet, pitch }
-//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass breath
+//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass breath anvil
 //     root   semitone of the root above C; scale: semitone steps of the scale
 //     wave   the oscillator most of the world's tones use; cut: their lowpass ceiling (Hz);
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
@@ -24,7 +24,8 @@
 //     dub, w a harp pluck climbing and falling through the chord, n a low pad swelling in, q a choir bowing a chord in
 //     over a low root, x a tubular bell (the chord's root high in the first bar of a pair, its fifth low in the second),
 //     K a kick on the beat, C the kick under a clap, O an open hat with the bass plucking the chord's root under it,
-//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js (K C O in music-breath.js).
+//     H a heavy kick with the chord's root plucked under it, A an anvil struck on the backbeat, T a low thunder tom, P an open pad,
+//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js (K C O in music-breath.js, H A T P in music-anvil.js).
 export const NOTES = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
 
 export const SCALES = {
@@ -39,7 +40,11 @@ export const SCALES = {
   mixolydian: [0, 2, 4, 5, 7, 9, 10], // the major with a flat seventh: a fairground's tunes
   pentatonic: [0, 3, 5, 7, 10], // the minor pentatonic: five notes with no semitone, so nothing played on it clashes
   melodic: [0, 2, 3, 5, 7, 9, 11], // the melodic minor going up: a minor key with the sixth and seventh raised, a dawn over ruins
+  bright: [0, 2, 4, 7, 9], // the major pentatonic: five open notes with no semitone, a storm's heroic tunes
 };
+
+// A tune from its notes: [step, degree] pairs over `steps` steps, every other step a rest.
+const tune = (steps, notes) => Array.from({ length: steps }, (_, i) => notes.find(([at]) => at === i)?.[1] ?? null);
 
 export const STYLES = {
   chip: {
@@ -154,6 +159,19 @@ export const STYLES = {
         2, null, null, null, 4, null, 5, null, 7, null, null, null, 6, null, 7, null,
         4, null, null, null, 1, null, 2, null, 0, null, null, null, null, null, null, null],
       drum: 'KqOhC.OhK.OhC.OhK.OhC.OhK.OhC.OhKqOhC.OhK.OhC.OhK.OhC.OhK.OhC.Oh' },
+  },
+  // 4/4 at 108 bpm, four bars of sixteenth-note steps to a pass: a dogfight in a thunderstorm at dusk. Struck iron (an FM tone on an
+  // iron bar's ratio, striking at once and ringing out, through a dotted-eighth echo) sings a heroic tune that climbs to the octave
+  // and settles home, with rests; under it a heavy half-time beat kept off the echo: a kick with the bass on the downbeat and the
+  // "and of 3", an anvil struck on two and four, a low thunder tom in the fills, and an open pad swelling in every second bar. The
+  // chords go home for two passes, then up an octave, then to the fifth, and back.
+  anvil: {
+    mood: 'anvil', wave: 'triangle', cut: 5000, wet: 0.34, pitch: 0.97,
+    music: { vol: 0.856, drone: { wave: 'triangle', oct: 2, cut: 480, fifth: true, gain: 0.012 },
+      lead: { wave: 'sine', oct: 3, cut: 4200, len: 6, gain: 0.14, fm: { ratio: 2.76, index: 1.1 } },
+      div: 4, seq: tune(64, [[0, 0], [3, 2], [6, 3], [10, 4], [12, 3], [16, 5], [22, 4], [24, 3], [28, 2], [32, 2], [35, 3], [38, 4], [40, 5], [44, 7],
+        [48, 6], [52, 5], [56, 3], [58, 2], [60, 0]]),
+      drum: 'HP..A.....H.A...' + 'H...A.H...H.A..T' + 'HP..A.H...H.A...' + 'H...A.....TTA.TT' },
   },
 };
 

@@ -27,16 +27,21 @@ test('the bottom row holds Back and Reset scores side by side', () => {
   assert.equal(textOf(resetBtn), 'Reset scores');
 });
 
-test('right from Back reaches Reset, left returns, up goes back to the last reel from either', () => {
-  const { screen, backBtn, resetBtn, key, active } = lobby();
+test('right from Back reaches Reset and then the sneak preview, left returns, up goes back to the last reel from any of them', () => {
+  const { screen, backBtn, resetBtn, named, key, active } = lobby();
   screen.focus.focus(); // the first reel
   const reel = active();
   assert.ok(has(reel, 'reel'));
+  const preview = named('reel').find((r) => r.dataset.id === 'w18-1');
   backBtn.focus();
   key('ArrowRight');
   assert.equal(active(), resetBtn);
   key('ArrowRight');
-  assert.equal(active(), resetBtn, 'nothing right of Reset');
+  assert.equal(active(), preview, 'the sneak preview stands right of Reset');
+  key('ArrowRight');
+  assert.equal(active(), preview, 'nothing right of it');
+  key('ArrowLeft');
+  assert.equal(active(), resetBtn);
   key('ArrowLeft');
   assert.equal(active(), backBtn);
   key('ArrowLeft');

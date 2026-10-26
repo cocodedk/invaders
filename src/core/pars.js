@@ -1,6 +1,6 @@
 // Each level's par time in seconds (R66): twice what the autopilot takes to clear it when it is never
 // hit, rounded up to 5 s. The round's speed multiplier is measured against it (scoring.js speedOf).
-// scripts/pars.mjs writes this table; test/core/pars.test.js checks that every level has one.
+// scripts/pars.mjs writes this table; test/core/pars.test.js checks that it is current.
 export const PARS = {
   'w1-1': 65, 'w1-2': 70, 'w1-3': 60, 'w1-4': 110, 'w1-5': 70,
   'w2-1': 40, 'w2-2': 60, 'w2-3': 90, 'w2-4': 70, 'w2-5': 110,
@@ -19,6 +19,7 @@ export const PARS = {
   'w15-1': 45, 'w15-2': 110, 'w15-3': 65, 'w15-4': 100, 'w15-5': 90,
   'w16-1': 40, 'w16-2': 100, 'w16-3': 70, 'w16-4': 115, 'w16-5': 70,
   'w17-1': 40, 'w17-2': 80, 'w17-3': 50, 'w17-4': 80, 'w17-5': 85,
+  'w18-1': 60,
 };
 export const DEFAULT_PAR = 60; // s, for a level with no entry (the tests' own levels)
 export const parOf = (level) => PARS[level.id] ?? DEFAULT_PAR;

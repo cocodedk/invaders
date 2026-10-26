@@ -2,7 +2,7 @@
 // the world's accent, twin engine flames that stretch when it climbs, a fading wake behind its
 // motion, a roll into every sideways move, a shield bubble, and a blink while invulnerable. World 13's
 // wingmen and side guns are drawn with it (ship-armada.js), world 15's pearls (ship-deep.js) and world 16's mirror
-// twin (ship-glass.js).
+// twin (ship-glass.js); world 18's side guns are coil emitters (ship-storm.js).
 // Stateless: everything comes from the ship's position, velocity and t.
 import { INK, rgba, glow, star, addGlow } from './sprites.js';
 import { clamp, TAU } from '../core/math.js';
@@ -10,6 +10,8 @@ import { SHIP_SPEED } from '../core/ship.js';
 import { drawEscorts, drawGunPorts } from './ship-armada.js';
 import { drawPearls } from './ship-deep.js';
 import { drawTwin } from './ship-glass.js';
+import { drawCoilPorts } from './ship-storm.js';
+import { STORM_WORLD } from './storm-bolt.js';
 
 // `alpha` is the ship's own (0.3 while it blinks), so the flames blink with it.
 function flames(ctx, s, accent, t, alpha) {
@@ -128,7 +130,7 @@ export function drawShip(ctx, world, look, t) {
   ctx.rotate(bank * 0.1);
   ctx.scale(1 - 0.14 * Math.abs(bank), 1);
   const [wl, wr] = hull(ctx, bank, accent);
-  if (s.broadside > 0) drawGunPorts(ctx, s, t);
+  if (s.broadside > 0) (look.world === STORM_WORLD ? drawCoilPorts(ctx, s, t, look) : drawGunPorts(ctx, s, t)); // brass ports in world 13, coil emitters in world 18
   ctx.restore();
   const tip = 0.6 + 0.4 * Math.sin(t * 6);
   addGlow(ctx, star(accent), s.x - 38 * wl, s.y + 22, 10, tip * alpha);

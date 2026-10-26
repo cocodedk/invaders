@@ -2,7 +2,7 @@ import { TWISTS, BOSSES } from './kinds.js';
 import { difficulty } from './difficulty.js';
 import { w, lv, LATE } from './levels-2.js';
 import { SIDE } from './levels-3.js';
-import { SIDE2 } from './levels-4.js';
+import { SIDE2, PREVIEW } from './levels-4.js';
 
 // Level data, plain and serialisable. Each level, in order, is
 //   { id: 'w<world>-<index>', world, index, seed, d, twist, bunkers,
@@ -13,9 +13,10 @@ import { SIDE2 } from './levels-4.js';
 
 const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon',
   'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
-  'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air'];
+  'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky'];
+const FREE = [18]; // R67: the worlds whose levels fly free (ship.js zoneOf, collide.js)
 
-export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i] }));
+export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i], free: FREE.includes(i + 1) }));
 
 // A level's world name, and its place in the world: 'Reel 3', or the boss level's 'Finale'.
 export const worldName = (level) => WORLDS[level.world - 1]?.name ?? '';
@@ -141,11 +142,12 @@ function level(world, index, { seed, bunkers, waves }) {
   const home = WORLDS[world - 1];
   const base = {
     id: `w${world}-${index}`, world, index, seed, d: difficulty(world, index), twist: home.twist, bunkers,
+    ...(home.free && { free: true }),
   };
   return waves ? { ...base, waves } : { ...base, boss: home.boss };
 }
 
-export const LEVELS = [...EARLY, ...LATE, ...SIDE, ...SIDE2].flatMap((specs, wi) =>
+export const LEVELS = [...EARLY, ...LATE, ...SIDE, ...SIDE2, ...PREVIEW].flatMap((specs, wi) =>
   specs.map((spec, ii) => level(wi + 1, ii + 1, spec)));
 
 // World 1 at d = 0 for "Watch, then try": a 6x3 grunt grid, then one swaying trio around a carrier.

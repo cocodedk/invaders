@@ -1,6 +1,7 @@
 /* The level select as a cinema lobby: a marquee with chasing bulbs, the main run's posters in
    lightboxes, each over its five reels (its showtimes) with stars and best score, and under them,
-   "also showing", the side worlds, each a short banner over its reels. */
+   "also showing", the side worlds, each a short banner over its reels, and in the foot row beside Back and
+   Reset scores the sneak preview, a banner beside its one reel. */
 .lobby, .cinema { gap: 1rem; padding: 1.6rem 2rem 1.4rem; }
 .lobby .sub, .cinema .sub { font-size: 1.3rem; }
 .lobby {
@@ -30,7 +31,7 @@
    banner 7.7 rem (the title 8.9 px, the tagline 6.6 px) and 8.2 rem with 0.4 rem gaps (9.4 px and 7 px),
    against 10 px and 7.5 px now, and either way no card stands under anything; a ninth card hung past the
    main row's right edge ends at 96 rem, on the screen's edge; the free corner beside Back is 28 x 4.4 rem,
-   too small for a card of reels. "Also showing" hangs in the margin outside the row. */
+   too small for a card of five reels, but it holds the sneak preview (below): a banner beside its one. "Also showing" hangs in the margin outside the row. */
 .posters, .side { display: grid; gap: 0.9rem; }
 .posters { grid-template-columns: repeat(8, 8.8rem); }
 .poster { --accent: #fff; display: flex; flex-direction: column; gap: 0.6rem; transition: transform 0.2s ease; }
@@ -52,6 +53,20 @@
 .side-label { position: absolute; right: 100%; top: 50%; margin-right: 0.8rem; writing-mode: vertical-rl;
   transform: translateY(-50%) rotate(180deg); font-size: 0.8rem; font-weight: 900;
   letter-spacing: 0.32em; text-transform: uppercase; color: var(--gold); }
+/* The sneak preview (a free-flight world, one reel) stands in the bottom row after Back and Reset scores: its
+   banner (the poster's print, cropped, with the kicker, the name and the tagline in rem, not cqw) beside its one
+   reel, as tall as the buttons. It is no poster, so it does not lift when focused: the banner lights instead. */
+.preview { --accent: #fff; display: flex; align-items: center; gap: 0.5rem; }
+.preview .poster-art { box-sizing: border-box; flex: none; width: 16rem; height: 4.2rem; aspect-ratio: auto; }
+.preview .poster-canvas { object-fit: cover; object-position: 50% 22%; }
+.preview .poster-art::after { background: linear-gradient(90deg, rgba(0, 0, 0, 0.86), rgba(0, 0, 0, 0.58) 62%, rgba(0, 0, 0, 0.14)); }
+.preview .poster-world { top: 0.45rem; left: 0.8rem; right: auto; text-align: left; font-size: 0.62rem; letter-spacing: 0.3em; color: var(--gold); }
+.preview .poster-type { left: 0.8rem; right: 0.8rem; bottom: 0.42rem; text-align: left; }
+.preview .poster-name { font-size: 1.5rem; white-space: nowrap; }
+.preview .poster-tag { margin: 0.1rem 0 0; font-size: 0.74rem; line-height: 1.1; }
+.preview .reels { flex: none; width: 11rem; }
+.preview:focus-within .poster-art { border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.6), 0 0 1.6rem var(--accent), 0 0.6rem 1.4rem rgba(0, 0, 0, 0.6); }
 .poster-art {
   position: relative; container-type: inline-size; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 0.5rem;
   border: 0.14rem solid rgba(255, 230, 180, 0.28);

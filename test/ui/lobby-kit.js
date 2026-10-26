@@ -1,7 +1,7 @@
 // A DOM stand-in for the screens that need focus, clicks and removal (the lobby and its confirm card),
 // richer than dom-kit.js's element(). Install it before importing the module under test.
 //   installDom()  document.createElement gives elements that keep their children, classes, dataset and
-//                 click listeners; click() runs them, focus() makes the element document.activeElement,
+//                 click and pointerenter listeners; click() and hover() run them, focus() makes the element document.activeElement,
 //                 remove() takes it out of its parent
 //   all(el)       the element and every element beneath it
 //   textOf(el)    the text beneath it, strings joined
@@ -26,6 +26,7 @@ function make(tag) {
     },
     addEventListener(type, fn) { (on[type] ??= []).push(fn); },
     click() { for (const fn of on.click ?? []) fn(); },
+    hover() { for (const fn of on.pointerenter ?? []) fn(); },
     focus() { globalThis.document.activeElement = el; },
     setAttribute(k, v) { el.attrs[k] = v; },
     querySelector: () => null,

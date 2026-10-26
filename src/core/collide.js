@@ -1,4 +1,4 @@
-import { dist2, segDist2, sweepDist2 } from './math.js';
+import { dist2, segDist2, sweepDist2, wrapAngle } from './math.js';
 import { ALIEN_R, NEAR_MISS } from './kinds.js';
 import { laserHits } from './patterns.js';
 import { SHIP_R, hitShip } from './ship.js';
@@ -29,7 +29,26 @@ function pierceAliens(world, s, dt) {
   }
 }
 
-// Each shot is spent on the alien it meets first, the nearest to where it started this tick.
+// The live alien that projectile `p` met first along its path this tick (the nearest to where the path
+// started), or null.
+function firstAlien(world, p, dt) {
+  const px = p.x - p.vx * dt;
+  const py = p.y - p.vy * dt;
+  const reach = (ALIEN_R + p.r) ** 2;
+  let best = null;
+  let bestD = Infinity;
+  for (const a of world.aliens) {
+    if (a.hp <= 0 || segDist2(px, py, p.x, p.y, a.x, a.y) > reach) continue;
+    const d = (a.x - px) ** 2 + (a.y - py) ** 2;
+    if (d < bestD) {
+      best = a;
+      bestD = d;
+    }
+  }
+  return best;
+}
+
+// Each shot is spent on the alien it meets first.
 function shotsVsAliens(world, dt) {
   for (const s of world.shots) {
     if (s.life <= 0) continue;
@@ -37,22 +56,29 @@ function shotsVsAliens(world, dt) {
       pierceAliens(world, s, dt);
       continue;
     }
-    const px = s.x - s.vx * dt;
-    const py = s.y - s.vy * dt;
-    const reach = (ALIEN_R + s.r) ** 2;
-    let best = null;
-    let bestD = Infinity;
-    for (const a of world.aliens) {
-      if (a.hp <= 0 || segDist2(px, py, s.x, s.y, a.x, a.y) > reach) continue;
-      const d = (a.x - px) ** 2 + (a.y - py) ** 2;
-      if (d < bestD) {
-        best = a;
-        bestD = d;
-      }
-    }
+    const best = firstAlien(world, s, dt);
     if (!best) continue;
     s.life = 0;
     hurtAlien(world, best, s.dmg ?? 1);
+  }
+}
+
+// A free level (R67, world 18) turns the enemy's homing fire on its own side. A homing bullet notes its
+// heading the first tick it is seen here; once the chase has turned it DRAG_TURN away from that, it is
+// `dragged` for good, and a dragged bullet is spent on the first live alien it crosses, hurting it 1 (a
+// kill scores and drops as any other) with a `backfire`. On its first course it passes its own side.
+export const DRAG_TURN = Math.PI / 4;
+function dragBullets(world, dt) {
+  for (const b of world.bullets) {
+    if (b.life <= 0 || !b.turn) continue;
+    const heading = Math.atan2(b.vy, b.vx);
+    if (b.h0 === undefined) b.h0 = heading;
+    else if (!b.dragged && Math.abs(wrapAngle(heading - b.h0)) >= DRAG_TURN) b.dragged = true;
+    const a = b.dragged && firstAlien(world, b, dt);
+    if (!a) continue;
+    b.life = 0;
+    emit(world, 'backfire', { id: a.id, role: a.role, x: a.x, y: a.y });
+    hurtAlien(world, a, 1);
   }
 }
 
@@ -70,11 +96,13 @@ function vsBunkers(world, list, dt) {
 }
 
 // A diver that reaches the ship costs a life and is lost with no score. A blinking ship is passed.
-// A shell (world 14) that rams still lights its fuse, like a shell dying any other way.
+// A shell (world 14) that rams still lights its fuse, like a shell dying any other way. In a free level
+// (R67) the ship can fly into the formation, so any alien it touches rams it.
 function rams(world) {
   const reach = (ALIEN_R + SHIP_R) ** 2;
+  const free = world.level.free;
   for (const a of world.aliens) {
-    if (a.hp <= 0 || !isSwooping(a)) continue;
+    if (a.hp <= 0 || !(free || isSwooping(a))) continue;
     if (dist2(a, world.ship) <= reach && hitShip(world, 'ram')) {
       a.hp = 0;
       awardKill(world, a, false);
@@ -135,6 +163,7 @@ export function collide(world, dt, slow = dt) {
   vsBunkers(world, world.shots, dt);
   rams(world);
   vsBunkers(world, world.bullets, slow);
+  if (world.level.free) dragBullets(world, slow);
   if (world.level.twist === 'shuriken') cutShuriken(world, dt);
   stepPearls(world, dt, slow);
   bulletsVsShip(world, slow);

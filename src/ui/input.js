@@ -6,7 +6,8 @@
 // button fires, the right button bombs.
 //   createInput(canvas) -> input   input.onKey(code, event) for screens and global keys,
 //                                  input.onGesture() on the first key or click (audio unlock)
-//   readInput(input, view) -> raw  { dx, dy, fire, bomb, target } for quantizeInput
+//   readInput(input, view, zone) -> raw  { dx, dy, fire, bomb, target } for quantizeInput; zone: the
+//                                  level's (ship.js zoneOf), ZONE by default
 //   resetInput(input)              forget held keys and buttons (a screen took over)
 // Keys with Alt, Ctrl or Meta held are left alone: Alt+Left must stay the browser's Back.
 import { MOVE } from './keys.js';
@@ -110,17 +111,17 @@ function axis(p, s, z0, z1, w0, w1) {
 // The ship's goal. The cursor is hidden in play and the canvas reaches past the zone (the sky above
 // it, the letterbox bars of a wide window beside it), so a pointer pushed past an edge drags the goal
 // along that edge instead of leaving a dead stretch to cross back: a move back answers at once.
-function steer(m, view) {
+function steer(m, view, z) {
   const w = inWorld(view, m);
   if (!w) return null;
   const s = m.slack ?? { x: 0, y: 0 };
-  const [x, sx] = axis(w.p.x, s.x, ZONE.x0, ZONE.x1, w.lo.x, w.hi.x);
-  const [y, sy] = axis(w.p.y, s.y, ZONE.y0, ZONE.y1, w.lo.y, w.hi.y);
+  const [x, sx] = axis(w.p.x, s.x, z.x0, z.x1, w.lo.x, w.hi.x);
+  const [y, sy] = axis(w.p.y, s.y, z.y0, z.y1, w.lo.y, w.hi.y);
   m.slack = { x: sx, y: sy };
   return { x, y };
 }
 
-export function readInput(input, view) {
+export function readInput(input, view, zone = ZONE) {
   let dx = 0;
   let dy = 0;
   for (const code of input.down) {
@@ -135,7 +136,7 @@ export function readInput(input, view) {
     dx, dy,
     fire: any(input, FIRE) || m.left || input.taps.has('Mouse0'),
     bomb: any(input, BOMB) || m.right || input.taps.has('Mouse2'),
-    target: m.active ? steer(m, view) : null,
+    target: m.active ? steer(m, view, zone) : null,
   };
   input.taps.clear(); // read by this tick
   return raw;

@@ -1,9 +1,9 @@
-// Per-world pickup skins (look.world 1..17). A pickup must still read as "catch me" in every world, so the falling capsule
+// Per-world pickup skins (look.world 1..18). A pickup must still read as "catch me" in every world, so the falling capsule
 // keeps its dark middle, coloured rim, pulse and turning dashes (pickups-view.js); a world changes the rim's shape and redraws some icons.
 //   FRAMES[world](g, color)        the capsule's rim, centred, inside a 60 x 60 sprite (baked)
 //   ICONS[world][kind](g, color)   replaces drawIcon's default for that kind (centred, ~30 px); also drawn by the HUD every frame, so
 //                                  plain paths only (pickup-icons.js 1-4, pickup-icons-2.js 5-8, pickup-wheel.js 13, pickup-deep.js 15,
-//                                  pickup-glass.js 16 with the mirror's icon; pickup-leaf.js is world 17's wreath of leaves, a frame only)
+//                                  pickup-glass.js 16 with the mirror's icon; pickup-leaf.js is world 17's wreath of leaves, a frame only; pickup-storm.js is world 18's Tesla ring, a frame only)
 import { INK, rgba, shade, lin } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
@@ -15,7 +15,7 @@ import { bulbs } from './pickup-bulbs.js';
 import { shells, ICONS15 } from './pickup-deep.js';
 import { quatrefoil, ICONS16 } from './pickup-glass.js';
 import { leaves } from './pickup-leaf.js';
-
+import { tesla } from './pickup-storm.js';
 export const disc = (g, r) => {
   g.fillStyle = 'rgba(8,10,20,0.88)';
   g.beginPath();
@@ -192,6 +192,7 @@ export const FRAMES = {
   15: shells, // a ring of scallop shells and pearls (pickup-deep.js)
   16: quatrefoil, // a gothic quatrefoil of gold tracery set with glass jewels (pickup-glass.js)
   17: leaves, // a wreath of fresh green leaves, their veins in the power's colour (pickup-leaf.js)
+  18: tesla, // a Tesla ring: copper coil wire, steel electrodes and arcs of the power's colour between them (pickup-storm.js)
 };
 
 export const ICONS = { ...ICONS1, ...ICONS2, 13: ICONS13, 15: ICONS15, 16: ICONS16 };

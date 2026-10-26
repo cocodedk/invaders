@@ -4,6 +4,7 @@
 // loop's step count, for the hits that follow the tune (the music box, the bass).
 import { tone, hiss, fm, noteHz, bell } from './audio-kit.js';
 import { BREATH_HITS } from './music-breath.js';
+import { ANVIL_HITS } from './music-anvil.js';
 
 // The waltz's bars are six steps; the second of each pair of bars sounds the chord's fifth where the first sounds its root.
 const oddBar = (n) => Math.floor(n.step / 6) % 2;
@@ -116,4 +117,5 @@ export const DRUM = {
     }
   },
   ...BREATH_HITS, // K C O: four on the floor, claps and open hats with the bass (Ash to Air)
+  ...ANVIL_HITS, // H A T P: a heavy kick with the bass, an anvil struck on the backbeat, a thunder tom, a pad (Anvil Sky)
 };

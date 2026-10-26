@@ -26,6 +26,7 @@ import { warmCarnival } from './warm-carnival.js';
 import { warmDeep } from './warm-deep.js';
 import { warmGlass } from './warm-glass.js';
 import { warmBreath } from './warm-breath.js';
+import { warmStorm } from './warm-storm.js';
 import { createHeal, stepHeal, healOf } from './heal.js';
 import { buildHealLayers } from './heal-layers.js';
 import { drawHealSky, healSkies } from './heal-view.js';
@@ -40,7 +41,7 @@ import { drawHud } from './hud.js';
 import { createQuality } from './quality.js';
 
 // warm (default true) bakes the level's aliens and boss with all their damage art (and world 13's, 14's, 15's and 16's
-// sprites, warm-armada.js, warm-carnival.js, warm-deep.js and warm-glass.js, and world 17's, warm-breath.js); a poster, which draws one frame and has baked what it draws, passes false.
+// sprites, warm-armada.js, warm-carnival.js, warm-deep.js and warm-glass.js, world 17's, warm-breath.js, and world 18's arc bolts and dragged bullets, warm-storm.js); a poster, which draws one frame and has baked what it draws, passes false.
 export function createView(canvas, level, warm = true) {
   const look = lookFor(level);
   if (warm) {
@@ -51,6 +52,7 @@ export function createView(canvas, level, warm = true) {
     warmDeep(look);
     warmGlass(look);
     warmBreath(look);
+    warmStorm(look);
   }
   const heal = look.heal ? createHeal() : null; // world 17: the healing city, a smog and a clean twin of the sky and layers (heal.js)
   const skies = heal && healSkies(look, level); // the smog sky and the clean one, baked once per look (heal-view.js)

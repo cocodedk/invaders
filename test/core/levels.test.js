@@ -19,18 +19,20 @@ function assertWaveValid(w, at) {
   assert.ok(aliens(w) <= 40, `${at} has ${aliens(w)} aliens`);
 }
 
-test('WORLDS has the 17 worlds with names, twists and bosses in the spec order', () => {
-  assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]);
+test('WORLDS has the 18 worlds with names, twists and bosses in the spec order; world 18 alone flies free and has no boss', () => {
+  assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]);
   assert.deepEqual(WORLDS.map((w) => w.name), ['Arcade Origin', 'Neon Rain', 'Twin Suns',
     'Ronin Moon', 'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
-    'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air']);
+    'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky']);
   assert.deepEqual(WORLDS.map((w) => w.twist), TWISTS);
-  assert.deepEqual(WORLDS.map((w) => w.boss), BOSSES);
+  assert.deepEqual(WORLDS.map((w) => w.boss), [...BOSSES, undefined]);
+  assert.deepEqual(WORLDS.filter((w) => w.free).map((w) => w.id), [18]);
 });
 
-test('there are 85 levels, in order, with unique ids that match world and index', () => {
-  assert.equal(LEVELS.length, 85);
-  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 85);
+test('there are 86 levels, in order, with unique ids that match world and index: five a world, and world 18 has one', () => {
+  assert.equal(LEVELS.length, 86);
+  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 86);
+  assert.deepEqual(LEVELS.filter((l) => l.world === 18).map((l) => l.id), ['w18-1']);
   LEVELS.forEach((l, i) => {
     assert.equal(l.world, Math.floor(i / 5) + 1);
     assert.equal(l.index, (i % 5) + 1);
@@ -45,7 +47,8 @@ test('every level has an integer seed (all distinct), its difficulty and its wor
     assert.equal(l.twist, WORLDS[l.world - 1].twist, `${l.id} twist`);
     assert.equal(typeof l.bunkers, 'boolean', `${l.id} bunkers`);
   }
-  assert.equal(new Set(LEVELS.map((l) => l.seed)).size, 85);
+  assert.equal(new Set(LEVELS.map((l) => l.seed)).size, LEVELS.length);
+  for (const l of LEVELS) assert.equal(l.free, l.world === 18 ? true : undefined, `${l.id} free`);
 });
 
 test('every wave of every level is valid against kinds.js', () => {
@@ -70,7 +73,7 @@ test('boss levels name their world boss and have no waves or bunkers', () => {
 });
 
 test('each world uses at least 4 different formations across its wave levels', () => {
-  for (let world = 1; world <= 17; world++) {
+  for (let world = 1; world <= WORLDS.length; world++) {
     const used = new Set(waveLevels.filter((l) => l.world === world)
       .flatMap((l) => l.waves.map((w) => w.formation)));
     assert.ok(used.size >= 4, `world ${world} uses only ${[...used]}`);
@@ -105,6 +108,7 @@ test('DEMO_LEVEL is a gentle world 1 level: a 6x3 grunt grid, then a sway with o
 
 test('levelById finds every level and returns undefined for an unknown id', () => {
   for (const l of LEVELS) assert.equal(levelById(l.id), l);
-  assert.equal(levelById('w18-1'), undefined);
+  assert.equal(levelById('w18-2'), undefined);
+  assert.equal(levelById('w19-1'), undefined);
   assert.equal(levelById(''), undefined);
 });

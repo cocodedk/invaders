@@ -9,6 +9,9 @@ import { MID_X, WIDTH } from './kinds.js';
 export const SHIP_R = 14; // hit radius
 export const SHIP_SPEED = 720; // px/s
 export const ZONE = { x0: 40, x1: 1880, y0: 620, y1: 1040 };
+// A free level (R67, world 18) lets the ship fly up to just under the HUD.
+export const FREE_ZONE = { ...ZONE, y0: 150 }; // the ship's nose stays under the HUD panels
+export const zoneOf = (level) => (level?.free ? FREE_ZONE : ZONE);
 export const LIVES = 3;
 export const INVULN = 1.5; // s of blinking after a hit
 const COOLDOWN = 0.18; // s between base shots
@@ -36,8 +39,8 @@ export const createShip = () => ({
 
 const SNAP = 0.5; // px: closer than this to a pointer target, the ship stops dead on it
 
-// The pointer target, held inside the zone.
-const goal = (t) => t && { x: clamp(t.x, ZONE.x0, ZONE.x1), y: clamp(t.y, ZONE.y0, ZONE.y1) };
+// The pointer target, held inside the zone `z`.
+const goal = (t, z) => t && { x: clamp(t.x, z.x0, z.x1), y: clamp(t.y, z.y0, z.y1) };
 
 // The velocity the ship eases toward: the keys, normalised so a diagonal is no faster, or the pull
 // of the pointer goal.
@@ -117,9 +120,9 @@ function sideGuns(world) {
   }
 }
 
-// Ease, move and clamp to the zone: `s` is anything with { x, y, vx, vy } (the autopilot flies a copy).
-export function moveShip(s, dt, input) {
-  const g = goal(input.target);
+// Ease, move and clamp to the zone `z`: `s` is anything with { x, y, vx, vy } (the autopilot flies a copy).
+export function moveShip(s, dt, input, z = ZONE) {
+  const g = goal(input.target, z);
   if (g && Math.hypot(g.x - s.x, g.y - s.y) < SNAP) {
     Object.assign(s, { x: g.x, y: g.y, vx: 0, vy: 0 });
     return;
@@ -129,12 +132,12 @@ export function moveShip(s, dt, input) {
   s.vy = approach(s.vy, wy, ACCEL * dt);
   s.x += s.vx * dt;
   s.y += s.vy * dt;
-  if (s.x < ZONE.x0 || s.x > ZONE.x1) {
-    s.x = clamp(s.x, ZONE.x0, ZONE.x1);
+  if (s.x < z.x0 || s.x > z.x1) {
+    s.x = clamp(s.x, z.x0, z.x1);
     s.vx = 0;
   }
-  if (s.y < ZONE.y0 || s.y > ZONE.y1) {
-    s.y = clamp(s.y, ZONE.y0, ZONE.y1);
+  if (s.y < z.y0 || s.y > z.y1) {
+    s.y = clamp(s.y, z.y0, z.y1);
     s.vy = 0;
   }
 }
@@ -150,7 +153,7 @@ export function stepShip(world, dt, input) {
   s.invuln = Math.max(0, s.invuln - dt);
   s.bombPressed = Boolean(input.bomb) && !s.bombHeld;
   s.bombHeld = Boolean(input.bomb);
-  moveShip(s, dt, input);
+  moveShip(s, dt, input, zoneOf(world.level));
   if (world.state !== 'play' || !input.fire || s.cooldown > 0) return;
   if (s.power?.kind !== 'laser') shoot(world);
   else if (s.broadside > 0) {

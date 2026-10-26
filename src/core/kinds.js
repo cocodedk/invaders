@@ -38,8 +38,10 @@ export const powersFor = (level) => DROPS[level.world] ?? POWERS;
 // world 8's gravity well, drawn there as a maelstrom, so its twist repeats world 8's. World 16 reuses
 // world 7's reassemble, drawn there as shattered glass that mends itself, so its twist repeats world 7's.
 // World 17's breath is a twist of its own (R65): now and then a front of fresh air sweeps up the
-// screen and wipes every enemy bullet it touches (twists-3.js).
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath'];
+// screen and wipes every enemy bullet it touches (twists-3.js). World 18 reuses world 13's broadside, so
+// its twist repeats world 13's; it has one level and no boss, so no BOSSES entry (its own rule is free
+// flight, R67).
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath', 'broadside'];
 export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth', 'craving'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at

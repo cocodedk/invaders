@@ -97,7 +97,13 @@ test('world 17 runs the top of the scale, rising within the world to 1 on the bo
   own.forEach((d, i) => assert.ok(d > difficulty(16, i + 1), `w17-${i + 1} above w16-${i + 1}`));
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
   assert.equal(isSide(17), true);
-  assert.equal(isSide(18), false);
+});
+
+test('world 18, the free-flight test (R67), is one level at a middle d, beside the main run; there is no world 19', () => {
+  assert.equal(difficulty(18, 1), 0.5);
+  assert.equal(scaled(0.5).armorBonus, 0);
+  assert.equal(isSide(18), true);
+  assert.equal(isSide(19), false);
 });
 
 test('scaled gives the documented range at d = 0 and d = 1', () => {

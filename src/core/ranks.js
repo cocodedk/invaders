@@ -13,7 +13,7 @@ export const RANKS = [
   { name: 'Squadron Ace', at: 18 },
   { name: 'Wing Leader', at: 30 },
   { name: 'Air Marshal', at: 50 },
-  { name: 'Legend', at: 85 },
+  { name: 'Legend', at: 86 },
 ];
 
 export function rankOf(medals) {

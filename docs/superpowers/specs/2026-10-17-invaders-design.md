@@ -21,6 +21,9 @@ flight, formations, bosses, power-ups — plus one feature no shooter has: your 
   when none was fired and for every life still held; bombs and lives count up with no cap of 3; a
   button zeroes every level's scores; a level cleared without a power-up earns a medal, and medals
   climb a ladder of ranks from the bottom up (R66).
+- Fly toward the aliens and drag the enemy's bullets that follow the ship into them, to hit them with
+  their own fire; try it in a new world of one level, and see whether the side guns work when the
+  ship flies level with the aliens. The user knows it changes the game's mechanics (R67).
 
 Assumptions (not stated, chosen here): English only; keyboard + mouse, no gamepad; installed on the
 Pi like Barrage; worlds evoke film genres under original names — no film titles, characters, logos or
@@ -144,7 +147,7 @@ quoted lines, so the repo can be public.
     and lives do not count; a power swept up at the clear is not caught). The medal pays nothing;
     once earned it is kept. The pilot's rank climbs with the medals held, from the bottom: Rookie 0,
     Cadet 1, Pilot 3, Flight Lead 6, Ace 10, Squadron Ace 18, Wing Leader 30, Air Marshal 50 and
-    Legend at all 85 (`src/core/ranks.js`). The replay version is 9: a version 8 run is not replayed.
+    Legend at every level's medal, 86 with world 18 (`src/core/ranks.js`). The replay version is 9: a version 8 run is not replayed.
 - **Stars:** ★ cleared · ★★ cleared losing ≤ 1 life · ★★★ cleared with no hits. Best score, best
   stars and the medal per level are saved in `localStorage`; Level Select's Reset scores (after a
   confirm) zeroes all three for every level and keeps the Cinema's runs (R66).
@@ -267,6 +270,27 @@ quoted lines, so the repo can be public.
     120 seeds the Craving falls 11 and 9 times, the titan 12 and 6. The breath helps the slower
     hand most: without it the Craving falls 11 and 6 times, so it is worth nothing at lag 10 and
     half again at lag 15. World 16, re-run on the new rules, clears exactly as before.
+  - **World 18, Anvil Sky: free flight (R67).** The user asked to fly at the aliens and hit them with
+    their own bullets, tried first in a world of one level. It is a dogfight inside a thunderstorm at
+    dusk. Its levels carry `free` (world 18's alone; every other world plays exactly as before, pinned
+    by fingerprints of world 17, and the replay version stays 9), which changes three rules:
+    - The ship flies anywhere under the HUD: the zone is y ∈ [150, 1040] instead of [620, 1040], so the ship's nose stays under the HUD panels
+      (`ship.js zoneOf`). The pointer maps onto that zone too.
+    - Any alien the ship touches rams it (a life lost, the alien gone, no score), not only a diver,
+      because the ship can now fly into the formation.
+    - Every wave fires homing bullets, which turn toward the ship at 60°/s. A homing bullet notes its
+      heading the first tick it flies; once the chase has turned it 45° off that course it is
+      dragged, for good, and a dragged bullet is spent on the first live alien it crosses and hurts
+      it 1: a kill scores and drops like any other, with a `backfire` event. A bullet still on its
+      first course passes through its own side, so a formation never shoots itself while the ship
+      waits below it.
+    The twist is world 13's broadside (any catch opens the side guns for 6 s), so the side guns can
+    be tried level with the formation; carriers come in two of the four waves. One wave level, four
+    formations, `d` 0.5, no bunkers and no boss. The autopilot still fights from the bottom, which
+    clears it in under 30 s (par 60 s). A scripted flight that weaves around the formation's middle
+    lands about 22 backfires a run in about 70 kills; one that strafes along the bottom drags almost
+    every bullet but lands almost none, because nothing is below it. In Level Select it is the sneak
+    preview, one card with one reel beside Back and Reset scores, not a tenth side poster.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -293,6 +317,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 15 | Lantern Deep | deep sea under a sunken kingdom | a drowned kingdom's spires, kelp forests, a whale's skeleton and a reef, all lit by its own creatures | world 8's gravity well, drawn as a maelstrom; and two powers of its own, pearls and trident (new, ruling R63) | The Lantern Leviathan |
 | 16 | Glass Cathedral | stained-glass cathedral at dawn | a half-ruined nave open to a dawn sky: tall jewel-coloured windows, a great rose window, columns and flying buttresses, shafts of coloured light | world 7's reassemble, drawn as gargoyles whose shards hang in the air and mend; and its own power, the mirror twin (new, ruling R64) | The Vesper Moth |
 | 17 | Ash to Air | a smog-choked city that heals | a city under brown smog, giant cigarettes smoking among the towers like chimneys, ash falling; level by level the smog lifts, the sky turns blue and parks, trees and kites come back | the breath: every 24 s a front of fresh air sweeps up the field and wipes the enemy bullets it passes (new, ruling R65) | The Craving |
+| 18 | Anvil Sky | a dogfight inside a thunderstorm (one level, R67) | dusk inside a storm: towering anvil clouds lit from within by lightning, rain curtains, a low orange sun under the cloud deck | world 13's broadside, with free flight and dragged bullets (R67) | none |
 
 ## Look and effects
 

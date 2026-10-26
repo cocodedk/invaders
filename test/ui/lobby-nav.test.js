@@ -105,3 +105,51 @@ test('with the ninth side card every one of the 85 reels is reachable by the arr
   assert.equal(seen.size, 85);
   for (let r = 0; r < 5; r++) assert.ok(seen.has(`16,${r}`), `world 17, reel ${r + 1}`);
 });
+
+// A column need not hold five reels (world 18 is one reel): `reels` may be an array of counts by world. A
+// shorter column takes the key's reel as its last, and up and down run on through it without a stop.
+const COUNTS = [5, 1, 5, 5, 1]; // worlds 0, 2 and 3 hold five reels, worlds 1 and 4 one
+const MIXED = [[0, 1, 2], [3, 4]];
+const goMixed = (at, key, rows = MIXED) => step(at, MOVE[key], rows, COUNTS);
+
+test('a one-reel column is passed through: down and up skip over the reels it does not have', () => {
+  assert.equal(goMixed([1, 0], 'ArrowUp').join(), '1,0', 'at the top of the top row, up stays put');
+  assert.equal(goMixed([1, 0], 'ArrowDown').join(), '4,0', 'down from a one-reel column goes straight on to the row below');
+  assert.equal(goMixed([4, 0], 'ArrowUp').join(), '1,0', 'and up from the one-reel world below lands on its last (only) reel');
+  assert.equal(goMixed([3, 0], 'ArrowUp').join(), '0,4', 'up from a five-reel world lands on the last reel above');
+  assert.equal(goMixed([4, 0], 'ArrowDown'), null, "down from the last row's one reel leaves for Back");
+  assert.equal(goMixed([1, 0], 'ArrowDown', [[0, 1, 2]]), null, 'with one row, a one-reel column leaves for Back');
+});
+
+test("left and right keep the reel but never past a column's last", () => {
+  assert.equal(goMixed([0, 3], 'ArrowRight').join(), '1,0', 'reel 4 of world 1 to the only reel of world 2');
+  assert.equal(goMixed([1, 0], 'ArrowRight').join(), '2,0', 'and on at reel 1');
+  assert.equal(goMixed([2, 4], 'ArrowLeft').join(), '1,0');
+  assert.equal(goMixed([2, 4], 'ArrowRight').join(), '0,4', 'the row wraps; world 1 has all five');
+  assert.equal(goMixed([4, 0], 'ArrowRight').join(), '3,0');
+  assert.equal(goMixed([3, 4], 'ArrowLeft').join(), '4,0');
+});
+
+test('with columns of other heights every reel is still reachable and every move lands on a reel that exists', () => {
+  const seen = new Set(['0,0']);
+  const queue = [[0, 0]];
+  while (queue.length) {
+    const at = queue.pop();
+    for (const key of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']) {
+      const to = goMixed(at, key);
+      if (!to) continue;
+      assert.ok(to[1] >= 0 && to[1] < COUNTS[to[0]], `${at} ${key} -> ${to}`);
+      if (!seen.has(to.join())) {
+        seen.add(to.join());
+        queue.push(to);
+      }
+    }
+  }
+  assert.equal(seen.size, COUNTS.reduce((a, b) => a + b, 0));
+});
+
+test('a plain number still means every column holds that many reels', () => {
+  assert.deepEqual(step([2, 3], MOVE.ArrowDown, MIXED, 5), [2, 4]);
+  assert.deepEqual(step([0, 4], MOVE.ArrowDown, MIXED, 5), [3, 0]);
+  assert.deepEqual(step([0, 4], MOVE.ArrowRight, MIXED, 5), [1, 4]);
+});

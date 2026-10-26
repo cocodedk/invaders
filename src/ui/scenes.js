@@ -6,6 +6,7 @@
 //   runScene(sc, dt, t, step)   one frame: step it (unless frozen), then draw it
 import { LEVELS } from '../core/levels.js';
 import { autopilot } from '../core/autopilot.js';
+import { zoneOf } from '../core/ship.js';
 import { createSession, stepSession } from './session.js';
 import { createView, drawFrame } from './view.js';
 import { readInput } from './input.js';
@@ -35,7 +36,7 @@ export function playScene(canvas, level, input, { view = null, seed: s = level.s
   const session = createSession(level, s);
   return {
     mode, level, view: v, session, sound: true,
-    source: () => readInput(input, v),
+    source: () => readInput(input, v, zoneOf(level)),
     onEvents(events) {
       eventSounds(events, session.world, play);
       if (onEvent) for (const e of events) onEvent(e);

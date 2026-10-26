@@ -48,7 +48,7 @@ test('every layer, ambient, flourish and body name is new: none is a key another
     ...(await import('../../src/ui/sky-bodies-5.js')).BODIES5, ...(await import('../../src/ui/sky-bodies-6.js')).BODIES6, ...(await import('../../src/ui/sky-bodies-7.js')).BODIES7 }));
   for (const k of ['arcade', 'megacity', 'twinsuns', 'redmoon']) other.add(k);
   for (const k of Object.keys(BODIES8)) assert.ok(!other.has(k), `body ${k}`);
-  assert.equal(Object.keys(BODIES).length, other.size + Object.keys(BODIES8).length + Object.keys(BODIES9).length, 'one painter a world, none overridden (world 17\'s are in smog-look.test.js)');
+  assert.equal(Object.keys(BODIES).length, other.size + Object.keys(BODIES8).length + Object.keys(BODIES9).length + Object.keys((await import('../../src/ui/sky-bodies-10.js')).BODIES10).length, 'one painter a world, none overridden (world 17\'s are in smog-look.test.js, world 18\'s in storm-look.test.js)');
   const layerKinds = new Set(['mountains', 'dunes', 'mesas', 'blocks', 'ground', 'ink']);
   const registries = [['parallax-city', 'CITY'], ['parallax-wild', 'WILD'], ['parallax-barren', 'BARREN'], ['parallax-harbour', 'HARBOUR'], ['parallax-gothic', 'GOTHIC'], ['parallax-ice', 'ICE'], ['parallax-archive', 'ARCHIVE'], ['parallax-armada', 'ARMADA'], ['parallax-carnival', 'CARNIVAL'], ['parallax-deep', 'DEEP']];
   for (const [file, name] of registries) for (const k of Object.keys((await import(`../../src/ui/${file}.js`))[name])) layerKinds.add(k);

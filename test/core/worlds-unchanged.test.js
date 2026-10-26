@@ -102,6 +102,22 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_17)) {
   });
 }
 
+// World 18 adds free flight (R67: the zone under the HUD, rams by any alien, dragged homing bullets), all
+// behind its levels' `free` flag: none of it may touch any other world, world 17 included. These are two
+// wave levels of world 17 and its boss level, taken on commit e9193a5, the last before world 18, and held
+// to the same rule as the fingerprints above.
+const BEFORE_WORLD_18 = {
+  'w17-1': {fold: 151523680, end: '1131:206300:b2d931f7bc46f053', pickup: 7, power: 6, kill: 83, shipHit: 0, fire: 144},
+  'w17-3': {fold: -383897958, end: '2528:143170:fe4d9418212b272d', pickup: 6, power: 10, kill: 92, shipHit: 0, fire: 314},
+  'w17-5': {fold: 1773280240, end: '2775:58010:e14e5ebe1f79ed6a', pickup: 7, power: 8, kill: 8, shipHit: 0, fire: 321},
+};
+
+for (const [id, expected] of Object.entries(BEFORE_WORLD_18)) {
+  test(`${id} plays out exactly as it did before world 18`, () => {
+    assert.deepEqual(fingerprint(id), expected);
+  });
+}
+
 test('the replay version stays 9, and the six powers stay the six', () => {
   assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 9);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);

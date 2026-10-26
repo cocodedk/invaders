@@ -32,7 +32,7 @@ const magentaish = (hex) => {
 };
 
 test('world 17 is registered as Ash to Air and every level of it gets this look', () => {
-  assert.equal(LOOKS.length, 17);
+  assert.equal(LOOKS.length, 18);
   assert.equal(look.world, 17);
   assert.equal(WORLDS[16].name, 'Ash to Air');
   for (let i = 1; i <= 5; i++) assert.equal(lookFor(levelById(`w17-${i}`)), look);
@@ -69,7 +69,7 @@ test('every body, layer kind, ambient kind and flourish name of world 17 is new:
   const sky = new Set(['arcade', 'megacity', 'twinsuns', 'redmoon']);
   for (const [file, name] of [['sky-bodies-2', 'BODIES2'], ['sky-bodies-3', 'BODIES3'], ['sky-bodies-4', 'BODIES4'], ['sky-bodies-5', 'BODIES5'], ['sky-bodies-6', 'BODIES6'], ['sky-bodies-7', 'BODIES7'], ['sky-bodies-8', 'BODIES8']]) for (const k of Object.keys((await import(`../../src/ui/${file}.js`))[name])) sky.add(k);
   for (const k of Object.keys(BODIES9)) assert.ok(!sky.has(k), `body ${k}`);
-  assert.equal(Object.keys(BODIES).length, sky.size + Object.keys(BODIES9).length, 'one painter a world, none overridden');
+  assert.equal(Object.keys(BODIES).length, sky.size + Object.keys(BODIES9).length + Object.keys((await import('../../src/ui/sky-bodies-10.js')).BODIES10).length, 'one painter a world, none overridden (world 18\'s are in storm-look.test.js)');
   const layers = new Set(['mountains', 'dunes', 'mesas', 'blocks', 'ground', 'ink']);
   for (const [file, name] of [['parallax-city', 'CITY'], ['parallax-wild', 'WILD'], ['parallax-barren', 'BARREN'], ['parallax-harbour', 'HARBOUR'], ['parallax-gothic', 'GOTHIC'], ['parallax-ice', 'ICE'], ['parallax-archive', 'ARCHIVE'], ['parallax-armada', 'ARMADA'], ['parallax-carnival', 'CARNIVAL'], ['parallax-deep', 'DEEP'], ['parallax-glass', 'GLASS']]) for (const k of Object.keys((await import(`../../src/ui/${file}.js`))[name])) layers.add(k);
   for (const k of Object.keys(SMOG)) assert.ok(!layers.has(k), `layer kind ${k}`);

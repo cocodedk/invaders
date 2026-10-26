@@ -141,3 +141,19 @@ export const SIDE2 = [
     lv(172259),
   ],
 ];
+
+// 18 Anvil Sky, the free-flight test (R67): one level, a dogfight inside a thunderstorm. Storm hornets
+// (g) swarm, lightning darts (d) dive, thunder turrets (u) fire, anvil-plated hulks (a) hold the line and
+// cargo balloons (c) carry. Every wave fires homing bullets, the ones the ship can drag into the aliens,
+// and the formations leave room to fly in among them; carriers come often, because any catch opens the
+// side guns (world 13's broadside). No bunkers: the whole sky is the ship's.
+export const PREVIEW = [
+  [
+    lv(180417, [
+      w('sway', 4, 'ucg', 'homing', 0.9),
+      w('orbit', 6, 'gug', 'homing', 0.95),
+      w('split', 4, 'ucd', 'homing', 1.0),
+      w('grid', 8, 'ugag', 'homing', 1.0),
+    ]),
+  ],
+];

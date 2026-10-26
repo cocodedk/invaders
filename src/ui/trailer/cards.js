@@ -124,6 +124,11 @@ export const VOICES = [
     ['{kills}', 'STUBBED OUT FOR GOOD.'],
     ['{near} IN THE HAZE.', '{time} SMOKE-FREE.', 'BREATHE.'],
   ],
+  [ // Anvil Sky: a storm of iron and lightning, the pilot turning its fire back on it; a lone level, no boss to name
+    ['THE STORM HAD TEETH.', 'THE PILOT TAUGHT IT', 'TO BITE BACK.'],
+    ['{kills}', 'MET THEIR OWN FIRE.'],
+    ['{near} IN THE STORM.', '{time} OF BORROWED THUNDER.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

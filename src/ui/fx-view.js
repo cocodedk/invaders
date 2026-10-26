@@ -7,6 +7,7 @@ import { drawBloom } from './burst-view.js';
 import { drawBubble } from './bubble-view.js';
 import { drawMend, drawScatter } from './mending-fx-view.js';
 import { drawLeaf, drawTwinkle } from './breath-fx-view.js';
+import { drawArc } from './arc-fx-view.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { flashK } from '../fx/fx.js';
 import { TAU } from '../core/math.js';
@@ -86,6 +87,10 @@ function rings(ctx, fx) {
     }
     if (r.kind === 'mend' || r.kind === 'scatter') { // glass flying together or apart (world 16): the mending's rings, mending-fx-view.js
       (r.kind === 'mend' ? drawMend : drawScatter)(ctx, r);
+      continue;
+    }
+    if (r.kind === 'arc') { // electric arcs (world 18): jagged bolts that crackle out of a point, arc-fx-view.js
+      drawArc(ctx, r);
       continue;
     }
     if (r.kind === 'bubble') { // a bullet the maelstrom swallowed (world 15): a bubble spiralling down and popping, bubble-view.js

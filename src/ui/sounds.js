@@ -12,7 +12,9 @@
 // trident shot adds a zip to the ship's own shot, which keeps the beat (sfx-deep.js). World 16's mirror twin
 // pings with every shot of the ship, at the twin's x on the other side of the field (sfx-glass.js). World 17's
 // help sounds when a wave of fresh air starts to rise (`breath`, as long as the rise) and ticks for each enemy bullet
-// it wipes (`cleanse`, at the bullet's x, thinned hard in audio.js), sfx-breath.js.
+// it wipes (`cleanse`, at the bullet's x, thinned hard in audio.js), sfx-breath.js. World 18's side guns sound through world 13's
+// events (the patches branch on the world's sound style, sfx-storm.js), and a `backfire` (an enemy bullet turned on the alien that
+// fired it, at the alien's x) sounds a crack and a struck-iron ring.
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X, WIDTH } from '../core/kinds.js';
 
@@ -83,6 +85,7 @@ export function eventSounds(events, world, play) {
       case 'pearlHit': play('pearlHit', at(e)); break;
       case 'breath': play('breath', { dur: e.dur }); break;
       case 'cleanse': play('cleanse', at(e)); break;
+      case 'backfire': play('backfire', at(e)); break;
       default: break; // SILENT
     }
   }

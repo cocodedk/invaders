@@ -36,7 +36,7 @@ test('the borrowed-line guard finds a guarded line by its hash, anywhere in a ca
 });
 
 test('every world has three cards of one to three lines, and every placeholder is a known stat', () => {
-  assert.equal(VOICES.length, 17);
+  assert.equal(VOICES.length, 18);
   for (const [w, cards] of VOICES.entries()) {
     assert.equal(cards.length, 3, `world ${w + 1}`);
     const used = new Set();
@@ -54,7 +54,7 @@ test('every world has three cards of one to three lines, and every placeholder i
 });
 
 test('cards fill every placeholder for every world, and read well for zeros, ones and big numbers', () => {
-  for (let world = 1; world <= 17; world++) {
+  for (let world = 1; world <= 18; world++) {
     for (const stats of ALL) {
       const cards = cardsFor(world, stats);
       assert.equal(cards.length, 3);
@@ -116,14 +116,34 @@ test('on a boss level the stat card names the boss that fell, in every world', (
   assert.deepEqual(cardsFor(15, { ...ZERO, boss: 'angler' })[1], ['THE LANTERN LEVIATHAN', 'SANK INTO THE DARK.']);
   assert.deepEqual(cardsFor(16, { ...ZERO, boss: 'moth' })[1], ['THE VESPER MOTH', 'SHATTERED INTO LIGHT.']);
   assert.deepEqual(cardsFor(17, { ...ZERO, boss: 'craving' })[1], ['THE CRAVING', 'STUBBED OUT FOR GOOD.']);
-  for (const [i, w] of WORLDS.entries()) {
+  const withBoss = WORLDS.filter((w) => w.boss); // the lone level of world 18 has none
+  assert.equal(withBoss.length, 17);
+  for (const w of withBoss) {
     for (const stats of ALL) {
       const lines = cardsFor(w.id, { ...stats, boss: w.boss }).flat();
       for (const line of lines) readsWell(line, `world ${w.id} boss ${line}`);
-      assert.ok(!lines.some((l) => l.includes('INVADER')), `world ${i + 1}: ${lines}`);
-      assert.ok(lines.some((l) => l.includes(bossDef(w.boss).name.toUpperCase())), `world ${i + 1} names its boss: ${lines}`);
+      assert.ok(!lines.some((l) => l.includes('INVADER')), `world ${w.id}: ${lines}`);
+      assert.ok(lines.some((l) => l.includes(bossDef(w.boss).name.toUpperCase())), `world ${w.id} names its boss: ${lines}`);
     }
   }
+});
+
+// World 18 (Anvil Sky) is one wave level: there is no boss to fall, so its stat card counts the invaders and no
+// card, filled from any stats, reaches for a boss; the final card calls it a plain reel, never a finale.
+test("world 18's lone level has no boss: its cards count invaders and its final card says Reel 1", () => {
+  const w18 = WORLDS[17];
+  assert.equal(w18.boss, undefined);
+  assert.deepEqual(cardsFor(18, TYPICAL)[0], ['THE STORM HAD TEETH.', 'THE PILOT TAUGHT IT', 'TO BITE BACK.']);
+  assert.deepEqual(cardsFor(18, TYPICAL)[1], ['47 INVADERS', 'MET THEIR OWN FIRE.']);
+  assert.deepEqual(cardsFor(18, ZERO)[1], ['NOT ONE INVADER', 'MET THEIR OWN FIRE.']);
+  assert.deepEqual(cardsFor(18, { ...TYPICAL, boss: undefined })[2], ['9 NEAR MISSES IN THE STORM.', '2 MINUTES OF BORROWED THUNDER.']);
+  const f = finalCard({ level: levelById('w18-1'), stats: TYPICAL, stars: 3, score: 1004324, newBest: true });
+  assert.equal(f.title, 'ANVIL SKY');
+  assert.equal(f.kicker, 'WORLD 18 · REEL 1');
+  assert.equal(f.score, '1,004,324');
+  for (const line of [f.title, f.kicker, f.label, f.billing]) readsWell(line, 'final 18');
+  const words = VOICES[17].flat().join(' ');
+  assert.doesNotMatch(words, /\b(HE|HIM|HIS|SHE|HER|HERS)\b/, 'no gendered pronouns');
 });
 
 test('the final card: the world as a film title, stars as critics, the score as box office or a record', () => {
