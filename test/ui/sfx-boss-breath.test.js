@@ -6,7 +6,7 @@ import { kitFor } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
 import { fakeVoice } from './audio-kit.js';
 
-const BREATH = kitFor({ mood: 'breath', root: 'D#', scale: 'major', bpm: 104 });
+const BREATH = kitFor({ mood: 'breath', root: 'D#', scale: 'major', bpm: 122 });
 const HARMONIC_MAJOR = [3, 5, 7, 8, 10, 11, 2]; // D sharp F G G sharp A sharp B D
 const pitchClass = (hz) => (Math.round(12 * Math.log2(hz / 440)) + 69) % 12;
 const near = (x, y, tol = 1e-6) => Math.abs(x - y) < tol;

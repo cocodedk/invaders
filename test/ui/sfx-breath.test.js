@@ -6,7 +6,7 @@ import { kitFor } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
 import { installAudio, fakeVoice } from './audio-kit.js';
 
-const KIT = kitFor({ mood: 'breath', root: 'D#', scale: 'major', bpm: 104 });
+const KIT = kitFor({ mood: 'breath', root: 'D#', scale: 'major', bpm: 122 });
 const MAJOR_CHORD = [3, 7, 10]; // D sharp, G, A sharp: the first, third and fifth degrees
 const PENTATONIC = [3, 5, 7, 10]; // D sharp F G A sharp: the run the ticks climb, no sixth and no leading tone
 const XS = [100, 400, 700, 1000, 1300, 1600, 1900]; // one x in each of the seven bands

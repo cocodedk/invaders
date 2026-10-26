@@ -134,7 +134,7 @@ test('every music style is well formed', () => {
     const m = s.music;
     assert.ok(m.div > 0 && m.seq.length > 0 && m.drum.length > 0, name);
     for (const d of m.seq) assert.ok(d === null || Number.isInteger(d), `${name} seq`);
-    assert.match(m.drum, /^[kthsbpcjfzmvroyaugldwnqxHDEIi.]+$/, `${name} drum`);
+    assert.match(m.drum, /^[kthsbpcjfzmvroyaugldwnqxKCO.]+$/, `${name} drum`);
     assert.ok(m.lead.gain > 0 && m.lead.gain < 0.2, `${name} lead gain`);
     if (m.lead.fm) assert.ok(m.lead.fm.ratio > 0 && m.lead.fm.index > 0, `${name} lead fm`);
   }

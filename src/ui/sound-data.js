@@ -23,7 +23,8 @@
 //     stabbed, g a glockenspiel on the chord's fifth (its octave on the second bar), l and d a slow heart's lub and
 //     dub, w a harp pluck climbing and falling through the chord, n a low pad swelling in, q a choir bowing a chord in
 //     over a low root, x a tubular bell (the chord's root high in the first bar of a pair, its fifth low in the second),
-//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js.
+//     K a kick on the beat, C the kick under a clap, O an open hat with the bass plucking the chord's root under it,
+//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js (K C O in music-breath.js).
 export const NOTES = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
 
 export const SCALES = {
@@ -139,19 +140,20 @@ export const STYLES = {
       div: 3, seq: [4, null, null, 2, null, null, 0, null, null, 1, null, null, 2, null, null, 4, null, null, 7, null, null, null, null, null],
       drum: 'q..x..f..f.xq..x..f..f.x' },
   },
-  // 4/4 at 104 bpm, four bars of sixteenth-note steps to a pass: a clear morning after the smog. A soft electric piano
+  // 4/4 at 122 bpm, four bars of sixteenth-note steps to a pass: a clear morning you can dance to. A soft electric piano
   // (an FM tone on a whole ratio, struck and ringing out) sings a tune that rises to the octave and settles home, over
-  // a choir bowing in every second bar, a plucked bass on the offs of the second and third beats, a soft kick on one
-  // and three and a hat's tick on two and four. The chords go home for four passes, then C minor, then A flat, and back.
+  // four on the floor: a kick on every beat, a clap on two and four, an open hat with the bass plucking the root on every
+  // off-beat and a closed hat's tick after each, and a choir bowing in every second bar. The chords go home for four
+  // passes, then C minor, then A flat, and back.
   breath: {
     mood: 'breath', wave: 'triangle', cut: 5200, wet: 0.4, pitch: 1.06,
-    music: { vol: 0.868, drone: { wave: 'triangle', oct: 2, cut: 500, fifth: true, gain: 0.012 },
+    music: { vol: 0.747, drone: { wave: 'triangle', oct: 2, cut: 500, fifth: true, gain: 0.012 },
       lead: { wave: 'sine', oct: 4, cut: 3200, len: 8, gain: 0.1, fm: { ratio: 1, index: 1.2 } },
       div: 4, seq: [0, null, null, null, 2, null, 4, null, 7, null, null, null, 6, null, 4, null,
         4, null, 5, null, 4, null, null, null, 2, null, null, null, 1, null, null, null,
         2, null, null, null, 4, null, 5, null, 7, null, null, null, 6, null, 7, null,
         4, null, null, null, 1, null, 2, null, 0, null, null, null, null, null, null, null],
-      drum: 'kq..h.z.k.z.h...k...h.z.k.z.h...kq..h.z.k.z.h...k...h.z.k.z.h.zz' },
+      drum: 'KqOhC.OhK.OhC.OhK.OhC.OhK.OhC.OhKqOhC.OhK.OhC.OhK.OhC.OhK.OhC.Oh' },
   },
 };
 

@@ -38,6 +38,6 @@ export default {
   bullet: 'orb',
   bunker: { fill: '#dfe9e2', light: '#ffffff', dark: '#34503c', edge: '#4fd98c', accent: '#a9ecc8', skin: 'filter' },
   power: { spread: '#ffd45a', laser: '#7ae8ff', rapid: '#ff9a5a', shield: '#8aa8ff', homing: '#c9a2ff', slow: '#ffe6b8', bomb: '#ff4a5a', life: '#7aff9a' }, // no pink: the bullets are magenta
-  music: { mood: 'breath', root: 'D#', scale: 'major', bpm: 104 }, // a clear morning: an electric piano over a choir, a plucked bass and a soft kick (sound-data.js breath)
+  music: { mood: 'breath', root: 'D#', scale: 'major', bpm: 122 }, // a clear morning to dance to: an electric piano over four on the floor and a choir (sound-data.js breath)
   tint: { shade: 'rgba(70,52,32,0.3)', glow: 'rgba(255,214,150,0.08)' }, // the frame in bullet time and the slow power: a smog-amber dusk
 };

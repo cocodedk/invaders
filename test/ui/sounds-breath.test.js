@@ -7,7 +7,7 @@ import { LOOKS } from '../../src/ui/looks/index.js';
 import w17 from '../../src/ui/looks/w17.js';
 import { sampleEvent as sample } from '../event-sample.js';
 
-const BREATH = { mood: 'breath', root: 'D#', scale: 'major', bpm: 104 };
+const BREATH = { mood: 'breath', root: 'D#', scale: 'major', bpm: 122 };
 
 function names(events, world = { boss: null }) {
   const out = [];
@@ -15,23 +15,27 @@ function names(events, world = { boss: null }) {
   return out;
 }
 
-test('Ash to Air plays the breath style, in E flat major at 104 bpm: a root and a tempo no other world has', () => {
+test('Ash to Air plays the breath style, in E flat major at 122 bpm: a root and a tempo no other world has', () => {
   const kit = kitFor(BREATH);
-  assert.deepEqual([kit.style, kit.root, kit.scale, kit.bpm], ['breath', NOTES['D#'], SCALES.major, 104]);
+  assert.deepEqual([kit.style, kit.root, kit.scale, kit.bpm], ['breath', NOTES['D#'], SCALES.major, 122]);
   for (const [name, s] of Object.entries(STYLES)) if (name !== 'breath') assert.notEqual(s.mood, 'breath');
   const others = LOOKS.filter((l) => l.world !== 17);
   assert.equal(others.length, LOOKS.length - 1);
   assert.ok(others.length >= 16);
   for (const look of others) {
     assert.notEqual(look.music.root, 'D#', `w${look.world}: the root is Ash to Air's alone`);
-    assert.notEqual(look.music.bpm, 104, `w${look.world}: and the tempo`);
+    assert.notEqual(look.music.bpm, 122, `w${look.world}: and the tempo`);
   }
 });
 
-test('it is calm: an easy tempo, a struck electric piano, no hiss of breath and no racing heart; none of the smoky jazz or blues it could have been', () => {
+test('it dances without racing: four on the floor at a tempo under the old 140, a struck electric piano, no hiss of breath; none of the smoky jazz or blues it could have been', () => {
   const m = STYLES.breath.music;
-  assert.ok(kitFor(BREATH).bpm < 120, 'slower than the first world\'s march');
-  assert.match(m.drum, /^[kqzh.]+$/, 'a soft kick, a choir, a plucked bass and a hat');
+  assert.ok(kitFor(BREATH).bpm > 116 && kitFor(BREATH).bpm < 128, 'between the archive\'s waltz-free 116 and the techno world\'s 128');
+  assert.match(m.drum, /^[KCOhq.]+$/, 'a kick, a clap, open hats with the bass, ticks and a choir');
+  for (let beat = 0; beat < 16; beat++) assert.match(m.drum[beat * 4], /[KC]/, `a kick on beat ${beat + 1}`);
+  for (const [name, s] of Object.entries(STYLES)) {
+    if (name !== 'breath') assert.ok(!/[KCO]/.test(s.music.drum), `${name} does not play Ash to Air's beat`);
+  }
   assert.equal(m.lead.fm?.ratio, 1, 'a tine struck on a whole ratio');
   assert.ok(m.lead.hold === undefined && m.lead.bow === undefined, 'it rings out alone, nothing held or beating against it');
   const scale = kitFor(BREATH).scale;

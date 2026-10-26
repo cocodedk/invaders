@@ -3,6 +3,7 @@
 // of that step (deg, shifted by the progression, null on a rest), the progression's shift of it and the
 // loop's step count, for the hits that follow the tune (the music box, the bass).
 import { tone, hiss, fm, noteHz, bell } from './audio-kit.js';
+import { BREATH_HITS } from './music-breath.js';
 
 // The waltz's bars are six steps; the second of each pair of bars sounds the chord's fifth where the first sounds its root.
 const oddBar = (n) => Math.floor(n.step / 6) % 2;
@@ -114,4 +115,5 @@ export const DRUM = {
       for (const detune of [-8, 9]) tone(a, { type: 'sawtooth', t, f0: noteHz(a.kit, d, 3), detune, attack: 0.9, dur: 1.7, peak: 0.035, cut: 600, cut1: 2200 });
     }
   },
+  ...BREATH_HITS, // K C O: four on the floor, claps and open hats with the bass (Ash to Air)
 };
