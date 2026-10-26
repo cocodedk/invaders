@@ -6,6 +6,7 @@
 //   play(id)          jump to a level ('w2-1')              lobby() title() demo() try()
 //   grant(kind, x, y) drop a pickup on the ship, or at (x, y): 'spread' | 'laser' | 'rapid' | 'shield' |
 //                     'homing' | 'slow' | 'bomb' | 'life' | 'wingmen' (world 13) | 'pearls' | 'trident' (world 15) | 'mirror' (world 16)
+//                     | 'sideguns' (world 18)
 //   clear(hits?)      empty the field now (a boss level runs its death chain); hits sets the stars
 //   fail()            the last life goes
 //   drive(mode)       who flies: 'auto' (the autopilot), 'idle' (nobody) or null (the player). It

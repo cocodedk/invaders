@@ -25,7 +25,7 @@ const GLOW_R_MAX = 1.5 * GLOW_R;
 const GLOW_ALPHA = 0.7; // and brightens by GLOW_ALPHA_STEP, to a peak of 1
 const GLOW_ALPHA_STEP = 0.1;
 const BONUS_GAP = 64; // px
-const NAMES = { bomb: '+1 BOMB', life: '+1 LIFE' }; // what a stock pickup's pop-up says; a power says its own name
+const NAMES = { bomb: '+1 BOMB', life: '+1 LIFE', sideguns: 'SIDE GUNS' }; // what a stock pickup's pop-up says; a power says its own name
 
 // Where a swept pickup's points pop up: where it was, unless that is on the bonus row (the two pop-ups
 // rise at the same speed, so clear at the start is clear throughout), in which case BONUS_GAP above or below it.

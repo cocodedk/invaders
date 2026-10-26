@@ -12,7 +12,7 @@ export const METAL = ['#8d96a8', '#5b6478', '#c8d0e0'];
 // take theirs from look.power.
 const POWER_COLORS = {
   spread: '#ffd24a', laser: '#ff4fd8', rapid: '#6ad6ff', shield: '#5cf0ff', homing: '#b57aff', slow: '#eaf0ff', wingmen: '#6af0a0',
-  pearls: '#ffd8f0', trident: '#5af0ff', mirror: '#bfe8ff',
+  pearls: '#ffd8f0', trident: '#5af0ff', mirror: '#bfe8ff', sideguns: '#bfeaff',
   bomb: '#ff8a3a', life: '#6aff7a',
 };
 export const powerColor = (kind) => POWER_COLORS[kind] ?? '#ffffff';

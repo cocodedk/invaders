@@ -31,7 +31,7 @@ export default {
   },
   bullet: 'orb',
   bunker: { fill: '#4a4f66', light: '#9aa4c0', dark: '#161a28', edge: '#ffb066', accent: '#5c6684', skin: 'rubble' }, // the level has none: iron rubble if one is ever set
-  power: { spread: '#ffd45a', laser: '#7ae8ff', rapid: '#ff9a5a', shield: '#8aa8ff', homing: '#c9a2ff', slow: '#ffe6b8', bomb: '#ff4a5a', life: '#7aff9a' },
+  power: { spread: '#ffd45a', laser: '#7ae8ff', rapid: '#ff9a5a', shield: '#8aa8ff', homing: '#c9a2ff', slow: '#ffe6b8', sideguns: '#bfeaff', bomb: '#ff4a5a', life: '#7aff9a' },
   music: { mood: 'anvil', root: 'G#', scale: 'bright', bpm: 108 }, // struck iron bars and a heavy beat in a major pentatonic (sound-data.js anvil)
   tint: { shade: 'rgba(16,24,64,0.34)', glow: 'rgba(170,200,255,0.08)' }, // the frame in bullet time and the slow power: a storm-blue dusk
 };

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { installCanvas, recorder } from './dom-kit.js';
-import { POWERS, POWERS_13, POWERS_15 } from '../../src/core/kinds.js';
+import { POWERS, POWERS_13, POWERS_15, POWERS_18 } from '../../src/core/kinds.js';
 import { createWorld } from '../../src/core/world.js';
 import { levelById } from '../../src/core/levels.js';
 import { look as deepLook } from './deep-kit.js';
@@ -17,9 +17,9 @@ const TOP = -Math.PI / 2; // where a ring starts draining
 const LOOK15 = LOOKS[14] ?? deepLook; // Lantern Deep's look, from the registry once it is there and from its own file before
 
 test('every pickup kind draws an icon of its own, in the default set and in every world', () => {
-  for (const world of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]) {
-    // the wingmen drop in world 13 alone, the pearls and the trident in world 15 alone
-    const kinds = [...(world === 13 ? POWERS_13 : world === 15 ? POWERS_15 : POWERS), 'bomb', 'life'];
+  for (const world of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 18]) {
+    // the wingmen drop in world 13 alone, the pearls and the trident in world 15 alone, the side guns in world 18 alone
+    const kinds = [...(world === 13 ? POWERS_13 : world === 15 ? POWERS_15 : world === 18 ? POWERS_18 : POWERS), 'bomb', 'life'];
     const drawn = kinds.map((kind) => {
       const { ctx, calls } = recorder();
       drawIcon(ctx, kind, '#ffffff', world);

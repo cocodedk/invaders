@@ -24,6 +24,8 @@ flight, formations, bosses, power-ups — plus one feature no shooter has: your 
 - Fly toward the aliens and drag the enemy's bullets that follow the ship into them, to hit them with
   their own fire; try it in a new world of one level, and see whether the side guns work when the
   ship flies level with the aliens. The user knows it changes the game's mechanics (R67).
+- World 18's side guns turn the tide, so make them a power-up: they drop like the other powers and
+  catching them costs the medal; a bomb or a life no longer opens them (R67).
 
 Assumptions (not stated, chosen here): English only; keyboard + mouse, no gamepad; installed on the
 Pi like Barrage; worlds evoke film genres under original names — no film titles, characters, logos or
@@ -284,10 +286,14 @@ quoted lines, so the repo can be public.
       it 1: a kill scores and drops like any other, with a `backfire` event. A bullet still on its
       first course passes through its own side, so a formation never shoots itself while the ship
       waits below it.
-    The twist is world 13's broadside (any catch opens the side guns for 6 s), so the side guns can
-    be tried level with the formation; carriers come in two of the four waves. One wave level, four
+    The side guns are world 18's own power, `sideguns`, one of seven in its drop list (`POWERS_18`):
+    a catch opens world 13's side guns for 6 s (another catch sets them back to 6 s) and costs the
+    level's medal like any power, but it leaves the running power and the reserve alone, so the guns
+    fire beside it. A bomb or a life caught there opens nothing, so the level's twist is `free`, which
+    adds no rule of its own. Carriers come in two of the four waves; over 200 autopilot runs a run drops
+    about 11 pickups and the side guns about once, none in a third of the runs. One wave level, four
     formations, `d` 0.5, no bunkers and no boss. The autopilot still fights from the bottom, which
-    clears it in under 30 s (par 60 s). A scripted flight that weaves around the formation's middle
+    clears it in under 30 s (par 65 s). A scripted flight that weaves around the formation's middle
     lands about 22 backfires a run in about 70 kills; one that strafes along the bottom drags almost
     every bullet but lands almost none, because nothing is below it. In Level Select it is the sneak
     preview, one card with one reel beside Back and Reset scores, not a tenth side poster.
@@ -317,7 +323,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 15 | Lantern Deep | deep sea under a sunken kingdom | a drowned kingdom's spires, kelp forests, a whale's skeleton and a reef, all lit by its own creatures | world 8's gravity well, drawn as a maelstrom; and two powers of its own, pearls and trident (new, ruling R63) | The Lantern Leviathan |
 | 16 | Glass Cathedral | stained-glass cathedral at dawn | a half-ruined nave open to a dawn sky: tall jewel-coloured windows, a great rose window, columns and flying buttresses, shafts of coloured light | world 7's reassemble, drawn as gargoyles whose shards hang in the air and mend; and its own power, the mirror twin (new, ruling R64) | The Vesper Moth |
 | 17 | Ash to Air | a smog-choked city that heals | a city under brown smog, giant cigarettes smoking among the towers like chimneys, ash falling; level by level the smog lifts, the sky turns blue and parks, trees and kites come back | the breath: every 24 s a front of fresh air sweeps up the field and wipes the enemy bullets it passes (new, ruling R65) | The Craving |
-| 18 | Anvil Sky | a dogfight inside a thunderstorm (one level, R67) | dusk inside a storm: towering anvil clouds lit from within by lightning, rain curtains, a low orange sun under the cloud deck | world 13's broadside, with free flight and dragged bullets (R67) | none |
+| 18 | Anvil Sky | a dogfight inside a thunderstorm (one level, R67) | dusk inside a storm: towering anvil clouds lit from within by lightning, rain curtains, a low orange sun under the cloud deck | free flight and dragged bullets; the side guns are a power there (R67) | none |
 
 ## Look and effects
 

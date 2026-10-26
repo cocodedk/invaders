@@ -1,6 +1,6 @@
 import { clamp, dist2 } from './math.js';
 import { rand, randPick } from './rng.js';
-import { powersFor, HEIGHT } from './kinds.js';
+import { powersFor, HEIGHT, SIDE_GUNS } from './kinds.js';
 import { SHIP_R, ZONE } from './ship.js';
 import { emit, prune } from './util.js';
 import { awardPickup } from './scoring.js';
@@ -9,7 +9,7 @@ import { awardPickup } from './scoring.js';
 // does with it. Exports: makePickup, dropPickup, dropOnKill, stepPickups, sweepPickups, tickPower,
 // powerTime, POWER_TIME, BROADSIDE_TIME, KILL_DROP, LATE_DROP, killDrop.
 //   pickup = { kind, x, y, vy, r }  kind is one of POWERS (world 13 also 'wingmen', world 15 also 'pearls'
-//     and 'trident', world 16 also 'mirror'), 'bomb' or 'life' (makePickup).
+//     and 'trident', world 16 also 'mirror', world 18 also 'sideguns'), 'bomb' or 'life' (makePickup).
 //   ship.power = null | { kind, left }  the one running. A new power starts at its full time and the
 //     one it displaces, with its time left, waits in ship.reserve = null | { kind, left } (R53): a
 //     newer displacement overwrites the reserve, and the reserve does not tick while it waits.
@@ -17,6 +17,8 @@ import { awardPickup } from './scoring.js';
 //   ship.broadside = seconds the side guns have left (world 13's twist, R61): any pickup caught there,
 //     a power, a bomb or a life, sets it to BROADSIDE_TIME (another catch sets it back to that), and
 //     tickPower counts it down. While it is above 0 every volley also fires out of both sides (shoot).
+//     In world 18 (R67) only the 'sideguns' power opens them, in the same way; it costs the medal like
+//     any power but leaves ship.power and the reserve alone, so it runs beside whatever power is on.
 // The effects live where they act: the gun in ship.js (spread, rapid, homing, wingmen, mirror, broadside, trident),
 // the pearls in pearls.js (called by collide.js), the shield in hitShip, the beam and the bomb in
 // weapons.js, slow in enemyDt (twists-2.js). Every pickup
@@ -61,7 +63,7 @@ export function dropOnKill(world, a) {
   if (a.role === 'carrier' || (!a.minion && rand(world.rng) < killDrop(world.level.d))) dropPickup(world, a);
 }
 
-// World 13's twist: a catch opens the side guns, or keeps them open for a full BROADSIDE_TIME more.
+// World 13's twist and world 18's power: a catch opens the side guns, or keeps them open for a full BROADSIDE_TIME more.
 // 'broadside' says so for the sound and the fx, and again with on false when the time runs out.
 function openBroadside(world) {
   const ship = world.ship;
@@ -77,6 +79,9 @@ function collect(world, p) {
     ship.bombs += 1;
   } else if (p.kind === 'life') {
     ship.lives += 1;
+  } else if (p.kind === SIDE_GUNS) {
+    ship.powersUsed += 1; // a power all the same (R67): no medal for this level
+    openBroadside(world);
   } else {
     ship.powersUsed += 1; // a power caught: no medal for this level (R66)
     if (ship.power) ship.reserve = ship.power; // waiting, not over: no event for it

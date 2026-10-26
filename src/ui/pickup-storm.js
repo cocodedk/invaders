@@ -2,7 +2,8 @@
 // wire, wound with fine windings and outlined in ink, with eight steel electrodes set on it, each with a short bright prong, and
 // between every two neighbouring prongs a small arc of the power's colour jumping across with a white thread, so the capsule
 // crackles; a thin line of the power's colour runs round the inside of the coil, so the power still reads at a glance. Baked once
-// into the 60 x 60 sprite (pickups-view.js), centred on the origin, nothing past a radius of about 29.
+// into the 60 x 60 sprite (pickups-view.js), centred on the origin, nothing past a radius of about 29. ICONS18 is the icon of
+// world 18's own power, the side guns (R67).
 import { INK, rgba, lin, rad } from './sprites.js';
 import { arcPath } from './storm-bolt.js';
 import { TAU } from '../core/math.js';
@@ -77,3 +78,28 @@ export function tesla(g, color) {
     }
   }
 }
+
+// The side guns (R67): a slim hull with a jagged arc leaping out of each flank. Plain paths, the HUD draws icons every frame.
+export const ICONS18 = {
+  sideguns(g, color) {
+    g.fillStyle = color;
+    g.beginPath();
+    g.moveTo(0, -13);
+    g.lineTo(5, 11);
+    g.lineTo(-5, 11);
+    g.closePath();
+    g.fill();
+    g.strokeStyle = color;
+    g.lineWidth = 3;
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    g.beginPath();
+    for (const d of [-1, 1]) {
+      g.moveTo(d * 6, 2);
+      g.lineTo(d * 10, -4);
+      g.lineTo(d * 12, 5);
+      g.lineTo(d * 16, -1);
+    }
+    g.stroke();
+  },
+};

@@ -15,17 +15,20 @@ export const PATTERNS = ['aimed', 'fan', 'ring', 'spiral', 'laser', 'rain', 'hom
 export const POWERS = ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow'];
 // World 13 alone also drops 'wingmen' (R61: two escorts that fire with the ship), world 15 alone
 // 'pearls' and 'trident' (R63: a ring of pearls round the ship, and a shot that runs through everything)
-// and world 16 alone 'mirror' (R64: a glass twin that flies opposite the ship and fires when it does).
+// and world 16 alone 'mirror' (R64: a glass twin that flies opposite the ship and fires when it does),
+// world 18 alone 'sideguns' (R67: world 13's side guns, caught as a power: powerups.js).
 // POWERS stays the six, so the drop list and the rng draw of every other world are what they always
 // were; powersFor picks the list a level's drops come from.
 export const WINGMEN = 'wingmen';
 export const PEARLS = 'pearls';
 export const TRIDENT = 'trident';
 export const MIRROR = 'mirror';
+export const SIDE_GUNS = 'sideguns';
 export const POWERS_13 = [...POWERS, WINGMEN];
 export const POWERS_15 = [...POWERS, PEARLS, TRIDENT];
 export const POWERS_16 = [...POWERS, MIRROR];
-const DROPS = { 13: POWERS_13, 15: POWERS_15, 16: POWERS_16 };
+export const POWERS_18 = [...POWERS, SIDE_GUNS];
+const DROPS = { 13: POWERS_13, 15: POWERS_15, 16: POWERS_16, 18: POWERS_18 };
 export const powersFor = (level) => DROPS[level.world] ?? POWERS;
 
 // World order: WORLDS[i].twist is TWISTS[i] and WORLDS[i].boss is BOSSES[i].
@@ -38,10 +41,10 @@ export const powersFor = (level) => DROPS[level.world] ?? POWERS;
 // world 8's gravity well, drawn there as a maelstrom, so its twist repeats world 8's. World 16 reuses
 // world 7's reassemble, drawn there as shattered glass that mends itself, so its twist repeats world 7's.
 // World 17's breath is a twist of its own (R65): now and then a front of fresh air sweeps up the
-// screen and wipes every enemy bullet it touches (twists-3.js). World 18 reuses world 13's broadside, so
-// its twist repeats world 13's; it has one level and no boss, so no BOSSES entry (its own rule is free
-// flight, R67).
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath', 'broadside'];
+// screen and wipes every enemy bullet it touches (twists-3.js). World 18's rule is free flight (R67), which
+// its levels carry as `free`, so its twist 'free' adds nothing of its own; its side guns are a power
+// there, not a twist. It has one level and no boss, so no BOSSES entry.
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath', 'free'];
 export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth', 'craving'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
