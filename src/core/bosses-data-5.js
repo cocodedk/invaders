@@ -114,12 +114,14 @@ const craving = boss('craving', 'The Craving', 380, { w: 740, h: 340 }, [
 // so flying in close is paid for. World 18 is a middle-hard world (d 0.5 to 0.7), so the ray is about
 // the moth's weight, below the Craving. It rests at 280 with its spine's top 150 above the centre, so at
 // rest every part is below the HUD, and at the top of its orbit the heart, the coils and the maw are well
-// clear of it while the spine's top slips under its edge, as the moth's crown does (R28). No two parts touch.
+// clear of it while the spine's top slips under its edge, as the moth's crown does (R28). No two parts touch,
+// and every box lies inside the art: in a free level a box is what rams (free.js), so the swept wing's box is
+// the strip under its trailing edge at the tip (x 120 to 390, y -48 to 34), not the wing's bounding box.
 const ray = boss('ray', 'The Squall Ray', 280, { w: 900, h: 300 }, [
   armor('spine', 0, -116, 120, 68, 8),
   weak('heart', 0, -24, 150, 96, 84),
-  armor('wingL', -265, -40, 290, 150, 8),
-  armor('wingR', 265, -40, 290, 150, 8),
+  armor('wingL', -255, -7, 270, 82, 8),
+  armor('wingR', 255, -7, 270, 82, 8),
   weak('coilL', -390, 80, 110, 84, 46),
   weak('coilR', 390, 80, 110, 84, 46),
   weak('maw', 0, 86, 160, 80, 50),

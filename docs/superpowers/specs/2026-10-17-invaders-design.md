@@ -292,7 +292,11 @@ quoted lines, so the repo can be public.
       course passes through its own side, so a formation never shoots itself while the ship waits
       below it.
     - The boss's body rams: a ship that touches a live part loses a life and the boss takes nothing. A
-      blinking ship passes; a shielded one grazes it unharmed and silent.
+      blinking ship passes; a shielded one grazes it unharmed and silent. So a free-flight boss's
+      boxes lie inside its art on every side (a ship may brush a sliver of art unharmed, never die
+      to empty sky): the Squall Ray's swept wing is boxed by the strip under its trailing edge at
+      the tip (270 x 82), not its bounding box, and its art test checks every point of that box is
+      wing. Worlds 1-17 never meet a boss's box (the ship stays below y 620), so theirs are unchanged.
     The side guns are world 18's own power, `sideguns`, one of seven in its drop list (`POWERS_18`):
     a catch opens world 13's side guns for 6 s (another catch sets them back to 6 s) and costs the
     level's medal like any power, but it leaves the running power and the reserve alone, so the guns

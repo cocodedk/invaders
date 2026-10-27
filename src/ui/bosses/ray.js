@@ -29,7 +29,7 @@ export default {
   hull,
   parts: { spine, heart, wing, coil, maw },
   rage,
-  margins: { spine: 36, heart: 40, wingL: 66, wingR: 66, coilL: 50, coilR: 50, maw: 48 },
+  margins: { spine: 36, heart: 40, wingL: 80, wingR: 80, coilL: 50, coilR: 50, maw: 48 },
   live: fx,
   warm,
 };

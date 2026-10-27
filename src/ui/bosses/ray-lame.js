@@ -5,7 +5,7 @@
 // the rows shorten where the wing narrows. plates() gives them outermost first, the lowest row first (so that what is painted later lies over what is painted
 // before it) as { pts, free, mid }: the polygon, the polyline of its free end, and its centre; SHOULDER is the pauldron that holds the rows down at the root.
 // All in boss coordinates of the right wing; to() turns such a point into the armour part's own coordinates (the part is painted as the left wing: its centre is
-// the origin, x +145 the shoulder and -145 the tip, boss coordinates of the right wing being (265 - x, y - 40)).
+// the origin, x +135 the shoulder and -135 the tip, boss coordinates of the right wing being (255 - x, y - 7)).
 import { PART } from './ray-kit.js';
 import { WING, TRAIL, LEAD, edgeY, polyDepth } from './ray-shape.js';
 import { clamp } from '../../core/math.js';

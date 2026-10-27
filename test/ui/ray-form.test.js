@@ -4,8 +4,8 @@ import { recorder } from './dom-kit.js';
 import { art, S, HUD, f, part, margin, painter, paint, colours } from './ray-kit.js';
 
 // What The Squall Ray's art is drawn as (the still half is ray-parts.test.js, the live half ray-live.test.js): the silhouette a manta's (pointed tips swept back, a trailing edge
-// that sags, a leading edge that bulges toward the player, lobes that project forward) and how well it holds the hit boxes (the wing rect is swept: its top outer corner is sky, and
-// the test says how much), the fade of the hull's layers into the HUD, the coil as a Tesla coil that fills its rect, the heart as an orb, the weak points in the ray's own colours.
+// that sags, a leading edge that bulges toward the player, lobes that project forward) and that it holds the hit boxes (every point of the wing's rect is wing: in a free level a box
+// rams, so no corner of it may be sky), the fade of the hull's layers into the HUD, the coil as a Tesla coil that fills its rect, the heart as an orb, the weak points in the ray's own colours.
 const shape = await import('../../src/ui/bosses/ray-shape.js');
 const { ELECTRODE, PRONG, TORUS } = await import('../../src/ui/bosses/ray-coil.js');
 const { ORB } = await import('../../src/ui/bosses/ray-heart.js');
@@ -40,18 +40,13 @@ test('the silhouette holds the hit boxes: the wing armour lies in the wing, the 
   const inWing = (x, y) => shape.polyDepth(shape.WING, x, y) > 0;
   const rect = (id) => ({ x: Math.abs(part(id).dx), y: part(id).dy, w: part(id).w, h: part(id).h });
   const wing = rect('wingR');
-  let [inside, total, low, lowIn] = [0, 0, 0, 0];
+  // A ship that touches the rect is rammed (core/free.js), so the whole rect, its corners too, is wing, never the sky beside a swept tip.
   for (let i = 0; i <= 11; i++) {
     for (let j = 0; j <= 5; j++) {
-      const hit = inWing(wing.x - wing.w / 2 + (wing.w * i) / 11, wing.y - wing.h / 2 + (wing.h * j) / 5);
-      total++;
-      inside += hit;
-      if (j >= 2) [low, lowIn] = [low + 1, lowIn + hit];
+      const [x, y] = [wing.x - wing.w / 2 + (wing.w * i) / 11, wing.y - wing.h / 2 + (wing.h * j) / 5];
+      assert.ok(inWing(x, y), `(${f(x)}, ${f(y)}) of the wing's rect is wing`);
     }
   }
-  // The rect is 290 x 150 and the wing is swept: its top outer corner is sky. Where a shot arrives, from below, the rect is wing.
-  assert.ok(lowIn / low >= 0.85, `${f((100 * lowIn) / low)}% of the lower two thirds of the wing's rect is wing`);
-  assert.ok(inside / total >= 0.6, `${f((100 * inside) / total)}% of the wing's rect is wing`);
   for (const id of ['heart', 'maw']) {
     const r = rect(id);
     for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1], [0, 0]]) {
