@@ -1,0 +1,21 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { WORLDS } from '../../src/core/levels.js';
+import { RATINGS, ratingOf } from '../../src/core/ratings.js';
+
+// A world's difficulty score on its Level Select card: scripts/ratings.mjs measures and writes the table
+// (slow, so it is not run here; run it again when a world is added or retuned).
+
+test('every world has exactly one score, out of 10, with at most one decimal', () => {
+  assert.equal(RATINGS.length, WORLDS.length);
+  for (const v of RATINGS) {
+    assert.ok(typeof v === 'number' && v >= 1 && v <= 10, `${v}`);
+    assert.equal(Number(v.toFixed(1)), v, `${v} has more than one decimal`);
+  }
+});
+
+test('ratingOf(world) is the world\'s entry, and null for a world that does not exist', () => {
+  for (const wd of WORLDS) assert.equal(ratingOf(wd.id), RATINGS[wd.id - 1]);
+  assert.equal(ratingOf(0), null);
+  assert.equal(ratingOf(WORLDS.length + 1), null);
+});

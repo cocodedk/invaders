@@ -5,7 +5,8 @@
 // the view, the frame), one per idle period while the title or the lobby is up, so no single frame carries a whole poster
 // and nothing is baked while a level plays.
 //   warmPosters(allowed)   start baking in idle slices; allowed() says whether now is a menu
-//   bakeStep() -> bool     one slice of the next poster (false once all eighteen are done)
+//   prefer(worlds)         bake these worlds' posters next (the ones in view); the rest follow in order
+//   preferred() -> worlds  what prefer last said
 //   posterFor(world) -> canvas | null      TAGLINES[world - 1]: each world's line      reelName(level)
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
@@ -96,10 +97,17 @@ function* bake(world) {
   posters.set(world, out);
 }
 
+// The lobby puts every world on one scrolling page, so it says which worlds are in view (prefer) and the
+// baker takes those first, in the order given, then the rest in world order. A poster half baked is
+// always finished first: the choice is made only between posters.
+let wanted = [];
+export const prefer = (worlds) => { wanted = worlds; };
+export const preferred = () => wanted; // what prefer last said (the tests read it back)
+
 let current = null;
 function bakeStep() {
   if (!current) {
-    const world = WORLDS.find((wd) => !posters.has(wd.id))?.id;
+    const world = wanted.find((id) => !posters.has(id)) ?? WORLDS.find((wd) => !posters.has(wd.id))?.id;
     if (!world) return false;
     current = bake(world);
   }

@@ -28,9 +28,6 @@ const OWN = {
 };
 export const difficulty = (world, index) => OWN[world]?.[index - 1] ?? ((world - 1) * 5 + index - 1) / 39;
 
-// A side world, beside the main run (its own d): the lobby gives them a row of their own.
-export const isSide = (world) => world in OWN;
-
 // R54: the enemy shoots this many times more than the d curve alone says, to pay for the extra
 // power-up drops (KILL_DROP in powerups.js) and keep the game no easier. 1.5 is the value that held
 // the clear rate and hits a run at their old levels in the headless balance run, next to a KILL_DROP

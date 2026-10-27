@@ -1,107 +1,125 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MOVE } from '../../src/ui/keys.js';
-import { step } from '../../src/ui/screens/lobby-nav.js';
+import { PER_ROW, rowsOf, step } from '../../src/ui/screens/lobby-nav.js';
 
-// A small layout: the main run's eight worlds in a row, two side worlds under them, five reels each. Up
-// and down land on the same place in the next row, or on its last card when that row is shorter.
-const ROWS = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9]];
-const go = (at, key, rows = ROWS) => step(at, MOVE[key], rows, 5);
+// The lobby is one uniform grid: the worlds in order, eight to a row, a new world taking the next empty slot,
+// five reels each. The keys need no case for any world; these tests walk grids of 18 (the game's), 19 and 25 worlds.
+const arrows = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+const go = (at, key, rows, reels = 5) => step(at, MOVE[key], rows, reels);
 
-test('left and right change world within a row, keep the reel, and wrap inside the row', () => {
-  assert.deepEqual(go([0, 2], 'ArrowRight'), [1, 2]);
-  assert.deepEqual(go([3, 4], 'ArrowLeft'), [2, 4]);
-  assert.deepEqual(go([7, 1], 'ArrowRight'), [0, 1], 'the main row wraps on itself');
-  assert.deepEqual(go([0, 1], 'ArrowLeft'), [7, 1]);
-  assert.deepEqual(go([9, 0], 'KeyD'), [8, 0], 'the side row wraps on itself');
-  assert.deepEqual(go([8, 0], 'KeyA'), [9, 0]);
+test('rowsOf lays the worlds in order, eight to a row, the last row partly filled', () => {
+  assert.equal(PER_ROW, 8);
+  assert.deepEqual(rowsOf(0), []);
+  assert.deepEqual(rowsOf(8), [[0, 1, 2, 3, 4, 5, 6, 7]]);
+  assert.deepEqual(rowsOf(9), [[0, 1, 2, 3, 4, 5, 6, 7], [8]]);
+  assert.deepEqual(rowsOf(18).map((r) => r.length), [8, 8, 2]);
+  for (let n = 1; n <= 40; n++) {
+    const rows = rowsOf(n);
+    assert.equal(rows.length, Math.ceil(n / 8), `${n} worlds`);
+    assert.deepEqual(rows.flat(), Array.from({ length: n }, (_, i) => i), 'every world once, in order');
+    for (const row of rows.slice(0, -1)) assert.equal(row.length, 8);
+  }
+});
+
+test('left and right change world within a row, keep the reel, and wrap inside that row, a short last row included', () => {
+  const rows = rowsOf(19); // rows of 8, 8 and 3
+  assert.deepEqual(go([0, 2], 'ArrowRight', rows), [1, 2]);
+  assert.deepEqual(go([3, 4], 'ArrowLeft', rows), [2, 4]);
+  assert.deepEqual(go([7, 1], 'ArrowRight', rows), [0, 1], 'row one wraps on itself');
+  assert.deepEqual(go([8, 1], 'ArrowLeft', rows), [15, 1], 'and row two');
+  assert.deepEqual(go([18, 0], 'KeyD', rows), [16, 0], 'the three-card row wraps on its own three');
+  assert.deepEqual(go([16, 0], 'KeyA', rows), [18, 0]);
+  assert.deepEqual(go([0, 0], 'ArrowRight', rowsOf(1)), [0, 0], 'a lone world stays');
 });
 
 test('up and down change reel inside a world', () => {
-  assert.deepEqual(go([2, 0], 'ArrowDown'), [2, 1]);
-  assert.deepEqual(go([9, 3], 'ArrowUp'), [9, 2]);
-  assert.deepEqual(go([7, 3], 'KeyS'), [7, 4]);
+  const rows = rowsOf(19);
+  assert.deepEqual(go([2, 0], 'ArrowDown', rows), [2, 1]);
+  assert.deepEqual(go([18, 3], 'ArrowUp', rows), [18, 2]);
+  assert.deepEqual(go([7, 3], 'KeyS', rows), [7, 4]);
 });
 
-test("past a column's end the keys run on into the same place in the row below or above, or its last card if that is shorter", () => {
-  assert.deepEqual(go([0, 4], 'ArrowDown'), [8, 0], 'the last reel of the main row goes to the first reel beneath');
-  assert.deepEqual(go([1, 4], 'ArrowDown'), [9, 0]);
-  assert.deepEqual(go([6, 4], 'ArrowDown'), [9, 0], 'the row below has two cards: the seventh is past its end, so its last');
-  assert.deepEqual(go([8, 0], 'ArrowUp'), [0, 4], 'and back up, to the last reel above');
-  assert.deepEqual(go([9, 0], 'ArrowUp'), [1, 4]);
+test("past a column's end the keys run on into the same column of the row below or above, or its last card if that row is shorter", () => {
+  const rows = rowsOf(19);
+  assert.deepEqual(go([0, 4], 'ArrowDown', rows), [8, 0], 'the last reel of row one goes to the first reel of row two');
+  assert.deepEqual(go([7, 4], 'ArrowDown', rows), [15, 0]);
+  assert.deepEqual(go([8, 4], 'ArrowDown', rows), [16, 0]);
+  assert.deepEqual(go([10, 4], 'ArrowDown', rows), [18, 0], 'the third column of the short row');
+  assert.deepEqual(go([13, 4], 'ArrowDown', rows), [18, 0], 'the sixth is past its end: its last card');
+  assert.deepEqual(go([16, 0], 'ArrowUp', rows), [8, 4], 'and back up, to the last reel above');
+  assert.deepEqual(go([18, 0], 'ArrowUp', rows), [10, 4]);
+  assert.deepEqual(go([8, 0], 'ArrowUp', rows), [0, 4]);
 });
 
-test("down from the last row's last reel leaves for Back, and up from the top stays put", () => {
-  for (const w of [8, 9]) assert.equal(go([w, 4], 'ArrowDown'), null, `world ${w + 1}`);
-  assert.equal(go([1, 4], 'ArrowDown', [[0, 1, 2]]), null, 'with one row, its last reels leave for Back');
-  assert.deepEqual(go([3, 0], 'ArrowUp'), [3, 0]);
+test("down from the last row's last reel leaves for the bar (null), and up from the top stays on the first reel", () => {
+  for (const n of [1, 8, 9, 18, 19, 24, 25]) {
+    const rows = rowsOf(n);
+    for (const w of rows.at(-1)) assert.equal(go([w, 4], 'ArrowDown', rows), null, `${n} worlds, world ${w + 1}`);
+    assert.deepEqual(go([0, 0], 'ArrowUp', rows), [0, 0]);
+    assert.deepEqual(go([3 % n, 3], 'ArrowUp', rows), [3 % n, 2]);
+  }
+  assert.deepEqual(go([3, 0], 'ArrowUp', rowsOf(19)), [3, 0], 'no row above row one');
 });
 
-test('every reel is reachable from the first by the arrows', () => {
+test('down then up comes back to where you were, as long as the row below has a card in that column', () => {
+  const rows = rowsOf(19); // the short row has columns 1 to 3
+  for (const w of [0, 1, 2, 8, 9, 10, 5, 6]) {
+    const down = go([w, 4], 'ArrowDown', rows);
+    assert.equal(down[1], 0);
+    assert.deepEqual(go(down, 'ArrowUp', rows), [w, 4], `world ${w + 1}`);
+  }
+});
+
+test('with the goal column given, down then up returns to the same world from every column of a full row, short last row or not', () => {
+  for (const n of [9, 10, 18, 19, 20, 25]) {
+    const rows = rowsOf(n);
+    for (const [r, row] of rows.slice(0, -1).entries()) {
+      for (const [col, w] of row.entries()) {
+        const down = step([w, 4], MOVE.ArrowDown, rows, 5, col); // the next row's card, clamped if it is shorter
+        assert.deepEqual(down, [rows[r + 1][Math.min(col, rows[r + 1].length - 1)], 0], `${n} worlds, world ${w + 1}`);
+        assert.deepEqual(step(down, MOVE.ArrowUp, rows, 5, col), [w, 4], `${n} worlds: up again is world ${w + 1}`);
+      }
+    }
+  }
+  const rows = rowsOf(18);
+  assert.deepEqual(step([17, 0], MOVE.ArrowUp, rows, 5, 3), [11, 4], 'a goal of column four reaches world 12 from world 18, not world 10');
+  assert.deepEqual(step([17, 0], MOVE.ArrowUp, rows, 5), [9, 4], 'without a goal the current column counts, as before');
+  assert.deepEqual(step([17, 0], MOVE.ArrowUp, rows, 5, undefined), [9, 4]);
+});
+
+// Every reel of every grid from one world to forty is reachable from the first by the arrows: nothing in the
+// walk depends on how many worlds there are or which ones.
+function reach(rows, reels) {
   const seen = new Set(['0,0']);
   const queue = [[0, 0]];
   while (queue.length) {
     const at = queue.pop();
-    for (const key of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']) {
-      const to = go(at, key);
+    for (const key of arrows) {
+      const to = go(at, key, rows, reels);
       if (to && !seen.has(to.join())) {
         seen.add(to.join());
         queue.push(to);
       }
     }
   }
-  assert.equal(seen.size, 50);
+  return seen;
+}
+
+test('every reel is reachable by the arrows on a grid of any number of worlds', () => {
+  for (let n = 1; n <= 40; n++) assert.equal(reach(rowsOf(n), 5).size, n * 5, `${n} worlds`);
+  assert.equal(reach(rowsOf(18), 5).size, 90);
+  assert.equal(reach(rowsOf(19), 5).size, 95, 'a nineteenth world is in the third row: no special case');
+  assert.equal(reach(rowsOf(25), 5).size, 125, 'a twenty-fifth starts a fourth row');
 });
 
-// World 17 makes the side row nine cards on the main row's own pitch (lobby.css: 86.4 rem against 76.7, both
-// centred), so every side card stands half a column off the posters. Card centres in rem, measured in
-// Chromium on the real lobby at 1280, 1600 and 1920 wide (they agree to 0.01 rem): main world k at
-// 14.05 + 9.7 k, side card j at 9.2 + 9.7 j. Going down or up, two cards tie 4.85 rem away, and `step`
-// takes the one at the same place, so down and then up comes back to where you were.
-const ROWS17 = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15, 16]];
-const mid = (w) => (w < 8 ? 14.05 + 9.7 * w : 9.2 + 9.7 * (w - 8));
-const go17 = (at, key) => step(at, MOVE[key], ROWS17, 5);
-
-test('a nine-card side row wraps on itself, one card at a time, and reaches world 17', () => {
-  assert.deepEqual(go17([15, 2], 'ArrowRight'), [16, 2], 'world 16 to world 17');
-  assert.deepEqual(go17([16, 2], 'ArrowRight'), [8, 2]);
-  assert.deepEqual(go17([8, 2], 'ArrowLeft'), [16, 2]);
-  assert.deepEqual(go17([16, 2], 'ArrowLeft'), [15, 2]);
-  assert.deepEqual(go17([10, 1], 'ArrowRight'), [11, 1]);
-  assert.deepEqual(go17([10, 1], 'ArrowLeft'), [9, 1]);
-});
-
-test('down and up always land on a nearest card, and down then up comes back', () => {
-  const nearestDist = (w, row) => Math.min(...row.map((b) => Math.abs(mid(b) - mid(w))));
-  for (let w = 0; w < 8; w++) {
-    const [down, reel] = go17([w, 4], 'ArrowDown');
-    assert.equal([down, reel].join(), `${8 + w},0`, `down from world ${w + 1}`);
-    assert.ok(Math.abs(Math.abs(mid(down) - mid(w)) - nearestDist(w, ROWS17[1])) < 1e-9, `world ${w + 1} down is a nearest card`);
-    assert.deepEqual(go17([down, 0], 'ArrowUp'), [w, 4], `back up to world ${w + 1}`);
-  }
-  for (let w = 8; w < 17; w++) {
-    const [up, reel] = go17([w, 0], 'ArrowUp');
-    assert.equal(reel, 4, 'the last reel above');
-    assert.ok(Math.abs(Math.abs(mid(up) - mid(w)) - nearestDist(w, ROWS17[0])) < 1e-9, `world ${w + 1} up is a nearest card`);
-  }
-  assert.deepEqual(go17([16, 0], 'ArrowUp'), [7, 4], 'world 17 hangs past the main row: its nearest is world 8');
-  assert.equal(go17([16, 4], 'ArrowDown'), null, 'the last row leaves for Back');
-  assert.equal(go17([8, 4], 'ArrowDown'), null);
-});
-
-test('with the ninth side card every one of the 85 reels is reachable by the arrows', () => {
-  const seen = new Set(['0,0']);
-  const queue = [[0, 0]];
-  while (queue.length) {
-    const at = queue.pop();
-    for (const key of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']) {
-      const to = go17(at, key);
-      if (to && !seen.has(to.join())) {
-        seen.add(to.join());
-        queue.push(to);
-      }
-    }
-  }
-  assert.equal(seen.size, 85);
-  for (let r = 0; r < 5; r++) assert.ok(seen.has(`16,${r}`), `world 17, reel ${r + 1}`);
+test('a nineteenth and a twenty-fifth world are the next slots of a row, and the arrows reach their last reels', () => {
+  const rows19 = rowsOf(19);
+  assert.deepEqual(rows19.at(-1), [16, 17, 18], 'world 19 is the third of row three');
+  assert.equal(go([17, 0], 'ArrowRight', rows19)[0], 18);
+  const rows25 = rowsOf(25);
+  assert.deepEqual(rows25.at(-1), [24], 'world 25 opens row four');
+  assert.deepEqual(go([23, 4], 'ArrowDown', rows25), [24, 0], 'from the last card of row three: the same column, clamped');
+  assert.deepEqual(go([16, 4], 'ArrowDown', rows25), [24, 0]);
+  assert.equal(go([24, 4], 'ArrowDown', rows25), null);
 });

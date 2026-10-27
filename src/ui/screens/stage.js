@@ -1,5 +1,6 @@
 // The overlay stage (from Barrage): one screen at a time over the canvas, cross-faded, with keyboard
-// focus handed to the new screen. A screen is { el, focus?, onKey?(code, event) -> handled, update?(dt) }.
+// focus handed to the new screen. A screen is { el, focus?, onKey?(code, event) -> handled, update?(dt),
+// shown?() }; shown() runs each time the screen is put up, attached and focused.
 const FADE_MS = 320;
 
 export function createStage(root) {
@@ -22,6 +23,7 @@ export function createStage(root) {
       void screen.el.offsetWidth; // commit the start state so the fade-in runs
       screen.el.classList.add('show');
       screen.focus?.focus({ preventScroll: true });
+      screen.shown?.(); // the element is in the page and laid out: a scrolling screen can scroll to its focus
     },
     onKey: (code, e) => !!current?.onKey?.(code, e),
     update: (dt) => current?.update?.(dt),

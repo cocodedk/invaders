@@ -1,77 +1,47 @@
-// Level select as a cinema lobby: a poster per world (its boss fight, rendered by the game) with
-// five reels showing best stars and best score. The main run's worlds stand in the first row, each
-// poster over its reels; under them, "also showing", the side worlds (difficulty.js isSide), each a
-// short banner over its reels (lobby.css). Every reel is open from the start.
-// Keys (lobby-nav.js): left/right change world within a row (same reel), up/down change reel and
-// run on into the nearest world of the row below or above (the one at the same place when two tie:
-// lobby-nav.js step), down from the last row's last reel reaches Back, Enter plays, Esc goes back.
-// Back and Reset scores stand side by side under the reels, and a free-flight world (world 18, Anvil Sky: five reels and
-// its boss like any other) stands beside them as a compact card, in neither row: a banner (the poster's print, the "Free
-// flight" flag, the boss billed) and its five reels in a strip, as tall as the buttons. Right and left move among Back, Reset
-// scores and the card's reels in turn, up returns to the last reel, Enter plays. Reset scores asks first
-// (confirm.js, laid over the lobby: Cancel is focused, Esc cancels) and then calls reset(). The mouse
-// focuses on hover and plays on click.
-// Under the title: the star total, and the pilot's rank with the medals it is read from. A reel
-// whose level holds its medal (cleared without a power-up) carries the medal mark on its number.
+// Level select as a cinema lobby: every world has the same card, its poster (the boss fight, rendered by the game)
+// over a strip with the world's difficulty and five reels showing best stars and best score (lobby-card.js). The cards
+// stand in world order, eight to a row, a new world taking the next empty slot (lobby-nav.js rowsOf); a partly
+// filled last row is left-aligned on the same columns, its rail ending at its last card. The page scrolls, header and
+// all (the marquee, the star total, the rank); Back and Reset scores stand in a bar fixed to the bottom of the screen,
+// with the key hint. Every reel is open from the start.
+// Keys (lobby-nav.js): left/right change world within a row (same reel), up/down change reel and run on into the
+// row below or above (at the column last chosen by left/right or the pointer, so down and up undo each other even
+// across a short last row), down from the last row's last reel reaches Back, Enter plays, Esc goes back. In the bar
+// left/right move between Back and Reset scores, up returns to the last reel, Enter picks. A key that moves
+// the focus scrolls the page the least that shows the whole card above the bar (the first row scrolls to the top),
+// smoothly, or at once under prefers-reduced-motion; the pointer focuses and never scrolls, or the page would chase
+// the mouse. The wheel scrolls. Reset scores asks first (confirm.js, laid over the lobby: Cancel is focused, Esc
+// cancels) and then calls reset(). The mouse focuses what it moves over, a reel or a poster (which stands for its
+// first reel not played yet), and plays on click; a page that scrolls under a still pointer moves no focus.
+// Under the title: the star total, and the pilot's rank with the medals it is read from.
 //   lobbyScreen({ best, start(level), back(), reset(), focusId }) -> screen   best: storage allBest()
-// Posters not baked yet (posters.js bakes them in idle slices) show their sky, and develop in as
-// soon as they are ready (update).
-import { LEVELS, WORLDS, reelName, worldName } from '../../core/levels.js';
-import { bossDef } from '../../core/bosses-data.js';
-import { lookFor } from '../looks/index.js';
+// The lobby opens scrolled to the card of focusId (the level just played), and tells posters.js which rows are in
+// view so those posters bake first; posters not baked yet show their sky and develop in as soon as they are ready (update).
+import { LEVELS, WORLDS } from '../../core/levels.js';
 import { play } from '../audio.js';
-import { h, button, focusItem, shell, starRow, skyCss, developer } from './dom.js';
-import { fmt } from '../format.js';
+import { h, button, focusItem, shell, developer } from './dom.js';
 import { MOVE, isConfirm, isBack } from '../keys.js';
 import { confirmCard } from './confirm.js';
 import { medalCount } from '../storage.js';
 import { rankOf } from '../../core/ranks.js';
 import { MAX_STARS } from '../../core/scoring.js';
-import { TAGLINES, posterFor } from './posters.js';
-import { step } from './lobby-nav.js';
-import { isSide } from '../../core/difficulty.js';
-
-function reel(level, best, start) {
-  const b = best[level.id];
-  const r = button(null, () => { play('select'); start(level); }, `reel${level.boss ? ' finale' : ''}${b ? ' played' : ''}`);
-  r.dataset.id = level.id;
-  const n = h('span', 'reel-n', String(level.index));
-  if (b?.medal) n.append(h('i', 'medal')); // pinned to the number badge: it takes no width from the score
-  r.append(n, starRow(b?.stars ?? 0), h('span', 'reel-best', b ? fmt(b.score) : '—'));
-  r.setAttribute('aria-label', `${worldName(level)}, ${reelName(level).toLowerCase()}`);
-  return r;
-}
-
-// A world's card: its poster over its reels, or, for a free-flight world, the compact card of the foot row, its
-// banner beside its reels (lobby.css). Both bill the boss.
-function poster(world, best, start) {
-  const look = lookFor({ world: world.id });
-  const art = h('div', 'poster-art');
-  art.style.background = skyCss(look);
-  const canvas = posterFor(world.id);
-  if (canvas) art.append(canvas);
-  art.append(
-    h('span', 'poster-world', `World ${world.id}`),
-    h('div', 'poster-type',
-      h('h3', 'poster-name', world.name),
-      h('p', 'poster-tag', TAGLINES[world.id - 1]),
-      h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
-  if (world.free) art.append(h('span', 'poster-flag', 'Free flight'));
-  const reels = LEVELS.filter((l) => l.world === world.id).map((l) => reel(l, best, start));
-  const el = h('article', world.free ? 'free' : 'poster', art, h('div', 'reels', ...reels));
-  el.style.setProperty('--accent', look.palette.accent);
-  return { el, art, reels, world: world.id, free: world.free };
-}
+import { posterFor, prefer } from './posters.js';
+import { rowsOf, step } from './lobby-nav.js';
+import { cardOf } from './lobby-card.js';
 
 const RESET_TEXT = 'This resets the best score, stars and medal of every level. '
   + 'Your saved trailers stay in Cinema. It cannot be undone.';
+const calm = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
 
 export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
   const el = shell('lobby');
-  const cols = WORLDS.map((w) => poster(w, best, start));
-  const flights = cols.filter((c) => c.free); // the free-flight world stands in the foot, in neither row
-  const rows = [false, true].map((side) => cols.flatMap((c, i) => (!c.free && isSide(c.world) === side ? [i] : [])))
-    .filter((row) => row.length);
+  const cols = WORLDS.map((w) => cardOf(w, best, start));
+  const rows = rowsOf(cols.length);
+  const shelves = rows.map((row) => {
+    const shelf = h('div', 'posters', ...row.map((i) => cols[i].el));
+    shelf.style.setProperty('--filled', String(row.length)); // the rail ends at the last card
+    return shelf;
+  });
   const total = Object.values(best).reduce((n, b) => n + b.stars, 0);
   const medals = medalCount(best);
   let ask = null; // the open Reset scores card
@@ -89,50 +59,98 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
     ask.el.classList.add('show');
     ask.focus.focus({ preventScroll: true });
   }, 'btn');
-  const foot = [backBtn, resetBtn, ...flights.flatMap((c) => c.reels)]; // left to right, the card's reels last
-  el.append(
+  const bar = [backBtn, resetBtn]; // left to right
+  const page = h('div', 'lobby-scroll',
     h('header', 'marquee', h('span', 'bulbs'), h('h2', 'marquee-title', 'Now showing'), h('span', 'bulbs')),
     h('p', 'sub', `${WORLDS.length} worlds, ${LEVELS.length} reels. Every one is open. `,
       h('span', 'lobby-total', `★ ${total} / ${LEVELS.length * MAX_STARS}`),
       h('span', 'lobby-rank', `Rank ${rankOf(medals).name} · ${medals} / ${LEVELS.length} medals`)),
-    h('div', 'posters', ...rows[0].map((i) => cols[i].el)),
-    rows[1] && h('div', 'side', h('span', 'side-label', 'Also showing'), ...rows[1].map((i) => cols[i].el)),
-    h('div', 'row', backBtn, resetBtn, ...flights.map((c) => c.el),
-      h('span', 'hint', h('span', null, '← → world · ↑ ↓ reel'), h('span', null, 'Enter play · Esc back'))));
+    ...shelves);
+  el.append(page, h('div', 'lobby-bar', backBtn, resetBtn,
+    h('span', 'hint', h('span', null, '← → world · ↑ ↓ reel'), h('span', null, 'Enter play · Esc back'))));
+
   const grid = cols.map((c) => c.reels);
+  const at = new Map(grid.flatMap((reels, w) => reels.map((r, i) => [r, [w, i]]))); // reel element -> [world, reel]
   const first = grid.flat().find((r) => r.dataset.id === focusId) ?? grid[0][0];
-  let lastReel = foot.includes(first) ? grid[rows.at(-1).at(-1)].at(-1) : first; // up from the foot lands on a reel above
-  const where = (el2) => {
-    for (let w = 0; w < grid.length; w++) {
-      const r = grid[w].indexOf(el2);
-      if (r >= 0) return [w, r];
-    }
-    return null;
+  let lastReel = first; // up from the bar lands here
+  const colOf = new Map(rows.flatMap((row) => row.map((w, c) => [w, c]))); // world index -> its column in its row
+  // The column up and down aim for in the next row (a short last row clamps it, and the goal outlives that): the one
+  // last chosen by left or right, else that of the card the focus was on when the keys took over. `landed` is the world
+  // the keys last put the focus on; a focus anywhere else (the pointer, Tab) is a fresh start, with a goal of its own.
+  let goal;
+  let landed;
+  // The least scroll that shows world w's whole card above the bar (the page's scroll-padding); the first row's
+  // goes to the top, so its marquee shows with it. It works from layout sizes, which ignore the card's 0.5rem lift:
+  // that transform is still running when the key lands, and scrollIntoView, measuring the lifted card, left the page
+  // 7 px off and nudged it on the next key. Called on every move: it does nothing while the card is in view.
+  const reveal = (w) => {
+    const behavior = calm() ? 'instant' : 'smooth';
+    if (rows[0].includes(w)) return page.scrollTo({ top: 0, behavior });
+    const card = cols[w].el;
+    const pad = globalThis.getComputedStyle?.(page);
+    const top = card.offsetTop - (parseFloat(pad?.scrollPaddingTop) || 0);
+    const low = card.offsetTop + card.offsetHeight + (parseFloat(pad?.scrollPaddingBottom) || 0) - page.clientHeight;
+    if (page.scrollTop > top) page.scrollTo({ top, behavior });
+    else if (page.scrollTop < low) page.scrollTo({ top: low, behavior });
   };
+  // The pointer focuses what it moves over (a reel, or a poster: its pick()). Only a pointer that moved counts: when
+  // the wheel scrolls the page, reels pass under a still pointer, and a hover per reel would hop the focus, tick the
+  // move sound and lift each card in turn.
+  const hover = (to) => (e) => {
+    if (!e.movementX && !e.movementY) return;
+    landed = null;
+    focusItem(to());
+  };
+  for (const c of cols) {
+    for (const r of c.reels) r.addEventListener('pointermove', hover(() => r));
+    c.art.addEventListener('pointermove', hover(c.pick));
+  }
+  const goto = (reel) => {
+    focusItem(reel);
+    reveal(at.get(reel)[0]);
+  };
+  // Tell the baker which posters are in view (posters.js prefer), by the rows that cross the page's window.
+  const inView = () => {
+    const top = page.scrollTop;
+    const end = top + page.clientHeight;
+    prefer(shelves.flatMap((s, i) => (s.offsetTop + s.offsetHeight > top && s.offsetTop < end ? rows[i].map((j) => cols[j].world) : [])));
+  };
+  page.addEventListener('scroll', inView);
+  const developed = developer(cols, posterFor); // a poster that has just been baked develops in
   return {
     el, focus: first,
+    shown() { // attached and laid out: open on the card of focusId, centred where the page allows (layout sizes, not the screen's fade-in scale)
+      const card = cols[at.get(first)[0]].el;
+      page.scrollTo({ top: card.offsetTop - (page.clientHeight - card.offsetHeight) / 2, behavior: 'instant' });
+      inView();
+    },
     onKey(code) {
       if (ask) return ask.onKey(code), true; // the card is modal
       if (isBack(code)) return backBtn.click(), true;
-      const at = where(document.activeElement);
-      const f = foot.indexOf(document.activeElement);
-      if (f >= 0) {
-        const [dx, dy] = MOVE[code] ?? [0, 0];
-        if (dy < 0) focusItem(lastReel);
-        else if (dx) focusItem(foot[f + dx]);
-        else if (isConfirm(code)) foot[f].click();
+      const active = document.activeElement;
+      const move = MOVE[code];
+      const b = bar.indexOf(active);
+      if (b >= 0) {
+        if (move?.[1] < 0) goto(lastReel);
+        else if (move?.[0]) focusItem(bar[b + move[0]]);
+        else if (isConfirm(code)) active.click();
         return true;
       }
-      if (!at) return focusItem(lastReel), true;
-      const move = MOVE[code];
+      if (!at.has(active)) return goto(lastReel), true;
       if (move) {
-        lastReel = document.activeElement;
-        const to = step(at, move, rows, grid[0].length);
-        return focusItem(to ? grid[to[0]][to[1]] : backBtn), true;
+        lastReel = active;
+        const [w] = at.get(active);
+        if (w !== landed) goal = colOf.get(w);
+        const to = step(at.get(active), move, rows, grid[0].length, goal);
+        if (to) {
+          landed = to[0];
+          if (move[0]) goal = colOf.get(landed); // left and right choose the column
+        }
+        return to ? goto(grid[to[0]][to[1]]) : focusItem(backBtn), true;
       }
-      if (isConfirm(code)) return document.activeElement.click(), true;
+      if (isConfirm(code)) return active.click(), true;
       return false;
     },
-    update: developer(cols, posterFor), // a poster that has just been baked develops in
+    update: developed,
   };
 }

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { difficulty, scaled, FIRE_UP, isSide } from '../../src/core/difficulty.js';
+import { difficulty, scaled, FIRE_UP } from '../../src/core/difficulty.js';
 
 test('difficulty runs from 0 at world 1 level 1 to 1 at world 8 level 5', () => {
   assert.equal(difficulty(1, 1), 0);
@@ -60,7 +60,6 @@ test('world 13 runs a notch above world 12, rising within the world, armorBonus 
   own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w13-${i + 1}`));
   own.forEach((d, i) => assert.ok(d > difficulty(12, i + 1) && d - difficulty(12, i + 1) < 0.04, `w13-${i + 1} just above w12-${i + 1}`));
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
-  assert.equal(isSide(13), true);
 });
 
 test('world 14 runs another notch above world 13, rising within the world, armorBonus on', () => {
@@ -69,7 +68,6 @@ test('world 14 runs another notch above world 13, rising within the world, armor
   own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w14-${i + 1}`));
   own.forEach((d, i) => assert.ok(d > difficulty(13, i + 1) && d - difficulty(13, i + 1) < 0.05, `w14-${i + 1} just above w13-${i + 1}`));
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
-  assert.equal(isSide(14), true);
 });
 
 test('world 15 runs a notch above world 14, rising within the world, armorBonus on', () => {
@@ -78,7 +76,6 @@ test('world 15 runs a notch above world 14, rising within the world, armorBonus 
   own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w15-${i + 1}`));
   own.forEach((d, i) => assert.ok(d > difficulty(14, i + 1) && d - difficulty(14, i + 1) < 0.03, `w15-${i + 1} just above w14-${i + 1}`));
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
-  assert.equal(isSide(15), true);
 });
 
 test('world 16 runs a notch above world 15, rising within the world, armorBonus on', () => {
@@ -87,7 +84,6 @@ test('world 16 runs a notch above world 15, rising within the world, armorBonus 
   own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w16-${i + 1}`));
   own.forEach((d, i) => assert.ok(d > difficulty(15, i + 1) && d - difficulty(15, i + 1) < 0.04, `w16-${i + 1} just above w15-${i + 1}`));
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
-  assert.equal(isSide(16), true);
 });
 
 test('world 17 runs the top of the scale, rising within the world to 1 on the boss, armorBonus on', () => {
@@ -96,16 +92,13 @@ test('world 17 runs the top of the scale, rising within the world to 1 on the bo
   own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w17-${i + 1}`));
   own.forEach((d, i) => assert.ok(d > difficulty(16, i + 1), `w17-${i + 1} above w16-${i + 1}`));
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'above 0.6 turns armorBonus on, as in world 6');
-  assert.equal(isSide(17), true);
 });
 
-test('world 18, the first free-flight world (R67) and the hardest, runs the top of the scale as world 17 does; there is no world 19', () => {
+test('world 18, the first free-flight world (R67) and the hardest, runs the top of the scale as world 17 does', () => {
   const own = [1, 2, 3, 4, 5].map((i) => difficulty(18, i));
   assert.deepEqual(own, [0.86, 0.89, 0.92, 0.96, 1.0]);
   own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w18-${i + 1}`));
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'armorBonus on throughout');
-  assert.equal(isSide(18), true);
-  assert.equal(isSide(19), false);
 });
 
 test('scaled gives the documented range at d = 0 and d = 1', () => {
@@ -131,8 +124,4 @@ test('fireMult is the d curve times FIRE_UP (R54), at every d', () => {
   }
   assert.ok(Math.abs(scaled(0).fireMult - 0.9) < 1e-12);
   assert.ok(Math.abs(scaled(1).fireMult - 2.4) < 1e-12);
-});
-
-test('the side worlds are the ones that set their own d: 9 and 10, not the main run', () => {
-  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].filter(isSide), [9, 10]);
 });

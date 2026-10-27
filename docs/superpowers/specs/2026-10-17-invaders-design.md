@@ -28,6 +28,9 @@ flight, formations, bosses, power-ups — plus one feature no shooter has: your 
   catching them costs the medal; a bomb or a life no longer opens them (R67).
 - Free flight is liberating: make it the rule for every world from 18 on (R67).
 - Finish world 18 with all its levels (R67).
+- "World 18 mouse movement is weird as if it glides off", "ship must comply with mouse movements. no
+  drifting. it must act immediately.", "the mouse movement must be the same in all the worlds": the ship
+  follows the pointer at once, with no glide, in every world (R68).
 
 Assumptions (not stated, chosen here): English only; keyboard + mouse, no gamepad; installed on the
 Pi like Barrage; worlds evoke film genres under original names — no film titles, characters, logos or
@@ -36,7 +39,45 @@ quoted lines, so the repo can be public.
 ## Rules
 
 - Logical frame 1920 × 1080, y down, letterboxed to fit. The ship flies anywhere in the player zone
-  y ∈ [620, 1040], x ∈ [40, 1880]; max speed 720 px/s with a short ease (no ice-skating).
+  y ∈ [620, 1040], x ∈ [40, 1880]; the keys move it at up to 720 px/s with a short ease (no ice-skating), and
+  the pointer moves it at once (R68, below).
+- **The pointer is the ship (R68).** The user found world 18's mouse "weird as if it glides off" and asked that
+  the ship "comply with mouse movements. no drifting. it must act immediately", the same in every world. Until
+  R68 the ship eased toward the pointer (a pull of 12 × the distance, capped at 720 px/s, eased by 7200 px/s²):
+  a quick 800 px move took 1.3 s to arrive and a long diagonal 1.9 s. The 420 px strip of worlds 1-17 hid
+  it; world 18's free zone made the trailing plain. Now, in every world:
+  - **The ship stands on its goal in the very tick.** A pointer target (the pointer held inside the level's zone, as
+    before: `input.js` steer and its edge slack are untouched) puts the ship there in that tick: no easing, no speed
+    limit, no pull. `vx, vy` still say how fast it went that tick, capped at 720 px/s, and serve only the drawing's
+    bank and wake, so a flick across the field cannot throw a wake thousands of px long. The keys are as they were:
+    up to 720 px/s, eased over 0.1 s, a diagonal no faster. Which of the two steers is as before (the pointer once
+    it moves, the keys as soon as a movement key goes down).
+  - **A pointer that wakes after the keys walks the ship back.** The cursor is hidden in play, so after the keys
+    have moved the ship, the pointer's goal is somewhere the pilot cannot see. The first pointer move then walks
+    the ship to that goal at `HAND` (below) instead of crossing the field in one tick, where every bullet on the way
+    would count; within a tick's reach of the goal the pointer is the ship again (`input.js` readInput,
+    `mouse.walk`). A pause, a new level or a blur leaves the pointer immediate. This is input-side only: the core
+    sees ordinary pointer targets.
+  - **Slow motion steps the pointer at its own pace.** The ship moves once per logic tick, and slow motion (0.3×)
+    runs about 18 ticks a second, so for its 0.8 s the ship jumps to the pointer in coarser steps. Left as it is: it
+    is the same slowed time the bullets are in.
+  - **A far move passes through nothing.** The ship records where its move began (`ship.fromX, fromY`) and the
+    collisions test the path from there to where it ended: a bullet against the gap between its own path and the
+    ship's (so a bullet anywhere along the way hits, and the near miss measures the same distance); a burning beam
+    hits a ship that crossed it sideways (the warning line still harms nothing); an alien's ram and the boss part's
+    ram are tested along the path; a pickup the path crossed is caught, because the ship takes what it touches. A
+    ship that stands still is tested exactly as before. The pearls (world 15) guard the ship where it ends.
+  - **The autopilot moves like a hand, not a teleport.** Its pointer target is never farther from the ship than
+    `HAND × TICK`, `HAND` = 1800 px/s (a quick human wrist; `hand.js`), and dodge plans by flying copies of the ship
+    at that same limit, testing each stretch between its samples as the collisions do, so its plans are ones it can
+    fly. It stays stateless; it drives the title backdrop and the demo. Its aim no longer leads for a pointer lag.
+  - `RUN_V` goes 9 → 10: a recorded run re-simulates differently. The fingerprints of worlds 1-17
+    (`worlds-unchanged.test.js`) were re-taken, as the autopilot flies differently; `worlds-idle.test.js` pins the
+    same levels flown by a ship that stands still, which did not change, so nothing but movement moved. The pars
+    were re-taken. Nothing was retuned. The lagged autopilot (reaction lags 8-18, 20 seeds each, 120 runs a level)
+    cleared worlds 7 and 18 in 31 % and 27 % of runs before and 15 % and 21 % after; with the hand at 720 px/s
+    instead of 1800 it clears 37 % and 32 %. The bot's rate follows how quickly its lagged hand reaches a spot
+    decided a moment ago, so this says little about a player, who now moves at once.
 - **Lives:** 3 at the start of each level, with no cap above that (R66). A hit costs one and gives 1.5 s of blinking invulnerability. At 0 lives the
   level is failed → Retry or Level Select.
 - **Wave levels** (levels 1–4 of each world): 3–5 formations arrive in sequence; the level is cleared
@@ -278,7 +319,7 @@ quoted lines, so the repo can be public.
     their own bullets, tried first in a world of one level. It is a dogfight inside a thunderstorm at
     dusk, five levels like any world (four wave levels and the Squall Ray). Its levels carry `free`
     (every world from 18 on, `FREE_FROM`, flies free; worlds 1-17 keep the bottom strip and play exactly
-    as before, pinned by fingerprints of world 17, and the replay version stays 9), which changes these
+    as before, pinned by fingerprints of world 17, and the replay version stays 9 until R68 raises it), which changes these
     rules (the collisions in `free.js`):
     - The ship flies anywhere under the HUD: the zone is y ∈ [150, 1040] instead of [620, 1040], so the ship's nose stays under the HUD panels
       (`ship.js zoneOf`). The pointer maps onto that zone too.
@@ -316,8 +357,7 @@ quoted lines, so the repo can be public.
     the first phase on (the ones the ship drags back into it) and the laser in the last, and the heart
     throws shock rings from the second phase, so flying in close is paid for. It sways, hovers and
     circles, never charges, rests at 280 and weighs 250 hp, a little above the moth's 234. In Level Select world 18
-    is its own card in the foot row beside Back and Reset scores (the side row is full at nine), marked
-    as the free-flight world, with its five reels.
+    is a card like every other (R69), flagged "Free flight" in the foot of its poster.
     The user asked for world 18 to be the hardest world. Measured with the lagged autopilot over six
     reaction lags (8 to 18 ticks) x 20 seeds, since a boss level's seeds share their opening: world 18
     clears 40/40/31/20/5 %, 27 % in all and 12 % at the slow lags, against world 7's 31 % and 16 %
@@ -325,6 +365,9 @@ quoted lines, so the repo can be public.
     which the user has beaten and called the limit, so it goes no further. Its levers: d up to 1.0,
     gunner rows and a fan wave in levels 2-4, homing fire from a coil as well as the maw from the hover
     on, shorter intervals in its later phases, and its last phase from 40 % of its hp.
+    Those numbers are from before R68. After it, measured the same way with the lagged hand at 1800 px/s, world 18
+    clears 21 % and world 7 15 %: the bot now fails the titan's world more often. The difficulty scores (R69), half
+    the setting and half that fail rate, still put world 18 first, 8.6 to world 7's 8.5. Nothing was retuned.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -399,22 +442,40 @@ original run — the game state never does.
 
 ## Screens
 
-Title (a live autopilot battle in a random world behind the logo) · Level Select (a cinema lobby:
-a poster per world, each with 5 level reels showing stars and best score; the main run's eight in
-a row, the side worlds under them, "also showing"; the star total and the pilot's rank over them, a
-medal mark on each reel that holds one, Back and Reset scores under them) · Play · Pause ·
+Title (a live autopilot battle in a random world behind the logo) · Level Select (a cinema lobby,
+R69 below) · Play · Pause ·
 Trailer → Results (score with its tally: time against par and the multiplier, the bombs and lives
 bonuses, the medal; stars, best, "Promoted to" a new rank; Next / Retry / Select) · Blooper → Failed (Retry / Select) ·
 Cinema · Watch, then try (below).
 
+**Level Select is one grid (R69).** The user asked for the page to be "nicely organized with expansion in mind. we
+will build more worlds", "the order as it is. from the first world to the last", every world "like how the first row
+is arranged, same size, same number of worlds", with "the difficulty value to the card". It replaces the main run's
+row, the "also showing" side row and the foot card of world 18:
+- Every world is the same card, in order, eight to a row (`lobby-nav.js` `PER_ROW`), a short last row left-aligned on
+  the same columns. A card is the world's poster (kicker, name, tagline, the boss billed; a name with a word over
+  eight letters gets the smaller size), its difficulty strip, and its five reels (stars, best score, the medal mark).
+  A free-flight world only adds a small "Free flight" flag in its poster's foot. A new world needs no layout change.
+- The page scrolls under a fixed bar (Back, Reset scores, the key hint); the marquee, the star total and the
+  pilot's rank head it. The posters on screen bake first (`posters.js` prefer). Left and right change world within a
+  row, wrapping; up and down change reel and carry on into the next row at the column the pilot last chose, so a
+  short last row does not lose it; below the last row the keys reach the bar. The wheel scrolls without moving focus;
+  a pointer focuses what it moves over.
+- **The difficulty score** is out of 10, one decimal, on a ten-segment strip between poster and reels. The user chose
+  "a mix of both": half the world's own setting (the mean d of its five levels, `difficulty.js`) and half how often
+  the lagged autopilot fails it (six reaction lags x 20 seeds per level, the lagged player walking at `HAND` to the
+  spot it chose that many ticks ago), as 1 + 9 x (d + fail) / 2. `scripts/ratings.mjs` measures it and writes
+  `src/core/ratings.js`; re-run it when a world is added or retuned, as the pars are. A world with no score yet shows
+  no strip. The scores follow the bot's model of a hand, so they rank the worlds rather than predict a player.
+
 **Watch, then try:** on first launch (and from the title screen) an autopilot plays a short demo
 level while captions explain moving, firing, power-ups, bombs and stars; then it hands over the
 controls on the same level. The autopilot (pure, in core) moves under the nearest alien, dodges
-bullets within a danger cone, and bombs when boxed in; it also drives the title backdrop.
+bullets within a danger cone, and bombs when boxed in, all at the speed of a hand (R68); it also drives the title backdrop.
 
 **Controls:** arrows/WASD move · Space fires (hold for auto-fire) · B or Shift bombs · P/Esc
-pauses · M mutes · Enter confirms. Mouse: the ship eases toward the pointer, left button fires,
-right button bombs.
+pauses · M mutes · Enter confirms. Mouse: the ship goes to the pointer at once, in every world (R68), left
+button fires, right button bombs.
 
 ## Architecture
 
@@ -439,7 +500,7 @@ world = {
   level,                      // { id: 'w3-2', world: 3, index: 2, seed, waves | boss, bunkers, twist }
   t, tick,                    // seconds and ticks since start
   rng, scale, intro, gap, march, nextId, // a { s } rng state, scaled difficulty, the wave's march state
-  ship: { x, y, vx, vy, lives, invuln, power: null | { kind, left }, reserve: null | { kind, left }, bombs, cooldown, alive,
+  ship: { x, y, vx, vy, fromX, fromY /* where this tick's move began (R68) */, lives, invuln, power: null | { kind, left }, reserve: null | { kind, left }, bombs, cooldown, alive,
           bombsUsed, powersUsed },   // the round's bombs fired and powers caught (R66)
   aliens: [alien], shots: [shot], bullets: [bullet], pickups: [pickup],
   bunkers: [{ x, y, w, h, mask }],
@@ -467,7 +528,7 @@ API: `createWorld(level, seed = level.seed)`, `stepWorld(world, dt, input)` with
 
 ## Testing
 
-`node --test` covers: rng determinism; ship bounds and easing; every formation stays on screen and
+`node --test` covers: rng determinism; ship bounds, the keys' easing and the pointer's immediacy (R68); every formation stays on screen and
 fills its slots; each bullet pattern's shape; hit detection and invulnerability; combo and scoring;
 stars rule; power-up duration, the reserve and replacement; bomb clears bullets and damages all; bunker carving;
 boss weak-point damage and phase switches at hp thresholds; each world's twist; every level

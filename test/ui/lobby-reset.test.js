@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { installDom, all, textOf } from './lobby-kit.js';
 
-// The lobby on a DOM stand-in: Reset scores beside Back (keys and mouse), its confirm card, and the
+// The lobby on a DOM stand-in: Reset scores beside Back in the bottom bar (keys and mouse), its confirm card, and the
 // rank and medals under the title.
 installDom();
 const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
@@ -17,44 +17,30 @@ function lobby(best = {}) {
     best, start: (l) => log.push(`start ${l.id}`), back: () => log.push('back'), reset: () => log.push('reset'),
   });
   const named = (cls) => all(screen.el).filter((e) => has(e, cls)); // the elements of a class
-  const [backBtn, resetBtn] = named('row')[0].children;
+  const [backBtn, resetBtn] = named('lobby-bar')[0].children;
   return { screen, log, named, backBtn, resetBtn, key: (code) => screen.onKey(code), active: () => document.activeElement };
 }
 
-test('the bottom row holds Back and Reset scores side by side', () => {
+test('the bottom bar holds Back and Reset scores side by side', () => {
   const { backBtn, resetBtn } = lobby();
   assert.equal(textOf(backBtn), 'Back');
   assert.equal(textOf(resetBtn), 'Reset scores');
 });
 
-test("right from Back reaches Reset and then the free-flight card's reels, left returns, up goes back to the last reel from any of them", () => {
-  const { screen, backBtn, resetBtn, named, key, active } = lobby();
+test('right from Back reaches Reset, left returns, nothing lies beyond, and up goes back to the last reel from either', () => {
+  const { screen, backBtn, resetBtn, key, active } = lobby();
   screen.focus.focus(); // the first reel
   const reel = active();
   assert.ok(has(reel, 'reel'));
-  const [first, ...rest] = named('reel').filter((r) => /^w18-/.test(r.dataset.id));
-  const last = rest.at(-1);
-  assert.equal(rest.length, 4);
   backBtn.focus();
   key('ArrowRight');
   assert.equal(active(), resetBtn);
   key('ArrowRight');
-  assert.equal(active(), first, "world 18's first reel stands right of Reset");
-  for (const r of rest) {
-    key('ArrowRight');
-    assert.equal(active(), r, 'and the rest follow it');
-  }
-  key('ArrowRight');
-  assert.equal(active(), last, 'nothing right of the last');
-  key('ArrowUp');
-  assert.equal(active(), reel, 'up from the last reel of the card');
-  last.focus();
-  for (let i = 0; i < 5; i++) key('ArrowLeft');
-  assert.equal(active(), resetBtn);
+  assert.equal(active(), resetBtn, 'nothing right of Reset scores');
   key('ArrowLeft');
   assert.equal(active(), backBtn);
   key('ArrowLeft');
-  assert.equal(active(), backBtn);
+  assert.equal(active(), backBtn, 'nothing left of Back');
   key('KeyD');
   assert.equal(active(), resetBtn, 'WASD too');
   key('ArrowUp');
