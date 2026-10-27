@@ -1,4 +1,4 @@
-import { clamp, angleTo, dist2, segDist2, wrapAngle } from './math.js';
+import { clamp, angleTo, dist2, segSegDist2, wrapAngle } from './math.js';
 import { WIDTH, HEIGHT } from './kinds.js';
 
 // The life of one enemy bullet after it is fired, plus the laser's geometry. Bullets are the plain
@@ -67,10 +67,11 @@ export function laserSegment(b) {
 
 // True while the beam burns and a circle of radius `rad` at `at` touches it. The beam is 2 * b.r
 // wide, so the ship (centre `at`, radius 14) is hit within b.r + 14 of the centre line. A warning
-// line, or an expired beam, hits nothing.
-export function laserHits(b, at, rad) {
+// line, or an expired beam, hits nothing. `from` is where the circle was at the start of the tick
+// (R68): one that crossed the beam sideways since then was in it, wherever it ended.
+export function laserHits(b, at, rad, from = at) {
   if (b.warn > 0 || b.life <= 0) return false;
   const { x1, y1, x2, y2 } = laserSegment(b);
   const reach = b.r + rad;
-  return segDist2(x1, y1, x2, y2, at.x, at.y) <= reach * reach;
+  return segSegDist2(x1, y1, x2, y2, from.x, from.y, at.x, at.y) <= reach * reach;
 }

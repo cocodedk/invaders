@@ -34,7 +34,8 @@ import across repos.
   randomness comes from an `rng` passed in, time from `dt`. Core iteration order must not depend on
   object-key order of data that changes at runtime (arrays only), so replays stay exact.
 - World is 1920x1080, y down. Logic steps at fixed `TICK = 1/60` s. Player zone y in [620, 1040],
-  x in [40, 1880] (from world 18 on the ship flies free, y in [150, 1040]: `FREE_ZONE`); ship max speed 720 px/s.
+  x in [40, 1880] (from world 18 on the ship flies free, y in [150, 1040]: `FREE_ZONE`); the keys move the
+  ship at up to 720 px/s, the pointer moves it at once, in every world, and the collisions sweep its path (R68).
 - Inputs are quantized before they reach the core: `dx, dy` in {-1, 0, 1}, `target` integer px or
   null, `fire`/`bomb` booleans.
 - `localStorage` wrapped in try/catch; the game works without it. Keys prefixed `invaders.`.

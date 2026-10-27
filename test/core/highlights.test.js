@@ -135,6 +135,21 @@ test('it is pure: the same events give the same windows and the input is left al
   assert.deepEqual(only([...events].reverse()), only(events), 'event order does not matter');
 });
 
+// A boss kill's clip runs on to the level's clear when that is in reach: a slow power at the kill stretches the
+// destruction chain past its 3 s (180 ticks), and the trailer must not cut before the boss has finished dying.
+test('a boss-kill window ends on the clear when the chain ran long, and is left alone when the clear is out of reach', () => {
+  const boss = ev('bossDeath', 3000, { kind: 'x', score: 10000 });
+  const end = (events, total = 3400) => only(events, total).find((w) => w.kind === 'bossDeath');
+  assert.equal(end([boss, ev('cleared', 3180)]).end, 3225, 'a plain chain fits the window as it was');
+  const long = end([boss, ev('cleared', 3232)]);
+  assert.equal(long.end, 3232, 'a 232-tick chain: the window moves on to its end');
+  assert.ok(long.start < 3000 && long.peak === 3000, 'with the kill still inside');
+  assert.equal(end([boss, ev('cleared', 3400)]).end, 3225, 'a clear 400 ticks on is out of reach');
+  assert.equal(end([boss]).end, 3225, 'no clear, no change');
+  assert.equal(end([ev('cleared', 2000), boss]).end, 3225, 'a clear before the kill is not its chain');
+  assertWellFormed(only([boss, ev('cleared', 3232)], 3232), 3232);
+});
+
 test('a real autopilot clear of the mothership gets a boss-kill window ending on the cleared tick', () => {
   const level = levelById('w1-5');
   const world = createWorld(level, level.seed);

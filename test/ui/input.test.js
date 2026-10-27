@@ -1,7 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readInput } from '../../src/ui/input.js';
+import { readInput, resetInput } from '../../src/ui/input.js';
 import { ZONE } from '../../src/core/ship.js';
+import { quantizeInput } from '../../src/core/input-codec.js';
+import { HAND } from '../../src/core/hand.js';
+import { TICK } from '../../src/core/kinds.js';
+import { level, wave, playing, step } from '../core/world-kit.js';
 
 // A canvas `bar` px wider than the world on each side (a wide window's letterbox), shown 1:1.
 const viewOf = (bar = 0) => ({
@@ -65,4 +69,56 @@ test('when the keys take the ship back, the pointer steers from where it is agai
   assert.equal(readInput(input, view).target, null);
   input.mouse.active = true;
   assert.deepEqual(aim(input, view, 960, 900), { x: 960, y: 900 });
+});
+
+// The cursor is hidden in play, so a pointer that wakes after the keys had the ship must not throw it to where
+// the cursor happens to lie (R68: it would cross the field in one tick, unseen, through whatever is on the way).
+// The keys' mouse object has walk set by the keydown that took the ship (the listener itself needs a window).
+test('a pointer that wakes after the keys walks the ship to its goal at a hand\'s pace, then is the ship again', () => {
+  const view = viewOf();
+  const input = pointer(1500, 700); // the unseen cursor, far from the ship
+  input.mouse.walk = true;
+  const ship = { x: 300, y: 1000 };
+  let ticks = 0;
+  for (let t = readInput(input, view, ZONE, ship).target; ; t = readInput(input, view, ZONE, ship).target) {
+    ticks++;
+    assert.ok(Math.hypot(t.x - ship.x, t.y - ship.y) <= HAND * TICK + 1e-9, `tick ${ticks}: ${t.x},${t.y} from ${ship.x},${ship.y}`);
+    Object.assign(ship, t);
+    if (!input.mouse.walk) break;
+    assert.ok(ticks < 100, 'it gets there');
+  }
+  assert.ok(ticks >= 40 && ticks <= 45, `1250 px at 30 px a tick, got ${ticks} ticks`);
+  assert.deepEqual([ship.x, ship.y], [1500, 700], 'on the goal itself');
+  assert.deepEqual(aim(input, view, 100, 900), { x: 100, y: 900 }, 'from then on the pointer is the ship, at once');
+});
+
+test('without the keys having had the ship the pointer is the ship at once, far from it too', () => {
+  const view = viewOf();
+  const input = pointer(1500, 700);
+  assert.deepEqual(readInput(input, view, ZONE, { x: 300, y: 1000 }).target, { x: 1500, y: 700 });
+});
+
+test('resetInput (a pause, a level, a blur) forgets the walk: the pointer is immediate again', () => {
+  const view = viewOf();
+  const input = pointer(1500, 700);
+  input.mouse.walk = true;
+  resetInput(input);
+  Object.assign(input.mouse, { x: 1500, y: 700, active: true });
+  assert.deepEqual(readInput(input, view, ZONE, { x: 300, y: 1000 }).target, { x: 1500, y: 700 });
+});
+
+test('flown with the keys to x = 300, a pointer that wakes at x = 1500 moves the ship 30 px a tick, not 1200, and a key stops it', () => {
+  const w = playing(level([wave()]));
+  Object.assign(w.ship, { x: 300, y: 1000 });
+  const input = pointer(1500, 900);
+  input.mouse.walk = true;
+  const tick = () => step(w, 1, quantizeInput(readInput(input, viewOf(), ZONE, w.ship)));
+  tick();
+  assert.ok(w.ship.x > 300 && w.ship.x <= 330, `walked, not thrown: ${w.ship.x}`);
+  for (let n = 0; n < 4; n++) tick();
+  assert.ok(w.ship.x > 400 && w.ship.x < 500, `five ticks on: ${w.ship.x}`);
+  const there = w.ship.x;
+  input.mouse.active = false; // a movement key took the ship back
+  step(w, 10, quantizeInput(readInput(input, viewOf(), ZONE, w.ship)));
+  assert.equal(w.ship.x, there, 'and it stops where it is, with no drift');
 });

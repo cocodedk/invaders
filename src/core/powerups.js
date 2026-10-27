@@ -1,7 +1,7 @@
-import { clamp, dist2 } from './math.js';
+import { clamp, segDist2 } from './math.js';
 import { rand, randPick } from './rng.js';
 import { powersFor, HEIGHT, SIDE_GUNS } from './kinds.js';
-import { SHIP_R, ZONE } from './ship.js';
+import { SHIP_R, ZONE, fromOf } from './ship.js';
 import { emit, prune } from './util.js';
 import { awardPickup } from './scoring.js';
 
@@ -90,13 +90,15 @@ function collect(world, p) {
   }
 }
 
-// Pickups fall, the ship takes the ones it touches, and the ones below the floor are dropped.
+// Pickups fall, the ship takes the ones it touches, and the ones below the floor are dropped. The ship
+// takes whatever its path crossed this tick (R68), so a flick over a pickup catches it.
 export function stepPickups(world, dt) {
   const ship = world.ship;
   const reach = (PICKUP_R + SHIP_R) ** 2;
+  const { x, y } = fromOf(ship);
   prune(world.pickups, (p) => {
     p.y += p.vy * dt;
-    if (ship.alive && dist2(p, ship) <= reach) {
+    if (ship.alive && segDist2(x, y, ship.x, ship.y, p.x, p.y) <= reach) {
       collect(world, p);
       return false;
     }

@@ -12,21 +12,25 @@ import { makeRun } from '../../src/core/replay.js';
 // then these are re-pinned and RUN_V goes up. R66 (the round tallied at the clear, RUN_V 9) re-pinned
 // every table below: each level plays out as before, tick for tick and event for event, and only the
 // score at the clear, with the state hash that holds it, moved.
+// R68 (the pointer is the ship, RUN_V 10) changed the movement of every world, so every table below was
+// re-taken then, and each level now plays out differently on purpose: the autopilot flies a hand, and a ship
+// that crosses the field in a tick is hit by what lay in its way. Nothing else moved: worlds-idle.test.js pins the
+// same 29 levels flown by a ship that stands still, taken before R68 and unchanged by it.
 const BEFORE_WORLD_13 = {
-  'w1-2': {fold: 170124421, end: '2276:146020:3052bf02c5a7c618', pickup: 1, power: 2, kill: 71, shipHit: 0, fire: 181},
-  'w1-4': {fold: 582676515, end: '3600:125400:e226036267027aaf', pickup: 8, power: 10, kill: 121, shipHit: 0, fire: 472},
-  'w2-3': {fold: -978363987, end: '2772:205200:7ce57871c83c9beb', pickup: 3, power: 2, kill: 81, shipHit: 0, fire: 299},
-  'w3-3': {fold: -448304575, end: '1386:228800:2e452c9bf4ea18da', pickup: 4, power: 5, kill: 84, shipHit: 0, fire: 171},
-  'w4-4': {fold: 849447188, end: '3600:76700:3877cc0f7680d04b', pickup: 1, power: 1, kill: 77, shipHit: 0, fire: 734},
-  'w5-5': {fold: -654576886, end: '2254:69700:9a6d2106c9aeff21', pickup: 7, power: 5, kill: 12, shipHit: 0, fire: 210},
-  'w6-3': {fold: 584244419, end: '1981:211100:d867afcc87871aa1', pickup: 4, power: 7, kill: 81, shipHit: 0, fire: 281},
-  'w7-2': {fold: -913080146, end: '2167:201300:d9878462a5b9c855', pickup: 12, power: 10, kill: 74, shipHit: 0, fire: 204},
-  'w8-4': {fold: -1315178108, end: '2915:175500:036208a11859592a', pickup: 7, power: 10, kill: 91, shipHit: 1, fire: 353},
-  'w9-2': {fold: -1841819857, end: '1850:206700:3ed1bf191799279e', pickup: 4, power: 6, kill: 78, shipHit: 0, fire: 197},
-  'w10-3': {fold: 1705773561, end: '2078:177600:1c8ccfd5100ba989', pickup: 4, power: 5, kill: 75, shipHit: 0, fire: 307},
-  'w11-3': {fold: 912544421, end: '2247:365300:68549e9f8a77b376', pickup: 9, power: 9, kill: 129, shipHit: 0, fire: 253},
-  'w12-2': {fold: 2071597704, end: '1514:184300:b0db801ed0fdf95a', pickup: 3, power: 3, kill: 75, shipHit: 0, fire: 137},
-  'w12-5': {fold: -1237732016, end: '2927:81900:9699e1b576edb919', pickup: 7, power: 3, kill: 9, shipHit: 0, fire: 342},
+  'w1-2': {fold: 476924862, end: '2203:156000:7e589c00967c9941', pickup: 3, power: 3, kill: 72, shipHit: 0, fire: 234},
+  'w1-4': {fold: -1787418587, end: '2149:294200:63057e9c0520dba0', pickup: 7, power: 9, kill: 124, shipHit: 0, fire: 199},
+  'w2-3': {fold: -632416878, end: '2268:221000:58964d5c8f3accb4', pickup: 2, power: 1, kill: 81, shipHit: 0, fire: 241},
+  'w3-3': {fold: 1454527202, end: '2321:166550:deea4dc0fa420168', pickup: 4, power: 5, kill: 84, shipHit: 0, fire: 247},
+  'w4-4': {fold: 1044449200, end: '3600:67300:e493b6c432e60b9e', pickup: 2, power: 2, kill: 73, shipHit: 1, fire: 667},
+  'w5-5': {fold: 1006919979, end: '2816:74460:6d18109125f8b558', pickup: 9, power: 8, kill: 17, shipHit: 0, fire: 276},
+  'w6-3': {fold: 241047465, end: '2350:228200:db96fe21691db521', pickup: 4, power: 6, kill: 81, shipHit: 0, fire: 266},
+  'w7-2': {fold: 1125135289, end: '1964:190700:2e5c1a5ba6c0ddd4', pickup: 6, power: 8, kill: 72, shipHit: 0, fire: 263},
+  'w8-4': {fold: -312471265, end: '2669:225100:a84ea0c360ed6dfc', pickup: 7, power: 8, kill: 91, shipHit: 0, fire: 329},
+  'w9-2': {fold: -1598316446, end: '2828:209000:2c42edee35d94127', pickup: 7, power: 11, kill: 78, shipHit: 0, fire: 295},
+  'w10-3': {fold: 1796784390, end: '1466:195200:ffa8594efccc2ace', pickup: 1, power: 2, kill: 75, shipHit: 0, fire: 168},
+  'w11-3': {fold: 1145027709, end: '3600:110800:61662278dd5e3df5', pickup: 0, power: 0, kill: 96, shipHit: 0, fire: 637},
+  'w12-2': {fold: 1206880513, end: '2166:184100:a977861b9336debd', pickup: 2, power: 2, kill: 75, shipHit: 0, fire: 222},
+  'w12-5': {fold: -85827900, end: '3057:80400:26454ee6e8c1f568', pickup: 7, power: 6, kill: 9, shipHit: 0, fire: 349},
 };
 
 for (const [id, expected] of Object.entries(BEFORE_WORLD_13)) {
@@ -41,9 +45,9 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_13)) {
 // world 13 and its boss level, taken on commit cd58e7f, the last before world 14, and held to the same
 // rule as the fingerprints above.
 const BEFORE_WORLD_14 = {
-  'w13-1': {fold: -970930790, end: '1264:118400:e85ca5c209ae2931', pickup: 4, power: 4, kill: 51, shipHit: 0, fire: 127},
-  'w13-3': {fold: 784006376, end: '1806:198700:2197d4f5a59e03d1', pickup: 8, power: 2, kill: 75, shipHit: 0, fire: 211},
-  'w13-5': {fold: 1753922709, end: '1979:56000:e2ba4eb9b04859dc', pickup: 5, power: 4, kill: 5, shipHit: 0, fire: 241},
+  'w13-1': {fold: -643376000, end: '1057:126800:517e2ab8949d2ea7', pickup: 2, power: 2, kill: 51, shipHit: 0, fire: 110},
+  'w13-3': {fold: 3256570, end: '1473:212400:3b3ea41dba6668de', pickup: 5, power: 4, kill: 75, shipHit: 0, fire: 166},
+  'w13-5': {fold: -1767193392, end: '2021:58700:aa8de4f0c97db097', pickup: 5, power: 5, kill: 8, shipHit: 0, fire: 254},
 };
 
 for (const [id, expected] of Object.entries(BEFORE_WORLD_14)) {
@@ -58,9 +62,9 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_14)) {
 // hash adds nothing. These are two wave levels of world 14 and its boss level, taken on commit 5a73adc,
 // the last before world 15, and held to the same rule as the fingerprints above.
 const BEFORE_WORLD_15 = {
-  'w14-1': {fold: 1160065178, end: '1015:144300:cc89a06a9dc60d23', pickup: 1, power: 0, kill: 65, shipHit: 0, fire: 131},
-  'w14-3': {fold: -1414366089, end: '2147:215890:279474f7567ec157', pickup: 11, power: 11, kill: 113, shipHit: 0, fire: 290},
-  'w14-5': {fold: -1318605307, end: '1885:56500:aa3ca34ff3a9bc94', pickup: 5, power: 3, kill: 5, shipHit: 0, fire: 269},
+  'w14-1': {fold: 481874914, end: '1267:145600:0152b54f5a992e87', pickup: 4, power: 3, kill: 65, shipHit: 0, fire: 146},
+  'w14-3': {fold: 135736925, end: '1642:265900:9f3bcae6f5256004', pickup: 10, power: 9, kill: 113, shipHit: 0, fire: 131},
+  'w14-5': {fold: 1507372740, end: '2473:60800:c727fa37bc598e08', pickup: 6, power: 6, kill: 10, shipHit: 0, fire: 380},
 };
 
 for (const [id, expected] of Object.entries(BEFORE_WORLD_15)) {
@@ -75,9 +79,9 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_15)) {
 // two wave levels of world 15 and its boss level, taken on commit f7a807a, the last before world 16,
 // and held to the same rule as the fingerprints above.
 const BEFORE_WORLD_16 = {
-  'w15-1': {fold: 637999455, end: '1223:154000:f8a52f7616779230', pickup: 4, power: 3, kill: 65, shipHit: 0, fire: 97},
-  'w15-3': {fold: -1626987956, end: '2755:192750:5407d70210691323', pickup: 13, power: 10, kill: 105, shipHit: 0, fire: 373},
-  'w15-5': {fold: 1634849913, end: '2674:65500:e961abb14f3e181a', pickup: 7, power: 8, kill: 8, shipHit: 0, fire: 358},
+  'w15-1': {fold: -844942499, end: '1385:145540:6f87ff9e4a689ccd', pickup: 4, power: 3, kill: 65, shipHit: 0, fire: 102},
+  'w15-3': {fold: -412778182, end: '2281:246560:d4e6552e528249a8', pickup: 11, power: 9, kill: 105, shipHit: 0, fire: 252},
+  'w15-5': {fold: -1223591307, end: '3055:59050:23282cf7624b9441', pickup: 9, power: 12, kill: 15, shipHit: 0, fire: 223},
 };
 
 for (const [id, expected] of Object.entries(BEFORE_WORLD_16)) {
@@ -91,9 +95,9 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_16)) {
 // rule draws no rng. These are two wave levels of world 16 and its boss level, taken on commit 034947a,
 // the last before world 17, and held to the same rule as the fingerprints above.
 const BEFORE_WORLD_17 = {
-  'w16-1': {fold: 520718176, end: '1435:152560:a31d44e135c8a580', pickup: 5, power: 3, kill: 65, shipHit: 0, fire: 195},
-  'w16-3': {fold: -1388976173, end: '1870:252300:70fc9a6bdd44be11', pickup: 4, power: 6, kill: 105, shipHit: 0, fire: 260},
-  'w16-5': {fold: 727350091, end: '2200:57800:794b3e28def6554a', pickup: 6, power: 7, kill: 8, shipHit: 0, fire: 131},
+  'w16-1': {fold: 1093586164, end: '1562:148200:da566172c8c2fcf8', pickup: 7, power: 7, kill: 65, shipHit: 0, fire: 151},
+  'w16-3': {fold: -1555026518, end: '2376:261300:d52de3c99d55d219', pickup: 6, power: 9, kill: 106, shipHit: 0, fire: 338},
+  'w16-5': {fold: 417321727, end: '2201:60500:cd935dc52a5421ca', pickup: 7, power: 6, kill: 9, shipHit: 0, fire: 251},
 };
 
 for (const [id, expected] of Object.entries(BEFORE_WORLD_17)) {
@@ -107,9 +111,9 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_17)) {
 // wave levels of world 17 and its boss level, taken on commit e9193a5, the last before world 18, and held
 // to the same rule as the fingerprints above.
 const BEFORE_WORLD_18 = {
-  'w17-1': {fold: 151523680, end: '1131:206300:b2d931f7bc46f053', pickup: 7, power: 6, kill: 83, shipHit: 0, fire: 144},
-  'w17-3': {fold: -383897958, end: '2528:143170:fe4d9418212b272d', pickup: 6, power: 10, kill: 92, shipHit: 0, fire: 314},
-  'w17-5': {fold: 1773280240, end: '2775:58010:e14e5ebe1f79ed6a', pickup: 7, power: 8, kill: 8, shipHit: 0, fire: 321},
+  'w17-1': {fold: 208736772, end: '1141:202400:d05d6f60938603b0', pickup: 7, power: 4, kill: 83, shipHit: 0, fire: 184},
+  'w17-3': {fold: 20321159, end: '1338:229300:11fb34a5a84d8274', pickup: 7, power: 5, kill: 92, shipHit: 0, fire: 183},
+  'w17-5': {fold: 25175401, end: '2488:61280:7ca834f7cf77ad93', pickup: 5, power: 4, kill: 7, shipHit: 0, fire: 246},
 };
 
 for (const [id, expected] of Object.entries(BEFORE_WORLD_18)) {
@@ -118,7 +122,7 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_18)) {
   });
 }
 
-test('the replay version stays 9, and the six powers stay the six', () => {
-  assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 9);
+test('the replay version is 10 (R68), and the six powers stay the six', () => {
+  assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 10);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);
 });

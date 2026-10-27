@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { levelById } from '../../src/core/levels.js';
-import { autopilot } from '../../src/core/autopilot.js';
+import { autopilot, destination } from '../../src/core/autopilot.js';
 import { TICK } from '../../src/core/replay.js';
 import { level, wave, playing, step, seconds, bulletAt, pickupAt, IDLE } from './world-kit.js';
 import { bossWorld } from './boss-kit.js';
@@ -53,7 +53,7 @@ test('it flies under the alien, whichever side it starts on', () => {
   for (const x of [120, 1800]) {
     const world = oneAlien();
     world.ship.x = x;
-    assert.ok(Math.abs(autopilot(world).target.x - 960) < 100, `from ${x}`);
+    assert.ok(Math.abs(destination(world).x - 960) < 100, `from ${x}`);
   }
 });
 
@@ -108,12 +108,12 @@ test('with one life left against a boss it bombs, once the fight is on', () => {
 test('it collects a power-up that is about to pass, without leaving its post for one that is far off', () => {
   const near = oneAlien();
   pickupAt(near, 'rapid', 400, 850);
-  assert.ok(Math.abs(autopilot(near).target.x - 400) < 60, 'it goes for the near one');
+  assert.ok(Math.abs(destination(near).x - 400) < 60, 'it goes for the near one');
   for (let i = 0; i < 150; i++) stepWorld(near, TICK, autopilot(near));
   assert.equal(near.ship.power?.kind, 'rapid');
   const far = oneAlien();
   pickupAt(far, 'rapid', 400, 200);
-  assert.ok(Math.abs(autopilot(far).target.x - 960) < 100, 'the far one can wait');
+  assert.ok(Math.abs(destination(far).x - 960) < 100, 'the far one can wait');
 });
 
 test('it survives 60 s of w1-1 with its three lives, on the level seed and two others', () => {

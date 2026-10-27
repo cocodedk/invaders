@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { finished } from '../../src/core/util.js';
 import { LEVELS } from '../../src/core/levels.js';
-import { autopilot } from '../../src/core/autopilot.js';
+import { autopilot, destination } from '../../src/core/autopilot.js';
 import { TICK } from '../../src/core/replay.js';
 import { IDLE, step } from './world-kit.js';
 
@@ -13,12 +13,13 @@ import { IDLE, step } from './world-kit.js';
 export const landed = (events) =>
   events.filter((e) => (e.type === 'hit' && e.dmg > 0) || e.type === 'partDown' || e.type === 'wreckDown' || (e.type === 'kill' && e.scored));
 
-// Put the ship on the autopilot's aim point and pull the trigger once; returns every event of the
+// Put the ship on the autopilot's aim point (its destination: the pointer takes a hand's steps there, R68)
+// and pull the trigger once; returns every event of the
 // next 100 ticks (so `landed(...)` for what it hit, and `bunker` or `absorb` for what stopped it).
 export function oneShot(world) {
   const w = structuredClone(world);
-  const { target } = autopilot(w);
-  Object.assign(w.ship, { x: target.x, y: target.y, vx: 0, vy: 0, cooldown: 0 });
+  const to = destination(w);
+  Object.assign(w.ship, { x: Math.round(to.x), y: Math.round(to.y), vx: 0, vy: 0, cooldown: 0 });
   w.events.length = 0;
   w.shots.length = 0;
   step(w, 1, { ...IDLE, fire: true });

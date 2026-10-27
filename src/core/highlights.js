@@ -5,7 +5,8 @@ import { clamp } from './math.js';
 //   bossDeath 10 · last alien of the level 6 · multi-kill 5 (3 kills in 30 ticks) · bomb 4 ·
 //   nearMiss 3 · combo peak 2 x the multiplier reached
 // A clip is a window of 180-300 ticks around a peak (longer for a heavier moment); at most four,
-// none overlapping, in the order they happened. A boss kill is always kept.
+// none overlapping, in the order they happened. A boss kill is always kept, and its clip runs to the
+// level's clear when that is in reach (clipOf).
 
 const WEIGHT = { bossDeath: 10, lastAlien: 6, multiKill: 5, bomb: 4, nearMiss: 3 };
 const MULTI_KILLS = 3;
@@ -55,8 +56,10 @@ function moments(events) {
   const kills = events.filter((e) => e.type === 'kill' && e.scored);
   const out = [...multiKills(kills), ...comboPeaks(kills)];
   for (const e of events) {
-    if (e.type === 'bossDeath') out.push({ peak: e.tick, weight: WEIGHT.bossDeath, kind: 'bossDeath' });
-    else if (e.type === 'waveClear' && e.last) out.push({ peak: e.tick, weight: WEIGHT.lastAlien, kind: 'lastAlien' });
+    if (e.type === 'bossDeath') {
+      const clear = events.find((c) => c.type === 'cleared' && c.tick >= e.tick);
+      out.push({ peak: e.tick, weight: WEIGHT.bossDeath, kind: 'bossDeath', cleared: clear?.tick });
+    } else if (e.type === 'waveClear' && e.last) out.push({ peak: e.tick, weight: WEIGHT.lastAlien, kind: 'lastAlien' });
     else if (e.type === 'bomb') out.push({ peak: e.tick, weight: WEIGHT.bomb, kind: 'bomb' });
     else if (e.type === 'nearMiss') out.push({ peak: e.tick, weight: WEIGHT.nearMiss, kind: 'nearMiss' });
   }
@@ -64,11 +67,14 @@ function moments(events) {
 }
 
 // The clip around a moment: heavier means longer, and the boss kill leaves room for its
-// destruction chain (3 s = 180 ticks) after the peak. Always inside [0, total].
+// destruction chain (3 s = 180 ticks) after the peak. A slow power running at the kill stretches the chain
+// (enemy time slows with it), so when the level's clear (m.cleared, the chain's end) lies past the clip but
+// the clip can still reach it with the peak inside, the clip is moved on to end on it. Always inside [0, total].
 function clipOf(m, total) {
   const len = Math.min(total, clamp(MIN_LEN + 12 * m.weight, MIN_LEN, MAX_LEN));
   const lead = m.kind === 'bossDeath' ? 0.25 : 0.4;
-  const start = clamp(Math.round(m.peak - lead * len), 0, total - len);
+  let start = clamp(Math.round(m.peak - lead * len), 0, total - len);
+  if (m.cleared > start + len && m.cleared - len <= m.peak) start = m.cleared - len;
   return { start, end: start + len, peak: m.peak, kind: m.kind };
 }
 

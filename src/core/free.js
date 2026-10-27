@@ -1,5 +1,5 @@
-import { wrapAngle } from './math.js';
-import { SHIP_R, hitShip } from './ship.js';
+import { wrapAngle, segBoxDist2 } from './math.js';
+import { SHIP_R, hitShip, fromOf } from './ship.js';
 import { hurtAlien, firstAlien } from './aliens.js';
 import { liveParts, hurtPart, firstPart } from './boss-hit.js';
 import { emit } from './util.js';
@@ -7,7 +7,8 @@ import { emit } from './util.js';
 // The collisions only a free level has (R67: every world from 18 on), run by collide.js after the cover:
 //   the boss's body rams: a ship that touches a live part loses a life (hitShip 'ram'), and the boss
 //     takes nothing; a blinking ship passes, and a shielded one grazes it unharmed and silent (a
-//     shield hit would sound every tick it stays on the boss).
+//     shield hit would sound every tick it stays on the boss). The ship is tested along the path it flew
+//     this tick (R68), so one that crossed a part in a single move rammed it.
 //   the enemy's homing fire turns on its own side: a homing bullet notes its heading the first tick it
 //     is seen here; once the chase has turned it DRAG_TURN away from that, it is `dragged` for good,
 //     and a dragged bullet is spent on the first live alien it crosses, or else the first live boss
@@ -19,11 +20,8 @@ export const DRAG_TURN = Math.PI / 4;
 function bossRams(world) {
   const s = world.ship;
   if (!s.alive || s.invuln > 0 || s.power?.kind === 'shield') return;
-  const touches = (p) => {
-    const dx = Math.max(Math.abs(s.x - p.x) - p.w / 2, 0);
-    const dy = Math.max(Math.abs(s.y - p.y) - p.h / 2, 0);
-    return dx * dx + dy * dy <= SHIP_R * SHIP_R;
-  };
+  const { x, y } = fromOf(s);
+  const touches = (p) => segBoxDist2(x, y, s.x, s.y, p.x, p.y, p.w, p.h) <= SHIP_R * SHIP_R;
   if (liveParts(world).some(touches)) hitShip(world, 'ram');
 }
 

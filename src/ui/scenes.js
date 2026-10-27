@@ -36,7 +36,7 @@ export function playScene(canvas, level, input, { view = null, seed: s = level.s
   const session = createSession(level, s);
   return {
     mode, level, view: v, session, sound: true,
-    source: () => readInput(input, v, zoneOf(level)),
+    source: (world) => readInput(input, v, zoneOf(level), world.ship),
     onEvents(events) {
       eventSounds(events, session.world, play);
       if (onEvent) for (const e of events) onEvent(e);

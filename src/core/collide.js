@@ -1,7 +1,7 @@
-import { dist2, segDist2, sweepDist2 } from './math.js';
+import { segDist2, sweepRel2 } from './math.js';
 import { ALIEN_R, NEAR_MISS } from './kinds.js';
 import { laserHits } from './patterns.js';
-import { SHIP_R, hitShip } from './ship.js';
+import { SHIP_R, hitShip, fromOf } from './ship.js';
 import { hurtAlien, isSwooping, firstAlien } from './aliens.js';
 import { shotsVsBoss } from './boss-hit.js';
 import { stepPearls } from './pearls.js';
@@ -60,13 +60,15 @@ function vsBunkers(world, list, dt) {
 
 // A diver that reaches the ship costs a life and is lost with no score. A blinking ship is passed.
 // A shell (world 14) that rams still lights its fuse, like a shell dying any other way. In a free level
-// (R67) the ship can fly into the formation, so any alien it touches rams it.
+// (R67) the ship can fly into the formation, so any alien it touches rams it. The ship is tested along
+// the path it flew this tick (R68), so one that crossed an alien in a single move rammed it.
 function rams(world) {
   const reach = (ALIEN_R + SHIP_R) ** 2;
   const free = world.level.free;
+  const { x, y } = fromOf(world.ship);
   for (const a of world.aliens) {
     if (a.hp <= 0 || !(free || isSwooping(a))) continue;
-    if (dist2(a, world.ship) <= reach && hitShip(world, 'ram')) {
+    if (segDist2(x, y, world.ship.x, world.ship.y, a.x, a.y) <= reach && hitShip(world, 'ram')) {
       a.hp = 0;
       awardKill(world, a, false);
       if (a.shell) lightFuse(world, a);
@@ -88,21 +90,25 @@ function nearMissed(world, b) {
 // is a nearMiss (nearMissed), so a bullet that goes on to hit is never one. A beam is tested by
 // laserHits (the warning line harms nothing) and never counts. A bullet that touches a blinking ship
 // is spent without harm, so a slow one lingering on the ship cannot take a second life the moment
-// the blinking ends.
+// the blinking ends. The ship moves too (R68: the pointer can carry it far in one tick), so a bullet is
+// tested against the gap between the two paths (sweepRel2) and a beam against the ship's whole path. A
+// bullet hits or near-misses by where the two were at their closest during the tick, both moving steadily:
+// one that lay on the ship's line at the start but was gone from it before the ship got there is not hit.
 function bulletsVsShip(world, dt) {
   const ship = world.ship;
   if (!ship.alive) return;
+  const from = fromOf(ship);
   for (const b of world.bullets) {
     if (b.life <= 0) {
       nearMissed(world, b); // ran out, or stopped by cover, inside the band
       continue;
     }
     if (b.pattern === 'laser') {
-      if (laserHits(b, ship, SHIP_R)) hitShip(world, 'laser');
+      if (laserHits(b, ship, SHIP_R, from)) hitShip(world, 'laser');
       continue;
     }
     const hit = b.r + SHIP_R;
-    const d2 = sweepDist2(b, dt, ship);
+    const d2 = sweepRel2(b, dt, ship, from);
     if (d2 <= hit * hit) {
       hitShip(world, b.pattern);
       b.life = 0;

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { stepWorld } from '../../src/core/world.js';
 import { emitPattern } from '../../src/core/patterns.js';
-import { autopilot } from '../../src/core/autopilot.js';
+import { autopilot, destination } from '../../src/core/autopilot.js';
 import { TICK } from '../../src/core/replay.js';
 import { level, wave, playing, step, bulletAt } from './world-kit.js';
 
@@ -14,7 +14,7 @@ function hover() {
   world.aliens[0].hp = 99;
   return world;
 }
-const N = Math.round(autopilot(hover()).target.x);
+const N = Math.round(destination(hover()).x);
 
 const run = (world, ticks) => {
   for (let i = 0; i < ticks; i++) stepWorld(world, TICK, autopilot(world));
@@ -58,7 +58,7 @@ test('it does not dodge what cannot hurt it: a blinking ship, a shielded ship', 
     const w = hover();
     bulletAt(w, N, 800, 0, 400);
     set(w.ship);
-    return autopilot(w).target.x;
+    return Math.round(destination(w).x);
   };
   assert.ok(Math.abs(falling(() => {}) - N) > 20, 'a bare ship steps aside');
   assert.equal(falling((s) => { s.invuln = 1.5; }), N, 'blinking');

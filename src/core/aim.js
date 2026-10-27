@@ -2,7 +2,7 @@ import { posAt, bossShifts } from './predict.js';
 import { liveParts } from './boss-hit.js';
 import { loose } from './damage.js';
 import { isSwooping } from './aliens.js';
-import { SHOT_SPEED, MUZZLE, ZONE, FOLLOW } from './ship.js';
+import { SHOT_SPEED, MUZZLE, ZONE } from './ship.js';
 import { clamp } from './math.js';
 import { TICK } from './kinds.js';
 
@@ -11,7 +11,6 @@ import { TICK } from './kinds.js';
 // boss's weak parts (plates when none is weak), each led by its own movement (predict.js).
 
 export const HOME_Y = 960; // the row the ship fights from
-const LAG = 1 / FOLLOW; // s: the ship follows a pointer target with this time constant, so aim that far further ahead
 const TOLERANCE = 16; // px either side of an alien's centre the shot may be moved to get through a gap
 const OFFSETS = [0, -8, 8, -16, 16];
 const BIAS = { saucer: 150, plate: 200, boss: -50, diver: -200 }; // px added to the distance when ranking
@@ -37,8 +36,8 @@ function obstructed(world, x, y) {
 
 // Where `t` will be when a shot fired now reaches it (the flight time depends on where it is then).
 function lead(world, t, muzzle) {
-  let p = posAt(world, t, LAG);
-  for (let i = 0; i < 2; i++) p = posAt(world, t, Math.max(0, muzzle - p.y) / SHOT_SPEED + LAG);
+  let p = posAt(world, t, 0);
+  for (let i = 0; i < 2; i++) p = posAt(world, t, Math.max(0, muzzle - p.y) / SHOT_SPEED);
   return p;
 }
 
@@ -81,7 +80,7 @@ function bossTargets(world, muzzle) {
     const bottom = p.y + p.h / 2;
     let s = shifts[0];
     for (let i = 0; i < 2; i++) {
-      const ticks = Math.round((Math.max(0, muzzle - bottom - s.dy) / SHOT_SPEED + LAG) / TICK);
+      const ticks = Math.round(Math.max(0, muzzle - bottom - s.dy) / SHOT_SPEED / TICK);
       s = shifts[clamp(ticks, 0, shifts.length - 1)];
     }
     const ship = world.ship.x - s.dx;

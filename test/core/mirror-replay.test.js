@@ -27,7 +27,7 @@ test('w16-3: a run that catches the mirror and fires with it replays to the same
 
   const run = decodeRun(JSON.parse(JSON.stringify(makeRun(level, SEED, inputs, { score: world.score, stars: 0 }))));
   assert.ok(run, 'the saved run reads back');
-  assert.equal(makeRun(level, SEED, [], { score: 0, stars: 0 }).v, 9);
+  assert.equal(makeRun(level, SEED, [], { score: 0, stars: 0 }).v, 10);
   const again = replay(run.level, run.seed, run.inputs);
   assert.equal(stateHash(again.world), stateHash(world));
   assert.equal(again.world.score, world.score);

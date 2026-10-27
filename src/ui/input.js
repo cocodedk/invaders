@@ -2,17 +2,21 @@
 // until the next tick reads them, so a tap shorter than a frame still fires or bombs. The pointer
 // steers once it moves (or clicks) and hands back to the keys as soon as a movement key is pressed.
 // Controls (spec): arrows/WASD move · Space fires (hold for auto-fire) · B or Shift bombs ·
-// P/Esc pauses · M mutes · Enter confirms. Mouse: the ship eases toward the pointer, the left
-// button fires, the right button bombs.
+// P/Esc pauses · M mutes · Enter confirms. Mouse: the ship is where the pointer points in the very
+// tick, in every world (R68; a pointer that wakes after the keys had the ship walks it there first, at a
+// hand's pace, see readInput), the left button fires, the right button bombs.
 //   createInput(canvas) -> input   input.onKey(code, event) for screens and global keys,
 //                                  input.onGesture() on the first key or click (audio unlock)
-//   readInput(input, view, zone) -> raw  { dx, dy, fire, bomb, target } for quantizeInput; zone: the
-//                                  level's (ship.js zoneOf), ZONE by default
+//   readInput(input, view, zone, ship) -> raw  { dx, dy, fire, bomb, target } for quantizeInput; zone: the
+//                                  level's (ship.js zoneOf), ZONE by default; ship: the world's, so a pointer
+//                                  that wakes after the keys had the ship can walk it back (see readInput)
 //   resetInput(input)              forget held keys and buttons (a screen took over)
 // Keys with Alt, Ctrl or Meta held are left alone: Alt+Left must stay the browser's Back.
 import { MOVE } from './keys.js';
 import { ZONE } from '../core/ship.js';
 import { clamp } from '../core/math.js';
+import { HAND, handTarget } from '../core/hand.js';
+import { TICK } from '../core/kinds.js';
 
 const FIRE = ['Space'];
 const BOMB = ['KeyB', 'ShiftLeft', 'ShiftRight'];
@@ -21,7 +25,7 @@ const GAME_KEYS = new Set([...Object.keys(MOVE), 'Space', 'Enter', 'NumpadEnter'
 export function createInput(canvas) {
   const input = {
     canvas, down: new Set(), taps: new Set(),
-    mouse: { x: 0, y: 0, left: false, right: false, active: false, slack: null },
+    mouse: { x: 0, y: 0, left: false, right: false, active: false, slack: null, walk: false },
     onKey: null, onGesture: null,
   };
   const m = input.mouse;
@@ -37,7 +41,7 @@ export function createInput(canvas) {
     }
     input.down.add(e.code);
     input.taps.add(e.code);
-    if (MOVE[e.code]) m.active = false; // the keys take the ship back from the pointer
+    if (MOVE[e.code]) Object.assign(m, { active: false, walk: true }); // the keys take the ship back from the pointer
     input.onKey?.(e.code, e);
   });
   addEventListener('keyup', (e) => {
@@ -83,6 +87,7 @@ export function resetInput(input) {
   input.mouse.left = false;
   input.mouse.right = false;
   input.mouse.slack = null;
+  input.mouse.walk = false;
 }
 
 const any = (input, codes) => codes.some((c) => input.down.has(c) || input.taps.has(c));
@@ -121,7 +126,12 @@ function steer(m, view, z) {
   return { x, y };
 }
 
-export function readInput(input, view, zone = ZONE) {
+// The pointer is the ship (R68): its goal is the target at once. Except when it wakes after the keys had
+// the ship (m.walk, set by a movement key): the cursor is hidden, so the ship, which stands wherever the keys
+// left it, walks to the unseen goal at the pace of a hand (hand.js) instead of crossing the field in one tick,
+// where it could not be seen going and every bullet on the way would count. Within a tick's reach of the goal
+// it is the ship again. A pause, a level or a blur (resetInput) leaves the pointer immediate.
+export function readInput(input, view, zone = ZONE, ship = null) {
   let dx = 0;
   let dy = 0;
   for (const code of input.down) {
@@ -138,6 +148,10 @@ export function readInput(input, view, zone = ZONE) {
     bomb: any(input, BOMB) || m.right || input.taps.has('Mouse2'),
     target: m.active ? steer(m, view, zone) : null,
   };
+  if (raw.target && m.walk && ship) {
+    if (Math.hypot(raw.target.x - ship.x, raw.target.y - ship.y) > HAND * TICK) raw.target = handTarget(ship, raw.target, TICK);
+    else m.walk = false;
+  }
   input.taps.clear(); // read by this tick
   return raw;
 }

@@ -51,17 +51,11 @@ test('diagonal flight is no faster than straight flight', () => {
   assert.ok(Math.hypot(w.ship.vx, w.ship.vy) <= SHIP_SPEED + 1e-9);
 });
 
-test('a pointer target pulls the ship there without overshoot, and clamps to the zone', () => {
+test('a pointer target puts the ship there at once (R68), and clamps to the zone', () => {
   const w = playing(lv());
-  let top = 0;
-  for (let i = 0; i < 180; i++) {
-    step(w, 1, input({ target: { x: 300, y: 700 } }));
-    top = Math.max(top, Math.hypot(w.ship.vx, w.ship.vy));
-    assert.ok(w.ship.x >= 300 - 1e-6, `tick ${i}: overshot to x ${w.ship.x}`);
-    assert.ok(w.ship.y >= 700 - 1e-6, `tick ${i}: overshot to y ${w.ship.y}`);
-  }
-  assert.ok(Math.abs(w.ship.x - 300) < 1 && Math.abs(w.ship.y - 700) < 1, 'settles on the target');
-  assert.ok(top <= SHIP_SPEED + 1e-9 && top > 600, `fast on the way, got ${top}`);
+  step(w, 1, input({ target: { x: 300, y: 700 } }));
+  assert.deepEqual([w.ship.x, w.ship.y], [300, 700], 'no easing, no overshoot: there after one tick');
+  assert.ok(Math.hypot(w.ship.vx, w.ship.vy) <= SHIP_SPEED + 1e-9, 'the velocity it leaves is for the drawing, capped');
   seconds(w, 3, input({ target: { x: 9000, y: -50 } }));
   assert.deepEqual([w.ship.x, w.ship.y], [1880, 620]);
 });

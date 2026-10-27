@@ -7,7 +7,7 @@ import { MID_X, WIDTH } from './kinds.js';
 // the gun alone: pearls.js.
 
 export const SHIP_R = 14; // hit radius
-export const SHIP_SPEED = 720; // px/s
+export const SHIP_SPEED = 720; // px/s: the keys' top speed, and what the drawing banks against (the pointer has none, R68)
 export const ZONE = { x0: 40, x1: 1880, y0: 620, y1: 1040 };
 // A free level (R67, world 18) lets the ship fly up to just under the HUD.
 export const FREE_ZONE = { ...ZONE, y0: 150 }; // the ship's nose stays under the HUD panels
@@ -25,38 +25,28 @@ export const ESCORT_DX = 80; // px: the two wingmen fly this far to either side 
 const ESCORT_EDGE = 30; // px: the closest an escort flies to either side of the field
 const GUN_DX = 22; // px: the side guns sit this far to either side of the ship's centre (broadside)
 
-const ACCEL = 7200; // px/s^2: from rest to full speed in 0.1 s, the same to stop (a short ease)
-export const FOLLOW = 12; // 1/s: how hard a pointer target pulls; speed is FOLLOW * distance, capped at max
+const ACCEL = 7200; // px/s^2: the keys take the ship from rest to full speed in 0.1 s, the same to stop (a short ease)
 
+// fromX / fromY are where the ship's move this tick began (moveShip): the collisions sweep from there to
+// where it is, so a ship that crosses the field in one tick cannot slip through what lay between (R68).
+// pointed is whether the pointer moved the ship last (moveShip): its vx, vy are then only for the drawing,
+// and the keys start from rest.
 // reserve is the power a newer pickup displaced (powerups.js); bombHeld / bombPressed turn the bomb
 // key into an edge (stepShip); beam is whether the laser burns; broadside is the seconds the side guns
 // have left (world 13's twist, powerups.js), 0 when they are shut. bombsUsed and powersUsed count the bombs
 // fired and the power-ups caught this level, for the clear's bomb bonus and medal (scoring.js awardClear).
 export const createShip = () => ({
-  x: MID_X, y: 1000, vx: 0, vy: 0, lives: LIVES, invuln: 0, power: null, reserve: null, bombs: 1, cooldown: 0,
-  alive: true, beam: false, bombHeld: false, bombPressed: false, broadside: 0, bombsUsed: 0, powersUsed: 0,
+  x: MID_X, y: 1000, fromX: MID_X, fromY: 1000, vx: 0, vy: 0, pointed: false, lives: LIVES, invuln: 0, power: null, reserve: null,
+  bombs: 1, cooldown: 0, alive: true, beam: false, bombHeld: false, bombPressed: false, broadside: 0,
+  bombsUsed: 0, powersUsed: 0,
 });
-
-const SNAP = 0.5; // px: closer than this to a pointer target, the ship stops dead on it
 
 // The pointer target, held inside the zone `z`.
 const goal = (t, z) => t && { x: clamp(t.x, z.x0, z.x1), y: clamp(t.y, z.y0, z.y1) };
 
-// The velocity the ship eases toward: the keys, normalised so a diagonal is no faster, or the pull
-// of the pointer goal.
-function wanted(ship, input, g) {
-  if (g) {
-    const ex = g.x - ship.x;
-    const ey = g.y - ship.y;
-    const d = Math.hypot(ex, ey);
-    const k = Math.min(SHIP_SPEED, d * FOLLOW) / d;
-    return [ex * k, ey * k];
-  }
-  const dx = input.dx || 0;
-  const dy = input.dy || 0;
-  const k = SHIP_SPEED / (Math.hypot(dx, dy) || 1);
-  return [dx * k, dy * k];
-}
+// Where the ship's move this tick began. A ship that was never moved (put in place by hand, as a test or
+// a scene does) has no move: it began where it is.
+export const fromOf = (s) => ({ x: s.fromX ?? s.x, y: s.fromY ?? s.y });
 
 // The wingmen power's two escorts, left then right: level with the ship, ESCORT_DX to either side and
 // held inside the field. [] when the power is not running (or the ship is gone). The drawing and
@@ -120,16 +110,31 @@ function sideGuns(world) {
   }
 }
 
-// Ease, move and clamp to the zone `z`: `s` is anything with { x, y, vx, vy } (the autopilot flies a copy).
+// Move and clamp to the zone `z`: `s` is anything with { x, y, vx, vy } (the autopilot flies a copy).
+// The pointer is the ship (R68, the same in every world): a pointer target puts the ship on its goal in
+// this very tick, with no easing, no speed limit and no pull. vx, vy still say how fast it went, for the
+// drawing's bank and wake, but never more than SHIP_SPEED, so a flick across the field does not throw a
+// wake thousands of px long. That velocity is display only: when the pointer lets go (a pause, a blur, a
+// key taking over) the ship stops where it is, and the keys ease on from rest, never from the pointer's
+// speed, so nothing drifts. The keys move it at up to SHIP_SPEED, eased by ACCEL, a diagonal no faster than
+// straight. Either way fromX / fromY keep where the move began.
 export function moveShip(s, dt, input, z = ZONE) {
+  s.fromX = s.x;
+  s.fromY = s.y;
   const g = goal(input.target, z);
-  if (g && Math.hypot(g.x - s.x, g.y - s.y) < SNAP) {
-    Object.assign(s, { x: g.x, y: g.y, vx: 0, vy: 0 });
+  if (g) {
+    const ex = g.x - s.x;
+    const ey = g.y - s.y;
+    const k = Math.min(1, (SHIP_SPEED * dt) / (Math.hypot(ex, ey) || 1));
+    Object.assign(s, { x: g.x, y: g.y, vx: (ex / dt) * k, vy: (ey / dt) * k, pointed: true });
     return;
   }
-  const [wx, wy] = wanted(s, input, g);
-  s.vx = approach(s.vx, wx, ACCEL * dt);
-  s.vy = approach(s.vy, wy, ACCEL * dt);
+  if (s.pointed) Object.assign(s, { vx: 0, vy: 0, pointed: false });
+  const dx = input.dx || 0;
+  const dy = input.dy || 0;
+  const k = SHIP_SPEED / (Math.hypot(dx, dy) || 1);
+  s.vx = approach(s.vx, dx * k, ACCEL * dt);
+  s.vy = approach(s.vy, dy * k, ACCEL * dt);
   s.x += s.vx * dt;
   s.y += s.vy * dt;
   if (s.x < z.x0 || s.x > z.x1) {
