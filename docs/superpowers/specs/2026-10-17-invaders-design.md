@@ -304,7 +304,7 @@ quoted lines, so the repo can be public.
     adds no rule of its own. On w18-1, where carriers come in two of the four waves, over 200 autopilot
     runs a run drops about 11 pickups and the side guns about once, none in a third of the runs. The
     wave levels mix in a fan, an aimed or a ring wave now and then, so the ship must dodge as well as
-    lure; carriers come in every level; no bunkers; `d` 0.5 to 0.7 (`OWN[18]`). The autopilot still
+    lure; carriers come in every level; no bunkers; `d` 0.86 to 1.0 (`OWN[18]`), the top of the scale. The autopilot still
     fights from the bottom, which clears every level. A scripted flight that weaves around w18-1's
     formation lands about 22 backfires a run in about 70 kills; one that strafes along the bottom drags
     almost every bullet but lands almost none, because nothing is below it.
@@ -318,6 +318,13 @@ quoted lines, so the repo can be public.
     circles, never charges, rests at 280 and weighs 250 hp, a little above the moth's 234. In Level Select world 18
     is its own card in the foot row beside Back and Reset scores (the side row is full at nine), marked
     as the free-flight world, with its five reels.
+    The user asked for world 18 to be the hardest world. Measured with the lagged autopilot over six
+    reaction lags (8 to 18 ticks) x 20 seeds, since a boss level's seeds share their opening: world 18
+    clears 40/40/31/20/5 %, 27 % in all and 12 % at the slow lags, against world 7's 31 % and 16 %
+    (the hardest before) and world 17's 36 % and 21 %. The ray clears 5 %, level with the titan (w7-5),
+    which the user has beaten and called the limit, so it goes no further. Its levers: d up to 1.0,
+    gunner rows and a fan wave in levels 2-4, homing fire from a coil as well as the maw from the hover
+    on, shorter intervals in its later phases, and its last phase from 40 % of its hp.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds

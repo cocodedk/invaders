@@ -99,11 +99,11 @@ test('world 17 runs the top of the scale, rising within the world to 1 on the bo
   assert.equal(isSide(17), true);
 });
 
-test('world 18, the first free-flight world (R67), runs d 0.5 to 0.7 beside the main run; there is no world 19', () => {
+test('world 18, the first free-flight world (R67) and the hardest, runs the top of the scale as world 17 does; there is no world 19', () => {
   const own = [1, 2, 3, 4, 5].map((i) => difficulty(18, i));
-  assert.deepEqual(own, [0.5, 0.55, 0.6, 0.65, 0.7]);
+  assert.deepEqual(own, [0.86, 0.89, 0.92, 0.96, 1.0]);
   own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w18-${i + 1}`));
-  assert.deepEqual(own.map((d) => scaled(d).armorBonus), [0, 0, 0, 1, 1], 'armorBonus turns on above 0.6: the last two levels');
+  assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'armorBonus on throughout');
   assert.equal(isSide(18), true);
   assert.equal(isSide(19), false);
 });

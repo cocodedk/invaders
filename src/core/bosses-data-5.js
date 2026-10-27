@@ -111,8 +111,9 @@ const craving = boss('craving', 'The Craving', 380, { w: 740, h: 340 }, [
 // and shields the heart from below as the Craving's tray shields its maw. The coils take aim; the
 // wings fan; the spine rains lightning; the maw fires homing shots from the first phase on, the ones
 // the ship drags round into the ray (R67), and the laser in the last; the heart throws shock rings,
-// so flying in close is paid for. World 18 is a middle-hard world (d 0.5 to 0.7), so the ray is about
-// the moth's weight, below the Craving. It rests at 280 with its spine's top 150 above the centre, so at
+// so flying in close is paid for. It weighs about the moth's hp, below the Craving, but world 18 is the
+// hardest world (d up to 1.0), so it fights as hard as the titan: homing fire from a coil as well as the maw
+// from the hover on, and its last phase from 40 % of its hp. It rests at 280 with its spine's top 150 above the centre, so at
 // rest every part is below the HUD, and at the top of its orbit the heart, the coils and the maw are well
 // clear of it while the spine's top slips under its edge, as the moth's crown does (R28). No two parts touch,
 // and every box lies inside the art: in a free level a box is what rams (free.js), so the swept wing's box is
@@ -134,25 +135,27 @@ const ray = boss('ray', 'The Squall Ray', 280, { w: 900, h: 300 }, [
     atk('rain', 4.4, 'spine', { count: 5, spread: 440 }),
     atk('homing', 3.0, 'maw'),
   ], { rate: 1.0, minions: [minion('carrier', 1, 4.5, 'spine')] }),
-  phase(0.3, 'hover', [
-    atk('aimed', 3.8, 'coilL'),
-    atk('aimed', 3.8, 'coilR'),
-    atk('fan', 2.9, 'wingL', { count: 4, spread: 0.7 }),
-    atk('fan', 2.9, 'wingR', { count: 4, spread: 0.7 }),
-    atk('rain', 3.6, 'spine', { count: 7, spread: 460 }),
-    atk('ring', 5.2, 'heart', { count: 12 }),
-    atk('homing', 2.7, 'maw'),
+  phase(0.4, 'hover', [
+    atk('aimed', 3.5, 'coilL'),
+    atk('aimed', 3.5, 'coilR'),
+    atk('fan', 2.7, 'wingL', { count: 4, spread: 0.7 }),
+    atk('fan', 2.7, 'wingR', { count: 4, spread: 0.7 }),
+    atk('rain', 3.3, 'spine', { count: 7, spread: 460 }),
+    atk('ring', 4.8, 'heart', { count: 12 }),
+    atk('homing', 2.5, 'maw'),
+    atk('homing', 3.6, 'coilL'),
   ], { rate: 1.1, minions: [minion('diver', 2, 10, 'wingL'), minion('carrier', 1, 4.5, 'spine')] }),
   phase(0, 'orbit', [
-    atk('aimed', 3.8, 'coilL'),
-    atk('aimed', 3.8, 'coilR'),
-    atk('fan', 2.8, 'wingL', { count: 6, spread: 0.9 }),
-    atk('fan', 3.0, 'wingR', { count: 5, spread: 0.8 }),
-    atk('rain', 3.3, 'spine', { count: 8, spread: 500 }),
-    atk('ring', 4.8, 'heart', { count: 14 }),
-    atk('homing', 2.5, 'maw'),
-    atk('homing', 3.4, 'coilR'),
-    atk('laser', 6.6, 'maw'),
+    atk('aimed', 3.2, 'coilL'),
+    atk('aimed', 3.2, 'coilR'),
+    atk('fan', 2.6, 'wingL', { count: 6, spread: 0.9 }),
+    atk('fan', 2.8, 'wingR', { count: 5, spread: 0.8 }),
+    atk('rain', 2.8, 'spine', { count: 8, spread: 500 }),
+    atk('ring', 4.4, 'heart', { count: 14 }),
+    atk('homing', 2.1, 'maw'),
+    atk('homing', 3.1, 'coilL'),
+    atk('homing', 3.1, 'coilR'),
+    atk('laser', 5.4, 'maw'),
   ], { rate: 1.3, minions: [minion('diver', 3, 9, 'wingR'), minion('carrier', 1, 4.5, 'spine')] }),
 ]);
 
