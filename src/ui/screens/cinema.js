@@ -9,7 +9,7 @@ import { fmt, clock } from '../format.js';
 import { MOVE, isConfirm, isBack } from '../keys.js';
 import { lookFor } from '../looks/index.js';
 import { play as sound } from '../audio.js';
-import { h, button, focusItem, shell, starRow, skyCss, developer } from './dom.js';
+import { h, button, credit, focusItem, shell, starRow, skyCss, developer } from './dom.js';
 import { posterFor } from './posters.js';
 
 const COLS = 3;
@@ -62,7 +62,7 @@ export function cinemaScreen({ reels, play, back, focusId = null }) {
     h('header', 'marquee', h('span', 'bulbs'), h('h2', 'marquee-title', 'Cinema'), h('span', 'bulbs')),
     h('p', 'sub', 'Your best runs, cut as trailers.'),
     body,
-    h('div', 'row', backBtn, h('span', 'hint', items.length ? 'Arrows choose · Enter watch · Esc back' : 'Esc back')));
+    h('div', 'row', backBtn, h('span', 'hint', items.length ? 'Arrows choose · Enter watch · Esc back' : 'Esc back')), credit());
   for (const it of items) it.addEventListener('focus', () => it.scrollIntoView({ block: 'nearest' }));
   const first = items.find((b) => b.dataset.id === focusId) ?? items[0] ?? backBtn;
   return {

@@ -461,6 +461,15 @@ Trailer → Results (score with its tally: time against par and the multiplier, 
 bonuses, the medal; stars, best, "Promoted to" a new rank; Next / Retry / Select) · Blooper → Failed (Retry / Select) ·
 Cinema · Watch, then try (below).
 
+**Credit and privacy.** The user asked to "add my name and cocode.dk to all the none game pages" and "a disclaimer about
+privacy on the first page", and to "write the truth". Every screen that is not play (Title, Level Select, Cinema, Pause,
+Results, Failed; not the level's title card, the trailer or the demo) carries "Babak Bandpey · cocode.dk" in its bottom
+right corner (in Level Select's bar), a link to https://cocode.dk. The Title adds one line under its key hint: no account,
+no cookies, no tracking; everything the game saves stays in this browser; the host, GitHub Pages, logs visitors' IP
+addresses for security (linked to GitHub's own statement). Both links open a new tab and stay out of the keys' way (the
+arrows never reach them, Tab skips them). They are the only external addresses in `src`, and only as `link()`'s href,
+which the no-network check lets through: a click opens them, nothing fetches them.
+
 **Level Select is one grid (R69).** The user asked for the page to be "nicely organized with expansion in mind. we
 will build more worlds", "the order as it is. from the first world to the last", every world "like how the first row
 is arranged, same size, same number of worlds", with "the difficulty value to the card". It replaces the main run's

@@ -113,6 +113,7 @@
   background: linear-gradient(rgba(4, 5, 10, 0), #04050a); }
 .lobby-bar .btn { font-size: 1.3rem; padding: 0.55rem 1.8rem; }
 .lobby-bar .hint { margin-left: auto; display: flex; gap: 2rem; }
+.lobby-bar .credit { position: static; margin-left: auto; }
 
 @media (prefers-reduced-motion: reduce) {
   .bulbs, .poster-art.develop .poster-canvas { animation: none; }

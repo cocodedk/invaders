@@ -19,7 +19,7 @@
 // view so those posters bake first; posters not baked yet show their sky and develop in as soon as they are ready (update).
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { play } from '../audio.js';
-import { h, button, focusItem, navigate, shell, developer } from './dom.js';
+import { h, button, credit, focusItem, navigate, shell, developer } from './dom.js';
 import { MOVE, isConfirm, isBack } from '../keys.js';
 import { confirmCard } from './confirm.js';
 import { medalCount } from '../storage.js';
@@ -67,7 +67,7 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
       h('span', 'lobby-total', `★ ${total} / ${LEVELS.length * MAX_STARS}`),
       h('span', 'lobby-rank', `Rank ${rankOf(medals).name} · ${medals} / ${LEVELS.length} medals`)),
     ...shelves);
-  el.append(page, h('div', 'lobby-bar', backBtn, resetBtn,
+  el.append(page, h('div', 'lobby-bar', backBtn, resetBtn, credit(),
     h('span', 'hint', h('span', null, '← → world · ↑ ↓ reel'), h('span', null, 'Enter play · Esc back'))));
 
   const grid = cols.map((c) => c.reels);

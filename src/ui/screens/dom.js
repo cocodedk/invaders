@@ -33,6 +33,19 @@ export function button(label, onPick, cls = 'btn') {
   return b;
 }
 
+// A link that opens in a new tab and keeps out of the keys' way: the arrows move among a screen's buttons, and Tab skips it.
+export function link(cls, href, ...kids) {
+  const a = h('a', cls, ...kids);
+  a.href = href;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.tabIndex = -1;
+  return a;
+}
+
+// The author's credit, in the corner of every screen that is not play (title, lobby, cinema, results, failed, pause).
+export const credit = () => link('credit', 'https://cocode.dk', 'Babak Bandpey · cocode.dk');
+
 // Move focus among `items` (elements in reading order) with the arrows; `cols` > 1 is a grid.
 // A plain list (cols 1) wraps around and takes left/right as well, for menus laid out in a row.
 // Enter / Space pick the focused item. Returns true when the key was handled.
