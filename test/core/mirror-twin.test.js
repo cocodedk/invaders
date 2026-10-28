@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { twinOf, escortsOf, MUZZLE, ZONE, SHOT_SPEED } from '../../src/core/ship.js';
+import { twinOf, escortsOf, MUZZLE, ZONE, SHOT_SPEED, COOLDOWN } from '../../src/core/ship.js';
 import {
-  TICK, FIRE, step, playing, drain, ofType, pickupOnShip, pickupAt, bulletAt, holdAlien,
+  TICK, gunTicks, FIRE, step, playing, drain, ofType, pickupOnShip, pickupAt, bulletAt, holdAlien,
 } from './world-kit.js';
 import { lv, w16, fresh, twin } from './mirror-kit.js';
 
@@ -87,7 +87,8 @@ test('the twin fires for 10 s and no longer: 2 shots a volley, then 1', () => {
   }
   assert.ok(Math.abs(off - 10) < 0.05, `the power ended ${off} s after the catch`);
   const ones = sizes.indexOf(1);
-  assert.ok(ones >= 54 && ones <= 57, `${ones} volleys of two in 10 s at 0.18 s each`);
+  const volleys = 10 / (gunTicks(COOLDOWN) * TICK);
+  assert.ok(ones >= Math.floor(volleys) && ones <= Math.ceil(volleys) + 1, `${ones} volleys of two in 10 s at ${gunTicks(COOLDOWN)} ticks each`);
   assert.ok(sizes.slice(0, ones).every((n) => n === 2), 'two a volley until then');
   assert.ok(sizes.slice(ones).every((n) => n === 1), 'then the plain single shot');
 });

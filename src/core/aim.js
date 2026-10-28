@@ -2,7 +2,7 @@ import { posAt, bossShifts } from './predict.js';
 import { liveParts } from './boss-hit.js';
 import { loose } from './damage.js';
 import { isSwooping } from './aliens.js';
-import { SHOT_SPEED, MUZZLE, ZONE } from './ship.js';
+import { shotSpeed, MUZZLE, ZONE } from './ship.js';
 import { clamp } from './math.js';
 import { TICK } from './kinds.js';
 
@@ -37,7 +37,7 @@ function obstructed(world, x, y) {
 // Where `t` will be when a shot fired now reaches it (the flight time depends on where it is then).
 function lead(world, t, muzzle) {
   let p = posAt(world, t, 0);
-  for (let i = 0; i < 2; i++) p = posAt(world, t, Math.max(0, muzzle - p.y) / SHOT_SPEED);
+  for (let i = 0; i < 2; i++) p = posAt(world, t, Math.max(0, muzzle - p.y) / shotSpeed(world.ship.power?.kind));
   return p;
 }
 
@@ -80,7 +80,7 @@ function bossTargets(world, muzzle) {
     const bottom = p.y + p.h / 2;
     let s = shifts[0];
     for (let i = 0; i < 2; i++) {
-      const ticks = Math.round(Math.max(0, muzzle - bottom - s.dy) / SHOT_SPEED / TICK);
+      const ticks = Math.round(Math.max(0, muzzle - bottom - s.dy) / shotSpeed(world.ship.power?.kind) / TICK);
       s = shifts[clamp(ticks, 0, shifts.length - 1)];
     }
     const ship = world.ship.x - s.dx;

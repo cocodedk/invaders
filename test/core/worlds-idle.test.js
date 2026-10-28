@@ -11,40 +11,41 @@ import { finished } from '../../src/core/util.js';
 // flown by nothing: an invulnerable ship that stands where it starts, fires all the time and presses the bomb
 // on every 400th tick, for up to 60 s. The ship does not move, so nothing here depends on how it moves (R68,
 // the pointer is the ship, changed that for every world); these were taken on commit 4a698d2, the last before
-// R68, and did not change with it. A rule change that moves any of them is either a leak or meant to be.
+// R68, and did not change with it. R70 (the base gun fires every 9 ticks instead of 11, RUN_V 11) re-took
+// them all, as the ship here never stops firing. A rule change that moves any of them is either a leak or meant to be.
 // A pin is the state hash every 10 s folded into one number, the hash at the last whole 100 ticks, and the tick
 // the run ended on. A level it clears is cut off on the tick of the clear: what the clear adds waits on the
 // pars (R66), which a change to the autopilot or the rules moves, and that is none of this test's business.
 const IDLE = {
-  'w1-2': { fold: 62611416, end: '1700:55650:fa59bb2112148072', tick: 1798 },
-  'w1-4': { fold: -534540368, end: '3600:39250:aaa4e23575efeece', tick: 3600 },
-  'w2-3': { fold: 1694322399, end: '3600:34050:88d1a28adc3e1505', tick: 3600 },
-  'w3-3': { fold: 1229675395, end: '3600:37750:efc7c72be1e40e82', tick: 3600 },
-  'w4-4': { fold: -1640248127, end: '3600:35800:95be06bbc8b54111', tick: 3600 },
-  'w5-5': { fold: 39691432, end: '3000:18650:95baf0c7772054d3', tick: 3072 },
-  'w6-3': { fold: 182205866, end: '3600:30100:7be078d61782dcfa', tick: 3600 },
-  'w7-2': { fold: 453142747, end: '3600:20700:dd7454b6e746f0df', tick: 3600 },
-  'w8-4': { fold: 1369021999, end: '3600:13200:a41e3382fdfedca6', tick: 3600 },
-  'w9-2': { fold: -2051580686, end: '3600:25150:c20796de1553d971', tick: 3600 },
-  'w10-3': { fold: 1446803009, end: '3600:32400:2863b4fc408c65e6', tick: 3600 },
-  'w11-3': { fold: 1180888322, end: '3600:75950:1175dc9bac78df31', tick: 3600 },
-  'w12-2': { fold: -1677711237, end: '3600:23200:c30538db4b09f3d4', tick: 3600 },
-  'w12-5': { fold: -972466289, end: '3600:4750:ff99b89d52d65fcd', tick: 3600 },
-  'w13-1': { fold: 2002073765, end: '3600:15550:5050236a75ea95db', tick: 3600 },
-  'w13-3': { fold: -163530217, end: '3600:38200:1c25f0255555d86c', tick: 3600 },
-  'w13-5': { fold: 1513941712, end: '3600:6500:fcb47b02c2f13d2e', tick: 3600 },
-  'w14-1': { fold: -405651414, end: '1100:49100:285c7a1f4578a7f0', tick: 1158 },
-  'w14-3': { fold: -2013459051, end: '3600:51750:0883c02be893ede0', tick: 3600 },
-  'w14-5': { fold: 1244716803, end: '3600:6250:860541fa39bdfbb4', tick: 3600 },
-  'w15-1': { fold: -93660596, end: '3600:23250:f1db3a78d501606a', tick: 3600 },
-  'w15-3': { fold: -467012975, end: '3600:71550:d417691e5f17f08e', tick: 3600 },
-  'w15-5': { fold: -163454713, end: '3600:7750:8928e0f58797e06f', tick: 3600 },
-  'w16-1': { fold: 668100585, end: '3600:24000:84160591b31a536c', tick: 3600 },
-  'w16-3': { fold: -277968054, end: '3600:41350:37ee6fec1245601f', tick: 3600 },
-  'w16-5': { fold: -1272759346, end: '3600:6000:42b6b104aa27dd31', tick: 3600 },
-  'w17-1': { fold: -1456300016, end: '1400:74400:16b9afe1f54d99fc', tick: 1476 },
-  'w17-3': { fold: 561942002, end: '3600:66550:d538f29189483501', tick: 3600 },
-  'w17-5': { fold: -100190431, end: '3600:4500:bbf331216422d746', tick: 3600 },
+  'w1-2': { fold: 1305534394, end: '2800:48850:31d81299278caecb', tick: 2864 },
+  'w1-4': { fold: -1562559723, end: '3600:51600:2871d66b284277ef', tick: 3600 },
+  'w2-3': { fold: -350806464, end: '3600:34350:dcb6bf90736bd21d', tick: 3600 },
+  'w3-3': { fold: -765057238, end: '3600:37450:6e7613c00e751e9b', tick: 3600 },
+  'w4-4': { fold: 419454290, end: '3600:37700:db38f68279ff56b8', tick: 3600 },
+  'w5-5': { fold: -65284672, end: '1700:12500:bfe5526e7be269d5', tick: 1757 },
+  'w6-3': { fold: -766194627, end: '3600:30100:ee025d1da1629645', tick: 3600 },
+  'w7-2': { fold: 960955394, end: '3600:19600:1f36a72dc393bd12', tick: 3600 },
+  'w8-4': { fold: -1636835494, end: '3600:16900:b98ee9f7722b607d', tick: 3600 },
+  'w9-2': { fold: -1570007487, end: '3600:25150:e7d800fef6ec681e', tick: 3600 },
+  'w10-3': { fold: -1664168481, end: '3600:32000:4cc9b6f6a1a8a98f', tick: 3600 },
+  'w11-3': { fold: -628103652, end: '3600:119850:8baa920a97354db3', tick: 3600 },
+  'w12-2': { fold: -468607644, end: '3600:23200:b5a2c378cac22dd4', tick: 3600 },
+  'w12-5': { fold: 1246579838, end: '3600:5250:52ebe9bc3e29f44d', tick: 3600 },
+  'w13-1': { fold: -119978253, end: '3600:20200:68142daf322ec5f3', tick: 3600 },
+  'w13-3': { fold: 965809265, end: '3600:47450:b63c291cdbc0c678', tick: 3600 },
+  'w13-5': { fold: -1066273864, end: '3300:15750:3c45c2289d91dd78', tick: 3335 },
+  'w14-1': { fold: 1540752264, end: '3600:37100:ff5c188014fefeb6', tick: 3600 },
+  'w14-3': { fold: -1904401730, end: '2200:108200:504c69d724117d35', tick: 2246 },
+  'w14-5': { fold: -71500293, end: '3300:15750:5be1a526d9348caf', tick: 3342 },
+  'w15-1': { fold: 993067137, end: '3500:36100:95da516f33f99fc9', tick: 3600 },
+  'w15-3': { fold: -731348283, end: '3600:34050:75f7b53221714807', tick: 3600 },
+  'w15-5': { fold: -876849523, end: '3600:7000:26d3c2b638cf0152', tick: 3600 },
+  'w16-1': { fold: 33246799, end: '3600:26400:1cdcd3b137c66e56', tick: 3600 },
+  'w16-3': { fold: 585330628, end: '3600:74850:3cead3adddf8d067', tick: 3600 },
+  'w16-5': { fold: -409020658, end: '3600:15750:a480e3786f17dac9', tick: 3600 },
+  'w17-1': { fold: -1899611434, end: '3600:74200:8a10103a5c710345', tick: 3600 },
+  'w17-3': { fold: -1870000481, end: '3600:90300:f3eada4330fab3e2', tick: 3600 },
+  'w17-5': { fold: 679899992, end: '3500:15000:c5a51f7264d768ea', tick: 3510 },
 };
 
 function idleFingerprint(id) {
@@ -63,7 +64,7 @@ function idleFingerprint(id) {
 }
 
 for (const [id, expected] of Object.entries(IDLE)) {
-  test(`${id} with a ship that stands still plays out exactly as it did before R68`, () => {
+  test(`${id} with a ship that stands still plays out exactly as pinned (R70)`, () => {
     assert.deepEqual(idleFingerprint(id), expected);
   });
 }

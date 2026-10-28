@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld } from '../../src/core/world.js';
-import { SHIP_R, SHIP_SPEED, ZONE } from '../../src/core/ship.js';
-import { TICK, input, level, wave, step, seconds, playing, drain, ofType } from './world-kit.js';
+import { SHIP_R, SHIP_SPEED, ZONE, COOLDOWN } from '../../src/core/ship.js';
+import { TICK, gunTicks, input, level, wave, step, seconds, playing, drain, ofType } from './world-kit.js';
 
 const lv = () => level([wave({ cols: 6 })]);
 
@@ -60,15 +60,16 @@ test('a pointer target puts the ship there at once (R68), and clamps to the zone
   assert.deepEqual([w.ship.x, w.ship.y], [1880, 620]);
 });
 
-test('cooldown: holding fire shoots every 0.18 s, never faster', () => {
+test('cooldown: holding fire shoots once every COOLDOWN, rounded up to whole ticks, never faster', () => {
+  const every = gunTicks(COOLDOWN);
   const w = playing(lv());
   const ticks = [];
   for (let i = 0; i < 60; i++) {
     step(w, 1, input({ fire: true }));
     for (const e of ofType(drain(w), 'fire')) ticks.push(e.tick);
   }
-  assert.equal(ticks.length, 6);
-  for (let i = 1; i < ticks.length; i++) assert.ok((ticks[i] - ticks[i - 1]) * TICK >= 0.18 - 1e-9);
+  assert.equal(ticks.length, Math.floor(59 / every) + 1);
+  for (let i = 1; i < ticks.length; i++) assert.equal(ticks[i] - ticks[i - 1], every);
 });
 
 test('a base shot flies 1400 px/s straight up for 1 damage', () => {

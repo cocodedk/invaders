@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createShip } from '../../src/core/ship.js';
+import { createShip, COOLDOWN } from '../../src/core/ship.js';
 import { BROADSIDE_TIME } from '../../src/core/powerups.js';
 import { WIDTH } from '../../src/core/kinds.js';
 import { part } from './boss-kit.js';
 import {
-  TICK, FIRE, level, wave, step, seconds, playing, drain, ofType, pickupOnShip, holdAlien,
+  TICK, gunTicks, FIRE, level, wave, step, seconds, playing, drain, ofType, pickupOnShip, holdAlien,
 } from './world-kit.js';
 
 // World 13's twist: any pickup caught (a power, a bomb or a life) opens the ship's side guns for 6 s,
@@ -73,7 +73,8 @@ test('they stay open for 6 s from the catch and then shut, once, with an event',
   assert.ok(Math.abs(shut - 6) < 0.05, `they shut ${shut} s after the catch`);
   assert.equal(w.ship.broadside, 0);
   const open = sizes.indexOf(1);
-  assert.ok(open >= 32 && open <= 34, `${open} volleys in 6 s at 0.18 s each`);
+  const volleys = 6 / (gunTicks(COOLDOWN) * TICK);
+  assert.ok(open >= volleys - 1 && open <= volleys + 1, `${open} volleys in 6 s at ${gunTicks(COOLDOWN)} ticks each`);
   assert.ok(sizes.slice(0, open).every((n) => n === 3), 'ship, left, right while open');
   assert.ok(sizes.slice(open).every((n) => n === 1), 'the ship alone after');
 });
@@ -189,7 +190,7 @@ test('under the laser, which fires no volleys, an open broadside still fires its
   w.ship.broadside = 6;
   step(w, 1, FIRE);
   const pairs = side(w).filter((s) => s.broadside === 1).length;
-  assert.ok(pairs >= 1 && pairs <= 2, `${pairs} pairs in one tick-step at 0.18 s apart`);
+  assert.ok(pairs >= 1 && pairs <= 2, `${pairs} pairs in one tick-step at ${gunTicks(COOLDOWN)} ticks apart`);
   for (let i = 0; i < 59; i++) step(w, 1, FIRE);
   const shots = w.events.filter((e) => e.type === 'sideShot').length;
   assert.ok(shots >= 2 * 5, `${shots} side shots in a second`);

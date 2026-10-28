@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { POWERS, TICK } from '../../src/core/kinds.js';
-import { HOMING_SPEED, HOMING_TURN } from '../../src/core/ship.js';
+import { HOMING_SPEED, HOMING_TURN, COOLDOWN } from '../../src/core/ship.js';
 import { createWorld } from '../../src/core/world.js';
 import { levelById } from '../../src/core/levels.js';
 import { powerTime, POWER_TIME } from '../../src/core/powerups.js';
@@ -73,7 +73,7 @@ test('a homing gun fires one shot straight up at 1000 px/s with a seek rate, at 
   assert.equal(w.shots.length, 1);
   const [s] = w.shots;
   assert.deepEqual([s.vx, s.vy, s.seek, s.turn, s.dmg], [0, -HOMING_SPEED, Math.PI, undefined, 1]);
-  assert.equal(w.ship.cooldown, 0.18);
+  assert.equal(w.ship.cooldown, COOLDOWN);
   assert.deepEqual(ofType(drain(w), 'fire').map((e) => e.power), ['homing']);
 });
 

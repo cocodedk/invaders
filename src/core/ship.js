@@ -14,11 +14,14 @@ export const FREE_ZONE = { ...ZONE, y0: 150 }; // the ship's nose stays under th
 export const zoneOf = (level) => (level?.free ? FREE_ZONE : ZONE);
 export const LIVES = 3;
 export const INVULN = 1.5; // s of blinking after a hit
-const COOLDOWN = 0.18; // s between base shots
+// s between base shots (R70): 0.18 / 1.25, a shot every 9 ticks, 6.7 a second, 1.22 x the 11 ticks the old 0.18 s
+// came to. The gun fires on a tick, so 1.25 x itself cannot be had; 8 ticks would be 1.375 x, and 9 is the nearer.
+export const COOLDOWN = 0.144;
 export const SHOT_SPEED = 1400;
 export const HOMING_SPEED = 1000; // px/s: a homing shot is slower, so it has time to turn
+export const RAPID_SPEED = 2100; // px/s: a rapid shot flies 1.5 x as fast as the base one (R70)
 export const HOMING_TURN = Math.PI; // rad/s: how hard it steers toward the nearest alien ahead (stepBullet)
-const RAPID_COOLDOWN = 0.07; // s between shots under the rapid power
+export const RAPID_COOLDOWN = 0.07; // s between shots under the rapid power
 export const MUZZLE = 22; // px above the ship's centre where shots (and the beam) start
 const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spread power
 export const ESCORT_DX = 80; // px: the two wingmen fly this far to either side of the ship (world 13)
@@ -66,6 +69,9 @@ export function twinOf(ship) {
 }
 
 // A ship shot: r 5, 1.5 s of life, 1 damage.
+// How fast the gun's shot flies under `power` (a power kind or null): what shoot fires and what aim.js leads by.
+export const shotSpeed = (power) => (power === 'homing' ? HOMING_SPEED : power === 'rapid' ? RAPID_SPEED : SHOT_SPEED);
+
 const bolt = (x, y, vx, vy) => ({ pattern: 'shot', x, y, vx, vy, r: 5, life: 1.5, dmg: 1 });
 
 // The trident power's shot (world 15): the same bolt, r 7, marked `trident` for the drawing. It runs
@@ -74,7 +80,7 @@ const bolt = (x, y, vx, vy) => ({ pattern: 'shot', x, y, vx, vy, r: 5, life: 1.5
 export const TRIDENT_R = 7;
 const trident = (x, y, vx, vy) => ({ ...bolt(x, y, vx, vy), r: TRIDENT_R, trident: true, pierced: [] });
 
-// One trigger pull: a single shot, or the spread's five. Rapid only shortens the wait. A homing shot
+// One trigger pull: a single shot, or the spread's five. Rapid shortens the wait and its shot flies faster. A homing shot
 // is the single shot, slower, with `seek`: stepBullet steers it toward the nearest alien ahead. The
 // trident's is the single shot as a trident bolt, at the base rate. Under
 // the wingmen each escort fires a copy of the straight shot from its own place (the power is the
@@ -87,7 +93,7 @@ function shoot(world) {
   const power = s.power?.kind ?? null;
   s.cooldown = power === 'rapid' ? RAPID_COOLDOWN : COOLDOWN;
   const at = { x: s.x, y: s.y - MUZZLE };
-  const speed = power === 'homing' ? HOMING_SPEED : SHOT_SPEED;
+  const speed = shotSpeed(power);
   for (const deg of power === 'spread' ? SPREAD : [0]) {
     const a = (deg * Math.PI) / 180;
     const shot = (power === 'trident' ? trident : bolt)(at.x, at.y, Math.sin(a) * speed, -Math.cos(a) * speed);

@@ -26,8 +26,9 @@ export { TICK };
 // pins that worlds 1-16 play as they did. 9: R66, bombs and lives with no cap (a life drops at any
 // count) and the round tallied at the clear (its speed, the bombs and lives held). 10: R68, the pointer is
 // the ship (it stands where the pointer points the same tick, in every world, and what it crossed on the way
-// counts), so the same pointer inputs fly a different course and meet different bullets.
-const RUN_V = 10;
+// counts), so the same pointer inputs fly a different course and meet different bullets. 11: R70, the base gun
+// fires every 9 ticks instead of 11, so the same inputs fire more shots.
+const RUN_V = 11;
 
 // The storable form of a finished run. `level` is a level or its id; `result` is { score, stars }.
 export const makeRun = (level, seed, inputs, result) => ({

@@ -5,9 +5,9 @@ import { hurtAlien } from '../../src/core/aliens.js';
 import { createWorld } from '../../src/core/world.js';
 import { rand, randPick } from '../../src/core/rng.js';
 import { powerTime, POWER_TIME } from '../../src/core/powerups.js';
-import { escortsOf, ESCORT_DX, MUZZLE } from '../../src/core/ship.js';
+import { escortsOf, ESCORT_DX, MUZZLE, COOLDOWN } from '../../src/core/ship.js';
 import {
-  TICK, FIRE, level, wave, step, seconds, playing, drain, ofType, pickupOnShip, holdAlien,
+  TICK, gunTicks, FIRE, level, wave, step, seconds, playing, drain, ofType, pickupOnShip, holdAlien,
 } from './world-kit.js';
 
 // World 13's power: two escorts that fire a copy of the ship's straight shot with every volley, for
@@ -129,7 +129,8 @@ test('the escorts fire for 10 s and no longer: 3 shots a volley, then 1', () => 
   }
   assert.ok(Math.abs(off - 10) < 0.05, `the power ended ${off} s after the catch`);
   const threes = sizes.indexOf(1);
-  assert.ok(threes >= 54 && threes <= 57, `${threes} volleys of three in 10 s at 0.18 s each`);
+  const volleys = 10 / (gunTicks(COOLDOWN) * TICK);
+  assert.ok(threes >= Math.floor(volleys) && threes <= Math.ceil(volleys) + 1, `${threes} volleys of three in 10 s at ${gunTicks(COOLDOWN)} ticks each`);
   assert.ok(sizes.slice(0, threes).every((n) => n === 3), 'three a volley until then');
   assert.ok(sizes.slice(threes).every((n) => n === 1), 'then the plain single shot');
 });

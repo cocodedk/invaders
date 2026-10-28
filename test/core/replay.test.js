@@ -17,7 +17,7 @@ const sample = () => {
 test('makeRun builds the storable run and decodeRun gives the playable one back', () => {
   const { inputs, run } = sample();
   assert.deepEqual(Object.keys(run).sort(), ['inputs', 'level', 'score', 'seed', 'stars', 'ticks', 'v']);
-  assert.equal(run.v, 10);
+  assert.equal(run.v, 11);
   assert.equal(run.level, 'w3-2');
   assert.equal(run.ticks, 900);
   assert.equal(typeof run.inputs, 'string');
@@ -30,7 +30,7 @@ test('decodeRun rejects the wrong version, bad shapes and bad encodings', () => 
   const { run } = sample();
   const bad = [
     null, undefined, 'garbage', 42, [], true, {},
-    { ...run, v: 0 }, { ...run, v: 1 }, { ...run, v: 2 }, { ...run, v: 3 }, { ...run, v: 4 }, { ...run, v: 5 }, { ...run, v: 6 }, { ...run, v: 7 }, { ...run, v: 8 }, { ...run, v: 9 }, { ...run, v: 11 }, { ...run, v: '10' }, { ...run, v: undefined },
+    { ...run, v: 0 }, { ...run, v: 1 }, { ...run, v: 2 }, { ...run, v: 3 }, { ...run, v: 4 }, { ...run, v: 5 }, { ...run, v: 6 }, { ...run, v: 7 }, { ...run, v: 8 }, { ...run, v: 9 }, { ...run, v: 10 }, { ...run, v: 12 }, { ...run, v: '11' }, { ...run, v: undefined },
     { ...run, level: 'w9-9' }, { ...run, level: 3 }, { ...run, level: undefined },
     { ...run, seed: -1 }, { ...run, seed: 1.5 }, { ...run, seed: 2 ** 32 }, { ...run, seed: '7' },
     { ...run, ticks: 899 }, { ...run, ticks: -1 }, { ...run, ticks: MAX_TICKS + 1 }, { ...run, ticks: 'x' },

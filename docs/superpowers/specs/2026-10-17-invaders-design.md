@@ -103,6 +103,19 @@ quoted lines, so the repo can be public.
   (only they take full damage; armour plates take 25 %), 2–3 phases switched at hp thresholds,
   every attack telegraphed ≥ 0.6 s. Ends in a long destruction chain (staggered blasts, debris,
   white-out flash).
+- **The gun (R70).** The user asked for "the initial weapons firing rate 1.5 times higher", tried it, and found "1.5
+  was too much. decrease to 1.25"; then "increase the rapid fire's projectile speed". The gun fires on a tick, so its
+  0.18 s cooldown came to a shot every 11 ticks (5.45 a second). `COOLDOWN` is now 0.144 s (0.18 / 1.25), a shot
+  every 9 ticks (6.7 a second, 1.22×), the nearest a 60 Hz tick comes to 1.25× (8 ticks would be 1.375×). Every power
+  that fires at the base rate (spread, homing, wingmen, mirror, trident, the broadside's side guns) speeds up with
+  it. Rapid still fires every 0.07 s (5 ticks, now 1.8× the base, 2.2× before), and its shot now flies at 2100 px/s,
+  1.5× the base shot's 1400; the autopilot's aim leads by the speed of the shot it fires (`ship.js` shotSpeed). Boss
+  hp was left as it was, so the boss fights are shorter: the stand-and-fire bot's wins went from 43-58 s to 37-49 s,
+  and its bar (boss-bots.test.js) from 40-60 s to 35-52 s. The tests of the gun read `COOLDOWN` and
+  `RAPID_COOLDOWN`, so changing the rate is that one line plus the measured data: `RUN_V` (10 → 11), the
+  fingerprints and still-ship pins, the pars (`scripts/pars.mjs`), the scores (`scripts/ratings.mjs`), the boss bar,
+  and the seeds a test needs a particular event from (the demo's `DEMO_SEED` 8 → 2, w7-1's replay flight, the
+  mirror replay; the perf test's busiest level is now w5-3).
 - **Power-ups:** spread, laser, rapid, shield, homing, slow. 10 s each, slow 6 s. Fall at 160 px/s,
   collected by touch. Each world reskins them (Neon Rain's laser is a pink neon beam, Ronin Moon's
   spread is a fan of throwing stars).

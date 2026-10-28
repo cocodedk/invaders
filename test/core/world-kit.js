@@ -10,6 +10,8 @@ export { TICK, IDLE };
 // test exercises one rule without waiting for the real thing to line up.
 export const input = (o) => ({ ...IDLE, ...o });
 export const FIRE = input({ fire: true });
+// The ticks from one shot to the next for a gun `cooldown` (ship.js COOLDOWN, RAPID_COOLDOWN): it fires on the first tick its cooldown has run out.
+export const gunTicks = (cooldown) => Math.ceil(cooldown / TICK - 1e-9);
 export const solid = (b) => b.mask.reduce((n, v) => n + v, 0); // a bunker's solid pixels
 
 export const wave = (o = {}) =>
