@@ -1,26 +1,21 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { installDom, all, textOf } from './lobby-kit.js';
+import { installDom, all, textOf, has, openLobby } from './lobby-kit.js';
 
 // Level Select is one uniform grid: every world has the same full card (its poster over its five reels), in world
-// order, eight to a row, a free-flight world only adding a flag. Each card shows its difficulty score (ratings.js) in a strip
+// order, PER_ROW to a row, a free-flight world only adding a flag. Each card shows its difficulty score (ratings.js) in a strip
 // under the poster, so no type lies over the boss.
 // Row lengths and the card's parts are read from the built DOM, never from numbers of worlds.
 installDom();
 const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
-const { cardOf, SEGMENTS, LONG, isLong } = await import('../../src/ui/screens/lobby-card.js');
+const { SEGMENTS, LONG, isLong } = await import('../../src/ui/screens/lobby-card.js');
+const { PER_ROW } = await import('../../src/ui/screens/lobby-nav.js');
 const { WORLDS, LEVELS, reelName } = await import('../../src/core/levels.js');
 const { bossDef } = await import('../../src/core/bosses-data.js');
-const { ratingOf } = await import('../../src/core/ratings.js');
+const { RATINGS } = await import('../../src/core/ratings.js');
 const { TAGLINES } = await import('../../src/ui/screens/posters.js');
 
-const has = (e, cls) => e.className.split(' ').includes(cls);
-
-function lobby(best = {}, focusId) {
-  const screen = lobbyScreen({ best, start() {}, back() {}, reset() {}, focusId });
-  const named = (cls) => all(screen.el).filter((e) => has(e, cls));
-  return { screen, named, rows: named('posters'), cards: named('poster') };
-}
+const lobby = (best) => openLobby(lobbyScreen, undefined, best);
 
 test('every world has a full card, in order from world 1 to the last', () => {
   const { cards } = lobby();
@@ -42,22 +37,22 @@ test('every world has a full card, in order from world 1 to the last', () => {
   }
 });
 
-test('the cards stand eight to a row, ceil(worlds / 8) rows, the last one partly filled', () => {
+test('the cards stand PER_ROW to a row, ceil(worlds / PER_ROW) rows, the last one partly filled', () => {
   const { rows, cards, screen } = lobby();
-  assert.equal(rows.length, Math.ceil(WORLDS.length / 8));
-  rows.slice(0, -1).forEach((row, r) => assert.equal(row.children.length, 8, `row ${r + 1}`));
-  assert.equal(rows.at(-1).children.length, WORLDS.length - 8 * (rows.length - 1));
+  assert.equal(rows.length, Math.ceil(WORLDS.length / PER_ROW));
+  rows.slice(0, -1).forEach((row, r) => assert.equal(row.children.length, PER_ROW, `row ${r + 1}`));
+  assert.equal(rows.at(-1).children.length, WORLDS.length - PER_ROW * (rows.length - 1));
   assert.deepEqual(rows.flatMap((r) => r.children), cards, 'the rows hold the cards in order');
-  assert.deepEqual(rows.map((r) => r.children[0].dataset.world), rows.map((_, i) => String(8 * i + 1)), 'worlds 1, 9, 17 start the rows');
+  assert.deepEqual(rows.map((r) => r.children[0].dataset.world), rows.map((_, i) => String(PER_ROW * i + 1)), 'every PER_ROW-th world starts a row');
   assert.deepEqual(rows.map((r) => r.parent), rows.map(() => rows[0].parent), 'one page holds every row');
   assert.ok(!all(screen.el).some((e) => ['side', 'side-label', 'free'].some((c) => has(e, c))), 'no side shelf, no foot card');
   assert.ok(!textOf(screen.el).includes('Also showing'), 'no "Also showing" banner');
 });
 
-test('world 18 is a full card in the third row, with the free-flight flag, and the only flagged one', () => {
+test('world 18 is a full card in its row, with the free-flight flag, and the only flagged one', () => {
   const { rows, named } = lobby();
   assert.equal(WORLDS[17].free, true);
-  const card = rows[2].children[1];
+  const card = rows[Math.floor(17 / PER_ROW)].children[17 % PER_ROW];
   assert.equal(card.dataset.world, '18');
   assert.ok(has(card, 'poster'), 'a poster card like the others');
   assert.equal(all(card).filter((e) => has(e, 'reel')).length, 5);
@@ -73,17 +68,17 @@ test('world 18 is a full card in the third row, with the free-flight flag, and t
   for (const part of ['World 18', 'Anvil Sky', 'Make their fire follow you.', 'The Squall Ray']) assert.ok(say.includes(part), part);
 });
 
-test("each poster shows its world's difficulty score out of 10, with one decimal, a caption and a ten-segment bar", () => {
+test("each poster shows its world's difficulty score out of SEGMENTS, with one decimal, a caption and a bar of SEGMENTS segments", () => {
   const { cards } = lobby();
   for (const [i, card] of cards.entries()) {
     const w = WORLDS[i];
-    const score = ratingOf(w.id);
+    const score = RATINGS[w.id - 1];
     const part = (cls) => all(card).filter((e) => has(e, cls));
     assert.equal(textOf(part('rating-n')[0]), score.toFixed(1), `world ${w.id}`);
     assert.match(textOf(part('rating-n')[0]), /^\d+\.\d$/);
     assert.equal(textOf(part('rating-cap')[0]), 'Difficulty', 'labelled');
     const [line] = part('rating');
-    assert.equal(line.attrs['aria-label'], `Difficulty ${score.toFixed(1)} out of 10`);
+    assert.equal(line.attrs['aria-label'], `Difficulty ${score.toFixed(1)} out of ${SEGMENTS}`);
     const segs = all(part('rating-bar')[0]).filter((e) => e.tag === 'i');
     assert.equal(segs.length, SEGMENTS);
     const kinds = segs.map((s) => (has(s, 'on') ? 'on' : has(s, 'half') ? 'half' : 'off'));
@@ -106,32 +101,21 @@ test('the score is a strip between the poster and the reels, and the poster head
   }
 });
 
-test('a name with a word of more than 8 letters is set smaller (.long), or the word is cut off at the poster edge', () => {
+test('a name with a word of more than LONG letters is set smaller (.long), or the word is cut off at the poster edge', () => {
   const { cards } = lobby();
   for (const [i, card] of cards.entries()) {
     const w = WORLDS[i];
     const name = all(card).find((e) => has(e, 'poster-name'));
-    const wide = w.name.split(' ').some((word) => word.length > LONG);
-    assert.equal(has(name, 'long'), wide, `${w.name}: ${wide ? 'a long word' : 'short words'}`);
-    assert.equal(has(name, 'long'), isLong(w.name));
+    assert.equal(has(name, 'long'), isLong(w.name), `${w.name}: ${isLong(w.name) ? 'a long word' : 'short words'}`);
   }
-  assert.equal(LONG, 8);
-  assert.ok(isLong('Glass Cathedral') && !isLong('Ember Carnival') && !isLong('Ash to Air'), 'Cathedral has 9, Carnival 8');
+  const word = (n) => 'x'.repeat(n);
+  assert.ok(isLong(`Glass ${word(LONG + 1)}`) && !isLong(`${word(LONG)} ${word(LONG)}`) && !isLong('Ash to Air'), 'one word over LONG is enough, LONG itself is not');
   assert.ok(WORLDS.some((w) => isLong(w.name)), 'world 16 is one');
 });
 
 test("a shelf says how many cards it holds (--filled), so the rail ends at the last one", () => {
   const { rows } = lobby();
   assert.deepEqual(rows.map((r) => r.style.props['--filled']), rows.map((r) => String(r.children.length)));
-});
-
-test('a world without a rating yet still gets a full card, only without the score', () => {
-  const world = { ...WORLDS[0], id: 99 };
-  assert.equal(ratingOf(99), null);
-  const card = cardOf(world, {}, () => {});
-  assert.ok(!all(card.el).some((e) => has(e, 'rating-n') || has(e, 'rating')));
-  assert.equal(all(card.el).filter((e) => has(e, 'reel')).length, 0, 'no levels of world 99, so no reels, and no throw');
-  assert.equal(textOf(all(card.el).find((e) => has(e, 'poster-world'))), 'World 99');
 });
 
 test('the reels carry the stars, the best score and the medal mark, and nothing stray shows', () => {

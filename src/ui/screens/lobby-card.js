@@ -1,14 +1,14 @@
 // A world's card in the lobby: its poster (the boss fight the game rendered, the kicker, the name, the
 // tagline, the boss billed), a strip with the world's difficulty, and its five reels. Every world gets the
 // same card; a free-flight world only adds a small flag in the foot of its poster.
-//   reel(level, best, start) -> button    cardOf(world, best, start) -> { el, art, reels, world, pick }
+//   cardOf(world, best, start) -> { el, art, reels, world, pick }
 // A reel shows the level's number (the medal mark pinned to it when the level holds its medal), its
 // best stars and best score. The poster develops in once posters.js has baked it (the screen's update).
 // pick() is the reel the poster stands for (the first not played yet, else the first): the poster has no
 // reel of its own, so a click on it plays that one, and the lobby focuses it when the pointer moves over it.
 import { LEVELS, reelName, worldName } from '../../core/levels.js';
 import { bossDef } from '../../core/bosses-data.js';
-import { ratingOf } from '../../core/ratings.js';
+import { RATINGS } from '../../core/ratings.js';
 import { clamp } from '../../core/math.js';
 import { lookFor } from '../looks/index.js';
 import { play } from '../audio.js';
@@ -20,7 +20,7 @@ export const SEGMENTS = 10;
 
 // A reel focuses on a pointer that moves over it (lobby.js), not on the one the page scrolls under: it has no
 // pointerenter focus of its own, which dom.js's button() would give it.
-export function reel(level, best, start) {
+function reel(level, best, start) {
   const b = best[level.id];
   const r = h('button', `reel${level.boss ? ' finale' : ''}${b ? ' played' : ''}`);
   r.type = 'button';
@@ -68,8 +68,7 @@ export function cardOf(world, best, start) {
       h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
   if (world.free) art.append(h('span', 'poster-flag', 'Free flight'));
   const reels = LEVELS.filter((l) => l.world === world.id).map((l) => reel(l, best, start));
-  const score = ratingOf(world.id); // a world not rated yet has no strip
-  const el = h('article', 'poster', art, score == null ? null : rating(score), h('div', 'reels', ...reels));
+  const el = h('article', 'poster', art, rating(RATINGS[world.id - 1]), h('div', 'reels', ...reels));
   el.dataset.world = String(world.id);
   el.style.setProperty('--accent', look.palette.accent);
   const pick = () => reels.find((r) => !r.classList.contains('played')) ?? reels[0];

@@ -10,9 +10,9 @@
 // Below the last row the keys leave for the bar (Back, Reset scores); above the first row they stay on its first reel.
 export const PER_ROW = 8;
 
-export const rowsOf = (count, perRow = PER_ROW) =>
-  Array.from({ length: Math.ceil(count / perRow) }, (_, r) =>
-    Array.from({ length: Math.min(perRow, count - r * perRow) }, (_2, c) => r * perRow + c));
+export const rowsOf = (count) =>
+  Array.from({ length: Math.ceil(count / PER_ROW) }, (_, r) =>
+    Array.from({ length: Math.min(PER_ROW, count - r * PER_ROW) }, (_2, c) => r * PER_ROW + c));
 
 export function step([world, reel], [dx, dy], rows, reels, goal) {
   const r = rows.findIndex((row) => row.includes(world));

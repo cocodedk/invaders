@@ -21,10 +21,10 @@ import { resolve } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 
-export const LAGS = [8, 10, 12, 14, 16, 18]; // ticks of reaction lag, the range from a quick pilot to a slow one
-export const SEEDS = 20;
+const LAGS = [8, 10, 12, 14, 16, 18]; // ticks of reaction lag, the range from a quick pilot to a slow one
+const SEEDS = 20;
 
-export const scoreOf = (setting, clearRate) => Number((1 + (9 * (setting + 1 - clearRate)) / 2).toFixed(1));
+const scoreOf = (setting, clearRate) => Number((1 + (9 * (setting + 1 - clearRate)) / 2).toFixed(1));
 
 // Run every task on a pool of workers, a task at a time each; resolves to the replies in task order.
 function deal(tasks, root) {
@@ -57,16 +57,15 @@ function table(rows) {
   return [line({ world: 'world', name: 'name', clear: 'clear %', setting: 'setting', score: 'score', levels: 'clear % by level' }), ...rows.map(line)].join('\n');
 }
 
-function write(scores) {
+// `hand` is the measured tree's HAND (hand.js), the hand speed the scores assume.
+function write(scores, hand) {
   writeFileSync(new URL('../src/core/ratings.js', import.meta.url), `// Each world's difficulty as a score out of 10, shown on its card in Level Select: half the world's own setting
-// (the mean d of its five levels, difficulty.js) and half how often the lagged autopilot fails it (six reaction lags
-// x 20 seeds per level, the way boss levels have to be measured: their seeds share an opening), as
+// (the mean d of its five levels, difficulty.js) and half how often the lagged autopilot fails it (${LAGS.length} reaction lags
+// x ${SEEDS} seeds per level, the way boss levels have to be measured: their seeds share an opening), as
 // 1 + 9 x (d + fail) / 2, to one decimal. The lagged autopilot walks to where it decided to be at HAND (hand.js,
-// 1800 px/s since R68), so the scores are relative to that model of a hand and move with it. Written by
+// ${hand} px/s since R68), so the scores are relative to that model of a hand and move with it. Written by
 // scripts/ratings.mjs; run it again when a world is added or retuned, as pars are.
 export const RATINGS = [${scores.join(', ')}];
-
-export const ratingOf = (world) => RATINGS[world - 1] ?? null;
 `);
 }
 
@@ -93,7 +92,7 @@ async function main() {
   console.log(table(out));
   console.log(`${LEVELS.length} levels x ${LAGS.length} lags x ${SEEDS} seeds in ${Math.round((Date.now() - started) / 1000)} s on ${availableParallelism()} cores`);
   if (args.includes('--write')) {
-    write(out.map((r) => r.score));
+    write(out.map((r) => r.score), (await load('hand.js')).HAND);
     console.log(`wrote ${out.length} scores to src/core/ratings.js`);
   }
 }

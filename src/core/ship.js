@@ -1,4 +1,4 @@
-import { approach, clamp } from './math.js';
+import { approach, clamp, segDist2 } from './math.js';
 import { emit } from './util.js';
 import { MID_X, WIDTH } from './kinds.js';
 
@@ -19,16 +19,17 @@ export const INVULN = 1.5; // s of blinking after a hit
 export const COOLDOWN = 0.144;
 export const SHOT_SPEED = 1400;
 export const HOMING_SPEED = 1000; // px/s: a homing shot is slower, so it has time to turn
-export const RAPID_SPEED = 2100; // px/s: a rapid shot flies 1.5 x as fast as the base one (R70)
+export const RAPID_SPEED = 1.5 * SHOT_SPEED; // px/s: a rapid shot flies 1.5 x as fast as the base one (R70)
 export const HOMING_TURN = Math.PI; // rad/s: how hard it steers toward the nearest alien ahead (stepBullet)
 export const RAPID_COOLDOWN = 0.07; // s between shots under the rapid power
+export const GUN_EPS = 1e-9; // s: a cooldown this near 0 is over, so float dust never makes the gun a tick late
 export const MUZZLE = 22; // px above the ship's centre where shots (and the beam) start
 const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spread power
 export const ESCORT_DX = 80; // px: the two wingmen fly this far to either side of the ship (world 13)
 const ESCORT_EDGE = 30; // px: the closest an escort flies to either side of the field
 const GUN_DX = 22; // px: the side guns sit this far to either side of the ship's centre (broadside)
 
-const ACCEL = 7200; // px/s^2: the keys take the ship from rest to full speed in 0.1 s, the same to stop (a short ease)
+export const ACCEL = 7200; // px/s^2: the keys take the ship from rest to full speed in 0.1 s, the same to stop (a short ease)
 
 // fromX / fromY are where the ship's move this tick began (moveShip): the collisions sweep from there to
 // where it is, so a ship that crosses the field in one tick cannot slip through what lay between (R68).
@@ -48,8 +49,10 @@ export const createShip = () => ({
 const goal = (t, z) => t && { x: clamp(t.x, z.x0, z.x1), y: clamp(t.y, z.y0, z.y1) };
 
 // Where the ship's move this tick began. A ship that was never moved (put in place by hand, as a test or
-// a scene does) has no move: it began where it is.
+// a scene does) has no move: it began where it is. pathDist2 is the squared distance from the point `p` to
+// the path the ship flew this tick, from there to where it is (R68: what the path crossed, the ship touched).
 export const fromOf = (s) => ({ x: s.fromX ?? s.x, y: s.fromY ?? s.y });
+export const pathDist2 = (s, p) => segDist2(s.fromX ?? s.x, s.fromY ?? s.y, s.x, s.y, p.x, p.y);
 
 // The wingmen power's two escorts, left then right: level with the ship, ESCORT_DX to either side and
 // held inside the field. [] when the power is not running (or the ship is gone). The drawing and
@@ -165,7 +168,7 @@ export function stepShip(world, dt, input) {
   s.bombPressed = Boolean(input.bomb) && !s.bombHeld;
   s.bombHeld = Boolean(input.bomb);
   moveShip(s, dt, input, zoneOf(world.level));
-  if (world.state !== 'play' || !input.fire || s.cooldown > 0) return;
+  if (world.state !== 'play' || !input.fire || s.cooldown > GUN_EPS) return;
   if (s.power?.kind !== 'laser') shoot(world);
   else if (s.broadside > 0) {
     s.cooldown = COOLDOWN;

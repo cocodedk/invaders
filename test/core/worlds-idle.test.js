@@ -5,6 +5,8 @@ import { levelById } from '../../src/core/levels.js';
 import { stateHash } from '../../src/core/state-hash.js';
 import { TICK } from '../../src/core/kinds.js';
 import { finished } from '../../src/core/util.js';
+import { foldIn } from './fingerprint-kit.js';
+import { FIRE } from './world-kit.js';
 
 // What worlds-unchanged.test.js cannot say after R68: it flies the autopilot, so any change to movement moves
 // all its pins, and a leak of some other rule into a world hides among them. These are the same 29 levels
@@ -54,11 +56,11 @@ function idleFingerprint(id) {
   let fold = 0;
   let end = '';
   while (!finished(world) && world.tick < 3600) {
-    stepWorld(world, TICK, { dx: 0, dy: 0, fire: true, bomb: world.tick % 400 === 399, target: null });
+    stepWorld(world, TICK, { ...FIRE, bomb: world.tick % 400 === 399 });
     world.events.length = 0;
     if (world.state === 'cleared') break;
     if (world.tick % 100 === 0) end = stateHash(world);
-    if (world.tick % 600 === 0) for (const ch of stateHash(world)) fold = (Math.imul(fold, 31) + ch.charCodeAt(0)) | 0;
+    if (world.tick % 600 === 0) fold = foldIn(fold, world);
   }
   return { fold, end, tick: world.tick };
 }

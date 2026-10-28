@@ -8,8 +8,11 @@ import { installDom, openLobby } from './lobby-kit.js';
 installDom();
 const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
 const { preferred } = await import('../../src/ui/screens/posters.js');
+const { PER_ROW } = await import('../../src/ui/screens/lobby-nav.js');
+const { WORLDS } = await import('../../src/core/levels.js');
 
 const lobby = (focusId) => openLobby(lobbyScreen, focusId);
+const inRows = (from, to) => WORLDS.slice(from * PER_ROW, to * PER_ROW).map((w) => w.id); // the worlds of rows from..to - 1
 const PADS = { scrollPaddingTop: '28px', scrollPaddingBottom: '128px' }; // what lobby.css gives the page at 1080p
 const withPads = (run) => {
   globalThis.getComputedStyle = () => PADS;
@@ -99,11 +102,11 @@ test('the rows in view are told to the poster baker, on the first show and on ev
   page.clientHeight = 520;
   page.scrollTop = 0;
   screen.shown();
-  assert.deepEqual(preferred(), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 'rows one and two reach into the page');
+  assert.deepEqual(preferred(), inRows(0, 2), 'rows one and two reach into the page');
   page.scrollTop = 700; // 700-1220
   page.emit('scroll');
-  assert.deepEqual(preferred(), [9, 10, 11, 12, 13, 14, 15, 16, 17, 18], 'rows two and three');
+  assert.deepEqual(preferred(), inRows(1, 3), 'rows two and three');
   page.scrollTop = 900; // 900-1420: row three alone
   page.emit('scroll');
-  assert.deepEqual(preferred(), [17, 18]);
+  assert.deepEqual(preferred(), inRows(2, 3));
 });

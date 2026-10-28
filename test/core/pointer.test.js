@@ -2,22 +2,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld } from '../../src/core/world.js';
 import { levelById } from '../../src/core/levels.js';
-import { SHIP_SPEED, ZONE, FREE_ZONE } from '../../src/core/ship.js';
+import { SHIP_SPEED, ACCEL, ZONE, FREE_ZONE } from '../../src/core/ship.js';
 import { HAND, handToward, handTarget } from '../../src/core/hand.js';
 import { autopilot, destination } from '../../src/core/autopilot.js';
-import { level, wave, playing, input, step, seconds, bulletAt, TICK } from './world-kit.js';
+import { level, wave, playing, input, at, still, step, seconds, bulletAt, TICK } from './world-kit.js';
 
 // R68: the pointer is the ship. A pointer target puts the ship on its goal in the very tick, in every
 // world; the keys keep their ease; the autopilot moves like a hand. (pointer-sweep.test.js has what a ship
 // that crosses the field in one tick meets on the way.)
 
-const at = (x, y) => input({ target: { x, y } });
-// A quiet world past its intro with the ship at (300, 1000).
-const still = (lv) => {
-  const w = playing(lv);
-  Object.assign(w.ship, { x: 300, y: 1000 });
-  return w;
-};
+const EASE = ACCEL * TICK; // px/s the keys add (or take off) in a tick
 
 test('the pointer puts the ship on its goal in one tick, in every world, held inside that world\'s zone', () => {
   for (const id of ['w1-1', 'w9-3', 'w17-5', 'w18-1', 'w18-5']) {
@@ -44,10 +38,10 @@ test('a flick leaves a velocity the drawing can bank on, never more than the key
   const w = playing(level([wave()]));
   Object.assign(w.ship, { x: 200, y: 900 });
   step(w, 1, at(1800, 900));
-  assert.ok(Math.abs(w.ship.vx - SHIP_SPEED) < 1e-9 && w.ship.vy === 0, `a 1600 px jump says 720 px/s, got ${w.ship.vx}`);
+  assert.ok(Math.abs(w.ship.vx - SHIP_SPEED) < 1e-9 && w.ship.vy === 0, `a 1600 px jump says ${SHIP_SPEED} px/s, got ${w.ship.vx}`);
   Object.assign(w.ship, { x: 200, y: 900 });
   step(w, 1, at(204, 903));
-  assert.ok(Math.abs(w.ship.vx - 240) < 1e-9 && Math.abs(w.ship.vy - 180) < 1e-9, 'a 5 px move says 300 px/s, as it went');
+  assert.ok(Math.abs(w.ship.vx - 4 / TICK) < 1e-9 && Math.abs(w.ship.vy - 3 / TICK) < 1e-9, 'a 5 px move says 5 px a tick, as it went');
   step(w, 1, at(204, 903));
   assert.deepEqual([w.ship.vx, w.ship.vy], [0, 0]);
 });
@@ -55,7 +49,7 @@ test('a flick leaves a velocity the drawing can bank on, never more than the key
 test('when the pointer lets go the ship stops where it is: no drift after a pause or a blur', () => {
   const w = playing(level([wave()]));
   Object.assign(w.ship, { x: 200, y: 900 });
-  step(w, 1, at(1500, 900)); // a flick: vx says 720 px/s, for the drawing only
+  step(w, 1, at(1500, 900)); // a flick: vx says SHIP_SPEED, for the drawing only
   assert.ok(Math.abs(w.ship.vx - SHIP_SPEED) < 1e-9);
   step(w, 20, input()); // resetInput (a pause, a blur, a screen): no target and no key
   assert.deepEqual([w.ship.x, w.ship.y, w.ship.vx, w.ship.vy], [1500, 900, 0, 0]);
@@ -66,25 +60,27 @@ test('a key that takes over from the pointer eases from rest, not on from the fl
   Object.assign(w.ship, { x: 200, y: 900 });
   step(w, 1, at(1500, 900));
   step(w, 1, input({ dx: -1 }));
-  assert.ok(Math.abs(w.ship.vx + 120) < 1e-9, `0.1 s ease: one tick is 120 px/s, not ${w.ship.vx}`);
-  assert.ok(Math.abs(w.ship.x - (1500 - 2)) < 1e-9, `and 2 px, got ${w.ship.x}`);
+  assert.ok(Math.abs(w.ship.vx + EASE) < 1e-9, `one tick of the ease is ${EASE} px/s, not ${w.ship.vx}`);
+  assert.ok(Math.abs(w.ship.x - (1500 - EASE * TICK)) < 1e-9, `and ${EASE * TICK} px, got ${w.ship.x}`);
 });
 
-test('the keys still ease in every world: 0.1 s to full speed, 720 px/s after', () => {
+test('the keys still ease in every world: EASE a tick up to full speed, SHIP_SPEED after', () => {
+  const ease = Math.ceil(SHIP_SPEED / EASE); // ticks from rest to full speed
+  let far = 0; // how far 1 s of the key carries the ship: its speed each tick, eased, times the tick
+  for (let k = 1; k <= 60; k++) far += Math.min(k * EASE, SHIP_SPEED) * TICK;
   for (const id of ['w1-1', 'w18-1']) {
     const w = createWorld(levelById(id), 1);
     Object.assign(w.ship, { x: 100, y: 900 });
     step(w, 1, input({ dx: 1 }));
     assert.ok(w.ship.vx > 0 && w.ship.vx < SHIP_SPEED, `${id}: eases, does not snap`);
-    step(w, 5, input({ dx: 1 }));
+    step(w, ease - 1, input({ dx: 1 }));
     assert.equal(w.ship.vx, SHIP_SPEED);
-    step(w, 54, input({ dx: 1 }));
-    assert.ok(Math.abs(w.ship.x - (100 + 690)) < 1e-6, `${id}: 6 ticks of ease and 54 at 720 px/s, got ${w.ship.x}`);
+    step(w, 60 - ease, input({ dx: 1 }));
+    assert.ok(Math.abs(w.ship.x - (100 + far)) < 1e-6, `${id}: ${ease} ticks of ease and ${60 - ease} at ${SHIP_SPEED} px/s, got ${w.ship.x}`);
   }
 });
 
 test('the hand carries the pointer HAND px/s and no more, and `to` itself once it is that close', () => {
-  assert.equal(HAND, 1800);
   const far = handToward({ x: 100, y: 100 }, { x: 3100, y: 4100 }, TICK);
   assert.ok(Math.abs(Math.hypot(far.x - 100, far.y - 100) - HAND * TICK) < 1e-9);
   assert.ok(Math.abs((far.y - 100) / (far.x - 100) - 4 / 3) < 1e-9, 'straight toward it');

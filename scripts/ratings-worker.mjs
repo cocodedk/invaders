@@ -12,12 +12,12 @@ import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
 const load = (f) => import(pathToFileURL(resolve(workerData.root, 'src/core', f)).href);
-const [{ createWorld, stepWorld }, { levelById }, { autopilot, destination }, { finished }, { TICK }] = await Promise.all(
-  ['world.js', 'levels.js', 'autopilot.js', 'util.js', 'kinds.js'].map(load),
+const [{ createWorld, stepWorld }, { levelById }, { autopilot, destination }, { finished }, { TICK }, { IDLE }] = await Promise.all(
+  ['world.js', 'levels.js', 'autopilot.js', 'util.js', 'kinds.js', 'input-codec.js'].map(load),
 );
 const hand = await load('hand.js').catch(() => null);
 
-const NEUTRAL = { dx: 0, dy: 0, fire: true, bomb: false, target: null };
+const NEUTRAL = { ...IDLE, fire: true };
 const LIMIT = 240; // s of play before a flight counts as lost
 
 // The input of this tick, with the destination it was decided on (planned once: the dodge is the costly part).
@@ -26,7 +26,8 @@ const plan = (w) => {
   const dest = destination(w);
   return { ...autopilot(w, dest), dest };
 };
-const walked = (cur, w) => (cur.dest && hand ? { ...cur, target: hand.handTarget(w.ship, cur.dest, TICK) } : cur);
+// A destination is R68's, as hand.js is, so a tree that plans one has the hand to walk it.
+const walked = (cur, w) => (cur.dest ? { ...cur, target: hand.handTarget(w.ship, cur.dest, TICK) } : cur);
 
 function cleared(level, seed, lag) {
   const w = createWorld(level, seed);

@@ -1,15 +1,17 @@
 /* The level select as a cinema lobby: a page that scrolls (the marquee with chasing bulbs, the star total and
    the rank, then the worlds' posters in lightboxes, each over its five reels, its showtimes, with stars and best
    score), and a bar fixed to the bottom of the screen with Back and Reset scores.
-   Every world has the same card, --card wide, eight to a row on --gap, in world order; a partly filled last row
-   leaves its columns empty on the right (its rail ends at its last card), so a new world needs no layout change.
+   Every world has the same card, --card wide, --cols to a row (lobby-nav.js PER_ROW, set by lobby.js) on --gap, in
+   world order, a row --row-w wide; a partly filled last row leaves its columns empty on the right (its rail ends at
+   its last card), so a new world needs no layout change.
    The grid is 8 x 10.6 + 7 x 0.8 = 90.4 rem of the screen's 96 (always 96 x 54 rem at 16:9, base.css), the card
    about 29.8 rem tall (poster 15.9, the difficulty strip 1.05, five reels 11.7, two gaps of 0.6), so a row and a half show at once and
    the rest is a scroll away. */
 .cinema { gap: 1rem; padding: 1.6rem 2rem 1.4rem; }
 .lobby .sub, .cinema .sub { font-size: 1.3rem; }
 .lobby {
-  --card: 10.6rem; --gap: 0.8rem; --bar-h: 5rem; padding: 0; gap: 0; justify-content: flex-start; align-items: stretch;
+  --card: 10.6rem; --gap: 0.8rem; --bar-h: 5rem; --row-w: calc(var(--cols) * var(--card) + (var(--cols) - 1) * var(--gap));
+  padding: 0; gap: 0; justify-content: flex-start; align-items: stretch;
   background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(60, 24, 70, 0.55), rgba(0, 0, 0, 0) 70%),
     radial-gradient(ellipse at center, rgba(10, 10, 22, 0.93), rgba(3, 3, 8, 0.98)); }
 /* The page. Its scroll-padding keeps a card the keys scroll into view clear of the bar and of the top edge. */
@@ -28,9 +30,9 @@
 .lobby-total, .lobby-rank { color: var(--gold); margin-left: 0.8rem; letter-spacing: 0.06em; }
 .lobby-rank { margin-left: 1.4rem; }
 
-/* A shelf is one row of eight columns. Its rail (a gold hairline fading out at both ends) runs under its cards:
+/* A shelf is one row of --cols columns. Its rail (a gold hairline fading out at both ends) runs under its cards:
    --filled of them (lobby.js), so a short last row's rail ends at its last card, not under the empty columns. */
-.posters { --filled: 8; display: grid; grid-template-columns: repeat(8, var(--card)); gap: var(--gap); padding-bottom: 1.2rem;
+.posters { display: grid; grid-template-columns: repeat(var(--cols), var(--card)); gap: var(--gap); padding-bottom: 1.2rem;
   background: linear-gradient(90deg, transparent, rgba(255, 210, 120, 0.4) 20%, rgba(255, 210, 120, 0.4) 80%, transparent) 0 100%
     / calc(var(--filled) * var(--card) + (var(--filled) - 1) * var(--gap)) 0.1rem no-repeat; }
 .poster { --accent: #fff; display: flex; flex-direction: column; gap: 0.6rem; transition: transform 0.2s ease; }
@@ -103,7 +105,7 @@
 /* The bar, over the foot of the page: Back and Reset scores on the grid's left edge, the key hint on its right.
    The page's own bottom padding and scroll-padding are --bar-h plus room, so no reel is left under it. */
 .lobby-bar { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: var(--bar-h); box-sizing: border-box;
-  display: flex; align-items: center; gap: 1.6rem; padding: 0 max(1.5rem, calc((100% - 8 * var(--card) - 7 * var(--gap)) / 2));
+  display: flex; align-items: center; gap: 1.6rem; padding: 0 max(1.5rem, calc((100% - var(--row-w)) / 2));
   background: #04050a; border-top: 0.1rem solid rgba(255, 210, 120, 0.4); }
 /* Solid, so the names of the cards behind it do not show through; a fade above it takes the cards out of sight, as tall
    as the page's scroll-padding leaves free over the bar, so it never covers a reel the keys have scrolled to. */

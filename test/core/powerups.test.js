@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { POWERS } from '../../src/core/kinds.js';
 import { hurtAlien } from '../../src/core/aliens.js';
 import { createWorld } from '../../src/core/world.js';
-import { COOLDOWN, RAPID_COOLDOWN } from '../../src/core/ship.js';
+import { COOLDOWN, RAPID_COOLDOWN, SHOT_SPEED, RAPID_SPEED } from '../../src/core/ship.js';
 import {
   FIRE, gunTicks, level, wave, input, step, seconds, playing, drain, ofType, shotAt, bulletOnShip, pickupAt, pickupOnShip,
 } from './world-kit.js';
@@ -125,8 +125,7 @@ test('rapid cuts the gun cooldown from COOLDOWN to RAPID_COOLDOWN, and fires tha
   assert.ok(fired(rapid) > 0.9 * faster * fired(base), `rapid ${fired(rapid)} vs base ${fired(base)}`);
 });
 
-test('a rapid shot flies at 2100 px/s, 1.5 x the base shot (R70); the base shot stays at 1400', async () => {
-  const { SHOT_SPEED, RAPID_SPEED } = await import('../../src/core/ship.js');
+test('a rapid shot flies at RAPID_SPEED, 1.5 x the base shot (R70); the base shot at SHOT_SPEED', () => {
   const speedOf = (power) => {
     const w = playing(lv());
     w.ship.power = power && { kind: power, left: 10 };
@@ -135,7 +134,6 @@ test('a rapid shot flies at 2100 px/s, 1.5 x the base shot (R70); the base shot 
   };
   assert.equal(speedOf(null), SHOT_SPEED);
   assert.equal(speedOf('rapid'), RAPID_SPEED);
-  assert.equal(RAPID_SPEED, 1.5 * SHOT_SPEED);
 });
 
 test('shield absorbs every hit while active: no life lost, bullet spent, no blink, no hit counted', () => {

@@ -9,6 +9,7 @@
 //                         flash included, so nothing is baked mid-fight (createView, on a boss level;
 //                         a poster only draws the boss whole and calls bossArt)
 //   hullFlash(B)          the hull's white silhouette (the collapse), baked on first use
+//   stageOf(look, kind)   S, the stage the boss's painters draw on (below)
 //   painterFor(mod, id)   [painter, mirror] for a part: its own painter, or its left twin's
 //                         mirrored for an id ending in R (gunR from gun), or null
 // A module is { pad?, margin?, margins?: { [id]: px }, crack?, hull(b, l, S),
@@ -82,13 +83,19 @@ function bakePart(mod, p, S, i) {
   return set;
 }
 
-function bake(look, kind) {
+// The stage: the boss's definition, palette and look, and its hull canvas, the boss's size with `pad` px round it
+// (padY up and down: a boss whose art reaches further up or down than across).
+export function stageOf(look, kind) {
   const mod = BOSS_ART[kind];
   const def = bossDef(kind);
   const pad = mod.pad ?? 60;
-  const W = def.size.w + pad * 2;
-  const H = def.size.h + (mod.padY ?? pad) * 2; // padY: a boss whose art reaches further up or down than across
-  const S = { def, pal: look.palette.boss, look, W, H, pad };
+  return { def, pal: look.palette.boss, look, W: def.size.w + pad * 2, H: def.size.h + (mod.padY ?? pad) * 2, pad };
+}
+
+function bake(look, kind) {
+  const mod = BOSS_ART[kind];
+  const S = stageOf(look, kind);
+  const { def, W, H } = S;
   const [[body, b], [lights, l]] = pair(W, H, W / 2, H / 2);
   mod.hull(b, l, S);
   const rage = (mod.rage ?? []).map((paint) => {

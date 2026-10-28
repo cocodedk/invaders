@@ -79,6 +79,7 @@ test('a pointer that wakes after the keys walks the ship to its goal at a hand\'
   const input = pointer(1500, 700); // the unseen cursor, far from the ship
   input.mouse.walk = true;
   const ship = { x: 300, y: 1000 };
+  const far = Math.hypot(1500 - ship.x, 700 - ship.y);
   let ticks = 0;
   for (let t = readInput(input, view, ZONE, ship).target; ; t = readInput(input, view, ZONE, ship).target) {
     ticks++;
@@ -87,7 +88,9 @@ test('a pointer that wakes after the keys walks the ship to its goal at a hand\'
     if (!input.mouse.walk) break;
     assert.ok(ticks < 100, 'it gets there');
   }
-  assert.ok(ticks >= 40 && ticks <= 45, `1250 px at 30 px a tick, got ${ticks} ticks`);
+  // a hand-step a tick, each up to 2 x SQRT1_2 short of HAND x TICK (handTarget's margin, then the rounding), and the last onto the goal
+  const [least, most] = [Math.ceil(far / (HAND * TICK)), Math.ceil(far / (HAND * TICK - 2 * Math.SQRT1_2)) + 1];
+  assert.ok(ticks >= least && ticks <= most, `${far.toFixed(0)} px at ${HAND * TICK} px a tick, got ${ticks} ticks`);
   assert.deepEqual([ship.x, ship.y], [1500, 700], 'on the goal itself');
   assert.deepEqual(aim(input, view, 100, 900), { x: 100, y: 900 }, 'from then on the pointer is the ship, at once');
 });
@@ -107,16 +110,17 @@ test('resetInput (a pause, a level, a blur) forgets the walk: the pointer is imm
   assert.deepEqual(readInput(input, view, ZONE, { x: 300, y: 1000 }).target, { x: 1500, y: 700 });
 });
 
-test('flown with the keys to x = 300, a pointer that wakes at x = 1500 moves the ship 30 px a tick, not 1200, and a key stops it', () => {
+test('flown with the keys to x = 300, a pointer that wakes at x = 1500 moves the ship a hand-step a tick, not 1200 px, and a key stops it', () => {
   const w = playing(level([wave()]));
   Object.assign(w.ship, { x: 300, y: 1000 });
   const input = pointer(1500, 900);
   input.mouse.walk = true;
   const tick = () => step(w, 1, quantizeInput(readInput(input, viewOf(), ZONE, w.ship)));
   tick();
-  assert.ok(w.ship.x > 300 && w.ship.x <= 330, `walked, not thrown: ${w.ship.x}`);
+  const reach = HAND * TICK; // px a hand carries the pointer in a tick
+  assert.ok(w.ship.x > 300 && w.ship.x <= 300 + reach, `walked, not thrown: ${w.ship.x}`);
   for (let n = 0; n < 4; n++) tick();
-  assert.ok(w.ship.x > 400 && w.ship.x < 500, `five ticks on: ${w.ship.x}`);
+  assert.ok(w.ship.x > 300 + 4 * reach && w.ship.x <= 300 + 5 * reach, `five ticks on, more than four hand-steps: ${w.ship.x}`);
   const there = w.ship.x;
   input.mouse.active = false; // a movement key took the ship back
   step(w, 10, quantizeInput(readInput(input, viewOf(), ZONE, w.ship)));

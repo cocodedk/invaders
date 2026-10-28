@@ -51,7 +51,7 @@ export const textOf = (el) => el.children.map((k) => (typeof k === 'object' ? te
 export const has = (e, cls) => e.className.split(' ').includes(cls);
 
 // The lobby under test, with its parts by name. lobbyScreen is imported by the test, after installDom().
-//   openLobby(lobbyScreen, focusId, best) -> { screen, log, named(cls), reels (by id), page, backBtn, resetBtn, rows,
+//   openLobby(lobbyScreen, focusId, best) -> { screen, log, named(cls), reels (by id), page, backBtn, resetBtn, rows, cards,
 //                                              card(world), key(...codes), at() (the focused reel's id), move(el) }
 // move(el) is a pointer that moved over el (a real hover); move(el, 0, 0) one that did not (the page scrolled under it).
 export function openLobby(lobbyScreen, focusId, best = {}) {
@@ -62,7 +62,7 @@ export function openLobby(lobbyScreen, focusId, best = {}) {
   const [page] = named('lobby-scroll');
   const [backBtn, resetBtn] = named('lobby-bar')[0].children;
   return {
-    screen, log, named, reels, page, backBtn, resetBtn, rows: named('posters'),
+    screen, log, named, reels, page, backBtn, resetBtn, rows: named('posters'), cards: named('poster'),
     card: (world) => named('poster').find((c) => c.dataset.world === String(world)),
     key: (...codes) => codes.map((c) => screen.onKey(c)),
     at: () => document.activeElement.dataset?.id ?? document.activeElement,

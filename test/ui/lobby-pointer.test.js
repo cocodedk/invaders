@@ -1,13 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { installDom, openLobby, all } from './lobby-kit.js';
+import { installDom, openLobby, all, has } from './lobby-kit.js';
 
 // Level Select's mouse on the DOM stand-in: a pointer that moves focuses the reel under it, or the reel a poster stands for;
 // a pointer that only has the page scrolled under it focuses nothing; a click on a poster plays that reel.
 installDom();
 const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
 
-const lobby = (focusId, best) => openLobby(lobbyScreen, focusId, best);
+// The lobby, with art(world): its card's poster.
+const lobby = (focusId, best) => {
+  const l = openLobby(lobbyScreen, focusId, best);
+  return { ...l, art: (w) => all(l.card(w)).find((e) => has(e, 'poster-art')) };
+};
 const played = (...ids) => Object.fromEntries(ids.map((id) => [id, { score: 100, stars: 1, medal: false }]));
 
 test('a pointer that moves over a reel focuses it, and a click plays it', () => {
@@ -31,8 +35,7 @@ test('a pointer that did not move focuses nothing: a wheel turn passes reels und
 });
 
 test('a poster stands for the first reel of its world not played yet, else the first, and a pointer over it focuses that reel', () => {
-  const { reels, card, move, at } = lobby('w1-1', played('w1-1', 'w1-2', 'w2-1', 'w2-2', 'w2-3', 'w2-4', 'w2-5'));
-  const art = (w) => all(card(w)).find((e) => e.className.split(' ').includes('poster-art'));
+  const { reels, art, move, at } = lobby('w1-1', played('w1-1', 'w1-2', 'w2-1', 'w2-2', 'w2-3', 'w2-4', 'w2-5'));
   move(art(1));
   assert.equal(at(), 'w1-3', 'the first two are played');
   move(art(3));
@@ -45,8 +48,7 @@ test('a poster stands for the first reel of its world not played yet, else the f
 });
 
 test('a click on a poster plays the reel it stands for', () => {
-  const { card, log } = lobby('w1-1', played('w1-1', 'w1-2', 'w6-1', 'w6-2', 'w6-3', 'w6-4', 'w6-5'));
-  const art = (w) => all(card(w)).find((e) => e.className.split(' ').includes('poster-art'));
+  const { art, log } = lobby('w1-1', played('w1-1', 'w1-2', 'w6-1', 'w6-2', 'w6-3', 'w6-4', 'w6-5'));
   art(1).click();
   art(5).click();
   art(6).click();

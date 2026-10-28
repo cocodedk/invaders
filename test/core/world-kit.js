@@ -3,6 +3,7 @@ import { TICK } from '../../src/core/kinds.js';
 import { IDLE } from '../../src/core/input-codec.js';
 import { makePickup } from '../../src/core/powerups.js';
 import { rand } from '../../src/core/rng.js';
+import { GUN_EPS } from '../../src/core/ship.js';
 
 export { TICK, IDLE };
 
@@ -10,8 +11,11 @@ export { TICK, IDLE };
 // test exercises one rule without waiting for the real thing to line up.
 export const input = (o) => ({ ...IDLE, ...o });
 export const FIRE = input({ fire: true });
-// The ticks from one shot to the next for a gun `cooldown` (ship.js COOLDOWN, RAPID_COOLDOWN): it fires on the first tick its cooldown has run out.
-export const gunTicks = (cooldown) => Math.ceil(cooldown / TICK - 1e-9);
+// The ticks from one shot to the next for a gun `cooldown` (ship.js COOLDOWN, RAPID_COOLDOWN): it fires on the first tick
+// its cooldown is within GUN_EPS of 0.
+export const gunTicks = (cooldown) => Math.ceil((cooldown - GUN_EPS) / TICK);
+// A pointer target at (x, y) (R68: the ship goes there in the tick).
+export const at = (x, y) => input({ target: { x, y } });
 export const solid = (b) => b.mask.reduce((n, v) => n + v, 0); // a bunker's solid pixels
 
 export const wave = (o = {}) =>
@@ -32,6 +36,13 @@ export function playing(lv, { seed = 1, quiet = true } = {}) {
   step(world, 3);
   world.events.length = 0;
   return world;
+}
+
+// A quiet world past its intro with the ship at (300, 1000), ready to be flicked to the right (the pointer tests).
+export function still(lv) {
+  const w = playing(lv);
+  Object.assign(w.ship, { x: 300, y: 1000 });
+  return w;
 }
 
 // R54: any alien that dies may drop a pickup (KILL_DROP of the non-carriers, one draw on world.rng).

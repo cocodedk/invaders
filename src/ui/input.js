@@ -14,7 +14,7 @@
 // Keys with Alt, Ctrl or Meta held are left alone: Alt+Left must stay the browser's Back.
 import { MOVE } from './keys.js';
 import { ZONE } from '../core/ship.js';
-import { clamp } from '../core/math.js';
+import { clamp, dist2 } from '../core/math.js';
 import { HAND, handTarget } from '../core/hand.js';
 import { TICK } from '../core/kinds.js';
 
@@ -149,7 +149,7 @@ export function readInput(input, view, zone = ZONE, ship = null) {
     target: m.active ? steer(m, view, zone) : null,
   };
   if (raw.target && m.walk && ship) {
-    if (Math.hypot(raw.target.x - ship.x, raw.target.y - ship.y) > HAND * TICK) raw.target = handTarget(ship, raw.target, TICK);
+    if (dist2(raw.target, ship) > (HAND * TICK) ** 2) raw.target = handTarget(ship, raw.target, TICK);
     else m.walk = false;
   }
   input.taps.clear(); // read by this tick

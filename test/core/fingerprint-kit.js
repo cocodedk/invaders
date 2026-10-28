@@ -15,6 +15,12 @@ import { finished } from '../../src/core/util.js';
 // before world 17 (commit 034947a), so any change to a rule that is not the world's own shows up there.
 const KINDS = ['pickup', 'power', 'kill', 'shipHit', 'fire'];
 
+// `fold` with the world's state hash folded in: how fingerprint, and worlds-idle.test.js, fold a run into one number.
+export const foldIn = (fold, world) => {
+  for (const ch of stateHash(world)) fold = (Math.imul(fold, 31) + ch.charCodeAt(0)) | 0;
+  return fold;
+};
+
 export function fingerprint(id, ticks = 3600) {
   const world = createWorld(levelById(id));
   const counts = Object.fromEntries(KINDS.map((k) => [k, 0]));
@@ -22,9 +28,7 @@ export function fingerprint(id, ticks = 3600) {
   while (!finished(world) && world.tick < ticks) {
     stepWorld(world, TICK, autopilot(world));
     for (const e of world.events.splice(0)) if (e.type in counts) counts[e.type]++;
-    if (world.tick % 600 === 0) {
-      for (const ch of stateHash(world)) fold = (Math.imul(fold, 31) + ch.charCodeAt(0)) | 0;
-    }
+    if (world.tick % 600 === 0) fold = foldIn(fold, world);
   }
   return { fold, end: stateHash(world), ...counts };
 }

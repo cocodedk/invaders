@@ -49,7 +49,7 @@ function blurred(cloud, blur, c, a, cut) {
 }
 
 export const SHADOW_BLUR = 15; // px: the dark halo's blur, the furthest anything spreads past the cloud (the cold halo's is HALO_BLUR)
-export const HALO_BLUR = 12;
+const HALO_BLUR = 12;
 
 // The dark halo of the cloud, for the body layer: drawn under the cloud itself.
 export const shadow = (cloud) => blurred(cloud, SHADOW_BLUR, '#03041a', 0.85, false);

@@ -2,20 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { emitPattern } from '../../src/core/patterns.js';
 import { FREE_ZONE } from '../../src/core/ship.js';
-import { level, wave, playing, input, step, drain, ofType, bulletAt, pickupAt, holdAlien } from './world-kit.js';
+import { level, wave, playing, input, at, still, step, drain, ofType, bulletAt, pickupAt, holdAlien } from './world-kit.js';
 import { bossLevel, part } from './boss-kit.js';
 
 // R68: a ship that crosses the field in one tick still meets what lay in its way. The ship's path this tick
 // is tested against bullets (the gap between the two paths), beams, rams and pickups; a ship that does not
 // move is tested exactly as before. (pointer.test.js has the movement itself and the autopilot.)
 
-const at = (x, y) => input({ target: { x, y } });
-// A quiet world past its intro with the ship at (300, 1000), ready to be flicked to the right.
-const still = (lv) => {
-  const w = playing(lv);
-  Object.assign(w.ship, { x: 300, y: 1000 });
-  return w;
-};
 const hits = (w) => ofType(drain(w), 'shipHit').map((e) => e.source);
 
 test('a ship flicked across a bullet in one tick is hit by it, and one that passes at a distance is not', () => {

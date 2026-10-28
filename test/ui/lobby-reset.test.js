@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { installDom, all, textOf } from './lobby-kit.js';
+import { installDom, all, textOf, has } from './lobby-kit.js';
 
 // The lobby on a DOM stand-in: Reset scores beside Back in the bottom bar (keys and mouse), its confirm card, and the
 // rank and medals under the title.
@@ -8,8 +8,6 @@ installDom();
 const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
 const { LEVELS } = await import('../../src/core/levels.js');
 const { RANKS } = await import('../../src/core/ranks.js');
-
-const has = (e, cls) => e.className.split(' ').includes(cls);
 
 function lobby(best = {}) {
   const log = [];

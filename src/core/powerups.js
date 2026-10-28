@@ -1,7 +1,7 @@
-import { clamp, segDist2 } from './math.js';
+import { clamp } from './math.js';
 import { rand, randPick } from './rng.js';
 import { powersFor, HEIGHT, SIDE_GUNS } from './kinds.js';
-import { SHIP_R, ZONE, fromOf } from './ship.js';
+import { SHIP_R, ZONE, pathDist2 } from './ship.js';
 import { emit, prune } from './util.js';
 import { awardPickup } from './scoring.js';
 
@@ -95,10 +95,9 @@ function collect(world, p) {
 export function stepPickups(world, dt) {
   const ship = world.ship;
   const reach = (PICKUP_R + SHIP_R) ** 2;
-  const { x, y } = fromOf(ship);
   prune(world.pickups, (p) => {
     p.y += p.vy * dt;
-    if (ship.alive && segDist2(x, y, ship.x, ship.y, p.x, p.y) <= reach) {
+    if (ship.alive && pathDist2(ship, p) <= reach) {
       collect(world, p);
       return false;
     }

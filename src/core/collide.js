@@ -1,7 +1,7 @@
 import { segDist2, sweepRel2 } from './math.js';
 import { ALIEN_R, NEAR_MISS } from './kinds.js';
 import { laserHits } from './patterns.js';
-import { SHIP_R, hitShip, fromOf } from './ship.js';
+import { SHIP_R, hitShip, fromOf, pathDist2 } from './ship.js';
 import { hurtAlien, isSwooping, firstAlien } from './aliens.js';
 import { shotsVsBoss } from './boss-hit.js';
 import { stepPearls } from './pearls.js';
@@ -65,10 +65,9 @@ function vsBunkers(world, list, dt) {
 function rams(world) {
   const reach = (ALIEN_R + SHIP_R) ** 2;
   const free = world.level.free;
-  const { x, y } = fromOf(world.ship);
   for (const a of world.aliens) {
     if (a.hp <= 0 || !(free || isSwooping(a))) continue;
-    if (segDist2(x, y, world.ship.x, world.ship.y, a.x, a.y) <= reach && hitShip(world, 'ram')) {
+    if (pathDist2(world.ship, a) <= reach && hitShip(world, 'ram')) {
       a.hp = 0;
       awardKill(world, a, false);
       if (a.shell) lightFuse(world, a);

@@ -19,14 +19,14 @@
 // view so those posters bake first; posters not baked yet show their sky and develop in as soon as they are ready (update).
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { play } from '../audio.js';
-import { h, button, focusItem, shell, developer } from './dom.js';
+import { h, button, focusItem, navigate, shell, developer } from './dom.js';
 import { MOVE, isConfirm, isBack } from '../keys.js';
 import { confirmCard } from './confirm.js';
 import { medalCount } from '../storage.js';
 import { rankOf } from '../../core/ranks.js';
 import { MAX_STARS } from '../../core/scoring.js';
 import { posterFor, prefer } from './posters.js';
-import { rowsOf, step } from './lobby-nav.js';
+import { PER_ROW, rowsOf, step } from './lobby-nav.js';
 import { cardOf } from './lobby-card.js';
 
 const RESET_TEXT = 'This resets the best score, stars and medal of every level. '
@@ -35,6 +35,7 @@ const calm = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.
 
 export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
   const el = shell('lobby');
+  el.style.setProperty('--cols', String(PER_ROW)); // the grid's columns and the bar's width (lobby.css)
   const cols = WORLDS.map((w) => cardOf(w, best, start));
   const rows = rowsOf(cols.length);
   const shelves = rows.map((row) => {
@@ -73,7 +74,6 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
   const at = new Map(grid.flatMap((reels, w) => reels.map((r, i) => [r, [w, i]]))); // reel element -> [world, reel]
   const first = grid.flat().find((r) => r.dataset.id === focusId) ?? grid[0][0];
   let lastReel = first; // up from the bar lands here
-  const colOf = new Map(rows.flatMap((row) => row.map((w, c) => [w, c]))); // world index -> its column in its row
   // The column up and down aim for in the next row (a short last row clamps it, and the goal outlives that): the one
   // last chosen by left or right, else that of the card the focus was on when the keys took over. `landed` is the world
   // the keys last put the focus on; a focus anywhere else (the pointer, Tab) is a fresh start, with a goal of its own.
@@ -129,22 +129,20 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
       if (isBack(code)) return backBtn.click(), true;
       const active = document.activeElement;
       const move = MOVE[code];
-      const b = bar.indexOf(active);
-      if (b >= 0) {
+      if (bar.includes(active)) {
         if (move?.[1] < 0) goto(lastReel);
-        else if (move?.[0]) focusItem(bar[b + move[0]]);
-        else if (isConfirm(code)) active.click();
+        else navigate(bar, code, bar.length); // one row: left and right move along it, no wrap; Enter picks
         return true;
       }
       if (!at.has(active)) return goto(lastReel), true;
       if (move) {
         lastReel = active;
         const [w] = at.get(active);
-        if (w !== landed) goal = colOf.get(w);
+        if (w !== landed) goal = w % PER_ROW; // its column in its row
         const to = step(at.get(active), move, rows, grid[0].length, goal);
         if (to) {
           landed = to[0];
-          if (move[0]) goal = colOf.get(landed); // left and right choose the column
+          if (move[0]) goal = landed % PER_ROW; // left and right choose the column
         }
         return to ? goto(grid[to[0]][to[1]]) : focusItem(backBtn), true;
       }
