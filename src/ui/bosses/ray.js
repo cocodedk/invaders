@@ -25,6 +25,7 @@ import { fx, warm } from './ray-fx.js';
 
 export default {
   pad: 80, // the wing tips, their halo and the arcs reach to x 500: a wider canvas than the other bosses' so that no glow is cut off at its edge
+  padY: 130, // the head's lobes, their billows and their shadow reach y 265: at 80 the canvas ended at 230 and cut them in a faint flat line
   crack: '#c8f6ff', // the hot core of a fissure: white-cyan, the colour of the lightning (a warm yellow turned olive on the dark iron at low alpha)
   hull,
   parts: { spine, heart, wing, coil, maw },

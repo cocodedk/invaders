@@ -48,8 +48,11 @@ function blurred(cloud, blur, c, a, cut) {
   return e;
 }
 
+export const SHADOW_BLUR = 15; // px: the dark halo's blur, the furthest anything spreads past the cloud (the cold halo's is HALO_BLUR)
+export const HALO_BLUR = 12;
+
 // The dark halo of the cloud, for the body layer: drawn under the cloud itself.
-export const shadow = (cloud) => blurred(cloud, 15, '#03041a', 0.85, false);
+export const shadow = (cloud) => blurred(cloud, SHADOW_BLUR, '#03041a', 0.85, false);
 
 // Lay the cold halo and the rims of `cloud` on l (origin at the boss's centre); nothing above TOP.
 export function rims(l, cloud) {
@@ -58,7 +61,7 @@ export function rims(l, cloud) {
   const lay = (e) => l.drawImage(e, 0, top, w, h - top, -w / 2, TOP, w, h - top);
   l.save();
   l.globalCompositeOperation = 'lighter';
-  lay(blurred(cloud, 12, PAL.volt, 0.5, true));
+  lay(blurred(cloud, HALO_BLUR, PAL.volt, 0.5, true));
   for (const [dx, dy, c, a] of [[2.5, 3.5, PAL.ice, 0.9], [7, 9, PAL.volt, 0.3], [-3, -4.5, PAL.cyan, 0.75], [-1.5, -2, PAL.violet, 0.6]]) lay(rim(cloud, dx, dy, c, a));
   l.restore();
 }

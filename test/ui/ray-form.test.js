@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { recorder } from './dom-kit.js';
-import { art, S, HUD, f, part, margin, painter, paint, colours } from './ray-kit.js';
+import { tracker } from './galleon-track.js';
+import { art, S, HUD, f, part, margin, painter, paint, colours, canvases } from './ray-kit.js';
 
 // What The Squall Ray's art is drawn as (the still half is ray-parts.test.js, the live half ray-live.test.js): the silhouette a manta's (pointed tips swept back, a trailing edge
 // that sags, a leading edge that bulges toward the player, lobes that project forward) and that it holds the hit boxes (every point of the wing's rect is wing: in a free level a box
@@ -71,6 +72,18 @@ test('the layers of the hull fade out over the 26 px under the HUD instead of be
     assert.ok(at >= 0, `${name}: a rect from the HUD's line, 26 px deep, fades the top`);
     assert.ok(at > calls.findLastIndex((c) => c[0] === 'drawImage'), `${name}: and it comes after every picture of cloud and light it fades (only the tail, which is iron, is laid after it)`);
   }
+});
+
+// A cloud's canvas is the hull's size, so whatever reaches past the hull's edge is cut there, in a straight line the shadow's blur then
+// softens into a faint band. The cloud is laid as soft discs (small sprites); the canvas copies of it (shadow, halo, rims) are left out.
+test('the hull canvas reaches below the lowest cloud by more than its shadow spreads: the lobes are never cut flat at its edge', async () => {
+  const { SHADOW_BLUR } = await import('../../src/ui/bosses/ray-glow.js');
+  const from = canvases.length;
+  art.hull(tracker().ctx, tracker().ctx, S);
+  const whole = (img) => img?.width === S.W && img?.height === S.H;
+  const clouds = canvases.slice(from).filter(whole);
+  const low = Math.max(...clouds.flatMap((c) => c.T.calls.filter((k) => !whole(k.img)).map((k) => k.box[3] - S.H / 2)));
+  assert.ok(low + 2 * SHADOW_BLUR <= S.H / 2, `the cloud reaches y ${f(low)} and its shadow ${f(low + 2 * SHADOW_BLUR)}, past the canvas's ${f(S.H / 2)}`);
 });
 
 test('the coil fills its rect, as a Tesla coil: the art spans its hit box, a donut at the free end ninety px across', () => {

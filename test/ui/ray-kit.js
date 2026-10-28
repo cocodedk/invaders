@@ -20,7 +20,7 @@ const { fx } = await import('../../src/ui/bosses/ray-fx.js');
 export const look = LOOKS[17];
 export const def = BOSS_DEFS.find((d) => d.kind === 'ray');
 export const art = BOSS_ART.ray;
-export const S = { def, pal: look.palette.boss, look, W: def.size.w + 160, H: def.size.h + 160, pad: 80 };
+export const S = { def, pal: look.palette.boss, look, W: def.size.w + 2 * art.pad, H: def.size.h + 2 * (art.padY ?? art.pad), pad: art.pad }; // as bake.js sizes it
 export const HUD = -158; // the highest anything may reach, in boss coordinates (the HUD is above)
 export const PAD = def.size.w / 2 + 80;
 export const f = (n) => Math.round(n);

@@ -87,7 +87,7 @@ function bake(look, kind) {
   const def = bossDef(kind);
   const pad = mod.pad ?? 60;
   const W = def.size.w + pad * 2;
-  const H = def.size.h + pad * 2;
+  const H = def.size.h + (mod.padY ?? pad) * 2; // padY: a boss whose art reaches further up or down than across
   const S = { def, pal: look.palette.boss, look, W, H, pad };
   const [[body, b], [lights, l]] = pair(W, H, W / 2, H / 2);
   mod.hull(b, l, S);
