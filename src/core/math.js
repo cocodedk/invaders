@@ -17,6 +17,11 @@ export const wrapAngle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
 export const approach = (v, target, step) =>
   v < target ? Math.min(v + step, target) : Math.max(v - step, target);
 
+// The share of the step (dx, dy) that a move of at most `reach` px covers: 1 when the whole step is in
+// reach, else the fraction that is, so the step times it is never longer than `reach`. A step of no length
+// is divided by 1, not 0 (times it, it is still no step).
+export const stepScale = (dx, dy, reach) => Math.min(1, reach / (Math.hypot(dx, dy) || 1));
+
 // Squared distance between two points (compare against r * r, no sqrt).
 export const dist2 = (a, b) => (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
 
@@ -55,21 +60,11 @@ export function segSegDist2(ax, ay, bx, by, cx, cy, dx, dy) {
 }
 
 // Squared distance from the segment (ax, ay)-(bx, by) to the box of width w and height h centred on
-// (cx, cy): 0 when it touches or crosses it. The distance to a box is convex along any line, so a
-// ternary search closes in on the nearest point (forty rounds leave it far under a hundredth of a px).
+// (cx, cy): 0 when it touches or crosses it. A segment that starts inside the box is 0. One that starts
+// outside reaches the box only across an edge, so its distance is the least of its distances to the four.
 export function segBoxDist2(ax, ay, bx, by, cx, cy, w, h) {
-  const at = (u) => {
-    const dx = Math.max(Math.abs(ax + (bx - ax) * u - cx) - w / 2, 0);
-    const dy = Math.max(Math.abs(ay + (by - ay) * u - cy) - h / 2, 0);
-    return dx * dx + dy * dy;
-  };
-  let lo = 0;
-  let hi = 1;
-  for (let i = 0; i < 40; i++) {
-    const m1 = lo + (hi - lo) / 3;
-    const m2 = hi - (hi - lo) / 3;
-    if (at(m1) < at(m2)) hi = m2;
-    else lo = m1;
-  }
-  return Math.min(at((lo + hi) / 2), at(0), at(1));
+  if (Math.abs(ax - cx) <= w / 2 && Math.abs(ay - cy) <= h / 2) return 0;
+  const [x0, x1, y0, y1] = [cx - w / 2, cx + w / 2, cy - h / 2, cy + h / 2];
+  return Math.min(segSegDist2(ax, ay, bx, by, x0, y0, x1, y0), segSegDist2(ax, ay, bx, by, x1, y0, x1, y1),
+    segSegDist2(ax, ay, bx, by, x1, y1, x0, y1), segSegDist2(ax, ay, bx, by, x0, y1, x0, y0));
 }

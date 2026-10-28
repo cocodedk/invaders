@@ -83,7 +83,7 @@
   box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.6), 0 0 2.4rem var(--accent), 0 1.4rem 2.6rem rgba(0, 0, 0, 0.7); }
 
 /* A reel is one line: its number, the stars, the best score. */
-.reels { display: flex; flex-direction: column; gap: 0.26rem; margin-top: auto; } /* a card without a strip keeps its reels in line */
+.reels { display: flex; flex-direction: column; gap: 0.26rem; }
 .reel {
   display: grid; grid-template-columns: 1.5rem auto 1fr; align-items: center; gap: 0.4rem; padding: 0.22rem 0.45rem;
   font: 800 0.85rem var(--font); color: var(--ink); cursor: pointer; outline: none; text-align: right;

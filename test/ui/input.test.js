@@ -5,7 +5,7 @@ import { ZONE } from '../../src/core/ship.js';
 import { quantizeInput } from '../../src/core/input-codec.js';
 import { HAND } from '../../src/core/hand.js';
 import { TICK } from '../../src/core/kinds.js';
-import { level, wave, playing, step } from '../core/world-kit.js';
+import { level, wave, still, step } from '../core/world-kit.js';
 
 // A canvas `bar` px wider than the world on each side (a wide window's letterbox), shown 1:1.
 const viewOf = (bar = 0) => ({
@@ -111,8 +111,7 @@ test('resetInput (a pause, a level, a blur) forgets the walk: the pointer is imm
 });
 
 test('flown with the keys to x = 300, a pointer that wakes at x = 1500 moves the ship a hand-step a tick, not 1200 px, and a key stops it', () => {
-  const w = playing(level([wave()]));
-  Object.assign(w.ship, { x: 300, y: 1000 });
+  const w = still(level([wave()]));
   const input = pointer(1500, 900);
   input.mouse.walk = true;
   const tick = () => step(w, 1, quantizeInput(readInput(input, viewOf(), ZONE, w.ship)));

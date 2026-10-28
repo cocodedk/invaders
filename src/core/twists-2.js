@@ -1,4 +1,4 @@
-import { ALIEN_R } from './kinds.js';
+import { ALIEN_R, EPS } from './kinds.js';
 import { DIVE_TIME, addBullets, waveSpec, slotAt } from './aliens.js';
 import { makeSlots } from './formations.js';
 import { sweepDist2 } from './math.js';
@@ -42,7 +42,7 @@ export function acid(world, dt) {
   for (const a of world.aliens) if (a.hp <= 0 && a.role === 'armored') drips.push({ x: a.x, y: a.y, t: 0, n: 0 });
   prune(drips, (d) => {
     d.t += dt;
-    while (d.n < DRIPS && d.t >= d.n * DRIP_GAP - 1e-9) {
+    while (d.n < DRIPS && d.t >= d.n * DRIP_GAP - EPS) {
       d.n += 1;
       addBullets(world, [{ pattern: 'acid', x: d.x, y: d.y, vx: 0, vy: ACID_SPEED, r: 10, life: 10 }]);
       emit(world, 'acid', { x: d.x, y: d.y });

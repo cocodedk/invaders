@@ -5,11 +5,12 @@
 //   shot(a, o)                the patch: power-ups tune it (spread lower, rapid higher and softer)
 import { tone, hiss, noteHz } from './audio-kit.js';
 
-// k kick, c kick + clap, o open hat + stab, t closed hat. Base fire is 11 ticks a shot: an 8th note
-// at about 164 bpm, the clap on 2 and 4. Rapid is 5 ticks a shot: a 16th note at about 180 bpm.
+// k kick, c kick + clap, o open hat + stab, t closed hat. A base shot is an 8th note, the clap on 2 and
+// 4, and a rapid shot a 16th, so the gun's cooldowns (ship.js COOLDOWN, RAPID_COOLDOWN) set the tempo.
 const PATTERN = { base: 'kocokoco', rapid: 'ktotctotktotctot' };
-// s of silence after which the pattern starts over, so every burst opens on a kick; over the 0.62 s
-// between base shots in slow motion (0.3x, real seconds), so a slowed beat keeps its pattern.
+// s of silence after which the pattern starts over, so every burst opens on a kick; over the gap between
+// base shots in slow motion (0.3x, real seconds), so a slowed beat keeps its pattern (sfx-shot.test.js
+// checks it against the gun's own rate).
 const RESTART = 0.7;
 
 const state = { step: 0, at: -Infinity };

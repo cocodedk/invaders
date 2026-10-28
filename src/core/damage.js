@@ -1,5 +1,5 @@
 import { hurtAlien } from './aliens.js';
-import { ALIEN_R, WIDTH, HEIGHT } from './kinds.js';
+import { ALIEN_R, WIDTH, HEIGHT, EPS } from './kinds.js';
 import { liveParts, hurtPart, bombBoss } from './boss-hit.js';
 import { hurtWreck } from './twists-2.js';
 
@@ -18,7 +18,6 @@ import { hurtWreck } from './twists-2.js';
 
 const BOMB_DAMAGE = 3;
 export const BURST_R = 160; // px: how far a shell's burst reaches
-const EPS = 1e-9; // 8 / 60 added fifteen times is 2 only up to rounding
 
 // The bonus saucer is an alien in all but its list.
 export const loose = (world) => (world.saucer ? [...world.aliens, world.saucer, ...world.wrecks] : [...world.aliens, ...world.wrecks]);

@@ -7,9 +7,9 @@ import { level, playing, input, step, TICK } from './world-kit.js';
 // Shared by the boss tests: a boss level, a quiet world past the boss's entrance, a shot dropped
 // just under a part, and the simple bot that every boss has to lose to.
 export const bossLevel = (kind, d = 0, extra = {}) => level(undefined, d, { boss: kind, ...extra });
-// A quiet world with the boss in place and its entrance over.
-export function bossWorld(kind, opts) {
-  const world = playing(bossLevel(kind), opts);
+// A quiet world with the boss in place and its entrance over; `extra` is laid over the level (bossLevel's).
+export function bossWorld(kind, opts, extra) {
+  const world = playing(bossLevel(kind, 0, extra), opts);
   while (world.boss.enter > 0) step(world);
   world.events.length = 0;
   return world;

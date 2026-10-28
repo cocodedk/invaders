@@ -1,7 +1,7 @@
 import { layoutBunkers } from './bunkers.js';
 import { hurtAlien } from './aliens.js';
 import { burstAt } from './damage.js';
-import { ALIEN_R, HUD_BOTTOM, WELL } from './kinds.js';
+import { ALIEN_R, HUD_BOTTOM, WELL, EPS } from './kinds.js';
 import { sweepDist2 } from './math.js';
 import { randBetween } from './rng.js';
 import { emit, prune } from './util.js';
@@ -29,7 +29,6 @@ const SAUCER_Y = HUD_BOTTOM + 8; // just under the HUD band, so it is never behi
 const SAUCER_SPEED = 260;
 const SAUCER_R = ALIEN_R + 8;
 const GUST = 120; // px/s^2, either way
-const EPS = 1e-9; // a fuse due on a whole tick must not wait one more for float dust
 
 export function createTwist(level, rng) {
   const kind = level.twist;

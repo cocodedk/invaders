@@ -16,6 +16,7 @@ const { RATINGS } = await import('../../src/core/ratings.js');
 const { TAGLINES } = await import('../../src/ui/screens/posters.js');
 
 const lobby = (best) => openLobby(lobbyScreen, undefined, best);
+const part = (card, cls) => all(card).filter((e) => has(e, cls)); // a card's elements of a class
 
 test('every world has a full card, in order from world 1 to the last', () => {
   const { cards } = lobby();
@@ -23,13 +24,12 @@ test('every world has a full card, in order from world 1 to the last', () => {
   assert.deepEqual(cards.map((c) => c.dataset.world), WORLDS.map((w) => String(w.id)), 'the same order as the worlds');
   for (const [i, card] of cards.entries()) {
     const w = WORLDS[i];
-    const part = (cls) => all(card).filter((e) => has(e, cls));
-    assert.equal(part('poster-art').length, 1, `world ${w.id} has its poster`);
-    assert.equal(textOf(part('poster-world')[0]), `World ${w.id}`);
-    assert.equal(textOf(part('poster-name')[0]), w.name);
-    assert.equal(textOf(part('poster-tag')[0]), TAGLINES[w.id - 1]);
-    assert.equal(textOf(part('poster-bill')[0]), `Featuring ${bossDef(w.boss).name}`);
-    const reels = part('reel');
+    assert.equal(part(card, 'poster-art').length, 1, `world ${w.id} has its poster`);
+    assert.equal(textOf(part(card, 'poster-world')[0]), `World ${w.id}`);
+    assert.equal(textOf(part(card, 'poster-name')[0]), w.name);
+    assert.equal(textOf(part(card, 'poster-tag')[0]), TAGLINES[w.id - 1]);
+    assert.equal(textOf(part(card, 'poster-bill')[0]), `Featuring ${bossDef(w.boss).name}`);
+    const reels = part(card, 'reel');
     assert.deepEqual(reels.map((r) => r.dataset.id), LEVELS.filter((l) => l.world === w.id).map((l) => l.id));
     assert.equal(reels.length, 5, `world ${w.id} has five reels`);
     assert.deepEqual(reels.map((r) => has(r, 'finale')), [false, false, false, false, true], 'the boss level is the finale');
@@ -73,13 +73,12 @@ test("each poster shows its world's difficulty score out of SEGMENTS, with one d
   for (const [i, card] of cards.entries()) {
     const w = WORLDS[i];
     const score = RATINGS[w.id - 1];
-    const part = (cls) => all(card).filter((e) => has(e, cls));
-    assert.equal(textOf(part('rating-n')[0]), score.toFixed(1), `world ${w.id}`);
-    assert.match(textOf(part('rating-n')[0]), /^\d+\.\d$/);
-    assert.equal(textOf(part('rating-cap')[0]), 'Difficulty', 'labelled');
-    const [line] = part('rating');
+    assert.equal(textOf(part(card, 'rating-n')[0]), score.toFixed(1), `world ${w.id}`);
+    assert.match(textOf(part(card, 'rating-n')[0]), /^\d+\.\d$/);
+    assert.equal(textOf(part(card, 'rating-cap')[0]), 'Difficulty', 'labelled');
+    const [line] = part(card, 'rating');
     assert.equal(line.attrs['aria-label'], `Difficulty ${score.toFixed(1)} out of ${SEGMENTS}`);
-    const segs = all(part('rating-bar')[0]).filter((e) => e.tag === 'i');
+    const segs = all(part(card, 'rating-bar')[0]).filter((e) => e.tag === 'i');
     assert.equal(segs.length, SEGMENTS);
     const kinds = segs.map((s) => (has(s, 'on') ? 'on' : has(s, 'half') ? 'half' : 'off'));
     const lit = kinds.filter((k) => k === 'on').length + kinds.filter((k) => k === 'half').length / 2;
@@ -119,13 +118,12 @@ test("a shelf says how many cards it holds (--filled), so the rail ends at the l
 });
 
 test('the reels carry the stars, the best score and the medal mark, and nothing stray shows', () => {
-  const { named, screen } = lobby();
-  const none = named('reel').find((r) => r.dataset.id === 'w18-1');
+  const { reels, screen } = lobby();
+  const none = reels['w18-1'];
   assert.equal(textOf(none), '1★★★—', 'unplayed: the number, three stars, a dash');
   assert.ok(!has(none, 'played') && !all(none).some((e) => has(e, 'on') || has(e, 'medal')));
-  const played = lobby({ 'w18-1': { score: 1004324, stars: 3, medal: true }, 'w18-5': { score: 7300, stars: 2, medal: false } }).named('reel');
-  const [first] = played.filter((r) => r.dataset.id === 'w18-1');
-  const [last] = played.filter((r) => r.dataset.id === 'w18-5');
+  const played = lobby({ 'w18-1': { score: 1004324, stars: 3, medal: true }, 'w18-5': { score: 7300, stars: 2, medal: false } }).reels;
+  const [first, last] = [played['w18-1'], played['w18-5']];
   assert.ok(textOf(first).endsWith('1,004,324'), 'a seven-digit score is shown whole');
   assert.equal(all(first).filter((e) => has(e, 'on')).length, 3);
   assert.ok(all(first).some((e) => has(e, 'medal')) && has(first, 'played'));
@@ -135,8 +133,7 @@ test('the reels carry the stars, the best score and the medal mark, and nothing 
 });
 
 test('the header and the rows scroll together in one page, and the bar stands outside it', () => {
-  const { screen, named, rows } = lobby();
-  const [page] = named('lobby-scroll');
+  const { screen, named, rows, page } = lobby();
   const [bar] = named('lobby-bar');
   assert.deepEqual(screen.el.children, [page, bar], 'the page, then the bar fixed over its foot');
   for (const part of [named('marquee')[0], named('sub')[0], ...rows]) assert.equal(part.parent, page);

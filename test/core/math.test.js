@@ -66,5 +66,5 @@ test('segBoxDist2: 0 through or into the box, else the squared gap to its neares
   assert.equal(segBoxDist2(0, 20, 100, 20, 50, 0, 20, 10), 225, 'past the top edge, 15 px');
   assert.equal(segBoxDist2(40, 0, 45, 0, 50, 0, 20, 10), 0, 'ending inside');
   assert.equal(segBoxDist2(0, 0, 0, 0, 50, 0, 20, 10), 1600, 'a point 40 px from the left edge');
-  assert.ok(Math.abs(segBoxDist2(0, 0, 100, 100, 50, 0, 20, 10) - 612.5) < 1e-3, 'a diagonal missing the box: its corner (40, 5), 35 px off the line x = y');
+  assert.ok(Math.abs(segBoxDist2(0, 0, 100, 100, 50, 0, 20, 10) - 612.5) < 1e-9, 'a diagonal missing the box: its corner (40, 5), 35 px off the line x = y');
 });

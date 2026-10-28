@@ -1,7 +1,7 @@
 import { chooseAim, HOME_Y } from './aim.js';
 import { steer } from './dodge.js';
 import { handTarget } from './hand.js';
-import { SHIP_SPEED, ZONE } from './ship.js';
+import { ZONE } from './ship.js';
 import { clamp, dist2 } from './math.js';
 import { MID_X, TICK } from './kinds.js';
 import { IDLE } from './input-codec.js';
@@ -22,18 +22,21 @@ import { finished } from './util.js';
 const BOMB_CROWD = 6; // bullets within BOMB_RADIUS that call for a bomb
 const BOMB_RADIUS = 160;
 const GRACE = 0.4; // s: a power-up is chased once it would pass the ship's row this soon after the ship could be under it
+// px/s: the pace "could be under it" is judged at, slower than the hand (hand.js HAND), so the autopilot sets
+// off for a pickup earlier than its quick hand needs to, on purpose. It is the pace the pins, the pars and
+// the ratings were taken with (the keys' top speed, ship.js SHIP_SPEED, at the time), so it stays put if the
+// keys' speed ever changes.
+const PICKUP_PACE = 720;
 
-// A power-up that will fall past the ship's row about when the ship could get under it; once it is
-// level with the ship it is followed down until it is gone. "Could get under it" is judged at the keys'
-// SHIP_SPEED, not the hand's: the autopilot sets off for a pickup earlier than its quick hand needs to, on
-// purpose, so that the timing stays what the pins, the pars and the ratings were taken with.
+// A power-up that will fall past the ship's row about when the ship could get under it, at PICKUP_PACE;
+// once it is level with the ship it is followed down until it is gone.
 function pickupSpot(world) {
   const s = world.ship;
   let best = null;
   let soonest = Infinity;
   for (const p of world.pickups) {
     const fall = Math.max(0, (s.y - p.y) / p.vy);
-    if (p.y > ZONE.y1 + p.r || fall >= Math.abs(p.x - s.x) / SHIP_SPEED + GRACE || fall >= soonest) continue;
+    if (p.y > ZONE.y1 + p.r || fall >= Math.abs(p.x - s.x) / PICKUP_PACE + GRACE || fall >= soonest) continue;
     best = p;
     soonest = fall;
   }

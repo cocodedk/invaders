@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld } from '../../src/core/world.js';
 import { SHIP_R, SHIP_SPEED, ZONE, COOLDOWN } from '../../src/core/ship.js';
-import { TICK, gunTicks, input, level, wave, step, seconds, playing, drain, ofType } from './world-kit.js';
+import { TICK, gunTicks, input, at, level, wave, step, seconds, playing, drain, ofType } from './world-kit.js';
 
 const lv = () => level([wave({ cols: 6 })]);
 
@@ -53,10 +53,10 @@ test('diagonal flight is no faster than straight flight', () => {
 
 test('a pointer target puts the ship there at once (R68), and clamps to the zone', () => {
   const w = playing(lv());
-  step(w, 1, input({ target: { x: 300, y: 700 } }));
+  step(w, 1, at(300, 700));
   assert.deepEqual([w.ship.x, w.ship.y], [300, 700], 'no easing, no overshoot: there after one tick');
   assert.ok(Math.hypot(w.ship.vx, w.ship.vy) <= SHIP_SPEED + 1e-9, 'the velocity it leaves is for the drawing, capped');
-  seconds(w, 3, input({ target: { x: 9000, y: -50 } }));
+  seconds(w, 3, at(9000, -50));
   assert.deepEqual([w.ship.x, w.ship.y], [1880, 620]);
 });
 

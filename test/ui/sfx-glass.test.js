@@ -6,6 +6,8 @@ import { ON, POWER } from '../../src/ui/sfx-power.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { kitFor } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
+import { COOLDOWN, RAPID_COOLDOWN } from '../../src/core/ship.js';
+import { gunTicks, TICK } from '../core/world-kit.js';
 import { installAudio, fakeVoice } from './audio-kit.js';
 
 const KIT = kitFor({ mood: 'glass', root: 'B', scale: 'melodic', bpm: 63 });
@@ -185,8 +187,8 @@ test("the twin's ping is reachable by name, and thinned like the escorts' rattle
   };
   assert.equal(burst('mirrorShot', 30, 0), 1, 'a cluster in one tick');
   ctx.currentTime += 5;
-  assert.equal(burst('mirrorShot', 20, 11 / 60), 20, 'the base fire rate (11 ticks a shot): every shot pings');
-  assert.equal(burst('mirrorShot', 20, 5 / 60), 10, 'rapid fire (5 ticks) is thinned to every other ping');
+  assert.equal(burst('mirrorShot', 20, gunTicks(COOLDOWN) * TICK), 20, 'the base fire rate: every shot pings');
+  assert.equal(burst('mirrorShot', 20, gunTicks(RAPID_COOLDOWN) * TICK), 10, 'rapid fire is thinned to every other ping');
   assert.equal(burst('wreck', 3, 0), 3, "the mending is not thinned: no world's wreck ever was");
   assert.ok(audioStats().voices <= 12, `${audioStats().voices} voices ringing`);
   assert.equal(audioStats().failed, 0, audioStats().error);

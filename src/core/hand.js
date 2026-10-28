@@ -1,3 +1,5 @@
+import { stepScale } from './math.js';
+
 // The autopilot plays with a mouse, and a mouse is a hand (R68): the ship now stands wherever the pointer
 // does, so the autopilot must not teleport it. Its pointer target, and every flight dodge.js plans, stay
 // within what a hand can carry the pointer in the time between them.
@@ -8,8 +10,7 @@ export const HAND = 1800; // px/s: a quick human wrist; 2.5 times the keys' top 
 export function handToward(from, to, dt) {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
-  const d = Math.hypot(dx, dy);
-  const k = Math.min(1, (HAND * dt) / (d || 1));
+  const k = stepScale(dx, dy, HAND * dt);
   return { x: from.x + dx * k, y: from.y + dy * k };
 }
 

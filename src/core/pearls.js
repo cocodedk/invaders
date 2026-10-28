@@ -1,5 +1,5 @@
 import { TAU, dist2, sweepDist2 } from './math.js';
-import { ALIEN_R } from './kinds.js';
+import { ALIEN_R, EPS } from './kinds.js';
 import { hurtAlien } from './aliens.js';
 import { powerTime } from './powerups.js';
 import { emit } from './util.js';
@@ -22,8 +22,7 @@ export const PEARL_COUNT = 3;
 export const PEARL_ORBIT = 78; // px from the ship's centre to a pearl's
 export const PEARL_R = 13; // a pearl's radius
 export const PEARL_TURN = 1.2; // s for the ring to turn once (clockwise on the screen)
-export const PEARL_COOL = 0.25; // s an alien is spared after a pearl hit
-const EPS = 1e-9; // a cooldown of 15 ticks must be over on the 15th, whatever the float dust
+export const PEARL_COOL = 0.25; // s an alien is spared after a pearl hit (15 ticks: over on the 15th, kinds.js EPS)
 
 export function pearlsOf(ship) {
   if (ship.power?.kind !== 'pearls' || !ship.alive) return [];

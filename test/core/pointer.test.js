@@ -5,7 +5,8 @@ import { levelById } from '../../src/core/levels.js';
 import { SHIP_SPEED, ACCEL, ZONE, FREE_ZONE } from '../../src/core/ship.js';
 import { HAND, handToward, handTarget } from '../../src/core/hand.js';
 import { autopilot, destination } from '../../src/core/autopilot.js';
-import { level, wave, playing, input, at, still, step, seconds, bulletAt, TICK } from './world-kit.js';
+import { finished } from '../../src/core/util.js';
+import { level, wave, playing, input, at, step, seconds, bulletAt, TICK } from './world-kit.js';
 
 // R68: the pointer is the ship. A pointer target puts the ship on its goal in the very tick, in every
 // world; the keys keep their ease; the autopilot moves like a hand. (pointer-sweep.test.js has what a ship
@@ -103,7 +104,7 @@ test('the autopilot\'s target is never farther from the ship than a hand carries
   let farthest = 0;
   for (const id of ['w1-3', 'w7-2', 'w12-5', 'w18-3']) {
     const w = createWorld(levelById(id));
-    for (let n = 0; n < 1500 && w.state !== 'cleared' && w.state !== 'failed'; n++) {
+    for (let n = 0; n < 1500 && !finished(w); n++) {
       const i = autopilot(w);
       const d = Math.hypot(i.target.x - w.ship.x, i.target.y - w.ship.y);
       assert.ok(d <= HAND * TICK + 1e-9, `${id} tick ${n}: ${d.toFixed(3)} px`);
@@ -117,8 +118,7 @@ test('the autopilot\'s target is never farther from the ship than a hand carries
 
 test('dodge plans at hand speed: a gap 300 px away in 0.25 s is reached, which no key could do', () => {
   const wall = () => {
-    const w = still(level([wave({ rows: 1, cols: 1, formation: 'spiral', speed: 0.001 })]));
-    Object.assign(w.ship, { x: 960, y: 1000 });
+    const w = playing(level([wave({ rows: 1, cols: 1, formation: 'spiral', speed: 0.001 })]));
     w.aliens[0].hp = 99;
     w.ship.bombs = 0; // a crowd of bullets would be bombed away
     for (let x = 700; x <= 1220; x += 36) bulletAt(w, x, 800, 0, 800); // 0.25 s to the ship's row; clear below 678 and above 1242

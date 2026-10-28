@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { installDom, all, textOf, has } from './lobby-kit.js';
+import { installDom, all, textOf, has, openLobby } from './lobby-kit.js';
 
 // The lobby on a DOM stand-in: Reset scores beside Back in the bottom bar (keys and mouse), its confirm card, and the
 // rank and medals under the title.
@@ -9,15 +9,7 @@ const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
 const { LEVELS } = await import('../../src/core/levels.js');
 const { RANKS } = await import('../../src/core/ranks.js');
 
-function lobby(best = {}) {
-  const log = [];
-  const screen = lobbyScreen({
-    best, start: (l) => log.push(`start ${l.id}`), back: () => log.push('back'), reset: () => log.push('reset'),
-  });
-  const named = (cls) => all(screen.el).filter((e) => has(e, cls)); // the elements of a class
-  const [backBtn, resetBtn] = named('lobby-bar')[0].children;
-  return { screen, log, named, backBtn, resetBtn, key: (code) => screen.onKey(code), active: () => document.activeElement };
-}
+const lobby = (best) => ({ ...openLobby(lobbyScreen, undefined, best), active: () => document.activeElement });
 
 test('the bottom bar holds Back and Reset scores side by side', () => {
   const { backBtn, resetBtn } = lobby();

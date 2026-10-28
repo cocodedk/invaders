@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { emitPattern } from '../../src/core/patterns.js';
 import { FREE_ZONE } from '../../src/core/ship.js';
-import { level, wave, playing, input, at, still, step, drain, ofType, bulletAt, pickupAt, holdAlien } from './world-kit.js';
-import { bossLevel, part } from './boss-kit.js';
+import { level, wave, input, at, still, step, drain, ofType, bulletAt, pickupAt, holdAlien } from './world-kit.js';
+import { bossWorld, part } from './boss-kit.js';
 
 // R68: a ship that crosses the field in one tick still meets what lay in its way. The ship's path this tick
 // is tested against bullets (the gap between the two paths), beams, rams and pickups; a ship that does not
@@ -81,12 +81,7 @@ test('a ship flicked through an alien rams it in a free level, and not in the st
 });
 
 test('a ship flicked through a boss part rams it, and the floor under the boss is clear', () => {
-  const fight = () => {
-    const w = playing(bossLevel('ray', 0, { free: true, world: 18 }));
-    while (w.boss.enter > 0) step(w);
-    drain(w);
-    return w;
-  };
+  const fight = () => bossWorld('ray', {}, { free: true, world: 18 });
   const w = fight();
   const p = part(w, 'maw');
   Object.assign(w.ship, { x: Math.max(FREE_ZONE.x0, p.x - p.w / 2 - 200), y: p.y });

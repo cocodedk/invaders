@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import { installAudio } from './audio-kit.js';
 import { nextHit } from '../../src/ui/sfx-shot.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
+import { COOLDOWN, RAPID_COOLDOWN } from '../../src/core/ship.js';
+import { gunTicks, TICK } from '../core/world-kit.js';
 
 const BASE = 'kocokoco';
 const RAPID = 'ktotctotktotctot';
-const BASE_EVERY = 11 / 60; // the ship's fire interval, 11 ticks
-const RAPID_EVERY = 5 / 60; // and under the rapid power, 5
+const BASE_EVERY = gunTicks(COOLDOWN) * TICK; // s: the ship's fire interval, a whole number of ticks
+const RAPID_EVERY = gunTicks(RAPID_COOLDOWN) * TICK; // and under the rapid power
 
 const fresh = () => ({ step: 0, at: -Infinity });
 

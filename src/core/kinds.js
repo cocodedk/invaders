@@ -65,3 +65,7 @@ export const NEAR_MISS = 28; // centre distance, for a standard 8 px bullet: 6 p
 
 // The fixed step of the simulation, in seconds: every stepWorld call in a game, a replay or a test.
 export const TICK = 1 / 60;
+// The float dust a sum of ticks carries: fifteen ticks of 1 / 60 make 0.25, and 8 / 60 added fifteen times
+// makes 2, only up to rounding. So a cooldown, a timer, a fuse or a count that falls due on a whole tick is
+// taken as due within EPS of it, and never waits one tick more.
+export const EPS = 1e-9;

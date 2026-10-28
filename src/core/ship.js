@@ -1,6 +1,6 @@
-import { approach, clamp, segDist2 } from './math.js';
+import { approach, clamp, segDist2, stepScale } from './math.js';
 import { emit } from './util.js';
-import { MID_X, WIDTH } from './kinds.js';
+import { EPS, MID_X, WIDTH } from './kinds.js';
 
 // The player's ship: movement, the gun (and how spread, rapid, homing, the wingmen, the mirror twin, the
 // broadside and the trident change it), and what a hit does. The pearls (world 15) guard the ship but leave
@@ -22,7 +22,6 @@ export const HOMING_SPEED = 1000; // px/s: a homing shot is slower, so it has ti
 export const RAPID_SPEED = 1.5 * SHOT_SPEED; // px/s: a rapid shot flies 1.5 x as fast as the base one (R70)
 export const HOMING_TURN = Math.PI; // rad/s: how hard it steers toward the nearest alien ahead (stepBullet)
 export const RAPID_COOLDOWN = 0.07; // s between shots under the rapid power
-export const GUN_EPS = 1e-9; // s: a cooldown this near 0 is over, so float dust never makes the gun a tick late
 export const MUZZLE = 22; // px above the ship's centre where shots (and the beam) start
 const SPREAD = [-20, -10, 0, 10, 20]; // degrees off straight up, under the spread power
 export const ESCORT_DX = 80; // px: the two wingmen fly this far to either side of the ship (world 13)
@@ -48,11 +47,11 @@ export const createShip = () => ({
 // The pointer target, held inside the zone `z`.
 const goal = (t, z) => t && { x: clamp(t.x, z.x0, z.x1), y: clamp(t.y, z.y0, z.y1) };
 
-// Where the ship's move this tick began. A ship that was never moved (put in place by hand, as a test or
-// a scene does) has no move: it began where it is. pathDist2 is the squared distance from the point `p` to
-// the path the ship flew this tick, from there to where it is (R68: what the path crossed, the ship touched).
-export const fromOf = (s) => ({ x: s.fromX ?? s.x, y: s.fromY ?? s.y });
-export const pathDist2 = (s, p) => segDist2(s.fromX ?? s.x, s.fromY ?? s.y, s.x, s.y, p.x, p.y);
+// Where the ship's move this tick began: createShip sets it, and moveShip sets it again every tick, before
+// the collisions and the pickups read it. pathDist2 is the squared distance from the point `p` to the path
+// the ship flew this tick, from there to where it is (R68: what the path crossed, the ship touched).
+export const fromOf = (s) => ({ x: s.fromX, y: s.fromY });
+export const pathDist2 = (s, p) => segDist2(s.fromX, s.fromY, s.x, s.y, p.x, p.y);
 
 // The wingmen power's two escorts, left then right: level with the ship, ESCORT_DX to either side and
 // held inside the field. [] when the power is not running (or the ship is gone). The drawing and
@@ -71,10 +70,10 @@ export function twinOf(ship) {
   return [{ x: WIDTH - ship.x, y: ship.y }];
 }
 
-// A ship shot: r 5, 1.5 s of life, 1 damage.
 // How fast the gun's shot flies under `power` (a power kind or null): what shoot fires and what aim.js leads by.
 export const shotSpeed = (power) => (power === 'homing' ? HOMING_SPEED : power === 'rapid' ? RAPID_SPEED : SHOT_SPEED);
 
+// A ship shot: r 5, 1.5 s of life, 1 damage.
 const bolt = (x, y, vx, vy) => ({ pattern: 'shot', x, y, vx, vy, r: 5, life: 1.5, dmg: 1 });
 
 // The trident power's shot (world 15): the same bolt, r 7, marked `trident` for the drawing. It runs
@@ -119,22 +118,22 @@ function sideGuns(world) {
   }
 }
 
-// Move and clamp to the zone `z`: `s` is anything with { x, y, vx, vy } (the autopilot flies a copy).
-// The pointer is the ship (R68, the same in every world): a pointer target puts the ship on its goal in
-// this very tick, with no easing, no speed limit and no pull. vx, vy still say how fast it went, for the
-// drawing's bank and wake, but never more than SHIP_SPEED, so a flick across the field does not throw a
-// wake thousands of px long. That velocity is display only: when the pointer lets go (a pause, a blur, a
-// key taking over) the ship stops where it is, and the keys ease on from rest, never from the pointer's
-// speed, so nothing drifts. The keys move it at up to SHIP_SPEED, eased by ACCEL, a diagonal no faster than
-// straight. Either way fromX / fromY keep where the move began.
-export function moveShip(s, dt, input, z = ZONE) {
+// Move the ship `s` and clamp it to the zone `z` (zoneOf its level). The pointer is the ship (R68, the same
+// in every world): a pointer target puts the ship on its goal in this very tick, with no easing, no speed
+// limit and no pull. vx, vy still say how fast it went, for the drawing's bank and wake, but never more than
+// SHIP_SPEED, so a flick across the field does not throw a wake thousands of px long. That velocity is
+// display only: when the pointer lets go (a pause, a blur, a key taking over) the ship stops where it is,
+// and the keys ease on from rest, never from the pointer's speed, so nothing drifts. The keys move it at up
+// to SHIP_SPEED, eased by ACCEL, a diagonal no faster than straight. Either way fromX / fromY keep where the
+// move began.
+function moveShip(s, dt, input, z) {
   s.fromX = s.x;
   s.fromY = s.y;
   const g = goal(input.target, z);
   if (g) {
     const ex = g.x - s.x;
     const ey = g.y - s.y;
-    const k = Math.min(1, (SHIP_SPEED * dt) / (Math.hypot(ex, ey) || 1));
+    const k = stepScale(ex, ey, SHIP_SPEED * dt);
     Object.assign(s, { x: g.x, y: g.y, vx: (ex / dt) * k, vy: (ey / dt) * k, pointed: true });
     return;
   }
@@ -168,7 +167,7 @@ export function stepShip(world, dt, input) {
   s.bombPressed = Boolean(input.bomb) && !s.bombHeld;
   s.bombHeld = Boolean(input.bomb);
   moveShip(s, dt, input, zoneOf(world.level));
-  if (world.state !== 'play' || !input.fire || s.cooldown > GUN_EPS) return;
+  if (world.state !== 'play' || !input.fire || s.cooldown > EPS) return;
   if (s.power?.kind !== 'laser') shoot(world);
   else if (s.broadside > 0) {
     s.cooldown = COOLDOWN;

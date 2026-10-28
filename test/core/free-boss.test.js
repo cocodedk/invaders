@@ -1,19 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { INVULN } from '../../src/core/ship.js';
-import { bossLevel, part } from './boss-kit.js';
-import { step, seconds, playing, drain, ofType } from './world-kit.js';
+import { bossWorld, part } from './boss-kit.js';
+import { step, seconds, drain, ofType } from './world-kit.js';
 
 // R67 against a boss: in a free level the ship can fly up to the boss, so touching a live part rams it
 // (a life, the boss untouched), and the homing bullets the ship has dragged round hurt the boss's parts
 // by their own rule. The Squall Ray (world 18) is the boss these rules were made for.
 
-const fight = () => {
-  const w = playing(bossLevel('ray', 0, { free: true, world: 18 }));
-  while (w.boss.enter > 0) step(w);
-  drain(w);
-  return w;
-};
+const fight = () => bossWorld('ray', {}, { free: true, world: 18 });
 const onPart = (w, id) => {
   const p = part(w, id);
   Object.assign(w.ship, { x: p.x, y: p.y });

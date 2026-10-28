@@ -22,7 +22,7 @@ export const def = BOSS_DEFS.find((d) => d.kind === 'ray');
 export const art = BOSS_ART.ray;
 export const S = stageOf(look, 'ray'); // as bake.js sizes it
 export const HUD = -158; // the highest anything may reach, in boss coordinates (the HUD is above)
-export const PAD = def.size.w / 2 + 80;
+export const PAD = S.W / 2; // the hull's half width plus ray.js's pad: how far either side the baked canvas reaches
 export const f = (n) => Math.round(n);
 export const part = (id) => def.parts.find((p) => p.id === id);
 export const margin = (id) => art.margins?.[id] ?? art.margin ?? 34;

@@ -7,6 +7,8 @@ import { SFX } from '../../src/ui/sfx.js';
 import { kitFor } from '../../src/ui/sound-data.js';
 import { LOOKS } from '../../src/ui/looks/index.js';
 import { WELL } from '../../src/core/kinds.js';
+import { COOLDOWN } from '../../src/core/ship.js';
+import { gunTicks, TICK } from '../core/world-kit.js';
 import { installAudio, fakeVoice } from './audio-kit.js';
 
 const KIT = kitFor({ mood: 'abyss', root: 'F#', scale: 'pentatonic', bpm: 54 });
@@ -173,14 +175,13 @@ test('the pearls and the zip are thinned like the ship\'s own shot: a cluster in
   const { unlockAudio, play, audioStats, audioNodes } = await import('../../src/ui/audio.js');
   unlockAudio();
   const { ctx } = audioNodes();
-  const played = () => audioStats().played;
   const burst = (name, count, every, o = {}) => {
-    const before = played();
+    const before = audioStats().played;
     for (let i = 0; i < count; i++) {
       ctx.currentTime += every;
       play(name, { x: 100 + i * 40, ...o });
     }
-    return played() - before;
+    return audioStats().played - before;
   };
   for (const name of ['pearlBlock', 'pearlHit', 'tridentZip', 'absorb']) assert.equal(burst(name, 30, 0), 1, `${name}: a cluster in one tick`);
   ctx.currentTime += 5;
@@ -188,7 +189,7 @@ test('the pearls and the zip are thinned like the ship\'s own shot: a cluster in
   assert.equal(burst('pearlBlock', 20, 0.08), 20, 'and sound one by one at a slower rate');
   assert.equal(burst('pearlHit', 20, 0.05), 10, 'plucks closer than 0.07 s too');
   assert.equal(burst('pearlHit', 20, 0.09), 20);
-  assert.equal(burst('tridentZip', 20, 11 / 60), 20, 'the trident fires every 11 ticks: every shot zips');
+  assert.equal(burst('tridentZip', 20, gunTicks(COOLDOWN) * TICK), 20, 'the trident fires at the base rate: every shot zips');
   assert.equal(burst('tridentZip', 20, 0.05), 10, 'a faster rate is thinned');
   assert.equal(burst('absorb', 20, 0.06), 10, 'the maelstrom is thinned like the well: 0.1 s');
   assert.equal(burst('absorb', 20, 0.12), 20);

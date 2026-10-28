@@ -1,4 +1,4 @@
-import { HEIGHT, HUD_BOTTOM } from './kinds.js';
+import { HEIGHT, HUD_BOTTOM, EPS } from './kinds.js';
 import { enemyDt } from './twists-2.js';
 import { emit, finished } from './util.js';
 
@@ -17,7 +17,6 @@ export const HELP_EVERY = 24; // s from the start of one breath to the start of 
 export const BREATH_TIME = 0.8; // s for the front to rise
 const FROM = HEIGHT; // the front's height when it starts
 const TO = HUD_BOTTOM; // and when it is spent
-const EPS = 1e-9; // a timer due on a whole tick must not wait one more for float dust
 
 export const breathState = () => ({ timer: HELP_FIRST, rise: null });
 

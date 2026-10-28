@@ -11,7 +11,7 @@ export { TICK };
 
 // A run is its level, its seed and the input of every tick: the core is deterministic, so
 // re-simulating those gives back every state and event of the run.
-//   run    { v: 10, level: 'w3-2', seed, ticks, inputs: <encoded>, score, stars }   (makeRun)
+//   run    { v: RUN_V, level: 'w3-2', seed, ticks, inputs: <encoded>, score, stars }   (makeRun)
 // The inputs and their text form are in input-codec.js. RUN_V goes up whenever a rule change makes
 // the same inputs play out differently: an older run would replay diverged, so it is not read at all
 // (2: task 13a's rules: bullets spent on a blinking ship, near misses, the shuriken cut, boss minions,

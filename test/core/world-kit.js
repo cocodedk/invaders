@@ -1,9 +1,8 @@
 import { createWorld, stepWorld } from '../../src/core/world.js';
-import { TICK } from '../../src/core/kinds.js';
+import { TICK, EPS } from '../../src/core/kinds.js';
 import { IDLE } from '../../src/core/input-codec.js';
 import { makePickup } from '../../src/core/powerups.js';
 import { rand } from '../../src/core/rng.js';
-import { GUN_EPS } from '../../src/core/ship.js';
 
 export { TICK, IDLE };
 
@@ -12,8 +11,8 @@ export { TICK, IDLE };
 export const input = (o) => ({ ...IDLE, ...o });
 export const FIRE = input({ fire: true });
 // The ticks from one shot to the next for a gun `cooldown` (ship.js COOLDOWN, RAPID_COOLDOWN): it fires on the first tick
-// its cooldown is within GUN_EPS of 0.
-export const gunTicks = (cooldown) => Math.ceil((cooldown - GUN_EPS) / TICK);
+// its cooldown is within EPS (kinds.js) of 0.
+export const gunTicks = (cooldown) => Math.ceil((cooldown - EPS) / TICK);
 // A pointer target at (x, y) (R68: the ship goes there in the tick).
 export const at = (x, y) => input({ target: { x, y } });
 export const solid = (b) => b.mask.reduce((n, v) => n + v, 0); // a bunker's solid pixels

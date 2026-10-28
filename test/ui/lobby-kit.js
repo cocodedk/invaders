@@ -50,13 +50,14 @@ export const textOf = (el) => el.children.map((k) => (typeof k === 'object' ? te
 
 export const has = (e, cls) => e.className.split(' ').includes(cls);
 
-// The lobby under test, with its parts by name. lobbyScreen is imported by the test, after installDom().
+// The lobby under test, with its parts by name. lobbyScreen is imported by the test, after installDom(). The log
+// records each start, back and reset the lobby called, in order.
 //   openLobby(lobbyScreen, focusId, best) -> { screen, log, named(cls), reels (by id), page, backBtn, resetBtn, rows, cards,
 //                                              card(world), key(...codes), at() (the focused reel's id), move(el) }
 // move(el) is a pointer that moved over el (a real hover); move(el, 0, 0) one that did not (the page scrolled under it).
 export function openLobby(lobbyScreen, focusId, best = {}) {
   const log = [];
-  const screen = lobbyScreen({ best, start: (l) => log.push(`start ${l.id}`), back: () => log.push('back'), reset() {}, focusId });
+  const screen = lobbyScreen({ best, start: (l) => log.push(`start ${l.id}`), back: () => log.push('back'), reset: () => log.push('reset'), focusId });
   const named = (cls) => all(screen.el).filter((e) => has(e, cls));
   const reels = Object.fromEntries(named('reel').map((r) => [r.dataset.id, r]));
   const [page] = named('lobby-scroll');
