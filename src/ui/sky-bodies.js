@@ -12,6 +12,7 @@ import { BODIES7 } from './sky-bodies-7.js';
 import { BODIES8 } from './sky-bodies-8.js';
 import { BODIES9 } from './sky-bodies-9.js';
 import { BODIES10 } from './sky-bodies-10.js';
+import { BODIES11 } from './sky-bodies-11.js';
 
 const BAYER = [0, 2, 3, 1]; // 2x2 ordered dither
 
@@ -103,4 +104,4 @@ function redmoon(g) {
   horizonGlow(g, '#c83a2a', 0.35, 560);
 }
 
-export const BODIES = { arcade, megacity, twinsuns, redmoon, ...BODIES2, ...BODIES3, ...BODIES4, ...BODIES5, ...BODIES6, ...BODIES7, ...BODIES8, ...BODIES9, ...BODIES10 };
+export const BODIES = { arcade, megacity, twinsuns, redmoon, ...BODIES2, ...BODIES3, ...BODIES4, ...BODIES5, ...BODIES6, ...BODIES7, ...BODIES8, ...BODIES9, ...BODIES10, ...BODIES11 };

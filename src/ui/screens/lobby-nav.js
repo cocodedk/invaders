@@ -6,7 +6,7 @@
 // change reel; past a column's end they carry on into the row below (its first reel) or above (its last)
 // at the goal column, or on that row's last card if it is shorter. The goal column is the one the pilot
 // last chose (by left, right or the pointer; lobby.js remembers it, and it defaults to the current column),
-// so a short last row does not lose it: down from world 12 to world 18 and up again is world 12, not 10.
+// so a short last row does not lose it: down from world 12 to world 19 and up again is world 12, not 11.
 // Below the last row the keys leave for the bar (Back, Reset scores); above the first row they stay on its first reel.
 export const PER_ROW = 8;
 

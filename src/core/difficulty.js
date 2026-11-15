@@ -14,6 +14,8 @@
 // sends is paid for in that d: with it, its clear rates aim at world 7's.
 // world 18, the first free-flight world (R67), runs the top of the scale too, as world 17 does, and the hardest world
 // of all by its waves and its boss (the user asked for it): its clear rates are under world 7's.
+// world 19 (R71, the bonk) is mid-hard, between worlds 12 and 13, with armorBonus on throughout: its gunners
+// and armored need the extra hp to survive one bonk and stop a chain.
 const OWN = {
   9: [0.40, 0.43, 0.45, 0.48, 0.50],
   10: [0.30, 0.32, 0.34, 0.36, 0.38],
@@ -25,6 +27,7 @@ const OWN = {
   16: [0.74, 0.77, 0.79, 0.82, 0.84],
   17: [0.86, 0.89, 0.92, 0.96, 1.0],
   18: [0.86, 0.89, 0.92, 0.96, 1.0],
+  19: [0.64, 0.67, 0.70, 0.73, 0.76],
 };
 export const difficulty = (world, index) => OWN[world]?.[index - 1] ?? ((world - 1) * 5 + index - 1) / 39;
 

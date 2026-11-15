@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { installCanvas } from './dom-kit.js';
 
-// The lobby's posters are baked in idle slices, each from its world's boss level (world 18's is the Squall Ray's), and the
+// The lobby's posters are baked in idle slices, each from its world's boss level (world 18's is the Squall Ray's, world 19's the Dowager Duck's), and the
 // bake must not throw (a throw in an idle slice would leave the baker stuck).
 installCanvas();
 globalThis.requestIdleCallback = (fn) => setImmediate(fn);
@@ -14,6 +14,7 @@ test('every world has its own tagline', () => {
   assert.equal(new Set(TAGLINES).size, WORLDS.length);
   for (const line of TAGLINES) assert.ok(line.length > 0 && line.length < 60, line);
   assert.equal(TAGLINES[17], 'Make their fire follow you.');
+  assert.equal(TAGLINES[18], 'Bath time. Bring a bat.');
 });
 
 test('every world is baked into a poster, each from its boss level', async () => {

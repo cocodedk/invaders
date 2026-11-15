@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createFilm, stepFilm } from '../../src/fx/film.js';
 import { createWorld } from '../../src/core/world.js';
-import { levelById } from '../../src/core/levels.js';
+import { levelById, WORLDS } from '../../src/core/levels.js';
 import { TICK } from './fx-kit.js';
 
 const film = (id = 'w2-1') => createFilm(createWorld(levelById(id)));
@@ -16,9 +16,10 @@ test('a fresh film is off: no bars, no look, a grain seed from the level', () =>
 });
 
 test('the grade tint belongs to the world and differs between worlds', () => {
-  const tints = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].map((w) => film(`w${w}-1`).tint);
+  const tints = WORLDS.map((w) => film(`w${w.id}-1`).tint);
   for (const t of tints) assert.match(t, /^#[0-9a-f]{6}$/i);
-  assert.equal(new Set(tints).size, 18);
+  assert.equal(new Set(tints).size, WORLDS.length);
+  assert.equal(film('w19-1').tint, '#ffc21a', 'world 19 is graded rubber-duck yellow');
 });
 
 test('letterbox eases in to exactly 1 and out to exactly 0, through every value between', () => {

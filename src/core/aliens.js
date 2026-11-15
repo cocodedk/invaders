@@ -6,6 +6,7 @@ import { rand, randBetween, randPick } from './rng.js';
 import { awardKill } from './scoring.js';
 import { dropOnKill } from './powerups.js';
 import { markShell, lightFuse } from './fireworks.js';
+import { knockOut } from './tumble.js';
 import { emit } from './util.js';
 
 // A wave of aliens: spawn, fly in, hold the formation, swoop, shoot back.
@@ -73,7 +74,8 @@ export function spawnWave(world) {
 
 // Damage an alien; at 0 hp it dies (scored), and it may leave a pickup where it fell: always for a
 // carrier, by chance for the others (dropOnKill, R54). A dead shell lights its fuse (world 14,
-// fireworks.js), however it died. The caller removes the dead from world.aliens.
+// fireworks.js), however it died; in world 19 it leaves a dizzy body (knockOut, tumble.js). The caller
+// removes the dead from world.aliens.
 export function hurtAlien(world, a, dmg) {
   if (a.hp <= 0) return;
   a.hp -= dmg;
@@ -83,6 +85,7 @@ export function hurtAlien(world, a, dmg) {
   }
   awardKill(world, a);
   dropOnKill(world, a);
+  knockOut(world, a);
   if (a.shell) lightFuse(world, a);
 }
 

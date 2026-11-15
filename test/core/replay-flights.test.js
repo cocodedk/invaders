@@ -21,6 +21,7 @@ import { makeRun, decodeRun, replay, stateHash, TICK } from '../../src/core/repl
 //   w7 reassemble   a wreck hangs in the formation, and breaks or stands up again
 //   w8 gravity      the well swallows bullets and shots
 //   w17 breath      a front of air starts every 24 s from the 14th, and wipes bullets as it rises
+//   w19 bonk        a kill leaves a dizzy body, the ship bats one and it bonks an alien (or the boss)
 const FLIGHTS = [
   ['w1-3', 'saucer'],
   ['w2-2', 'lightning'],
@@ -33,6 +34,8 @@ const FLIGHTS = [
   ['w8-5', 'absorb', 'bossPhase', 'bossDeath'],
   ['w17-2', 'breath', 'cleanse'],
   ['w17-5', 'breath', 'cleanse', 'bossPhase', 'bossDeath'],
+  ['w19-1', 'whack', 'bonk'],
+  ['w19-5', 'whack', 'bonk', 'bossPhase', 'bossDeath'],
 ];
 
 // A level flown from another seed than its own, where its own no longer shows the twist: since R70 the base gun

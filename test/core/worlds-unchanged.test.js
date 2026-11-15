@@ -124,6 +124,23 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_18)) {
   });
 }
 
+// World 19 adds one twist (bonk: dizzy bodies the ship bats, R71) and the duck boss: none of it may touch any
+// other world, world 18 included, the only other world the free-flight code runs in. The bodies are made for
+// world 19 alone, the state hash adds nothing elsewhere and the rule draws no rng. These are two wave levels
+// of world 18 and its boss level, taken on commit 48aed5f, the last before world 19, and held to the same rule
+// as the fingerprints above.
+const BEFORE_WORLD_19 = {
+  'w18-1': {fold: -315858071, end: '1441:205000:b548a2200f11c7ce', pickup: 12, power: 8, kill: 74, shipHit: 0, fire: 160},
+  'w18-3': {fold: -477567236, end: '2226:308600:1df908586c62f499', pickup: 19, power: 17, kill: 114, shipHit: 0, fire: 382},
+  'w18-5': {fold: -1245330134, end: '2314:58200:705487509ff28ad9', pickup: 5, power: 5, kill: 10, shipHit: 0, fire: 319},
+};
+
+for (const [id, expected] of Object.entries(BEFORE_WORLD_19)) {
+  test(`${id} plays out exactly as it did before world 19`, () => {
+    assert.deepEqual(fingerprint(id), expected);
+  });
+}
+
 test('the replay version is 11 (R70), and the six powers stay the six', () => {
   assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 11);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);
