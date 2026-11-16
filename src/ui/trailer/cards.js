@@ -129,6 +129,11 @@ export const VOICES = [
     ['{kills}', "FELL TO THE STORM'S OWN FIRE."],
     ['{near} IN THE STORM.', '{time} OF BORROWED THUNDER.'],
   ],
+  [ // Rubber Regatta: bath toys invade a sunlit bathhouse, nothing shot dies, and the pilot bats them back
+    ['BATH TIME HAS BEEN INVADED.', 'BRING A BAT.'],
+    ['{kills}', 'KNOCKED SILLY.'],
+    ['{near} IN THE SUDS.', '{time} OF SQUEAKING.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

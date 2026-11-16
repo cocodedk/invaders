@@ -22,6 +22,8 @@
 //   shieldT   fx.time of the last shield flare (react-fight throttles on it); time = real seconds run
 //   breathBudget  { n, t }: the sparkles world 17's breath may still show now (full to start with) and the fx.time it was last topped
 //             up at; no other world touches it (react-breath.js; the leaf and twinkle particle kinds it adds are drawn by ui/breath-fx-view.js)
+//   world 19's foam is particles of kind 'suds' (react-bath.js): opaque puffs, or little stars with star: true, drawn with an ink rim by
+//             ui/bath-fx-view.js, no additive light
 // stepFx takes real frame time. Particles, rings, flashes, pop-ups and slices follow `slow` so slow
 // motion shows; the shake does not.
 import { stepParticles } from './particles.js';

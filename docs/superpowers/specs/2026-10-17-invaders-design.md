@@ -5,7 +5,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 18 cinematic worlds × 5 levels = 90 levels, free 2D
+as beautiful as Barrage (`../artillery`): 19 cinematic worlds × 5 levels = 95 levels, free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -31,6 +31,9 @@ flight, formations, bosses, power-ups — plus one feature no shooter has: your 
 - "World 18 mouse movement is weird as if it glides off", "ship must comply with mouse movements. no
   drifting. it must act immediately.", "the mouse movement must be the same in all the worlds": the ship
   follows the pointer at once, with no glide, in every world (R68).
+- A new world "which is funny to play too", one that "must differ from other worlds": the theme, the rule and the
+  details were left to the build, which settled them after a judged panel of six concepts (R71). A small brass plate in
+  the new world's backdrop reads "Built with cc-fable-5.2 · 2026-11-15".
 
 Assumptions (not stated, chosen here): English only; keyboard + mouse, no gamepad; installed on the
 Pi like Barrage; worlds evoke film genres under original names — no film titles, characters, logos or
@@ -205,7 +208,7 @@ quoted lines, so the repo can be public.
     and lives do not count; a power swept up at the clear is not caught). The medal pays nothing;
     once earned it is kept. The pilot's rank climbs with the medals held, from the bottom: Rookie 0,
     Cadet 1, Pilot 3, Flight Lead 6, Ace 10, Squadron Ace 18, Wing Leader 30, Air Marshal 50 and
-    Legend at every level's medal, 90 with world 18's five levels (`src/core/ranks.js`). The replay version is 9: a version 8 run is not replayed.
+    Legend at every level's medal, 95 with world 19's five levels (`src/core/ranks.js`). The replay version is `RUN_V` (`src/core/replay.js`): a run of an older version is not replayed.
 - **Stars:** ★ cleared · ★★ cleared losing ≤ 1 life · ★★★ cleared with no hits. Best score, best
   stars and the medal per level are saved in `localStorage`; Level Select's Reset scores (after a
   confirm) zeroes all three for every level and keeps the Cinema's runs (R66).
@@ -381,6 +384,63 @@ quoted lines, so the repo can be public.
     Those numbers are from before R68. After it, measured the same way with the lagged hand at 1800 px/s, world 18
     clears 21 % and world 7 15 %: the bot now fails the titan's world more often. The difficulty scores (R69), half
     the setting and half that fail rate, still put world 18 first, 8.6 to world 7's 8.5. Nothing was retuned.
+  - **World 19, Rubber Regatta: the bonk (R71).** The user asked for "a new world which is funny to play too" that
+    "must differ from other worlds", and left the theme and the rule to the build. It is a sunlit bathhouse at toy
+    scale, the game's first comic and first daylit world: a fleet of bath toys sails in over mountains of foam. Its
+    five levels are four wave levels and the Dowager Duck, with free flight as in every world from 18 on, no bunkers,
+    the six standard powers and a carrier in every wave level. The aliens are rubber, soap, sponge and paper (hp, fire
+    and score as in every world): the Squeakling (a duckling, the grunt), the Slipper (a bar of soap, the diver), the
+    Squirt Frog (the gunner), the Sponge (armoured, the stopper) and the Paper Boat (the carrier). The twist is new,
+    `bonk` (`tumble.js`, `bonk.js`), and no rule is drawn from another world's. It draws no random number and runs
+    in world 19 alone, so worlds 1-18 replay unchanged (pinned by fingerprints of world 18, and `RUN_V` stays 11).
+    - **Nothing shot here dies.** An alien or a boss minion brought to 0 hp is scored, combos and drops as anywhere,
+      and leaves a dizzy body where it fell: it hops (`HOP` 260 px/s up, falling back at `TUMBLE_G` 520 px/s² to a top
+      speed of `SINK` 180 px/s), but never behind the HUD or off the top. A body never hurts the ship, blocks a shot,
+      beam or bomb, or holds a wave open, and lives through the wave gap. `BODY_MAX` 60 is a bound that play does not
+      reach (the autopilot's worst moment, a bomb on a full wave, made 49). A rammed alien and the minions swept
+      away at the boss's death leave none.
+    - **Whack.** A dizzy body the ship's path touches (`WHACK_R`, 8 px more than the two radii) is batted at
+      `LAUNCH` 1000 px/s along the line from where the ship's move began through the body's centre, or straight up if
+      they coincide. It costs nothing and works while the ship blinks or is shielded. A body still rising from a
+      rebound cannot be batted (`DAZE`), so a ship parked on it lands one bonk a bat.
+    - **Bonk.** A flying body hits the first live alien on its path, else the first live boss part: `BONK` 2 to an
+      alien, `BONK_BOSS` 21 to a part through its own rule (weak 100 %, armour 25 %). If the hit knocks an alien out,
+      the striker is spent and the new body flies on at once with its velocity, one link further along the bowling
+      chain; four knock-outs in one chain (`STRIKE_AT`) make a strike. If the target survives, or is a boss part, the
+      striker rebounds to where it started, dizzy again; its `BONK_MAX`th bonk (the third) spends it instead (a fizzle), so a
+      body rebounds at most `BONK_MAX` − 1 times.
+      A flying body reflects once off a side wall (`BANKS`, a bank), and one that leaves by the bottom plops. Many bonks
+      are happy accidents (a body falls onto the ship, a chain runs on by itself); the bat the player aims is for the boss,
+      where it pays.
+    - Events: `whack`, `bonk`, `bank`, `strike`, `plop`, `fizzle`. The look answers them: a knock-out is a puff of
+      stars and foam with a squeak (the kill's sound, its note from x on the world's own scale), a bonk a woodblock and a
+      pop-up that grows with the link (BONK, DOUBLE BONK, TRIPLE BONK), a strike a slide whistle, and the two brass taps in
+      the backdrop spurt. The jokes are all on the toys.
+    - `d` is 0.64, 0.67, 0.70, 0.73, 0.76 (`OWN[19]`), so `armorBonus` applies and the Squirt Frog (3 hp) and the Sponge
+      (4) survive one bonk and stop a chain. Measured with the lagged autopilot (R68 lag model, lags 8 to 18 x 20 seeds,
+      after the balance pass): the levels clear 83, 51, 48, 38 and 24 %, each inside the span of world 12's 90, 51, 45,
+      34 and 24 and world 13's 83, 52, 63, 42 and 22, and never easier than both; difficulty score 6.4. The pass took two
+      gunner rows off w19-4 (33 to 38 %), eased the duck's sway spiral from every 3.6 s to 3.7 (16 to 24 %), and raised
+      `BONK_BOSS` from 15 to 21: at 15 a bot that bats was faster but, mortal, cleared her less often than the plain
+      autopilot (64 against 83 of 360 flights over seeds 1-60), because it leaves its dodge to bat. Now a bot that bats
+      the nearest safe body at her nearest weak part clears her in 38.5 s to the autopilot's 40.3 (a bot that bats every
+      body on screen, 28.7 s), lands a mean of 7.8 boss bonks a fight (4.9 when mortal), and, mortal, clears her 33 times
+      of 120 to the autopilot's 29 (90 to 78 of 360), so batting pays. The stand-and-fire bot beats her in 41.3 s.
+    - **The Dowager Duck** is a colossal rubber duck seen front-on, afloat in a ring of foam, in a frilly polka-dot
+      shower cap with a bobble, striped inflatable armbands on her stubby wings, a huge orange bill and long-lashed
+      indignant eyes. A centre column of four (the bobble, armour; the bill, the belly and the
+      squeaker, weak) is flanked by the two armbands (armour) and, tucked inside them, two feet (weak). She sways (bath time: she quacks at the ship, the squeaker rings, the cap sheds a whirl
+      of drops), hovers (sprung a leak: a plaster on her belly, which sprays a spiral) and orbits (the valve goes and she
+      whizzes round like a let-go balloon, both feet kicking up rain). She never charges, and fires no fan, laser or homing
+      shot. The armbands never fire: the ducklings, which are the fight's ammunition, swim out from under them three at a
+      time. She rests at 330, weighs 234 hp, and a bonk squashes her and crosses her eyes.
+    - **Look.** A glazed green tiled wall, mid-value where the fight is and pale only at the waterline, because the
+      renderer's additive light (telegraphs, beams, halos) vanishes on a pale field. Brass dolphin taps as tall as towers
+      pour waterfalls at the back, a shelf skyline of bottles, a loofah and a toy lighthouse stands in the middle, and
+      the foam's crests roll in front. The ship is a small wooden toy seaplane with a red rubber nose, firing corks; the enemy
+      fires grape-coloured soap blobs. A small brass plate in the backdrop reads "Built with cc-fable-5.2 · 2026-11-15"
+      (`MAKER_MARK`), as the user asked. The music, `bath`, is in F on a new six-note scale at 118 bpm: a marimba tune with rests,
+      a kalimba answer, a plucked bass and a lazy two-beat bounce. Its trailer is graded rubber-duck yellow.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -408,6 +468,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 16 | Glass Cathedral | stained-glass cathedral at dawn | a half-ruined nave open to a dawn sky: tall jewel-coloured windows, a great rose window, columns and flying buttresses, shafts of coloured light | world 7's reassemble, drawn as gargoyles whose shards hang in the air and mend; and its own power, the mirror twin (new, ruling R64) | The Vesper Moth |
 | 17 | Ash to Air | a smog-choked city that heals | a city under brown smog, giant cigarettes smoking among the towers like chimneys, ash falling; level by level the smog lifts, the sky turns blue and parks, trees and kites come back | the breath: every 24 s a front of fresh air sweeps up the field and wipes the enemy bullets it passes (new, ruling R65) | The Craving |
 | 18 | Anvil Sky | a dogfight inside a thunderstorm, the first free-flight world (R67) | dusk inside a storm: towering anvil clouds lit from within by lightning, rain curtains, a low orange sun under the cloud deck | free flight and dragged bullets; the side guns are a power there (R67) | the Squall Ray: a colossal manta of thundercloud, iron plates on its spine and wings, a storm heart glowing through its back, a Tesla coil at each wing tip |
+| 19 | Rubber Regatta | a sunlit bathhouse at toy scale, the first comic world: bath toys invade over mountains of foam | a glazed green tiled bathroom wall steamed to cream and butter light at the waterline: brass dolphin taps as tall as towers pouring waterfalls, a shelf skyline of bottles and a loofah, crests of foam | the bonk: nothing shot dies, it is knocked silly and hops as a dizzy toy that the ship can bat into the others and into the boss (new, ruling R71); free flight as in every world from 18 on | the Dowager Duck: a colossal rubber duck in a frilly polka-dot shower cap, striped armbands and a huge orange bill |
 
 ## Look and effects
 

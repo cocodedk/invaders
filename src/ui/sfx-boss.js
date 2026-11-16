@@ -8,6 +8,7 @@ import { tone, hiss, fm, wobble, crush, noteHz, bell } from './audio-kit.js';
 import { glassRoar } from './sfx-glass.js';
 import { cravingRoar } from './sfx-breath.js';
 import { squallRoar } from './sfx-storm.js';
+import { duckRoar, duckDeath } from './sfx-bath.js';
 
 // The roar's voice per style: [oscillator wave, pitch, glide steps, waveshaper amount].
 const ROAR = {
@@ -25,6 +26,7 @@ function roar(a, h, dur, fall) {
   if (a.kit.style === 'glass') return glassRoar(a, h, dur); // the Moth: a great bell tolled over an organ cluster, no growl
   if (a.kit.style === 'breath') return cravingRoar(a, h, dur); // the Craving: a wheezing inhale, then a rasping, smoky roar
   if (a.kit.style === 'anvil') return squallRoar(a, h, dur); // the Squall Ray: a thunderclap, a sharp crack and a long rolling rumble
+  if (a.kit.style === 'bath') return duckRoar(a, h, dur); // the Dowager Duck: a giant quack, then a leak
   const [type, p, steps, drive] = ROAR[a.kit.style] ?? ROAR.noir;
   const dest = crush(a, drive + h * 1.5);
   const f = 72 * p;
@@ -162,6 +164,7 @@ export const BOSS = {
     return 5.2;
   },
   bossDeath(a) { // the scream, then the hull groans as it snaps
+    if (a.kit.style === 'bath') return duckDeath(a); // the Duck: one enormous raspberry ending on a tiny squeak, and no hull
     roar(a, 2, 2, 0.45);
     const t = a.t + 0.9;
     wobble(a, tone(a, { t, type: 'sawtooth', f0: 62, f1: 30, attack: 0.3, dur: 1.6, peak: 0.16, cut: 340 }).frequency, 3, 4, t, 1.9);

@@ -49,7 +49,7 @@ test('the cards stand PER_ROW to a row, ceil(worlds / PER_ROW) rows, the last on
   assert.ok(!textOf(screen.el).includes('Also showing'), 'no "Also showing" banner');
 });
 
-test('world 18 is a full card in its row, with the free-flight flag, and the only flagged one', () => {
+test('world 18 is a full card in its row, with the free-flight flag, and the first flagged one', () => {
   const { rows, named } = lobby();
   assert.equal(WORLDS[17].free, true);
   const card = rows[Math.floor(17 / PER_ROW)].children[17 % PER_ROW];
@@ -58,7 +58,7 @@ test('world 18 is a full card in its row, with the free-flight flag, and the onl
   assert.equal(all(card).filter((e) => has(e, 'reel')).length, 5);
   assert.equal(all(card).filter((e) => has(e, 'poster-bill')).length, 1);
   const flags = named('poster-flag');
-  assert.equal(flags.length, WORLDS.filter((w) => w.free).length, 'a flag on every free-flight world');
+  assert.equal(flags.length, WORLDS.filter((w) => w.free).length, 'a flag on every free-flight world, 18 on');
   assert.equal(textOf(flags[0]), 'Free flight');
   assert.ok(all(card).includes(flags[0]), 'on world 18');
   const art = all(card).find((e) => has(e, 'poster-art'));
@@ -66,6 +66,19 @@ test('world 18 is a full card in its row, with the free-flight flag, and the onl
   assert.ok(!all(all(card).find((e) => has(e, 'poster-type'))).includes(flags[0]), 'and not in the type block, which it would push up the boss');
   const say = textOf(card);
   for (const part of ['World 18', 'Anvil Sky', 'Make their fire follow you.', 'The Squall Ray']) assert.ok(say.includes(part), part);
+});
+
+test('world 19 takes the next slot after world 18, as a full card with its own flag and no layout change', () => {
+  const { rows, named } = lobby();
+  assert.equal(WORLDS[18].free, true);
+  const card = rows[Math.floor(18 / PER_ROW)].children[18 % PER_ROW];
+  assert.equal(card.dataset.world, '19');
+  assert.ok(has(card, 'poster'), 'a poster card like the others');
+  assert.equal(all(card).filter((e) => has(e, 'reel')).length, 5);
+  const flags = named('poster-flag');
+  assert.equal(flags.filter((f) => all(card).includes(f)).length, 1, 'the free-flight flag, once');
+  const say = textOf(card);
+  for (const part of ['World 19', 'Rubber Regatta', 'Bath time. Bring a bat.', 'The Dowager Duck']) assert.ok(say.includes(part), part);
 });
 
 test("each poster shows its world's difficulty score out of SEGMENTS, with one decimal, a caption and a bar of SEGMENTS segments", () => {

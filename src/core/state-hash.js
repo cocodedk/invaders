@@ -34,6 +34,10 @@ const fuseParts = ({ twist }) =>
 // The breath (world 17), when it is that world: the countdown to the next one and how far the front has risen.
 const breathParts = ({ twist }) => (twist.rise === undefined ? [] : [round(twist.timer), twist.rise === null ? '-' : round(twist.rise)]);
 
+// World 19's bodies, when any: how many, then the id, place, flight, chain link and rebounds of each.
+const bodyParts = ({ twist }) =>
+  (twist.bodies?.length ? [twist.bodies.length, ...twist.bodies.map((b) => `${b.id},${round(b.x)},${round(b.y)},${b.fly},${b.link},${b.bonks}`)] : []);
+
 export function stateHash(world) {
   const { ship, boss } = world;
   const parts = [
@@ -43,6 +47,7 @@ export function stateHash(world) {
     ...(ship.broadside > 0 ? [round(ship.broadside)] : []), // world 13's side guns; shut elsewhere, so nothing is added
     ...fuseParts(world), // world 14's lit fuses; none elsewhere, so nothing is added
     ...breathParts(world), // world 17's breath; no rise elsewhere, so nothing is added
+    ...bodyParts(world), // world 19's bodies; none elsewhere, so nothing is added
     world.aliens.length, ...world.aliens.map((a) => `${a.id},${round(a.x)},${round(a.y)},${a.hp},${a.mode}`),
     world.shots.length, ...points(world.shots),
     world.bullets.length, ...points(world.bullets),

@@ -3,6 +3,7 @@ import { difficulty } from './difficulty.js';
 import { w, lv, LATE } from './levels-2.js';
 import { SIDE } from './levels-3.js';
 import { SIDE2, STORM } from './levels-4.js';
+import { REGATTA } from './levels-5.js';
 
 // Level data, plain and serialisable. Each level, in order, is
 //   { id: 'w<world>-<index>', world, index, seed, d, twist, bunkers,
@@ -13,7 +14,7 @@ import { SIDE2, STORM } from './levels-4.js';
 
 const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon',
   'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
-  'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky'];
+  'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky', 'Rubber Regatta'];
 export const FREE_FROM = 18; // R67: every world from this one on flies free (ship.js zoneOf, collide.js); 1-17 keep the bottom strip
 
 export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i], free: i + 1 >= FREE_FROM }));
@@ -147,7 +148,7 @@ function level(world, index, { seed, bunkers, waves }) {
   return waves ? { ...base, waves } : { ...base, boss: home.boss };
 }
 
-export const LEVELS = [...EARLY, ...LATE, ...SIDE, ...SIDE2, ...STORM].flatMap((specs, wi) =>
+export const LEVELS = [...EARLY, ...LATE, ...SIDE, ...SIDE2, ...STORM, ...REGATTA].flatMap((specs, wi) =>
   specs.map((spec, ii) => level(wi + 1, ii + 1, spec)));
 
 // World 1 at d = 0 for "Watch, then try": a 6x3 grunt grid, then one swaying trio around a carrier.

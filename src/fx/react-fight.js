@@ -1,4 +1,7 @@
 // Reactions to the fight itself: shots, hits, kills, blasts, bombs, the wave and the level ending.
+// Shared with the worlds that tell a kill or a blast their own way (react-bath.js):
+//   scorePopup(fx, ev)   a kill's score, risen over the spot, bigger with the combo
+//   blastSize(ev)        an explode's size, 1 (an alien or a part), 2 (the ship) or 3 (the last blast of a boss)
 import { addShake } from './camera.js';
 import { addFlash, addPopup, addRing, BONUS_Y, startSlowMo } from './fx.js';
 import { debris, FIRE, powerColor, sparks, smoke } from './emit.js';
@@ -26,12 +29,9 @@ const BLASTS = [
 ];
 
 const comboColor = (mult) => (mult >= COMBO_MAX ? '#ff7a3a' : mult >= COMBO_HOT ? '#ffd24a' : mult >= 2 ? '#fff6c8' : '#ffffff');
+export const blastSize = (ev) => clamp(ev.size | 0 || 1, 1, BLASTS.length - 1);
 
-function kill(fx, ev, rng) {
-  const carrier = ev.role === 'carrier';
-  debris(fx, rng, ev.x, ev.y, carrier ? 12 : 8, ROLE_COLORS[ev.role] ?? ROLE_COLORS.grunt, 220);
-  if (carrier) sparks(fx, rng, ev.x, ev.y, 10, 300, GOLD);
-  if (!ev.scored) return;
+export function scorePopup(fx, ev) {
   const mult = ev.mult ?? 1;
   addPopup(fx, {
     x: ev.x, y: ev.y - 18, text: '+' + ev.score, color: comboColor(mult),
@@ -39,8 +39,15 @@ function kill(fx, ev, rng) {
   });
 }
 
+function kill(fx, ev, rng) {
+  const carrier = ev.role === 'carrier';
+  debris(fx, rng, ev.x, ev.y, carrier ? 12 : 8, ROLE_COLORS[ev.role] ?? ROLE_COLORS.grunt, 220);
+  if (carrier) sparks(fx, rng, ev.x, ev.y, 10, 300, GOLD);
+  if (ev.scored) scorePopup(fx, ev);
+}
+
 function explode(fx, ev, rng) {
-  const b = BLASTS[clamp(ev.size | 0 || 1, 1, 3)];
+  const b = BLASTS[blastSize(ev)];
   addFlash(fx, { x: ev.x, y: ev.y, r: b.flash, life: 0.18, tag: 'blast' });
   addRing(fx, { x: ev.x, y: ev.y, maxR: b.ring, life: 0.5, color: '#ffe9b0' });
   if (b === BLASTS[3]) {

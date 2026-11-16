@@ -7,6 +7,7 @@ import { randBetween } from './rng.js';
 import { emit, prune } from './util.js';
 import { pushAll, acid, glitch, reassemble, gravity } from './twists-2.js';
 import { breath, breathState } from './twists-3.js';
+import { bonk } from './bonk.js';
 
 // Each world's one small rule of its own. A level's rule is `level.twist`; applyTwist(world, dt)
 // runs it once per tick, after collisions (twists-2.js has worlds 5-8 and says why that order); the
@@ -22,7 +23,8 @@ import { breath, breathState } from './twists-3.js';
 //            blink, saucer or breath; the bullet-time cooldown; the wave bunkers were last laid for; the
 //            saucers sent; acid in the making; fuses, the lit fireworks fuses (fireworks.js), made
 //            for world 14 alone; rise, seconds since the breath's front left the bottom or null
-//            (twists-3.js), made for world 17 alone
+//            (twists-3.js), made for world 17 alone; bodies, the dizzy and batted toys (tumble.js, bonk.js),
+//            made for world 19 alone
 
 const SAUCER_EVERY = 20; // s
 const SAUCER_Y = HUD_BOTTOM + 8; // just under the HUD band, so it is never behind a panel
@@ -44,6 +46,7 @@ export function createTwist(level, rng) {
   if (kind === 'gravity') state.well = { ...WELL };
   if (kind === 'fireworks') twist.fuses = [];
   if (kind === 'breath') Object.assign(twist, breathState());
+  if (kind === 'bonk') twist.bodies = [];
   return state;
 }
 
@@ -141,8 +144,8 @@ function fireworks(world) {
 }
 
 // shuriken: cutShuriken. broadside (world 13) has no per-tick rule here: a pickup caught opens the ship's
-// side guns (collect, powerups.js), tickPower counts them down, and shoot (ship.js) fires them.
-const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity, fireworks, breath };
+// side guns (collect, powerups.js), tickPower counts them down, and shoot (ship.js) fires them. bonk (world 19) is in bonk.js.
+const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity, fireworks, breath, bonk };
 
 export function applyTwist(world, dt) {
   RULES[world.level.twist]?.(world, dt);

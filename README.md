@@ -1,7 +1,7 @@
 # Invaders
 
 A cinematic arcade shooter for the browser. Fly anywhere in the lower half of the screen, shoot down
-alien formations and beat a boss at the end of every world: 18 worlds and 90 levels, each world with
+alien formations and beat a boss at the end of every world: 19 worlds and 95 levels, each world with
 its own look, music and twist. Spread shot, laser, rapid fire, shield, homing shots,
 slow time, smart bombs and extra lives along the way (a second power-up waits in reserve while the
 first runs), and combos for the score. Sunset Armada, the thirteenth world, brings its own: wingmen, two
@@ -18,6 +18,10 @@ ship flies anywhere under the score panels, straight at the invaders; every worl
 homing bullets turn to follow you: lead one far enough round and it turns on the first invader or boss part it crosses, so they
 die to their own fire. Touch an invader, or the boss, the Squall Ray, a manta of thundercloud, and you lose a life. The ship's
 side guns come as a power-up there.
+Rubber Regatta, the nineteenth, is the first comic world: a sunlit bathhouse where a fleet of bath toys sails in over mountains
+of foam. Nothing you shoot dies there. It is knocked silly, hops with a squeak and tumbles down as a harmless dizzy toy, and if
+you fly the ship into it you bat it away like a ball: it bowls through the toys around it, banks off the tiles and bonks the
+boss, the Dowager Duck, a colossal rubber duck in a frilly shower cap, on the head. Four knock-outs in one chain make a strike.
 
 Clear a level and the game cuts a movie trailer from your own run, title cards and all. The Cinema
 on the title screen keeps your best run of every level. Lose one and you get the blooper instead.

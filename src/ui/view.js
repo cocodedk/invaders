@@ -27,6 +27,8 @@ import { warmDeep } from './warm-deep.js';
 import { warmGlass } from './warm-glass.js';
 import { warmBreath } from './warm-breath.js';
 import { warmStorm } from './warm-storm.js';
+import { warmBath } from './warm-bath.js';
+import { drawBodies } from './bodies-view.js';
 import { createHeal, stepHeal, healOf } from './heal.js';
 import { buildHealLayers } from './heal-layers.js';
 import { drawHealSky, healSkies } from './heal-view.js';
@@ -41,7 +43,7 @@ import { drawHud } from './hud.js';
 import { createQuality } from './quality.js';
 
 // warm (default true) bakes the level's aliens and boss with all their damage art (and world 13's, 14's, 15's and 16's
-// sprites, warm-armada.js, warm-carnival.js, warm-deep.js and warm-glass.js, world 17's, warm-breath.js, and world 18's arc bolts and dragged bullets, warm-storm.js); a poster, which draws one frame and has baked what it draws, passes false.
+// sprites, warm-armada.js, warm-carnival.js, warm-deep.js and warm-glass.js, world 17's, warm-breath.js, world 18's arc bolts and dragged bullets, warm-storm.js, and world 19's bodies, plane and corks, warm-bath.js); a poster, which draws one frame and has baked what it draws, passes false.
 export function createView(canvas, level, warm = true) {
   const look = lookFor(level);
   if (warm) {
@@ -53,6 +55,7 @@ export function createView(canvas, level, warm = true) {
     warmGlass(look);
     warmBreath(look);
     warmStorm(look);
+    warmBath(look);
   }
   const heal = look.heal ? createHeal() : null; // world 17: the healing city, a smog and a clean twin of the sky and layers (heal.js)
   const skies = heal && healSkies(look, level); // the smog sky and the clean one, baked once per look (heal-view.js)
@@ -108,6 +111,7 @@ function field(ctx, v, world, fx, t, env, amb) {
   drawBreathWake(ctx, v, world, t); // world 17: the smog parts where the breath has passed (breath-view.js)
   drawBunkers(ctx, world, look);
   drawBoss(ctx, world, look, t, q); // under the aliens: minions launch from it and fly over it (R27)
+  drawBodies(ctx, world, look, t, false); // world 19: the dizzy toys, under every live alien (bodies-view.js)
   drawAliens(ctx, world, look, t);
   drawDarkness(ctx, env);
   drawPickups(ctx, world, look, t);
@@ -115,6 +119,7 @@ function field(ctx, v, world, fx, t, env, amb) {
   drawBullets(ctx, world, look, t, q);
   drawBeam(ctx, world, look, t);
   drawShots(ctx, world, look, t);
+  drawBodies(ctx, world, look, t, true); // world 19: the batted toys, over the shots
   drawBreath(ctx, v, world, t); // world 17: the front of fresh air and the craft that lead it
   drawShip(ctx, world, look, t);
   drawFx(ctx, fx);

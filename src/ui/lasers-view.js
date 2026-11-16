@@ -10,6 +10,8 @@ import { drawTridents } from './shots-deep.js';
 import { drawMirrorShots } from './shots-glass.js';
 import { drawArcBolts } from './shots-storm.js';
 import { STORM_WORLD } from './storm-bolt.js';
+import { drawCorks } from './shots-bath.js';
+import { BATH_WORLD } from './bath-kit.js';
 
 function warning(ctx, b, s, color, t) {
   const k = 1 - b.warn / LASER_WARN;
@@ -81,10 +83,20 @@ export function drawBeam(ctx, world, look, t) {
 
 // Ship shots: a soft coloured streak, a white core, a glow at the head; world 13's side shots are balls, and
 // world 15's trident shots three-pronged bolts (shots-deep.js), world 16's mirror twin's shots slim bolts of
-// glass (shots-glass.js), and world 18 borrows world 13's broadside and draws its shots as crackling arcs (shots-storm.js).
+// glass (shots-glass.js), and world 18 borrows world 13's broadside and draws its shots as crackling arcs (shots-storm.js). World 19's plain
+// shots are corks (shots-bath.js).
 export function drawShots(ctx, world, look, t = 0) {
   const shots = world.shots;
   if (!shots.length) return;
+  if (look.world === BATH_WORLD) drawCorks(ctx, shots, t);
+  else streaks(ctx, shots, look);
+  if (world.level?.world === STORM_WORLD) drawArcBolts(ctx, shots, t, look); // world 18 re-skins the broadside's shots as arcs (shots-storm.js)
+  else drawBalls(ctx, shots, t);
+  drawTridents(ctx, shots, t);
+  drawMirrorShots(ctx, shots, t);
+}
+
+function streaks(ctx, shots, look) {
   const color = look.palette.shot;
   const path = (len) => {
     ctx.beginPath();
@@ -116,8 +128,4 @@ export function drawShots(ctx, world, look, t = 0) {
   for (const p of shots) if (!p.broadside && !p.trident && !p.mirror) ctx.drawImage(g, p.x - 14, p.y - 14, 28, 28);
   ctx.globalCompositeOperation = 'source-over';
   ctx.lineCap = 'butt';
-  if (world.level?.world === STORM_WORLD) drawArcBolts(ctx, shots, t, look); // world 18 re-skins the broadside's shots as arcs (shots-storm.js)
-  else drawBalls(ctx, shots, t);
-  drawTridents(ctx, shots, t);
-  drawMirrorShots(ctx, shots, t);
 }

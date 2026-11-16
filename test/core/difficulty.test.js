@@ -101,6 +101,14 @@ test('world 18, the first free-flight world (R67) and the hardest, runs the top 
   assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'armorBonus on throughout');
 });
 
+test('world 19 (R71) is mid-hard, between worlds 12 and 13 level for level, rising, armorBonus on throughout', () => {
+  const own = [1, 2, 3, 4, 5].map((i) => difficulty(19, i));
+  assert.deepEqual(own, [0.64, 0.67, 0.70, 0.73, 0.76]);
+  own.forEach((d, i) => assert.ok(i === 0 || d > own[i - 1], `w19-${i + 1}`));
+  own.forEach((d, i) => assert.ok(d >= difficulty(12, i + 1) && d <= difficulty(13, i + 1), `w19-${i + 1} between w12 and w13`));
+  assert.ok(own.every((d) => scaled(d).armorBonus === 1), 'armorBonus on throughout: a gunner and an armored survive one bonk');
+});
+
 test('scaled gives the documented range at d = 0 and d = 1', () => {
   assert.deepEqual(scaled(0), { bulletSpeed: 260, fireMult: 0.6 * FIRE_UP, formationSpeed: 1, armorBonus: 0 });
   const hard = scaled(1);

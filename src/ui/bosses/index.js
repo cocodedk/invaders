@@ -1,4 +1,4 @@
-// The eighteen bosses, drawn from their baked sprites (bake.js; painters in bosses/<kind>.js).
+// The nineteen bosses, drawn from their baked sprites (bake.js; painters in bosses/<kind>.js).
 //   drawBoss(ctx, world, look, t, q?)        world space, after the bunkers, before the aliens (so
 //                                            minions launched from the boss fly over it; ruling R27)
 //   drawBossLights(ctx, world, look, t, k, q?)  only the lights, at strength k: Neon Rain's darkness pass
@@ -8,7 +8,8 @@
 // Per frame, bottom to top: the hull, a module's live body behind its parts (mod.behind, own pass only), the hull's lights (the phase's own lights cross-fading in on a
 // phase change), the glow round each live weak point, the parts in their states, their lights, the
 // module's live extras, a charge-up on every pending warn (parts.js). Once dying, death.js draws
-// the collapse instead. Per frame only drawImage of baked canvases and cached glows.
+// the collapse instead. Per frame only drawImage of baked canvases and cached glows. A module's pose (mod.pose, the Duck's squash
+// when bonked) scales all of it about a line for a moment: art only, the parts' boxes never move.
 import { bossArt } from './bake.js';
 import { drawDying } from './death.js';
 import { halos, partBodies, partLights, warns } from './parts.js';
@@ -28,6 +29,18 @@ function behind(ctx, b, B, t) {
   ctx.globalAlpha = 1;
   B.mod.behind(ctx, b, t);
   ctx.restore();
+}
+
+// A module's pose (mod.pose(b, t) -> [sx, sy, py] | null): the whole drawing scaled about the line y = py, boss coordinates. True
+// when a transform was pushed, which the caller restores.
+function posed(ctx, b, B, t) {
+  const p = B.mod.pose?.(b, t);
+  if (!p) return false;
+  ctx.save();
+  ctx.translate(b.x, b.y + p[2]);
+  ctx.scale(p[0], p[1]);
+  ctx.translate(-b.x, -b.y - p[2]);
+  return true;
 }
 
 function phaseMemo(b, t) {
@@ -84,12 +97,14 @@ export function drawBoss(ctx, world, look, t, q = 1) {
     return;
   }
   const h = B.hull;
+  const p = posed(ctx, b, B, t);
   ctx.drawImage(h.body, b.x + h.x0, b.y + h.y0);
   behind(ctx, b, B, t); // a module's live body behind the parts (the Craving's churning smoke)
   hullLights(ctx, b, B, t, 1, q);
   halos(ctx, b, look.palette.boss, t, 1);
   partBodies(ctx, b, B, look, t);
   lights(ctx, b, B, look, t, 1, true);
+  if (p) ctx.restore();
 }
 
 export function drawBossLights(ctx, world, look, t, k, q = 1) {
@@ -100,7 +115,9 @@ export function drawBossLights(ctx, world, look, t, k, q = 1) {
     drawDying(ctx, b, B, t, k, false);
     return;
   }
+  const p = posed(ctx, b, B, t);
   hullLights(ctx, b, B, t, k, q);
   halos(ctx, b, look.palette.boss, t, k);
   lights(ctx, b, B, look, t, k, false);
+  if (p) ctx.restore();
 }

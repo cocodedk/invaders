@@ -8,6 +8,7 @@ import { drawBubble } from './bubble-view.js';
 import { drawMend, drawScatter } from './mending-fx-view.js';
 import { drawLeaf, drawTwinkle } from './breath-fx-view.js';
 import { drawArc } from './arc-fx-view.js';
+import { drawSuds } from './bath-fx-view.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { flashK } from '../fx/fx.js';
 import { TAU } from '../core/math.js';
@@ -44,6 +45,10 @@ function plain(ctx, p) {
     ctx.scale((s / 20) * Math.cos(a * 1.3), s / 20);
     ctx.drawImage(pageSprite(p.color), -16, -20);
     ctx.restore();
+    return;
+  }
+  if (p.kind === 'suds') { // an opaque inked puff of foam or a little star (world 19): bath-fx-view.js
+    drawSuds(ctx, p);
     return;
   }
   if (p.kind === 'leaf') { // a leaf riding the breath's air (world 17): breath-fx-view.js

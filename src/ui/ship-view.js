@@ -2,7 +2,8 @@
 // the world's accent, twin engine flames that stretch when it climbs, a fading wake behind its
 // motion, a roll into every sideways move, a shield bubble, and a blink while invulnerable. World 13's
 // wingmen and side guns are drawn with it (ship-armada.js), world 15's pearls (ship-deep.js) and world 16's mirror
-// twin (ship-glass.js); world 18's side guns are coil emitters (ship-storm.js).
+// twin (ship-glass.js); world 18's side guns are coil emitters (ship-storm.js); world 19's ship is a wooden toy seaplane with a turning
+// propeller in place of the hull and its flames (ship-bath.js).
 // Stateless: everything comes from the ship's position, velocity and t.
 import { INK, rgba, glow, star, addGlow } from './sprites.js';
 import { clamp, TAU } from '../core/math.js';
@@ -12,6 +13,8 @@ import { drawPearls } from './ship-deep.js';
 import { drawTwin } from './ship-glass.js';
 import { drawCoilPorts } from './ship-storm.js';
 import { STORM_WORLD } from './storm-bolt.js';
+import { drawToyPlane } from './ship-bath.js';
+import { BATH_WORLD } from './bath-kit.js';
 
 // `alpha` is the ship's own (0.3 while it blinks), so the flames blink with it.
 function flames(ctx, s, accent, t, alpha) {
@@ -119,7 +122,8 @@ export function drawShip(ctx, world, look, t) {
   const alpha = blink ? 0.3 : 1;
   ctx.globalAlpha = alpha;
   addGlow(ctx, glow(accent), s.x, s.y + 4, 64, blink ? 0.12 : 0.3);
-  flames(ctx, s, accent, t, alpha);
+  const toy = look.world === BATH_WORLD;
+  if (!toy) flames(ctx, s, accent, t, alpha);
   drawEscorts(ctx, s, look, t, alpha);
   drawPearls(ctx, s, look, t, alpha);
   drawTwin(ctx, s, look, t, alpha);
@@ -129,7 +133,7 @@ export function drawShip(ctx, world, look, t) {
   ctx.translate(s.x, s.y);
   ctx.rotate(bank * 0.1);
   ctx.scale(1 - 0.14 * Math.abs(bank), 1);
-  const [wl, wr] = hull(ctx, bank, accent);
+  const [wl, wr] = toy ? drawToyPlane(ctx, bank, accent, t) : hull(ctx, bank, accent);
   if (s.broadside > 0) (look.world === STORM_WORLD ? drawCoilPorts(ctx, s, t, look) : drawGunPorts(ctx, s, t)); // brass ports in world 13, coil emitters in world 18
   ctx.restore();
   const tip = 0.6 + 0.4 * Math.sin(t * 6);

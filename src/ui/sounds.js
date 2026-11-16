@@ -16,6 +16,9 @@
 // events (the patches branch on the world's sound style, sfx-storm.js), and a `backfire` (an enemy bullet turned on the first alien it
 // crosses, or on a boss's part, at its x) sounds a crack and a struck-iron ring. The Squall Ray's roar, at each
 // `bossPhase` and at its `bossDeath`, is a thunderclap in that style (sfx-storm.js squallRoar, picked by sfx-boss.js).
+// World 19's batting rule sounds through its own events (sfx-bath.js): the bat's `whack`, a flying body's `bonk` (its link and
+// whether it struck the boss), a `bank` off a wall, a `strike`, a `plop` out at the bottom and a `fizzle`; at most TWIST_VOICES of
+// them a tick and one of each kind (audio.js thins each further with a GAP). Its knock-outs are kills, which squeak there.
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X, WIDTH } from '../core/kinds.js';
 
@@ -25,6 +28,8 @@ export const SILENT = {
 };
 
 const at = (e) => ({ x: e.x });
+export const TWIST_VOICES = 4; // world 19's batting sounds a tick, at most
+const TWIST = new Set(['whack', 'bonk', 'bank', 'strike', 'plop', 'fizzle']);
 // The pickups swept up at the clear (R51) all land on one tick: each chimes this long after the last,
 // a run of chimes rather than one blob.
 const CHIME_GAP = 0.06;
@@ -33,7 +38,12 @@ const SIDE_PAN = 240;
 
 export function eventSounds(events, world, play) {
   const dying = world.boss?.dying ?? null;
+  const heard = new Set(); // the batting sounds this tick
   for (const e of events) {
+    if (TWIST.has(e.type)) {
+      if (heard.has(e.type) || heard.size >= TWIST_VOICES) continue;
+      heard.add(e.type);
+    }
     switch (e.type) {
       case 'fire':
         if (e.side === 'ship') {
@@ -87,6 +97,12 @@ export function eventSounds(events, world, play) {
       case 'breath': play('breath', { dur: e.dur }); break;
       case 'cleanse': play('cleanse', at(e)); break;
       case 'backfire': play('backfire', at(e)); break;
+      case 'whack': play('whack', at(e)); break;
+      case 'bonk': play('bonk', { link: e.link, boss: e.role === 'boss', x: e.x }); break;
+      case 'bank': play('bank', at(e)); break;
+      case 'strike': play('strike', at(e)); break;
+      case 'plop': play('plop', at(e)); break;
+      case 'fizzle': play('fizzle', at(e)); break;
       default: break; // SILENT
     }
   }

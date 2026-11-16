@@ -36,7 +36,7 @@ test('the borrowed-line guard finds a guarded line by its hash, anywhere in a ca
 });
 
 test('every world has three cards of one to three lines, and every placeholder is a known stat', () => {
-  assert.equal(VOICES.length, 18);
+  assert.equal(VOICES.length, WORLDS.length, 'a voice for every world');
   for (const [w, cards] of VOICES.entries()) {
     assert.equal(cards.length, 3, `world ${w + 1}`);
     const used = new Set();
@@ -54,7 +54,7 @@ test('every world has three cards of one to three lines, and every placeholder i
 });
 
 test('cards fill every placeholder for every world, and read well for zeros, ones and big numbers', () => {
-  for (let world = 1; world <= 18; world++) {
+  for (let world = 1; world <= WORLDS.length; world++) {
     for (const stats of ALL) {
       const cards = cardsFor(world, stats);
       assert.equal(cards.length, 3);
@@ -117,8 +117,9 @@ test('on a boss level the stat card names the boss that fell, in every world', (
   assert.deepEqual(cardsFor(16, { ...ZERO, boss: 'moth' })[1], ['THE VESPER MOTH', 'SHATTERED INTO LIGHT.']);
   assert.deepEqual(cardsFor(17, { ...ZERO, boss: 'craving' })[1], ['THE CRAVING', 'STUBBED OUT FOR GOOD.']);
   assert.deepEqual(cardsFor(18, { ...ZERO, boss: 'ray' })[1], ['THE SQUALL RAY', "FELL TO THE STORM'S OWN FIRE."]);
+  assert.deepEqual(cardsFor(19, { ...ZERO, boss: 'duck' })[1], ['THE DOWAGER DUCK', 'KNOCKED SILLY.']);
   const withBoss = WORLDS.filter((w) => w.boss);
-  assert.equal(withBoss.length, 18, 'every world has its boss, world 18 included');
+  assert.equal(withBoss.length, WORLDS.length, 'every world has its boss, world 19 included');
   for (const w of withBoss) {
     for (const stats of ALL) {
       const lines = cardsFor(w.id, { ...stats, boss: w.boss }).flat();
@@ -146,6 +147,26 @@ test("world 18's wave levels count invaders and its boss level names the Squall 
   assert.equal(finalCard({ level: levelById('w18-5'), stats: TYPICAL, stars: 3, score: 5, newBest: false }).kicker, 'WORLD 18 · FINALE');
   for (const line of [f.title, f.kicker, f.label, f.billing]) readsWell(line, 'final 18');
   const words = VOICES[17].flat().join(' ');
+  assert.doesNotMatch(words, /\b(HE|HIM|HIS|SHE|HER|HERS)\b/, 'no gendered pronouns');
+});
+
+// World 19 (Rubber Regatta) has four wave levels and a boss level, the Dowager Duck: nothing dies there, it is knocked silly,
+// and the cards say so in either count (a plural of invaders, the one duck).
+test("world 19's cards are bath time with a bat: invaders and the Dowager Duck are both knocked silly", () => {
+  assert.equal(WORLDS[18].boss, 'duck');
+  assert.deepEqual(cardsFor(19, TYPICAL)[0], ['BATH TIME HAS BEEN INVADED.', 'BRING A BAT.']);
+  assert.deepEqual(cardsFor(19, TYPICAL)[1], ['47 INVADERS', 'KNOCKED SILLY.']);
+  assert.deepEqual(cardsFor(19, ZERO)[1], ['NOT ONE INVADER', 'KNOCKED SILLY.']);
+  assert.deepEqual(cardsFor(19, ONE)[1], ['ONE INVADER', 'KNOCKED SILLY.']);
+  assert.deepEqual(cardsFor(19, { ...TYPICAL, boss: null })[2], ['9 NEAR MISSES IN THE SUDS.', '2 MINUTES OF SQUEAKING.']);
+  assert.deepEqual(cardsFor(19, ZERO)[2], ['NO NEAR MISSES IN THE SUDS.', 'AN INSTANT OF SQUEAKING.']);
+  for (const stats of ALL) assert.ok(!cardsFor(19, { ...stats, boss: 'duck' }).flat().some((l) => l.includes('INVADER')), 'no invaders on the boss level');
+  const f = finalCard({ level: levelById('w19-1'), stats: TYPICAL, stars: 3, score: 1004324, newBest: true });
+  assert.equal(f.title, 'RUBBER REGATTA');
+  assert.equal(f.kicker, 'WORLD 19 · REEL 1');
+  assert.equal(finalCard({ level: levelById('w19-5'), stats: TYPICAL, stars: 3, score: 5, newBest: false }).kicker, 'WORLD 19 · FINALE');
+  for (const line of [f.title, f.kicker, f.label, f.billing]) readsWell(line, 'final 19');
+  const words = VOICES[18].flat().join(' ');
   assert.doesNotMatch(words, /\b(HE|HIM|HIS|SHE|HER|HERS)\b/, 'no gendered pronouns');
 });
 
