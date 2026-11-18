@@ -12,6 +12,7 @@ const FOLLOW = 6; // 1/s: how hard the boss pulls toward its goal
 const CAP = 420; // px/s: the fastest it moves
 const LUNGE = 7; // s between the lunges of the 'charge' style
 const ARENA_FLOOR = 585; // y no part may go below, so every part stays in range of the ship's shots
+export const ORBIT_LIFT = 55; // px the 'orbit' style rises above the resting place at its top
 
 // Where the style says the boss's centre should be at `clock` s. `ship` is what a lunge goes after.
 function goal(def, move, clock, ship) {
@@ -20,7 +21,7 @@ function goal(def, move, clock, ship) {
     case 'hover':
       return { x: MID_X + 0.3 * range * Math.sin(0.25 * clock), y: def.y + 20 * Math.sin(0.9 * clock) };
     case 'orbit':
-      return { x: MID_X + 0.85 * range * Math.sin(0.34 * clock), y: def.y + 55 * Math.cos(0.68 * clock) };
+      return { x: MID_X + 0.85 * range * Math.sin(0.34 * clock), y: def.y + ORBIT_LIFT * Math.cos(0.68 * clock) };
     case 'charge': {
       const c = (clock % LUNGE) / LUNGE;
       const bump = c > 0.55 && c < 0.85 ? Math.sin((Math.PI * (c - 0.55)) / 0.3) ** 2 : 0;
