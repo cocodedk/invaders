@@ -39,3 +39,7 @@ The existing suite stays green (`npm test`) with only the assertions named above
 - The `WORLDS` entry, the levels, `BOSS_ART`, the lobby, poster and trailer rows (part 7).
 - Any new drawing or sound beyond what a failing rule above demands of world 20.
 - Any change to the look, art or sound of worlds 1-19.
+
+## Decisions
+
+- 2026-11-18, the grill's first question, answered by the runner on the person's standing word ("use your imagination", "stop for me if it is very necessary"): four assertions of parts 3-5 say that no listed look has world 20's things, which was true only while world 20's look was not listed. They are added to the named assertions that move, and only this far: each loop over `LOOKS` (or over the worlds read from it) skips world 20's own entry and still holds every other world to the rule. They are `test/ui/music-press.test.js:18` and `:25`, `test/ui/press-env.test.js:37-44`, `test/ui/press-ship.test.js:76`, and `test/ui/aliens-press.test.js:13` (the list of worlds that `:28` reads). Nothing else in those files changes.

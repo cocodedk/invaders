@@ -10,7 +10,7 @@ const { default: w20 } = await import('../../src/ui/aliens/w20.js');
 
 const look = { world: 20, ...w20look };
 const A = art(look);
-const WORLDS = LOOKS.map((l) => l.world); // the worlds before it, all of them in LOOKS
+const WORLDS = LOOKS.map((l) => l.world).filter((w) => w !== look.world); // every other world in LOOKS
 const HALF = SIZE / 2;
 
 function paint(role, f, make = recorder) {

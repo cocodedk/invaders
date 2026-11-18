@@ -73,7 +73,7 @@ test('the pickup rim is a paper band: its own frame, inside the 60 px sprite for
 
 test("no other world draws world 20's dart, strokes or copy", () => {
   const ours = OURS();
-  for (const other of LOOKS) {
+  for (const other of LOOKS.filter((l) => l.world !== look.world)) {
     const T = tracker();
     drawShip(T.ctx, { ship: ship() }, other, 1);
     drawShots(T.ctx, { shots: [shot(300), shot(400, { vx: 300 })], level: { world: other.world } }, other, 1);
