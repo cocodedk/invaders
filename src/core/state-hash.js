@@ -38,6 +38,11 @@ const breathParts = ({ twist }) => (twist.rise === undefined ? [] : [round(twist
 const bodyParts = ({ twist }) =>
   (twist.bodies?.length ? [twist.bodies.length, ...twist.bodies.map((b) => `${b.id},${round(b.x)},${round(b.y)},${b.fly},${b.link},${b.bonks}`)] : []);
 
+// World 20's carbon copy, when it is that world: where it stands, then the path it has still to fly.
+const echoParts = ({ twist }) =>
+  (twist.path ? [twist.copy ? `${round(twist.copy.x)},${round(twist.copy.y)}` : '-', twist.path.length,
+    ...twist.path.map((p) => `${round(p.x)},${round(p.y)},${p.fire}`)] : []);
+
 export function stateHash(world) {
   const { ship, boss } = world;
   const parts = [
@@ -48,6 +53,7 @@ export function stateHash(world) {
     ...fuseParts(world), // world 14's lit fuses; none elsewhere, so nothing is added
     ...breathParts(world), // world 17's breath; no rise elsewhere, so nothing is added
     ...bodyParts(world), // world 19's bodies; none elsewhere, so nothing is added
+    ...echoParts(world), // world 20's copy; no path elsewhere, so nothing is added
     world.aliens.length, ...world.aliens.map((a) => `${a.id},${round(a.x)},${round(a.y)},${a.hp},${a.mode}`),
     world.shots.length, ...points(world.shots),
     world.bullets.length, ...points(world.bullets),
