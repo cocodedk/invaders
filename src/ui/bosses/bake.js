@@ -48,6 +48,7 @@ import craving from './craving.js';
 import ray from './ray.js';
 import duck from './duck.js';
 
+export const PART_MARGIN = 34; // px of canvas round a part's rect, unless its module says otherwise
 export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler, moth, craving, ray, duck };
 const cache = new Map();
 
@@ -69,7 +70,7 @@ function layer(w, h, ox, oy, flip = 1) {
 const pair = (w, h, ox, oy, flip) => [layer(w, h, ox, oy, flip), layer(w, h, ox, oy, flip)];
 
 function bakePart(mod, p, S, i) {
-  const m = mod.margins?.[p.id] ?? mod.margin ?? 34;
+  const m = mod.margins?.[p.id] ?? mod.margin ?? PART_MARGIN;
   const w = p.w + m * 2;
   const h = p.h + m * 2;
   const [paint, flip] = painterFor(mod, p.id);
