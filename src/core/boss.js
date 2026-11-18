@@ -7,9 +7,10 @@ import { emit } from './util.js';
 
 // A boss fight. world.boss holds only data (the static layout is looked up by kind in bossDef):
 //   { kind, x, y, hp, maxHp, phase, parts, clock, enter, dying, blast, cd, mcd, warns }
-//   parts[] = { id, dx, dy, w, h, hp, max, weak, armor, open, cracked, x, y, part: true, burn }
+//   parts[] = { id, dx, dy, w, h, hp, max, weak, armor, open, cracked, x, y, part: true, burn, regrow?, grow? }
 //     (x, y is the part's absolute centre, kept current every tick; open marks a part a phase opened,
-//     cracked a plate that became weak because no weak point was left: boss-phase.js)
+//     cracked a plate that became weak because no weak point was left: boss-phase.js; a part that names
+//     a regrow time carries grow, the seconds left before it grows back: regrow below)
 //   clock the boss's own movement clock; enter seconds of flying in left (0 = fighting);
 //   dying null while alive, then the seconds of destruction chain left; blast the countdown to the
 //   next blast of that chain; cd/mcd the countdowns of this phase's attacks and minion launches;
@@ -27,7 +28,9 @@ export function spawnBoss(world, kind) {
   const def = bossDef(kind);
   const b = {
     kind, ...startAt(def), hp: def.maxHp, maxHp: def.maxHp, phase: 0,
-    parts: def.parts.map((p) => ({ ...p, max: p.hp, open: false, cracked: false, x: 0, y: 0, part: true, burn: 0 })),
+    parts: def.parts.map((p) => ({
+      ...p, max: p.hp, open: false, cracked: false, x: 0, y: 0, part: true, burn: 0, ...(p.regrow ? { grow: p.regrow } : {}),
+    })),
     clock: 0, enter: ENTER, dying: null, blast: 0, cd: [], mcd: [], warns: [],
   };
   beginPhase(b, 0);
@@ -51,7 +54,25 @@ function chain(world, b, dt) {
   if (was > 0 && b.dying === 0) emit(world, 'explode', { x: b.x, y: b.y, size: 3 });
 }
 
-// One tick: fly or fight, then re-add the hp (a part's hp may have been changed from outside).
+// A part that names a regrow time counts down while it is at 0 hp and its phase lets parts regrow,
+// and is back at full hp when the countdown runs out; while it stands the countdown is full again.
+function regrow(b, def, dt) {
+  const allowed = def.phases[b.phase].regrow === true;
+  for (const p of b.parts) {
+    if (!p.regrow) continue;
+    if (p.hp > 0) p.grow = p.regrow;
+    else if (allowed) {
+      p.grow = Math.max(0, p.grow - dt);
+      if (p.grow === 0) {
+        p.hp = p.max;
+        p.burn = 0;
+        p.grow = p.regrow;
+      }
+    }
+  }
+}
+
+// One tick: fly or fight, grow parts back, then re-add the hp (a part's hp may have been changed from outside).
 export function stepBoss(world, dt) {
   const b = world.boss;
   if (!b) return;
@@ -63,6 +84,7 @@ export function stepBoss(world, dt) {
   b.enter = Math.max(0, b.enter - dt);
   stepMove(b, def, dt, world.ship);
   place(b);
+  regrow(b, def, dt);
   syncBoss(world);
   moveMinions(world, dt);
   if (world.state !== 'play' || b.enter > 0 || b.dying !== null) return;

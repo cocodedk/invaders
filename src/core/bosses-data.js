@@ -140,3 +140,7 @@ const BY_KIND = new Map(BOSS_DEFS.map((d) => [d.kind, d]));
 
 // The static definition of a boss kind (the world keeps only the kind and the live part state).
 export const bossDef = (kind) => BY_KIND.get(kind);
+
+// Makes a definition findable by its kind without listing it in BOSS_DEFS: a boss proven on a test
+// level before its world opens, or a test boss.
+export const registerBoss = (def) => BY_KIND.set(def.kind, def);

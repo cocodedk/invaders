@@ -71,7 +71,8 @@ export function stateHash(world) {
   ];
   if (boss) {
     parts.push(round(boss.x), round(boss.y), round(boss.clock), round(boss.hp), boss.phase, round(boss.enter),
-      boss.dying === null ? '-' : round(boss.dying), ...boss.parts.map((p) => round(p.hp)));
+      boss.dying === null ? '-' : round(boss.dying), ...boss.parts.map((p) => round(p.hp)),
+      ...boss.parts.flatMap((p) => (p.regrow ? [round(p.grow)] : []))); // regrow countdowns; none elsewhere, so nothing is added
   }
   return `${world.tick}:${world.score}:${digest(parts.join(';'))}`;
 }
