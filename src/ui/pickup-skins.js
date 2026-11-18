@@ -1,7 +1,5 @@
-// Per-world pickup skins (look.world 1..19). A pickup must still read as "catch me" in every world, so the falling capsule keeps its dark middle,
-// coloured rim, pulse and turning dashes (pickups-view.js); a world changes the rim's shape and redraws some icons. FRAMES[world](g, color): the rim,
-// centred, inside a 60 x 60 sprite (baked). ICONS[world][kind](g, color) replaces drawIcon's default for that kind (~30 px), also drawn by the HUD every frame, so plain paths only (pickup-icons.js 1-4,
-// pickup-icons-2.js 5-8, pickup-wheel.js 13, pickup-deep.js 15, pickup-glass.js 16, pickup-storm.js 18; pickup-leaf.js 17 and pickup-bath.js 19 are frames only).
+// Per-world pickup skins (look.world 1..20). A pickup must still read as "catch me" in every world, so the capsule keeps its dark middle, coloured rim, pulse and turning dashes (pickups-view.js); a world changes the rim's shape and redraws some icons. FRAMES[world](g, color): the rim,
+// centred, inside a 60 x 60 sprite (baked). ICONS[world][kind](g, color) replaces drawIcon's default for that kind (~30 px), also drawn by the HUD every frame, so plain paths only (pickup-icons.js 1-4, pickup-icons-2.js 5-8, pickup-wheel.js 13, pickup-deep.js 15, pickup-glass.js 16, pickup-storm.js 18; pickup-leaf.js 17, pickup-bath.js 19 and pickup-press.js 20 are frames only).
 import { INK, rgba, shade, lin } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { ICONS1 } from './pickup-icons.js';
@@ -15,6 +13,7 @@ import { quatrefoil, ICONS16 } from './pickup-glass.js';
 import { leaves } from './pickup-leaf.js';
 import { tesla, ICONS18 } from './pickup-storm.js';
 import { suds } from './pickup-bath.js';
+import { type } from './pickup-press.js';
 export const disc = (g, r) => {
   g.fillStyle = 'rgba(8,10,20,0.88)';
   g.beginPath();
@@ -193,6 +192,7 @@ export const FRAMES = {
   17: leaves, // a wreath of fresh green leaves, their veins in the power's colour (pickup-leaf.js)
   18: tesla, // a Tesla ring: copper coil wire, steel electrodes and arcs of the power's colour between them (pickup-storm.js)
   19: suds, // a ring of soap bubbles, their rims catching the power's colour (pickup-bath.js)
+  20: type, // a band of paper marked like a printer's rule, with four vermilion registration marks (pickup-press.js)
 };
 
 export const ICONS = { ...ICONS1, ...ICONS2, 13: ICONS13, 15: ICONS15, 16: ICONS16, 18: ICONS18 };

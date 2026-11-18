@@ -1,7 +1,7 @@
-// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w19.js).
+// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w20.js).
 // Pure data and maths, shared by the sound effects (one flavour per world) and the music loop.
 //   kitFor(music) -> { style, root, scale, bpm, wave, cut, wet, pitch }
-//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass breath anvil bath
+//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass breath anvil bath press
 //     root   semitone of the root above C; scale: semitone steps of the scale
 //     wave   the oscillator most of the world's tones use; cut: their lowpass ceiling (Hz);
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
@@ -44,6 +44,7 @@ export const SCALES = {
   melodic: [0, 2, 3, 5, 7, 9, 11], // the melodic minor going up: a minor key with the sixth and seventh raised, a dawn over ruins
   bright: [0, 2, 4, 7, 9], // the major pentatonic: five open notes with no semitone, a storm's heroic tunes
   sunny: [0, 2, 4, 5, 7, 9], // the major with no leading tone: six notes and nothing that pulls, a bath-time tune
+  night: [0, 1, 4, 5, 7, 8, 10], // the phrygian dominant: a flat second under a major third, a press hall at midnight
 };
 
 export const STYLES = {

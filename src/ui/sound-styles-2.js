@@ -17,4 +17,15 @@ export const STYLES_2 = {
         [32, 1], [35, 3], [38, 5], [40, 6], [42, 5], [44, 3], [48, 2], [60, 0]]),
       drum: 'B.W...W.B.W.S.W.' + 'B.W.L.WLBLW.S.W.' + 'B.W...W.B.W.S.W.' + 'B.W.L.WLBLW.S.W.' },
   },
+  // 4/4 at 84 bpm, two bars of eighth-note steps to a pass: a press turning over at midnight, in D on the phrygian dominant. A slow
+  // mechanical pulse: a kick on every beat but the bar's second and fourth, where the bass plucks the chord's root and a press's
+  // clank (the snare-ish noise) falls, and a gear's tick on every off-beat. Over it struck type metal (an FM tone on the
+  // square root of two, an inharmonic clang) climbs the flat second and the major third slowly, with rests.
+  press: {
+    mood: 'press', wave: 'triangle', cut: 3800, wet: 0.3, pitch: 0.92,
+    music: { vol: 0.9, drone: { wave: 'triangle', oct: 2, cut: 420, fifth: true, gain: 0.012 },
+      lead: { wave: 'sine', oct: 4, cut: 3600, len: 3, gain: 0.08, fm: { ratio: 1.41, index: 1.6 } },
+      div: 2, seq: [0, null, null, 1, null, null, 2, null, 4, null, null, 2, 1, null, 0, null],
+      drum: 'khzhkhsh' + 'khzhkhsh' },
+  },
 };
