@@ -441,6 +441,16 @@ quoted lines, so the repo can be public.
       fires grape-coloured soap blobs. A small brass plate in the backdrop reads "Built with cc-fable-5.2 · 2026-11-15"
       (`MAKER_MARK`), as the user asked. The music, `bath`, is in F on a new six-note scale at 118 bpm: a marimba tune with rests,
       a kalimba answer, a plucked bass and a lazy two-beat bounce. Its trailer is graded rubber-duck yellow.
+  - **World 20, Midnight Press: the echo (R72).** A printing hall at night, type cases and rollers under green-shaded lamps.
+    Its five levels are four wave levels and the Night Editor, with free flight as in every world from 18 on, no bunkers,
+    the six standard powers and a carrier in every wave level. The twist is new, `echo` (`echo.js`): the ship has a carbon
+    copy that flies the ship's own path `ECHO_DELAY` late and fires a base shot on every tick the ship pulled the trigger
+    then. Its shots are ship shots (they hurt, kill and score as the ship's do); nothing hits the copy and it collects
+    nothing; while the ship is down it flies on until the recorded path runs out, then waits. A laser beam is no trigger
+    pull, so the copy holds its fire while the laser burns. The state is plain data in `world.twist`, draws no random
+    number and runs in world 20 alone, so worlds 1-19 replay unchanged. The boss, the Night Editor, is a colossal ink
+    octopus in a green eyeshade gripping a red pencil in each arm (`bosses-data-7.js`); like the other side-world bosses
+    it never charges. World 20 runs a notch above world 19 by d, level for level, because the copy doubles the ship's gun.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -469,6 +479,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 17 | Ash to Air | a smog-choked city that heals | a city under brown smog, giant cigarettes smoking among the towers like chimneys, ash falling; level by level the smog lifts, the sky turns blue and parks, trees and kites come back | the breath: every 24 s a front of fresh air sweeps up the field and wipes the enemy bullets it passes (new, ruling R65) | The Craving |
 | 18 | Anvil Sky | a dogfight inside a thunderstorm, the first free-flight world (R67) | dusk inside a storm: towering anvil clouds lit from within by lightning, rain curtains, a low orange sun under the cloud deck | free flight and dragged bullets; the side guns are a power there (R67) | the Squall Ray: a colossal manta of thundercloud, iron plates on its spine and wings, a storm heart glowing through its back, a Tesla coil at each wing tip |
 | 19 | Rubber Regatta | a sunlit bathhouse at toy scale, the first comic world: bath toys invade over mountains of foam | a glazed green tiled bathroom wall steamed to cream and butter light at the waterline: brass dolphin taps as tall as towers pouring waterfalls, a shelf skyline of bottles and a loofah, crests of foam | the bonk: nothing shot dies, it is knocked silly and hops as a dizzy toy that the ship can bat into the others and into the boss (new, ruling R71); free flight as in every world from 18 on | the Dowager Duck: a colossal rubber duck in a frilly polka-dot shower cap, striped armbands and a huge orange bill |
+| 20 | Midnight Press | a printing hall at night, the presses running past midnight | type cases, rollers and drying sheets under green-shaded lamps, ink everywhere | the echo: a carbon copy of the ship flies its path a beat late and fires when it fired (new, ruling R72); free flight as in every world from 18 on | the Night Editor: a colossal ink octopus in a green eyeshade, a red pencil in each arm |
 
 ## Look and effects
 
@@ -631,3 +642,4 @@ publishing (asked separately at the end).
 Add `{ "id": "invaders", "title": "<final name>", "src": "../invaders", "out": ".", "thumb":
 "og.png" }` to `../babak-games/games.json` and run `./deploy.sh invaders`. `og.png` is a 1200×630
 shot of a level taken after the build.
+

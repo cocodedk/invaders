@@ -76,7 +76,7 @@ test('every phase sends one carrier at a time, at least every 5 s, listed first'
 
 test('its signature (layout and attack mix) is no other boss\'s', () => {
   const sig = (d) => JSON.stringify([d.parts.map((p) => [p.dx, p.dy]), d.phases.map((p) => p.attacks.map((a) => a.pattern))]);
-  assert.ok(!BOSS_DEFS.map(sig).includes(sig(editor)));
-  assert.ok(!BOSS_DEFS.some((d) => d.kind === 'editor'), 'not listed yet');
+  assert.ok(!BOSS_DEFS.filter((d) => d !== editor).map(sig).includes(sig(editor)));
+  assert.equal(BOSS_DEFS.filter((d) => d.kind === 'editor').length, 1, 'listed once');
   assert.ok(attacks.length > 0);
 });

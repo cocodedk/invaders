@@ -1,7 +1,6 @@
 import { w, lv } from './levels-2.js';
 
 // Level data for world 20, in the shorthand explained in levels-2.js (levels-5.js holds world 19).
-// Not yet joined to LEVELS: that happens when world 20 is listed in WORLDS.
 export const PRESS = [
   // 20 Midnight Press: a printing hall at night (the twist 'echo'). Loose type (g) drifts in wide galleys,
   // ink drops (d) fall from the rollers, press heads (u) and lead slugs (a) hold the lines, and folded

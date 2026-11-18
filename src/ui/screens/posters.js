@@ -45,12 +45,13 @@ export const TAGLINES = [
   'Take back every breath.',
   'Make their fire follow you.',
   'Bath time. Bring a bat.',
+  'Every shot goes to print twice.',
 ];
 
 const FRAME_W = 768;
 const FRAME_H = 432;
 // s into each boss fight: in place, mid-attack
-const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6];
+const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6];
 const LIT = 0.4; // s of effects before the frame (muzzle flashes, sparks); the run-up before has none
 const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
 const CROP_H = 900;

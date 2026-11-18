@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { PRESS } from '../../src/core/levels-6.js';
-import { WORLDS, LEVELS } from '../../src/core/levels.js';
+import { LEVELS } from '../../src/core/levels.js';
 import { difficulty } from '../../src/core/difficulty.js';
 import { ROLES, FORMATIONS, PATTERNS } from '../../src/core/kinds.js';
 
-// World 20's level data and difficulty row, before the world is listed (part 7.3 joins them).
+// World 20's level data and difficulty row, and its listing in LEVELS (part 7.3).
 const WORLD = 20;
 const PREV = WORLD - 1;
 const LEVELS_A_WORLD = 5;
@@ -16,7 +16,6 @@ const MAX_WAVES = 5;
 const MAX_WAVE_ALIENS = 40;
 const MIN_FORMATIONS = 4;
 const MAX_FILE_LINES = 200;
-const LISTED_WORLDS = PREV;
 
 const [specs] = PRESS;
 const waveSpecs = specs.slice(0, -1);
@@ -53,7 +52,7 @@ test('world 20 seeds are integers, distinct from each other and from every liste
   const seeds = specs.map((s) => s.seed);
   for (const s of seeds) assert.ok(Number.isInteger(s));
   assert.equal(new Set(seeds).size, seeds.length);
-  const listed = new Set(LEVELS.map((l) => l.seed));
+  const listed = new Set(LEVELS.filter((l) => l.world !== WORLD).map((l) => l.seed));
   for (const s of seeds) assert.ok(!listed.has(s), `seed ${s} is taken`);
 });
 
@@ -66,10 +65,13 @@ test('world 20 has its own difficulty row, from 0 to 1 and no easier than world 
   }
 });
 
-test('WORLDS and LEVELS are unchanged: world 20 is not listed yet', () => {
-  assert.equal(WORLDS.length, LISTED_WORLDS);
-  assert.equal(LEVELS.length, LISTED_WORLDS * LEVELS_A_WORLD);
-  assert.ok(LEVELS.every((l) => l.world !== WORLD));
+test('the listed levels of world 20 are the five specs of levels-6.js, in order', () => {
+  const listed = LEVELS.filter((l) => l.world === WORLD);
+  assert.deepEqual(listed.map((l) => l.index), indices);
+  listed.forEach((l, i) => {
+    assert.equal(l.seed, specs[i].seed);
+    assert.deepEqual(l.waves, specs[i].waves);
+  });
 });
 
 test('every code file is under 200 lines', () => {

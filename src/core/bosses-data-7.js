@@ -15,7 +15,7 @@ export const EDITOR_Y = 320;
 export const EDITOR_SIZE = Object.freeze({ w: 820, h: 380 });
 
 // The hit points of each part (mirrored parts share one value).
-export const EDITOR_HP = Object.freeze({ shade: 8, eye: 46, arm: 8, siphon: 60, pencil: 34 });
+export const EDITOR_HP = Object.freeze({ shade: 8, eye: 58, arm: 8, siphon: 76, pencil: 44 });
 
 // The hp fraction at which each phase ends, and each phase's pace.
 export const EDITOR_UNTIL = Object.freeze([0.65, 0.35, 0]);
