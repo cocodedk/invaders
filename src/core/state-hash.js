@@ -43,6 +43,12 @@ const echoParts = ({ twist }) =>
   (twist.path ? [twist.copy ? `${round(twist.copy.x)},${round(twist.copy.y)}` : '-', twist.path.length,
     ...twist.path.map((p) => `${round(p.x)},${round(p.y)},${p.fire}`)] : []);
 
+// World 21's returning arrows, when any: which shots have turned (by their place in world.shots).
+const quiverParts = ({ shots }) => {
+  const turned = shots.flatMap((s, i) => (s.turned ? [i] : []));
+  return turned.length ? ['q', ...turned] : [];
+};
+
 export function stateHash(world) {
   const { ship, boss } = world;
   const parts = [
@@ -54,6 +60,7 @@ export function stateHash(world) {
     ...breathParts(world), // world 17's breath; no rise elsewhere, so nothing is added
     ...bodyParts(world), // world 19's bodies; none elsewhere, so nothing is added
     ...echoParts(world), // world 20's copy; no path elsewhere, so nothing is added
+    ...quiverParts(world), // world 21's turned shots; none elsewhere, so nothing is added
     world.aliens.length, ...world.aliens.map((a) => `${a.id},${round(a.x)},${round(a.y)},${a.hp},${a.mode}`),
     world.shots.length, ...points(world.shots),
     world.bullets.length, ...points(world.bullets),

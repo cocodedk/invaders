@@ -9,6 +9,7 @@ import { pushAll, acid, glitch, reassemble, gravity } from './twists-2.js';
 import { breath, breathState } from './twists-3.js';
 import { bonk } from './bonk.js';
 import { echo, echoState } from './echo.js';
+import { quiver } from './quiver.js';
 
 // Each world's one small rule of its own. A level's rule is `level.twist`; applyTwist(world, dt)
 // runs it once per tick, after collisions (twists-2.js has worlds 5-8 and says why that order); the
@@ -146,8 +147,9 @@ function fireworks(world) {
 }
 
 // shuriken: cutShuriken. broadside (world 13) has no per-tick rule here: a pickup caught opens the ship's
-// side guns (collect, powerups.js), tickPower counts them down, and shoot (ship.js) fires them. bonk (world 19) is in bonk.js, echo (world 20) in echo.js.
-const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity, fireworks, breath, bonk, echo };
+// side guns (collect, powerups.js), tickPower counts them down, and shoot (ship.js) fires them. bonk (world 19) is in bonk.js, echo (world 20) in echo.js,
+// quiver (world 21) in quiver.js: its state is a flag on each shot, so createTwist adds nothing for it.
+const RULES = { bunkers, darkness, gusts, acid, glitch, reassemble, gravity, fireworks, breath, bonk, echo, quiver };
 
 export function applyTwist(world, dt) {
   RULES[world.level.twist]?.(world, dt);
