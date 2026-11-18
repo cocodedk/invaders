@@ -3,6 +3,9 @@
 // where the back wall's trusses, windows, drying line and lamps are. The wall stays dark where the fight is (the renderer lights with
 // 'lighter'): the paper above the alien rows is laid thin.
 export const COLOPHON = 'built by graph skill fable-5.2 2026-11-18. cocode.dk'; // the printed sheet in the near layer (parallax-press-colophon.js)
+export const PRESS_WORLD = 20; // the renderer picks the dart (ship-press.js), its ink strokes (shots-press.js) and the pickup rim (pickup-press.js) by it
+export const CARBON = '#3a62d8'; // the carbon copy's blue (the echo, core/echo.js): its tracing and its shots
+export const CARBON_PALE = '#a8c0ff'; // the glint along a carbon shot
 export const MARGIN = 160; // parallax.js's margin, each side of a layer (not imported: parallax.js imports the painters)
 
 export const PAL = {
