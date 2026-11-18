@@ -67,7 +67,7 @@ test('every body, layer kind, ambient kind and flourish name of world 19 is new:
   const sky = await keys([2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => [`sky-bodies-${i}`, `BODIES${i}`]));
   for (const k of ['arcade', 'megacity', 'twinsuns', 'redmoon']) sky.add(k);
   for (const k of Object.keys(BODIES11)) assert.ok(!sky.has(k), `body ${k}`);
-  assert.equal(Object.keys(BODIES).length, sky.size + Object.keys(BODIES11).length, 'one painter a world, none overridden');
+  assert.equal(Object.keys(BODIES).length, sky.size + Object.keys(BODIES11).length + Object.keys((await import('../../src/ui/sky-bodies-12.js')).BODIES12).length, 'one painter a world, none overridden');
   const layers = await keys([['parallax-city', 'CITY'], ['parallax-wild', 'WILD'], ['parallax-barren', 'BARREN'], ['parallax-harbour', 'HARBOUR'], ['parallax-gothic', 'GOTHIC'], ['parallax-ice', 'ICE'], ['parallax-archive', 'ARCHIVE'], ['parallax-armada', 'ARMADA'], ['parallax-carnival', 'CARNIVAL'], ['parallax-deep', 'DEEP'], ['parallax-glass', 'GLASS'], ['parallax-smog', 'SMOG'], ['parallax-storm', 'STORM']]);
   for (const k of ['mountains', 'dunes', 'mesas', 'blocks', 'ground', 'ink']) layers.add(k);
   for (const k of Object.keys(BATH)) assert.ok(!layers.has(k), `layer kind ${k}`);
