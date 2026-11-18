@@ -33,7 +33,7 @@ function paintPart(p, make = recorder) {
 }
 
 test('the editor has boss art of its own, a painter for every part and a rage layer for every phase', () => {
-  for (const [kind, mod] of Object.entries(BOSS_ART)) {
+  for (const [kind, mod] of Object.entries(BOSS_ART).filter(([k]) => k !== 'editor')) {
     assert.notEqual(art, mod, kind);
     assert.notEqual(art.hull, mod.hull, `the hull is not the ${kind}'s`);
     for (const fn of Object.values(art.parts)) assert.ok(!Object.values(mod.parts).includes(fn), `a part is not the ${kind}'s`);
