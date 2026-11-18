@@ -1,9 +1,10 @@
 // The shorthands the boss definitions are written in. A definition is plain data:
 //   { kind, name, y, size: { w, h }, parts, phases, maxHp, bottom }
-//   part  = { id, dx, dy, w, h, hp, weak, armor }  (dx, dy: centre offset from the boss's centre)
+//   part  = { id, dx, dy, w, h, hp, weak, armor, regrow? }  (dx, dy: centre offset from the boss's centre)
 //     weak  takes full damage; armor takes 25 %; a part that is neither is a bare hull, which
-//     soaks shots and takes nothing until a phase opens it (the fortress's core).
-//   phase = { until, move, attacks, rate?, minions?, open? }
+//     soaks shots and takes nothing until a phase opens it (the fortress's core). regrow, when
+//     given, is the seconds after which a part at 0 hp grows back to full in a phase that has regrow.
+//   phase = { until, move, attacks, rate?, minions?, open?, regrow? }
 //     until   the hp fraction at which this phase ends (the last is 0)
 //     move    'sway' | 'hover' | 'charge' | 'orbit'; rate scales the pace (default 1)
 //     attacks [{ pattern, every, from, p }]: every `every` s (shorter on harder levels) the part
@@ -11,9 +12,11 @@
 //             multiplier on the level's bullet speed)
 //     minions [{ role, count, every, from }]: aliens launched from a part, flying at the ship
 //     open    part ids that become weak when the phase begins
+//     regrow  true when the parts that name a regrow time grow back during this phase
 //   y is the boss's resting centre; bottom the lowest edge of any part below that centre.
 
-const part = (weak, armor) => (id, dx, dy, w, h, hp) => ({ id, dx, dy, w, h, hp, weak, armor });
+const part = (weak, armor) => (id, dx, dy, w, h, hp, regrow) =>
+  ({ id, dx, dy, w, h, hp, weak, armor, ...(regrow ? { regrow } : {}) });
 
 export const weak = part(true, false);
 export const armor = part(false, true);
