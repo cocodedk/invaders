@@ -45,8 +45,10 @@ export const powersFor = (level) => DROPS[level.world] ?? POWERS;
 // its levels carry as `free`, so its twist 'free' adds nothing of its own; its side guns are a power
 // there, not a twist. Its boss is the Squall Ray. World 19's bonk is a twist of its own (R71): nothing shot dies,
 // it is knocked out as a dizzy body the ship can bat into the others (tumble.js, bonk.js). Its boss is the duck.
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath', 'free', 'bonk'];
-export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth', 'craving', 'ray', 'duck'];
+// World 20's echo is a twist of its own (R72): a carbon copy flies the ship's path late and fires when the ship
+// fired (echo.js). Its boss is the editor.
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath', 'free', 'bonk', 'echo'];
+export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth', 'craving', 'ray', 'duck', 'editor'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at
 // HUD_BOTTOM; nothing that must be seen or shot may sit behind them.

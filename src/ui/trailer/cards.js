@@ -134,6 +134,11 @@ export const VOICES = [
     ['{kills}', 'KNOCKED SILLY.'],
     ['{near} IN THE SUDS.', '{time} OF SQUEAKING.'],
   ],
+  [ // Midnight Press: a printing hall at night, an ink editor at the desk, and a carbon copy that fires a beat late
+    ['THE PRESSES RUN AT MIDNIGHT.', 'EVERY SHOT', 'GOES TO PRINT TWICE.'],
+    ['{kills}', 'STRUCK FROM THE RECORD.'],
+    ['{near} IN THE INK.', '{time} BEFORE THE DEADLINE.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

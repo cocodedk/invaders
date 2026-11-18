@@ -4,6 +4,8 @@
 //   RANKS             the ladder, lowest first: { name, at } (at = medals needed)
 //   rankOf(medals)    -> { name, index, next }   next: the rung above { name, at }, or null at the top
 
+import { LEVELS } from './levels.js';
+
 export const RANKS = [
   { name: 'Rookie', at: 0 },
   { name: 'Cadet', at: 1 },
@@ -13,7 +15,7 @@ export const RANKS = [
   { name: 'Squadron Ace', at: 18 },
   { name: 'Wing Leader', at: 30 },
   { name: 'Air Marshal', at: 50 },
-  { name: 'Legend', at: 95 },
+  { name: 'Legend', at: LEVELS.length },
 ];
 
 export function rankOf(medals) {
