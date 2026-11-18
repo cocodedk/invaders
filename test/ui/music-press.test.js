@@ -15,14 +15,14 @@ test("world 20's music mood is its own: the look's entry gives the press style, 
   const kit = kitFor(MUSIC);
   assert.deepEqual([kit.style, kit.root, kit.bpm], ['press', NOTES[MUSIC.root], MUSIC.bpm]);
   for (const [name, s] of Object.entries(STYLES)) if (name !== 'press') assert.notEqual(s.mood, MUSIC.mood, name);
-  for (const look of LOOKS) assert.notEqual(kitFor(look.music).style, 'press', `world ${look.world}`);
+  for (const look of LOOKS.filter((l) => l.music !== MUSIC)) assert.notEqual(kitFor(look.music).style, 'press', `world ${look.world}`);
 });
 
 test('its scale is one no other world uses', () => {
   const kit = kitFor(MUSIC);
   assert.deepEqual(kit.scale, SCALES.night);
   for (const [name, scale] of Object.entries(SCALES)) if (name !== MUSIC.scale) assert.notDeepEqual(scale, SCALES.night, name);
-  for (const look of LOOKS) assert.notEqual(look.music.scale, MUSIC.scale, `world ${look.world}`);
+  for (const look of LOOKS.filter((l) => l.music !== MUSIC)) assert.notEqual(look.music.scale, MUSIC.scale, `world ${look.world}`);
 });
 
 test('a slow mechanical pulse: a hit on every step, a kick or a clank on each beat and a tick between, and the loop plays on its scale', () => {

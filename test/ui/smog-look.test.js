@@ -32,7 +32,7 @@ const magentaish = (hex) => {
 };
 
 test('world 17 is registered as Ash to Air and every level of it gets this look', () => {
-  assert.equal(LOOKS.length, 19);
+  assert.equal(LOOKS.length, 20);
   assert.equal(look.world, 17);
   assert.equal(WORLDS[16].name, 'Ash to Air');
   for (let i = 1; i <= 5; i++) assert.equal(lookFor(levelById(`w17-${i}`)), look);

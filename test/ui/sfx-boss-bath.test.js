@@ -105,7 +105,7 @@ const BEFORE_WORLD_19 = {
 };
 
 test("every other world's roar and death are called call for call as they were before world 19", () => {
-  const others = LOOKS.filter((l) => l.world !== 19);
+  const others = LOOKS.filter((l) => l.world < 19);
   assert.equal(others.length, Object.keys(BEFORE_WORLD_19).length);
   for (const look of others) {
     const kit = kitFor(look.music);

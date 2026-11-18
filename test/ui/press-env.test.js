@@ -34,7 +34,7 @@ test('the look names a sky body, three layers and ambient entries that exist, un
   for (const a of look.ambient) assert.equal(typeof AMBIENT12[a.kind], 'function', a.kind);
   for (const name of ['paper', 'ink', 'vermilion']) assert.equal(look.palette[name], PAL[name], `the palette carries the hall's ${name}`);
   const others = { body: new Set(), layer: new Set(), ambient: new Set() };
-  for (const o of LOOKS) {
+  for (const o of LOOKS.filter((l) => l.world !== look.world)) {
     others.body.add(o.body);
     for (const L of o.layers) others.layer.add(L.kind);
     for (const a of o.ambient) others.ambient.add(a.kind);
