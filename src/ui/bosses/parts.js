@@ -3,7 +3,7 @@
 //   halos(ctx, b, pal, t, k)           the pulsing glow round each live weak point
 //   partBodies(ctx, b, B, look, t)     whole, cracked as it loses hp, white for FLASH s after a hit,
 //                                      split open once `cracked`, sliding open once a phase opens
-//                                      it, charred wreckage once destroyed
+//                                      it, charred wreckage (or its fallen art) once destroyed
 //   partLights(ctx, b, B, look, t, k)  their lights (weak points pulse; fissures and opened ports
 //                                      fade in with a burst), at strength k
 //   warns(ctx, b, B, look, t, k)       a charge-up on every part about to fire
@@ -15,7 +15,7 @@
 // never replays the transition. Nothing on world or fx is written.
 import { glow, star } from '../sprites.js';
 import { clamp, smooth } from '../../core/math.js';
-import { cracked, exposed, wreck } from './cracks.js';
+import { cracked, exposed, ruin } from './cracks.js';
 
 const FLASH = 0.06; // s a part shows white after losing hp
 const OPEN = 1.6; // s a part takes to slide open (the fortress trench)
@@ -79,7 +79,7 @@ export function partBodies(ctx, b, B, look, t) {
     const m = memo(p, t);
     const [x, y] = corner(p, set);
     if (p.hp <= 0) {
-      ctx.drawImage(wreck(set, p.open), x, y);
+      ctx.drawImage(ruin(set, p.open), x, y);
       continue;
     }
     const stage = partStage(p);
@@ -114,6 +114,11 @@ export function partLights(ctx, b, B, look, t, k) {
     const set = B.parts[p.id];
     const [x, y] = corner(p, set);
     if (p.hp <= 0) {
+      if (set.down) { // fallen art carries its own lights, no embers
+        ctx.globalAlpha = k;
+        ctx.drawImage(set.down.lights, x, y);
+        continue;
+      }
       ctx.globalAlpha = k * 0.4 * (0.6 + 0.4 * Math.sin(t * 17 + p.dx));
       const r = Math.min(p.w, p.h) * 0.7;
       ctx.drawImage(glow('#ff5a1a'), p.x - r, p.y - r, r * 2, r * 2);

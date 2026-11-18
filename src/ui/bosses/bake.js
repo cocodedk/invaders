@@ -15,7 +15,8 @@
 // A module is { pad?, margin?, margins?: { [id]: px }, crack?, hull(b, l, S),
 //   parts: { [id | base]: (b, l, p, S) } (margin: px of canvas round a part's rect for art that
 //   overhangs it, 34 by default; margins overrides it per part id),
-//   opened?: { [id]: painter } (art once a phase opens the part), rage?: [(l, S) | null per phase]
+//   opened?: { [id]: painter } (art once a phase opens the part), fallen?: { [id | base]: painter } (art for the part at 0 hp,
+//   in place of its charred wreck: the King's stumps), rage?: [(l, S) | null per phase]
 //   (extra hull lights that fade in with that phase), behind?(ctx, boss, t) (a live body drawn right after the
 //   hull and under the hull's lights and the parts: opaque, own pass only, cached sprites; the Craving's churning smoke),
 //   pose?(boss, t) ([sx, sy, py] | null: the whole drawing scaled about the line y = py for a moment, art only, the boxes never move;
@@ -84,6 +85,12 @@ function bakePart(mod, p, S, i) {
     open(obg, olg, p, S);
     set.open = { body: ob, lights: ol };
   }
+  const down = mod.fallen && painterFor({ parts: mod.fallen }, p.id);
+  if (down) {
+    const [[db, dbg], [dl, dlg]] = pair(w, h, w / 2, h / 2, down[1]);
+    down[0](dbg, dlg, p, S);
+    set.down = { body: db, lights: dl };
+  }
   return set;
 }
 
@@ -96,9 +103,8 @@ export function stageOf(look, kind) {
   return { def, pal: look.palette.boss, look, W: def.size.w + pad * 2, H: def.size.h + (mod.padY ?? pad) * 2, pad };
 }
 
-function bake(look, kind) {
-  const mod = BOSS_ART[kind];
-  const S = stageOf(look, kind);
+// Every canvas of a boss: its module painted on the stage S (bake below; the tests of a boss not yet listed).
+export function bakeWith(mod, S) {
   const { def, W, H } = S;
   const [[body, b], [lights, l]] = pair(W, H, W / 2, H / 2);
   mod.hull(b, l, S);
@@ -114,6 +120,8 @@ function bake(look, kind) {
   });
   return { mod, S, hull: { body, lights, flash: null, rage, x0: -W / 2, y0: -H / 2 }, parts };
 }
+
+const bake = (look, kind) => bakeWith(BOSS_ART[kind], stageOf(look, kind));
 
 // Only the current boss is kept: a boss is several MB of canvases, and a kiosk session that plays
 // all the boss levels must not hold them all (Pi 4 memory).

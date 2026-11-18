@@ -113,3 +113,6 @@ export function wreck(set, open = false) {
   set[key] = c;
   return c;
 }
+
+// What a destroyed part shows: its module's fallen art (set.down, the King's stumps) or its charred wreck.
+export const ruin = (set, open = false) => set.down?.body ?? wreck(set, open);

@@ -6,7 +6,7 @@
 //                                           (Neon Rain's darkness pass), at strength light
 import { hash, glow, soft } from '../sprites.js';
 import { CHAIN } from '../../core/boss-phase.js';
-import { wreck } from './cracks.js';
+import { ruin, wreck } from './cracks.js';
 import { hullFlash } from './bake.js';
 import { clamp, smooth } from '../../core/math.js';
 
@@ -108,7 +108,7 @@ export function drawDying(ctx, b, B, t, light = 1, bodies = true) {
     b.parts.forEach((p, i) => {
       if (P.parts[i] || Math.sign(p.dx) !== h.s || !bodies) return;
       const set = parts[p.id];
-      partImg(ctx, set, p.dx, p.dy, wreck(set, p.open));
+      partImg(ctx, set, p.dx, p.dy, (p.hp > 0 ? wreck : ruin)(set, p.open));
       ctx.globalCompositeOperation = 'lighter';
       ctx.globalAlpha = fade * P.white;
       partImg(ctx, set, p.dx, p.dy, set.flash);
@@ -136,7 +136,7 @@ export function drawDying(ctx, b, B, t, light = 1, bodies = true) {
       ctx.translate(b.x + p.dx + f.dx, b.y + p.dy + f.dy);
       ctx.rotate(f.rot);
       ctx.globalAlpha = f.a * fade;
-      partImg(ctx, set, 0, 0, wreck(set, p.open));
+      partImg(ctx, set, 0, 0, (p.hp > 0 ? wreck : ruin)(set, p.open));
       ctx.restore();
     });
   }
