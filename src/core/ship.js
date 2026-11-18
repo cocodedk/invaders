@@ -74,7 +74,7 @@ export function twinOf(ship) {
 export const shotSpeed = (power) => (power === 'homing' ? HOMING_SPEED : power === 'rapid' ? RAPID_SPEED : SHOT_SPEED);
 
 // A ship shot: r 5, 1.5 s of life, 1 damage.
-const bolt = (x, y, vx, vy) => ({ pattern: 'shot', x, y, vx, vy, r: 5, life: 1.5, dmg: 1 });
+export const bolt = (x, y, vx, vy) => ({ pattern: 'shot', x, y, vx, vy, r: 5, life: 1.5, dmg: 1 });
 
 // The trident power's shot (world 15): the same bolt, r 7, marked `trident` for the drawing. It runs
 // through every alien and boss part in its path and hurts each once (collide.js, boss-hit.js); the ids
@@ -94,6 +94,7 @@ function shoot(world) {
   const s = world.ship;
   const power = s.power?.kind ?? null;
   s.cooldown = power === 'rapid' ? RAPID_COOLDOWN : COOLDOWN;
+  s.shotAt = world.tick; // the tick of the last trigger pull, for the echo (echo.js)
   const at = { x: s.x, y: s.y - MUZZLE };
   const speed = shotSpeed(power);
   for (const deg of power === 'spread' ? SPREAD : [0]) {
