@@ -36,6 +36,7 @@ export const TYPE = [
   { font: FONTS.sans, weight: 800, size: 78, track: 0.2, ink: '#fff6e0', glow: '#58b8f0', reveal: 'breathe' },
   { font: FONTS.cond, weight: 900, size: 100, track: 0.2, ink: '#f2f6ff', glow: '#ffae42', reveal: 'slam' },
   { font: FONTS.sans, weight: 900, size: 90, track: 0.05, ink: '#fff8d4', glow: '#ffc21a', reveal: 'push' },
+  { font: FONTS.serif, weight: 900, size: 94, track: 0.06, ink: '#efe4c8', glow: '#e2401c', reveal: 'type' },
 ];
 
 const MAX_W = 1640;
