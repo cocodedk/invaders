@@ -1,7 +1,7 @@
-// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w20.js).
+// Each world's sound, from its look's music entry { mood, root, scale, bpm } (looks/w1..w21.js).
 // Pure data and maths, shared by the sound effects (one flavour per world) and the music loop.
 //   kitFor(music) -> { style, root, scale, bpm, wave, cut, wet, pitch }
-//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass breath anvil bath press
+//     style  which signature the patches use: chip noir brass koto hive code iron cosmic monster gothic aurora archive armada carnival abyss glass breath anvil bath press isle
 //     root   semitone of the root above C; scale: semitone steps of the scale
 //     wave   the oscillator most of the world's tones use; cut: their lowpass ceiling (Hz);
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
@@ -27,25 +27,11 @@
 //     H a heavy kick with the chord's root plucked under it, A an anvil struck on the backbeat, T a low thunder tom, P an open pad, B a soft kick with the bass, W a woodblock, S a light clap, L a kalimba,
 //     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js (K C O in music-breath.js, H A T P in music-anvil.js, B W S L in music-bath.js).
 import { STYLES_2, tune } from './sound-styles-2.js'; // the styles after Anvil Sky's
+import { SCALES } from './sound-scales.js';
+
+export { SCALES };
 
 export const NOTES = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 };
-
-export const SCALES = {
-  minor: [0, 2, 3, 5, 7, 8, 10],
-  dorian: [0, 2, 3, 5, 7, 9, 10],
-  phrygian: [0, 1, 3, 5, 7, 8, 10],
-  locrian: [0, 1, 3, 5, 6, 8, 10],
-  lydian: [0, 2, 4, 6, 7, 9, 11],
-  in: [0, 1, 5, 7, 8], // the Japanese in scale
-  harmonic: [0, 2, 3, 5, 7, 8, 11], // harmonic minor: the minor with its leading tone
-  major: [0, 2, 4, 5, 7, 9, 11],
-  mixolydian: [0, 2, 4, 5, 7, 9, 10], // the major with a flat seventh: a fairground's tunes
-  pentatonic: [0, 3, 5, 7, 10], // the minor pentatonic: five notes with no semitone, so nothing played on it clashes
-  melodic: [0, 2, 3, 5, 7, 9, 11], // the melodic minor going up: a minor key with the sixth and seventh raised, a dawn over ruins
-  bright: [0, 2, 4, 7, 9], // the major pentatonic: five open notes with no semitone, a storm's heroic tunes
-  sunny: [0, 2, 4, 5, 7, 9], // the major with no leading tone: six notes and nothing that pulls, a bath-time tune
-  night: [0, 1, 4, 5, 7, 8, 10], // the phrygian dominant: a flat second under a major third, a press hall at midnight
-};
 
 export const STYLES = {
   chip: {
