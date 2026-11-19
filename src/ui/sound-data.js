@@ -7,13 +7,13 @@
 //     wet    how much reverb (0..1); pitch: a multiplier on the patches' base pitches
 //   STYLES[style].music: the loop's voices (music.js)
 //     vol: the loop's level, trimmed so every world's loop measures about -36 dBFS RMS offline
-//     drone: { wave, oct, cut, fifth, gain? (0.05) }   lead: { wave, oct, cut, cut1?, hold?, attack?, glide?, bow?, len (of a step), gain, fm? }
+//     drone: { wave, oct, cut, fifth, gain? (0.05) }   lead: { wave, oct, cut, cut1?, hold?, attack?, glide?, bow?, len (of a step), gain, fm?, voice? }
 //     (cut1: the lead's filter opens from cut to cut1 over each note, a brass swell; hold: steps a note keeps its
 //     level before it dies away over len, an organ's note rather than a plucked one; attack: steps it takes to
 //     swell in; glide: it slides toward the next note of the tune as it sounds, a whale's call; bow: cents a twin voice
 //     sits off the note, so the pair beats, with a thin octave over both: bowed glass)
 //     (fm: { ratio, index } makes the lead an FM tone that strikes at once and rings len steps: a bell on an
-//     inharmonic ratio, a plucked string on a whole one)
+//     inharmonic ratio, a plucked string on a whole one; voice: a named instrument plays it instead, 'sitar' (music-isle.js))
 //     div: steps per beat, seq: scale degrees per step (null rests), drum: per-step hit letters
 //     (k kick, t taiko, h hat, s snare-ish noise, b a low tolling bell, p a soft timpani, c a choir chord
 //     swelling in, j sleigh bells, f a soft frame drum, z a pizzicato bass on the chord's root, then its octave,
@@ -25,7 +25,8 @@
 //     over a low root, x a tubular bell (the chord's root high in the first bar of a pair, its fifth low in the second),
 //     K a kick on the beat, C the kick under a clap, O an open hat with the bass plucking the chord's root under it,
 //     H a heavy kick with the chord's root plucked under it, A an anvil struck on the backbeat, T a low thunder tom, P an open pad, B a soft kick with the bass, W a woodblock, S a light clap, L a kalimba,
-//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js (K C O in music-breath.js, H A T P in music-anvil.js, B W S L in music-bath.js).
+//     the tabla on the root: N na, I tin, G ge, E ke, D dha, J dhin, R a tirakita run,
+//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js (K C O in music-breath.js, H A T P in music-anvil.js, B W S L in music-bath.js, N I G E D J R in music-isle.js).
 import { STYLES_2, tune } from './sound-styles-2.js'; // the styles after Anvil Sky's
 import { SCALES } from './sound-scales.js';
 

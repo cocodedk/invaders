@@ -29,16 +29,17 @@ export const STYLES_2 = {
       drum: 'khzhkhsh' + 'khzhkhsh' },
   },
   // 4/4 at 96 bpm, four bars of sixteenth-note steps to a pass: the last battle at dusk before a city of gold, in E on the double
-  // harmonic major. A buzzing drone on the root and fifth holds under a plucked string (an FM tone on a whole ratio, struck and
-  // ringing out) that climbs the chord, falls home by the flat second, rises to the octave and settles, with rests. Under it a
-  // punchy three-three-two of deep drums: a timpani tuned to the root on one, the "a" of one, three and the "a" of three, a taiko
-  // on the "and" of two, a kick on the "and" of four, the bass plucked on the "and" of three, and a run of taiko into each pass.
+  // harmonic major. A buzzing drone on the root and fifth holds under a sitar (music-isle.js) that climbs the chord, falls home by
+  // the flat second, rises to the octave and settles, with rests, pulling up into a note a short climb over the last. Under it a tabla
+  // on the root plays teentaal, a beat a stroke of its sixteen and the strokes between filled in: dha dhin dhin dha twice, the open
+  // third bar on the treble drum alone after its first dha, a tirakita run into the last dha (the owner asked for tabla and sitar, then for more tabla
+  // and louder, 2026-11-19, so this loop sits about 2 dB over the others).
   isle: {
     mood: 'isle', wave: 'triangle', cut: 4400, wet: 0.28, pitch: 0.94,
-    music: { vol: 0.801, drone: { wave: 'sawtooth', oct: 2, cut: 600, fifth: true, gain: 0.012 },
-      lead: { wave: 'sine', oct: 4, cut: 5000, len: 6, gain: 0.18, fm: { ratio: 2, index: 2 } },
+    music: { vol: 0.888, drone: { wave: 'sawtooth', oct: 2, cut: 600, fifth: true, gain: 0.012 },
+      lead: { voice: 'sitar', oct: 4, len: 8, gain: 0.19 },
       div: 4, seq: tune(64, [[0, 0], [3, 1], [6, 2], [8, 4], [10, 5], [12, 4], [16, 2], [19, 1], [22, 0],
         [32, 4], [35, 5], [38, 7], [40, 6], [42, 7], [44, 5], [48, 4], [51, 2], [54, 1], [56, 0]]),
-      drum: 'p..p..t.p.zp..k.' + 'p..p..t.p.zp..k.' + 'p..p..t.p.zp..k.' + 'p..p..t.p.zp.ttt' },
+      drum: 'D.GNJ..NJ.G.D.NG' + 'D.GNJ..NJ.G.D.E.' + 'D.NNI.N.I.NNN.N.' + 'N.NNJ.GNR...D.G.' },
   },
 };

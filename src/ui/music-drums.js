@@ -6,6 +6,7 @@ import { tone, hiss, fm, noteHz, bell } from './audio-kit.js';
 import { BREATH_HITS } from './music-breath.js';
 import { ANVIL_HITS } from './music-anvil.js';
 import { BATH_HITS } from './music-bath.js';
+import { ISLE_HITS } from './music-isle.js';
 
 // The waltz's bars are six steps; the second of each pair of bars sounds the chord's fifth where the first sounds its root.
 const oddBar = (n) => Math.floor(n.step / 6) % 2;
@@ -120,4 +121,5 @@ export const DRUM = {
   ...BREATH_HITS, // K C O: four on the floor, claps and open hats with the bass (Ash to Air)
   ...ANVIL_HITS, // H A T P: a heavy kick with the bass, an anvil struck on the backbeat, a thunder tom, a pad (Anvil Sky)
   ...BATH_HITS, // B W S L: a soft kick with the bass, a woodblock, a light clap, a kalimba's answer (Rubber Regatta)
+  ...ISLE_HITS, // N I G E D J R: the tabla's strokes (Golden Isle)
 };

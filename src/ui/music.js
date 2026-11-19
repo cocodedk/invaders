@@ -11,6 +11,7 @@
 import { audioNodes, setWorldSound } from './audio.js';
 import { tone, fm } from './audio-kit.js';
 import { DRUM } from './music-drums.js';
+import { LEADS } from './music-isle.js';
 import { STYLES, kitFor, degreeMidi, midiHz } from './sound-data.js';
 
 const AHEAD = 0.3; // s scheduled ahead of the audio clock
@@ -120,8 +121,10 @@ function stepAt(c, t) {
       dur: len * L.len, hold: len * (L.hold ?? 0), peak: L.gain, cut: L.cut, cut1: L.cut1, q: 1.5,
     };
     if (L.glide) o.f1 = midiHz(degreeMidi(kit, nextNote(m.seq, c.step) + shift, L.oct)); // a call sliding on to the next note
-    if (L.fm) fm(a, { ...o, ...L.fm });
+    if (L.voice) LEADS[L.voice](a, o, c.last); // a named voice (music-isle.js), told the note before
+    else if (L.fm) fm(a, { ...o, ...L.fm });
     else tone(a, o);
+    c.last = o.f0;
     if (L.bow) { // bowed glass: a twin a few cents off the note beats against it, and a thin octave sounds over both
       tone(a, { ...o, detune: L.bow, peak: o.peak * 0.8 });
       tone(a, { ...o, f0: o.f0 * 2, peak: o.peak * 0.12 });
