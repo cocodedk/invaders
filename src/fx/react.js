@@ -11,8 +11,9 @@ import { GLASS } from './react-glass.js';
 import { BREATH } from './react-breath.js';
 import { STORM } from './react-storm.js';
 import { BATH } from './react-bath.js';
+import { ISLE } from './react-isle.js';
 
-const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP, ...GLASS, ...BREATH, ...STORM, ...BATH }; // DEEP wraps fire, hit, kill and absorb, GLASS wraps fire again, power and the wreck's three; BREATH adds two events of its own (world 17's breath and its wiped bullets), wrapping nothing; STORM wraps ARMADA's sideShot and broadside (world 18 borrows the broadside) and adds backfire; BATH wraps DEEP's kill and FIGHT's explode (world 19 tells them as a puff and a foam) and adds world 19's six batting events
+const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP, ...GLASS, ...BREATH, ...STORM, ...BATH, ...ISLE }; // DEEP wraps fire, hit, kill and absorb, GLASS wraps fire again, power and the wreck's three; BREATH adds two events of its own (world 17's breath and its wiped bullets), wrapping nothing; STORM wraps ARMADA's sideShot and broadside (world 18 borrows the broadside) and adds backfire; BATH wraps DEEP's kill and FIGHT's explode (world 19 tells them as a puff and a foam) and adds world 19's six batting events; ISLE adds world 21's arrowTurn
 
 // Every event type fx reacts to.
 export const REACTS = Object.keys(HANDLERS);

@@ -82,7 +82,7 @@ test('an arrow is drawn pointing the way it flies: one flying down is turned fro
 
 test('a returning arrow points at its quiver point, straight below or off to the side', () => {
   for (const sx of [400, 700, 1100]) {
-    const world = { ship: ship({ x: sx }), shots: [shot(400, { y: HUD_BOTTOM - 1 })] };
+    const world = { ship: ship({ x: sx }), shots: [shot(400, { y: HUD_BOTTOM - 1 })], events: [], tick: 0 };
     quiver(world);
     const [s] = world.shots;
     assert.ok(s.turned, 'the rule turned it');
