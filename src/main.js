@@ -5,6 +5,7 @@
 // feed the music.
 import { store } from './ui/storage.js';
 import { createInput } from './ui/input.js';
+import { isPause } from './ui/keys.js';
 import { unlockAudio, toggleMute } from './ui/audio.js';
 import { updateMusic } from './ui/music.js';
 import { sampleFrame } from './ui/quality.js';
@@ -22,6 +23,9 @@ const stage = createStage(document.getElementById('ui'));
 const input = createInput(canvas);
 input.onGesture = unlockAudio;
 const router = createRouter({ canvas, stage, input });
+// The pointer is locked only while you fly (ui/pointer-lock.js): a level, or the try after Watch.
+input.playing = () => router.app.screen === 'play' || (router.app.screen === 'demo' && router.app.scene?.mode === 'try');
+input.onLockLost = router.pause; // Esc took the lock and the page may never see the key: still one pause
 const flow = createFlow(router, stage);
 installTrailers(router, { stage, canvas }); // the trailer, the blooper and the cinema
 const { app } = router;
@@ -39,7 +43,7 @@ input.onKey = (code, e) => {
     return;
   }
   if (stage.onKey(code, e)) return;
-  if (router.live() && (code === 'Escape' || code === 'KeyP')) router.pause();
+  if (router.live() && isPause(code)) router.pause();
 };
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) router.pause();
@@ -62,6 +66,7 @@ function frame(dt, t) {
 
 let last = null;
 function loop(now) {
+  if (!input.playing()) input.lock.release(); // a pause, results, another screen: the cursor is back
   const interval = last == null ? 0 : now - last;
   last = now;
   const dt = Math.min(0.1, interval / 1000); // a stalled tab is not a 10 s step

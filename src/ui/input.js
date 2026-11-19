@@ -11,12 +11,15 @@
 //                                  level's (ship.js zoneOf), ZONE by default; ship: the world's, so a pointer
 //                                  that wakes after the keys had the ship can walk it back (see readInput)
 //   resetInput(input)              forget held keys and buttons (a screen took over)
+//   input.lock                     pointer lock while a level is flown (pointer-lock.js): no more moves lost
+//                                  at the window's edge; main.js sets input.playing and input.onLockLost
 // Keys with Alt, Ctrl or Meta held are left alone: Alt+Left must stay the browser's Back.
-import { MOVE } from './keys.js';
+import { MOVE, isPause } from './keys.js';
 import { ZONE } from '../core/ship.js';
 import { clamp, dist2 } from '../core/math.js';
 import { HAND, handTarget } from '../core/hand.js';
 import { TICK } from '../core/kinds.js';
+import { createLock, lockedMove } from './pointer-lock.js';
 
 const FIRE = ['Space'];
 const BOMB = ['KeyB', 'ShiftLeft', 'ShiftRight'];
@@ -25,10 +28,11 @@ const GAME_KEYS = new Set([...Object.keys(MOVE), 'Space', 'Enter', 'NumpadEnter'
 export function createInput(canvas) {
   const input = {
     canvas, down: new Set(), taps: new Set(),
-    mouse: { x: 0, y: 0, left: false, right: false, active: false, slack: null, walk: false },
-    onKey: null, onGesture: null,
+    mouse: { x: null, y: null, left: false, right: false, active: false, slack: null, walk: false },
+    onKey: null, onGesture: null, playing: null, onLockLost: null,
   };
   const m = input.mouse;
+  const lock = (input.lock = createLock(canvas, input));
   const gesture = () => input.onGesture?.();
 
   addEventListener('keydown', (e) => {
@@ -39,6 +43,7 @@ export function createInput(canvas) {
       if (MOVE[e.code]) input.onKey?.(e.code, e); // menus scroll on a held arrow
       return;
     }
+    if (m.active && m.mouse && !MOVE[e.code] && !isPause(e.code)) lock.ask(); // a mouse has the ship and Space fires
     input.down.add(e.code);
     input.taps.add(e.code);
     if (MOVE[e.code]) Object.assign(m, { active: false, walk: true }); // the keys take the ship back from the pointer
@@ -51,15 +56,22 @@ export function createInput(canvas) {
   addEventListener('blur', () => resetInput(input)); // key-ups are lost while unfocused
 
   addEventListener('pointermove', (e) => {
-    if (e.clientX === m.x && e.clientY === m.y) return; // a synthetic move at rest is not steering
-    m.x = e.clientX;
-    m.y = e.clientY;
+    if (lock.held()) {
+      if (!lockedMove(m, e, canvas.getBoundingClientRect())) return; // clientX/Y are frozen under lock
+    } else {
+      if (e.clientX === m.x && e.clientY === m.y) return; // a synthetic move at rest is not steering
+      m.x = e.clientX;
+      m.y = e.clientY;
+    }
     m.active = true;
+    m.mouse = e.pointerType === 'mouse'; // a touch or a pen never takes the lock
     if (m.left && !(e.buttons & 1)) m.left = false; // its pointerup went missing
     if (m.right && !(e.buttons & 2)) m.right = false;
   });
   canvas.addEventListener('pointerdown', (e) => {
-    Object.assign(m, { x: e.clientX, y: e.clientY, active: true });
+    if (!lock.held()) Object.assign(m, { x: e.clientX, y: e.clientY }); // frozen under lock: keep the steered spot
+    m.active = true;
+    m.mouse = e.pointerType === 'mouse';
     if (e.button === 0) m.left = true;
     if (e.button === 2) m.right = true;
     input.taps.add(`Mouse${e.button}`);
@@ -68,6 +80,7 @@ export function createInput(canvas) {
     } catch {
       // the pointer is already gone: the buttonless-move check above releases it
     }
+    if (e.pointerType === 'mouse') lock.ask(); // a touch or a pen steers by where it is, never by movement
   });
   addEventListener('pointerup', (e) => {
     if (e.button === 0) m.left = false;
