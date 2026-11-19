@@ -19,6 +19,7 @@
 // World 19's batting rule sounds through its own events (sfx-bath.js): the bat's `whack`, a flying body's `bonk` (its link and
 // whether it struck the boss), a `bank` off a wall, a `strike`, a `plop` out at the bottom and a `fizzle`; at most TWIST_VOICES of
 // them a tick and one of each kind (audio.js thins each further with a GAP). Its knock-outs are kills, which squeak there.
+// World 21's returning arrow chimes where it turns (`arrowTurn`, at its x: sfx-isle.js pitches it by x).
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X, WIDTH } from '../core/kinds.js';
 
@@ -103,6 +104,7 @@ export function eventSounds(events, world, play) {
       case 'strike': play('strike', at(e)); break;
       case 'plop': play('plop', at(e)); break;
       case 'fizzle': play('fizzle', at(e)); break;
+      case 'arrowTurn': play('arrowTurn', at(e)); break;
       default: break; // SILENT
     }
   }
