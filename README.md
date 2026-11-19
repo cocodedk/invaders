@@ -1,7 +1,7 @@
 # Invaders
 
 A cinematic arcade shooter for the browser. Fly anywhere in the lower half of the screen, shoot down
-alien formations and beat a boss at the end of every world: 20 worlds and 100 levels, each world with
+alien formations and beat a boss at the end of every world: 21 worlds and 105 levels, each world with
 its own look, music and twist. Spread shot, laser, rapid fire, shield, homing shots,
 slow time, smart bombs and extra lives along the way (a second power-up waits in reserve while the
 first runs), and combos for the score. Sunset Armada, the thirteenth world, brings its own: wingmen, two
@@ -25,6 +25,9 @@ boss, the Dowager Duck, a colossal rubber duck in a frilly shower cap, on the he
 Midnight Press, the twentieth, is a printing hall at night. A carbon copy of your ship flies your own path a second behind
 you and fires wherever you fired, so every shot goes to print twice, up to the boss, the Night Editor, a colossal ink octopus
 with a red pencil in each arm.
+Golden Isle, the twenty-first, is the last battle at dusk before an island city of gold. Every arrow you fire that reaches the top
+of the sky turns and flies back to where you stood, cutting through the ranks a second time, up to the boss, the Ten-Crowned King,
+a colossal ten-headed king on a flying throne whose heads grow back until the very end.
 
 Clear a level and the game cuts a movie trailer from your own run, title cards and all. The Cinema
 on the title screen keeps your best run of every level. Lose one and you get the blooper instead.

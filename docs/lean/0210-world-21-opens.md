@@ -34,6 +34,7 @@ needs:
 - '[[029-isle-art-type-and-tint]]'
 shared:
   decisions:
+  - "2026-11-19, the runner on the person's standing word ('dont make it easy', memory/balance-harness.md, 2026-10-27; the game must never become too easy): R23's first bar, that the king clear at least half the probe's seeds, forced a 2.5x slower boss far easier than world 20's. The bar is now the range of worlds 18-20's bosses across all six lags, with no wave level at zero."
   - The person (2026-11-18) asked for a new world with a Ramayana theme, 'an epic world'; the runner and the advisor
     settled the design. The epic lives in the art, the boss and the music; the world has one rule, as every world
     does.
@@ -101,12 +102,8 @@ parts:
       its end on w21-5 and never charges; world 21 has its lobby card after world 20 with its tagline, poster time
       and trailer voice.
   - id: R23
-    must: 'Before pars are regenerated, the balance harness (/home/cocodedk/0-projects/invaders/memory/balance-harness.md)
-      and the boss probe (/home/cocodedk/0-projects/invaders/memory/bossprobe.mjs) are run for worlds 20 and 21:
-      the lagged autopilot clears world 21''s wave levels no more often than world 20''s, and clears w21-5 in at
-      least half the probe''s seeds. Tuning world 21''s data to get there is in scope.'
-    accept: The pull request lists the harness's clear rates for worlds 20 and 21 and the probe's results for w20-5
-      and w21-5, and they meet the bar.
+    must: "Before pars are regenerated, the balance harness (/home/cocodedk/0-projects/invaders/memory/balance-harness.md) and the boss probe (/home/cocodedk/0-projects/invaders/memory/bossprobe.mjs) are run on the final tree across lags 8-18 x 20 seeds: world 21's wave levels together clear no more often than world 20's, and no world 21 level clears 0 of its runs; the king (w21-5) clears more than zero runs and lands within the range that w18-5, w19-5 and w20-5 span on the same probe. Tuning world 21's data to get there is in scope; CROWNS_REGROW stays at 18 s or more."
+    accept: "The pull request lists the probe's results across lags 8-18 x 20 seeds for w18-5, w19-5, w20-5 and w21-5 and for world 20's and world 21's wave levels, and they meet the bar."
   - id: R24
     must: 'The pinned counts and lists move as far as world 21 needs and no further: the pinned TWISTS and BOSSES
       lists, the pinned world ids and names, 100 levels to 105, 20 boss levels to 21, the unknown level id in test/core/levels.test.js,

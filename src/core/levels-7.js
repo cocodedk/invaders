@@ -27,7 +27,7 @@ export const ISLE = [
       w('orbit', 6, 'gug', 'ring', 1.2),
     ]),
     lv(211806, [
-      w('grid', 10, 'uaga', 'laser', 1.15),
+      w('grid', 10, 'uaga', 'fan', 1.15),
       w('split', 10, 'gdag', 'aimed', 1.2),
       w('spiral', 8, 'udu', 'spiral', 1.2),
       w('rain', 10, 'dgd', 'rain', 1.2),
