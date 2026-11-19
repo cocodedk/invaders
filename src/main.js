@@ -23,7 +23,8 @@ const stage = createStage(document.getElementById('ui'));
 const input = createInput(canvas);
 input.onGesture = unlockAudio;
 const router = createRouter({ canvas, stage, input });
-input.playing = () => router.app.screen === 'play'; // the pointer is locked only while you fly (ui/pointer-lock.js), never in Watch
+// The pointer is locked only while you fly (ui/pointer-lock.js): a level, or the try after Watch.
+input.playing = () => router.app.screen === 'play' || (router.app.screen === 'demo' && router.app.scene?.mode === 'try');
 input.onLockLost = router.pause; // Esc took the lock and the page may never see the key: still one pause
 const flow = createFlow(router, stage);
 installTrailers(router, { stage, canvas }); // the trailer, the blooper and the cinema
