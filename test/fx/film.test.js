@@ -29,6 +29,13 @@ test('world 20 is graded in a colour of its own, no other world\'s', () => {
   for (let w = 1; w < 20; w++) assert.notEqual(tintOf(w), press, `world ${w}`);
 });
 
+test('world 21 is graded in a colour of its own, no other world\'s', () => {
+  const tintOf = (world) => createFilm({ level: { world } }).tint;
+  const isle = tintOf(21);
+  assert.match(isle, /^#[0-9a-f]{6}$/i);
+  for (let w = 1; w < 21; w++) assert.notEqual(tintOf(w), isle, `world ${w}`);
+});
+
 test('letterbox eases in to exactly 1 and out to exactly 0, through every value between', () => {
   const f = film();
   let last = 0;

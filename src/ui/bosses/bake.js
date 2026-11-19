@@ -49,9 +49,10 @@ import craving from './craving.js';
 import ray from './ray.js';
 import duck from './duck.js';
 import editor from './editor.js';
+import crowns from './crowns.js';
 
 export const PART_MARGIN = 34; // px of canvas round a part's rect, unless its module says otherwise
-export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler, moth, craving, ray, duck, editor };
+export const BOSS_ART = { mothership, pyramid, fortress, shogun, queen, agent, titan, singularity, behemoth, count, wyrm, grimoire, galleon, carousel, angler, moth, craving, ray, duck, editor, crowns };
 const cache = new Map();
 
 export function painterFor(mod, id) {
