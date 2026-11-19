@@ -1,5 +1,5 @@
 // A canvas context that follows what it is asked to draw, for checking where art lies: its transform
-// (translate, scale, rotate, save and restore, which also give back globalAlpha and the composite
+// (translate, scale, rotate, transform, save and restore, which also give back globalAlpha and the composite
 // operation as a real canvas does), and the extent in the space the caller set up of every path point
 // and every drawImage, control points of curves included (so the extent is a little generous).
 //   const { ctx, calls, bounds } = tracker();
@@ -28,6 +28,9 @@ export function tracker() {
     restore: () => ([m, o.globalAlpha, o.globalCompositeOperation] = stack.pop()),
     translate: (x, y) => { m = [m[0], m[1], m[2], m[3], m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]]; },
     scale: (x, y) => { m = [m[0] * x, m[1] * x, m[2] * y, m[3] * y, m[4], m[5]]; },
+    transform: (a, b, c, d, e, f) => {
+      m = [m[0] * a + m[2] * b, m[1] * a + m[3] * b, m[0] * c + m[2] * d, m[1] * c + m[3] * d, m[0] * e + m[2] * f + m[4], m[1] * e + m[3] * f + m[5]];
+    },
     rotate: (a) => {
       const [c, s] = [Math.cos(a), Math.sin(a)];
       m = [m[0] * c + m[2] * s, m[1] * c + m[3] * s, m[2] * c - m[0] * s, m[3] * c - m[1] * s, m[4], m[5]];

@@ -41,6 +41,9 @@ import across repos.
 - `localStorage` wrapped in try/catch; the game works without it. Keys prefixed `invaders.`.
 - Runs at 60 fps on a Pi 4 (Chromium 153 kiosk): no per-frame `shadowBlur`; glow via cached sprites +
   `'lighter'`; at most 600 particles; at most 400 enemy bullets.
+- Every boss from world 21 on is alive: its parts bend from pivots, it breathes, lags behind its motion, recoils when hit and
+  winds up before it fires, through `src/ui/bosses/life.js` (its art module's `life`). Art only: the hit boxes never move and
+  no part's centre is drawn more than `LIFE_MAX_PX` from where the core puts it; `test/ui/life-bound.test.js` fails a newer boss without `life`.
 - Tuning values (speeds, rates, cooldowns, timings, sizes, counts) are named, exported constants, defined once.
   Everything else, tests included, reads the constant or derives from it, never repeats the number or what it works
   out to (a 0.18 s cooldown written as "6 shots a second" or "54 volleys in 10 s"), so a change is one line. Data

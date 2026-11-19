@@ -3,9 +3,18 @@
 // before them his body: a vermilion robe with gold borders and a jewelled sash (crowns-robe.js), the great gilded shoulder mantle spanning
 // under the arc of his heads, and from it ten short thick necks, each with a jewelled collar, rising to the heads; layered necklaces
 // over his chest. The heads, the forearms, the breastplate and the heart are painted over it. Lights: the gold, the jewels, the fire.
-import { path, ink, line, rgba, both, gilt, glint, PAL, PART, HEADS, skin, neckOf } from './crowns-kit.js';
+// For his life (crowns-life.js) the live drawing takes the hull apart (bake.js): the front layer is his body (front: the robe, the
+// mantle, the necklaces and the chariot); the limbs are each side's upper arms (upperArms, moving with that side's arm fan) and each
+// head's neck (neck, moving with its head), in the boxes armsBox and neckBox give; the collars ride in the head sprites (crowns-head.js).
+// hull() is still the whole composite, collars and all, for the collapse.
+import { path, ink, line, rgba, both, gilt, glint, PAL, PART, HEADS, skin, neckOf, neckBase } from './crowns-kit.js';
 import { ELBOWS, SHOULDER } from './crowns-arms.js';
-import { torso, mantle, necklaces, chariot, collar } from './crowns-robe.js';
+import { torso, mantle, necklaces, chariot, collar, collarDrop } from './crowns-robe.js';
+
+export const ARM_PAD = 24; // px round an upper arm's line that its width and its armlet reach
+export const NECK_PAD = 4; // px round a neck's outline that its ink reaches
+export const NECK_FLARE = 0.6; // a neck's half width where it meets the mantle, of its width
+export const NECK_TOP = 6; // px above the chin that a neck starts, under the head's own neck top
 
 // An upper arm from the shoulder (sx, sy) to the elbow (ex, ey), w thick at the shoulder, an armlet round its middle.
 function upperArm(b, l, sx, sy, ex, ey, w) {
@@ -23,24 +32,46 @@ function upperArm(b, l, sx, sy, ex, ey, w) {
   glint(l, bx, by, 2.4, 0.35);
 }
 
+// The i-th upper arm of side s (-1 left, 1 right): shoulder, elbow (e, from ELBOWS) and width.
+const [ax, ay] = [PART.armsL.x, PART.armsL.y];
+const armLine = (s, e, i) => [s * (-SHOULDER[0] - ax), SHOULDER[1] + ay + i * 5, -s * (e.x + ax), e.y + ay, 34 - i];
+export const upperArms = (b, l, s) => ELBOWS.forEach((e, i) => upperArm(b, l, ...armLine(s, e, i)));
+
 // A short thick neck from a head's chin down into the mantle, w wide.
-function neck(b, l, id) {
+export function neck(b, l, id) {
   const [x, y, w] = neckOf(id);
-  const base = y + (id === 'headT' ? 80 : 34);
-  path(b, [[x - w * 0.42, y - 6], [x + w * 0.42, y - 6], [x + w * 0.6, base], [x - w * 0.6, base]]);
+  const base = neckBase(id);
+  path(b, [[x - w * 0.42, y - NECK_TOP], [x + w * 0.42, y - NECK_TOP], [x + w * NECK_FLARE, base], [x - w * NECK_FLARE, base]]);
   ink(b, skin(b, x - w, y, x + w, base), 2.6);
 }
 
+const boxOf = (pts, pad) => [Math.min(...pts.map((p) => p[0])) - pad, Math.min(...pts.map((p) => p[1])) - pad,
+  Math.max(...pts.map((p) => p[0])) + pad, Math.max(...pts.map((p) => p[1])) + pad].map((v, i) => (i < 2 ? Math.floor(v) : Math.ceil(v)));
+export const armsBox = (s) => boxOf(ELBOWS.flatMap((e, i) => {
+  const [sx, sy, ex, ey] = armLine(s, e, i);
+  return [[sx, sy], [ex, ey]];
+}), ARM_PAD);
+export function neckBox(id) {
+  const [x, y, w] = neckOf(id);
+  return boxOf([[x - w * NECK_FLARE, y - NECK_TOP], [x + w * NECK_FLARE, neckBase(id)]], NECK_PAD); // the neck is widest at its base
+}
+
+export function front(b, l) {
+  torso(b, l);
+  mantle(b, l);
+  necklaces(b, l);
+  chariot(b, l);
+}
+
 export function hull(b, l) {
-  const [ax, ay] = [PART.armsL.x, PART.armsL.y];
-  ELBOWS.forEach((e, i) => both((s) => upperArm(b, l, s * (-SHOULDER[0] - ax), SHOULDER[1] + ay + i * 5, -s * (e.x + ax), e.y + ay, 34 - i)));
+  ELBOWS.forEach((e, i) => both((s) => upperArm(b, l, ...armLine(s, e, i))));
   for (const id of HEADS) neck(b, l, id);
   torso(b, l);
   mantle(b, l);
   necklaces(b, l);
   for (const id of HEADS.filter((h) => h !== 'headT')) {
     const [x, y, w] = neckOf(id);
-    collar(b, l, x, y + (id === 'head' ? 26 : 20), w);
+    collar(b, l, x, y + collarDrop(id), w);
   }
   chariot(b, l);
 }

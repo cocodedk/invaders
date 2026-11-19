@@ -1,8 +1,9 @@
 // The boss sprite cache. A boss's painter module (bosses/<kind>.js) is run once per level into
 // offscreen canvases; per frame the game only blits them (bosses/index.js).
-//   bossArt(look, kind)   -> { mod, S, hull, parts } (baked on first call, kept until another boss)
-//     hull  = { body, lights, flash, rage: [canvas | null per phase], x0, y0 } boss-local top-left
-//             (flash: null until hullFlash(B) bakes it; only the dying boss needs it)
+//   bossArt(look, kind)   -> { mod, S, hull, parts, limbs } (baked on first call, kept until another boss)
+//     hull  = { body, lights, flash, rage: [canvas | null per phase], front, x0, y0 } boss-local top-left
+//             (flash: null until hullFlash(B) bakes it; only the dying boss needs it; front: { body, lights } | null)
+//     limbs = [{ id, body, lights, x0, y0 }] in the order the module lists them, x0, y0 their box's top-left (lights null if unlit)
 //     parts = { [id]: set }, set = { body, lights, flash, open?, w, h, m, seed, crack, cracks, ... }
 //             drawn at the part's centre; the damage states (cracks.js) are baked on first use
 //   warmBoss(look, kind)  bossArt plus everything the fight will need, the damage states and the hull
@@ -24,7 +25,13 @@
 //   (per-frame extras in boss coordinates, 'lighter', cached sprites only; k is the light
 //   strength, since when the phase began; anything opaque only when `own`, the boss's own pass,
 //   since the darkness pass runs live again over the aliens), warm?() (paints the cached sprites
-//   live() draws, which warmBoss calls so that none is baked mid-fight) }.
+//   live() draws, which warmBoss calls so that none is baked mid-fight),
+//   life? (the parts bend, stretch and breathe: life.js; every boss from world 21 on has it),
+//   front?(b, l, S) (the hull's front layer, baked hull-sized: when present the live drawing uses it in place of hull.body and
+//   hull.lights, over the limbs; hull.body stays the whole composite, for the collapse and anything else that reads it),
+//   limbs?: { [partId]: { box: [x0, y0, x1, y1], paint(b, l, S), lights? } } (pieces of the body that move with a part, a neck
+//   with its head: each baked into a box-sized canvas, painted in boss coordinates, and drawn with that part's life transform under
+//   the front layer, in the order listed; only with a front; lights: false for one that paints no lights, which is then not drawn) }.
 // S = { def, pal: look.palette.boss, look, W, H, pad }; b, l are the body and lights contexts.
 import { makeCanvas, white } from '../sprites.js';
 import { bossDef } from '../../core/bosses-data.js';
@@ -119,7 +126,22 @@ export function bakeWith(mod, S) {
   def.parts.forEach((p, i) => {
     parts[p.id] = bakePart(mod, p, S, i);
   });
-  return { mod, S, hull: { body, lights, flash: null, rage, x0: -W / 2, y0: -H / 2 }, parts };
+  let front = null;
+  if (mod.front) {
+    const [[fb, fbg], [fl, flg]] = pair(W, H, W / 2, H / 2);
+    mod.front(fbg, flg, S);
+    front = { body: fb, lights: fl };
+  }
+  return { mod, S, hull: { body, lights, flash: null, rage, front, x0: -W / 2, y0: -H / 2 }, parts, limbs: bakeLimbs(mod, S) };
+}
+
+// Each limb on a canvas the size of its box, painted in boss coordinates.
+function bakeLimbs(mod, S) {
+  return Object.entries(mod.limbs ?? {}).map(([id, { box: [x0, y0, x1, y1], paint, lights: lit }]) => {
+    const [[body, b], [lights, l]] = pair(Math.ceil(x1 - x0), Math.ceil(y1 - y0), -x0, -y0);
+    paint(b, l, S);
+    return { id, body, lights: lit === false ? null : lights, x0, y0 };
+  });
 }
 
 const bake = (look, kind) => bakeWith(BOSS_ART[kind], stageOf(look, kind));

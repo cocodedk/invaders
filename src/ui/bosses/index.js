@@ -9,11 +9,14 @@
 // phase change), the glow round each live weak point, the parts in their states, their lights, the
 // module's live extras, a charge-up on every pending warn (parts.js). Once dying, death.js draws
 // the collapse instead. Per frame only drawImage of baked canvases and cached glows. A module's pose (mod.pose, the Duck's squash
-// when bonked) scales all of it about a line for a moment: art only, the parts' boxes never move.
+// when bonked) and its breath (life.js) scale all of it about a line: art only, the parts' boxes never move. A module with a front
+// layer (bake.js: the King) is drawn as its limbs, each with its part's life (life.js), then the front, in place of the hull's body,
+// and lit by the front's and the limbs' lights in place of the hull's.
 import { bossArt } from './bake.js';
 import { drawDying } from './death.js';
 import { halos, partBodies, partLights, warns } from './parts.js';
 import { smooth } from '../../core/math.js';
+import { breathOf, lifeOf, lifeOn } from './life.js';
 
 export { partStage } from './parts.js';
 
@@ -31,16 +34,29 @@ function behind(ctx, b, B, t) {
   ctx.restore();
 }
 
-// A module's pose (mod.pose(b, t) -> [sx, sy, py] | null): the whole drawing scaled about the line y = py, boss coordinates. True
-// when a transform was pushed, which the caller restores.
+// A module's pose (mod.pose(b, t) -> [sx, sy, py] | null) and its breath (life.js, the same shape): the whole drawing scaled about
+// the line y = py, boss coordinates. True when a transform was pushed, which the caller restores.
 function posed(ctx, b, B, t) {
-  const p = B.mod.pose?.(b, t);
-  if (!p) return false;
+  const ps = [B.mod.pose?.(b, t), breathOf(B.mod.life, t)].filter(Boolean);
+  if (!ps.length) return false;
   ctx.save();
-  ctx.translate(b.x, b.y + p[2]);
-  ctx.scale(p[0], p[1]);
-  ctx.translate(-b.x, -b.y - p[2]);
+  for (const [sx, sy, py] of ps) {
+    ctx.translate(b.x, b.y + py);
+    ctx.scale(sx, sy);
+    ctx.translate(-b.x, -b.y - py);
+  }
   return true;
+}
+
+// The limbs (bake.js): pieces of the body that move with a part, each drawn with its part's life; layer 'body' or 'lights'.
+function limbs(ctx, b, B, t, layer) {
+  const L = lifeOf(b, B, t);
+  for (const m of B.limbs) {
+    if (!m[layer]) continue;
+    const on = lifeOn(ctx, b, L, m.id);
+    ctx.drawImage(m[layer], b.x + m.x0, b.y + m.y0);
+    if (on) ctx.restore();
+  }
 }
 
 function phaseMemo(b, t) {
@@ -59,7 +75,8 @@ function hullLights(ctx, b, B, t, k, q) {
   const ph = phaseMemo(b, t);
   ctx.globalCompositeOperation = 'lighter';
   ctx.globalAlpha = k * (0.88 + 0.12 * Math.sin(t * 2.1));
-  ctx.drawImage(h.lights, b.x + h.x0, b.y + h.y0);
+  ctx.drawImage(h.front?.lights ?? h.lights, b.x + h.x0, b.y + h.y0);
+  if (h.front) limbs(ctx, b, B, t, 'lights');
   const e = smooth((t - ph.at) / FADE);
   for (const [i, a] of [[ph.phase, e], [ph.prev, 1 - e]]) {
     const img = h.rage[i];
@@ -98,10 +115,13 @@ export function drawBoss(ctx, world, look, t, q = 1) {
   }
   const h = B.hull;
   const p = posed(ctx, b, B, t);
-  ctx.drawImage(h.body, b.x + h.x0, b.y + h.y0);
+  if (h.front) {
+    limbs(ctx, b, B, t, 'body');
+    ctx.drawImage(h.front.body, b.x + h.x0, b.y + h.y0);
+  } else ctx.drawImage(h.body, b.x + h.x0, b.y + h.y0);
   behind(ctx, b, B, t); // a module's live body behind the parts (the Craving's churning smoke)
   hullLights(ctx, b, B, t, 1, q);
-  halos(ctx, b, look.palette.boss, t, 1);
+  halos(ctx, b, B, look.palette.boss, t, 1);
   partBodies(ctx, b, B, look, t);
   lights(ctx, b, B, look, t, 1, true);
   if (p) ctx.restore();
@@ -117,7 +137,7 @@ export function drawBossLights(ctx, world, look, t, k, q = 1) {
   }
   const p = posed(ctx, b, B, t);
   hullLights(ctx, b, B, t, k, q);
-  halos(ctx, b, look.palette.boss, t, k);
+  halos(ctx, b, B, look.palette.boss, t, k);
   lights(ctx, b, B, look, t, k, false);
   if (p) ctx.restore();
 }

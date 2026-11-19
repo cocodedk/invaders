@@ -1,11 +1,11 @@
 // The Ten-Crowned King's heads (World 21, Golden Isle; see crowns.js). Each is a painted mask (aliens/w21-kit.js) in the deep green of the
 // dance-drama, red eyes burning, under a stepped crown of gold: the great head at the centre the largest, under four tiers, roaring;
 // the one above it and the four fanned out to each side smaller, leaning out along the fan, some roaring and some cold, every one
-// looking toward the middle. A fallen head leaves its empty jewelled collar, capped with smouldering ember. Lights: the
-// eyes, the gold, the coal.
+// looking toward the middle, its jewelled collar under its chin (all but the head above the great one's). A fallen head leaves its
+// empty jewelled collar, capped with smouldering ember. Lights: the eyes, the gold, the coal.
 import { path, ink, lin, rad, line, rgba, shade, mix, ellipse, circle, both, GOLD, GOLD_D, BLACK, gilt, glint, petals, mask, PAL, skin,
   glow, neckOf } from './crowns-kit.js';
-import { collar } from './crowns-robe.js';
+import { collar, collarDrop } from './crowns-robe.js';
 
 // How each head is painted: its scale, how far below the box's centre its face sits, its crown's tiers and height, roaring or not.
 const LOOK = {
@@ -24,6 +24,7 @@ export function head(b, l, p) {
   const lean = Math.sign(p.dx) * Math.min(0.16, Math.abs(p.dx) / 2400);
   const [nx, ny, nw] = neckOf(p.id);
   const cy = ny - p.dy;
+  if (p.id !== 'headT') collar(b, l, 0, cy + collarDrop(p.id), nw); // its jewelled collar over the mantle, riding with the head
   path(b, [[-nw / 2, cy + p.h * 0.25], [nw / 2, cy + p.h * 0.25], [nw * 0.4, cy - 4], [-nw * 0.4, cy - 4]]); // the top of the neck
   b.fillStyle = skin(b, -nw / 2, cy - 4, nw / 2, cy + p.h * 0.25);
   b.fill();

@@ -8,8 +8,12 @@ import { path, ink, lin, line, rgba, shade, mix, ellipse, circle, both, GOLD, GO
 const JEWELS = [PAL.red, GREEN, '#3a6ad8'];
 const SIDE = ['headL1', 'headL2', 'headL3', 'headL4'];
 
+// How far under a head's chin the mantle's top edge runs, and its jewelled collar sits.
+export const edgeUnder = (id) => (id === 'head' ? 30 : 24);
+export const collarDrop = (id) => (id === 'head' ? 26 : 20);
+
 // The mantle's top edge, right half, centre out: just under each head's chin; the flare at its end.
-export const MANTLE_TOP = [[0, neckOf('head')[1] + 30], ...SIDE.map((id) => [-neckOf(id)[0], neckOf(id)[1] + 24]), [430, -50]];
+export const MANTLE_TOP = [[0, neckOf('head')[1] + edgeUnder('head')], ...SIDE.map((id) => [-neckOf(id)[0], neckOf(id)[1] + edgeUnder(id)]), [430, -50]];
 const BOTTOM = [[420, 0], [395, 32], [300, 50], [200, 32], [120, 10], [0, 2]];
 const outline = () => {
   const half = [...MANTLE_TOP, ...BOTTOM];

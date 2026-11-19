@@ -6,10 +6,13 @@
 // and the heart (crowns-breast.js), the heart laid bare when the last phase opens it. The rage layers: the court of war is calm; when
 // the heads grow back angrier every crown burns crimson; when the heart is bare fire climbs round the throne and the heads glare.
 // The rage stays inside the hull canvas (pad round the boss's size). Nothing is painted per frame: every shape is baked.
+// He is alive (crowns-life.js, bosses/life.js): drawn live as his limbs (the upper arms with their fans, each neck with its head) under
+// his front layer (his body), every piece bending from its pivot (crowns-hull.js).
 import { head, stump } from './crowns-head.js';
 import { arms } from './crowns-arms.js';
 import { breast, heart, heartOpen } from './crowns-breast.js';
-import { hull } from './crowns-hull.js';
+import { hull, front, neck, upperArms, armsBox, neckBox } from './crowns-hull.js';
+import { life } from './crowns-life.js';
 import { PAL, PART, HEADS, glow } from './crowns-kit.js';
 
 // Every painter leaves the context as it found it.
@@ -26,6 +29,7 @@ const keptOne = (paint) => paint && ((g, S) => {
   g.restore();
 });
 const each = (paint) => Object.fromEntries(HEADS.map((id) => [id, kept(paint)]));
+const limb = (box, paint, lights) => ({ box, paint: kept(paint), lights });
 
 const rage = [
   null,
@@ -45,6 +49,13 @@ export default {
   pad: 60, // the fire under the seat reaches y 230 and the rage's glow round the outer heads as far
   crack: PAL.red, // a split shows the fire under the gold
   hull: kept(hull),
+  front: kept(front),
+  limbs: { // the upper arms under the necks, as the hull paints them
+    armsL: limb(armsBox(-1), (b, l) => upperArms(b, l, -1)),
+    armsR: limb(armsBox(1), (b, l) => upperArms(b, l, 1)),
+    ...Object.fromEntries(HEADS.map((id) => [id, limb(neckBox(id), (b, l) => neck(b, l, id), false)])), // a neck has no lights
+  },
+  life,
   parts: { ...each(head), arms: kept(arms), breast: kept(breast), heart: kept(heart) },
   fallen: each(stump),
   opened: { heart: kept(heartOpen) },
