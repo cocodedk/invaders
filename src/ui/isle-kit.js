@@ -3,6 +3,7 @@
 // island's three peaks stand, so the sky and the far layer agree. The brightest gold is kept low, under the alien rows (the renderer
 // lights with 'lighter'); above them the dusk stays mid-dark.
 export const MARK = 'cocode.dk · graph-loop · 2026'; // the palm-leaf page on the near layer's water (parallax-isle-mark.js)
+export const ISLE_WORLD = 21; // the renderer picks the chariot (ship-isle.js), its arrows (shots-isle.js) and the pickup rim (pickup-isle.js) by it
 export const MARGIN = 160; // parallax.js's margin, each side of a layer (not imported: parallax.js imports the painters)
 
 export const PAL = {
