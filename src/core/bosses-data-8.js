@@ -30,7 +30,7 @@ export const CROWNS_RATE = Object.freeze([1.0, 1.2, 1.4]);
 // Seconds between the attacks of each phase, in the order they are listed below.
 export const CROWNS_EVERY = Object.freeze([
   Object.freeze([1.8, 6.8, 7.2, 3.9]),
-  Object.freeze([1.7, 2.8, 2.9, 3.2]),
+  Object.freeze([1.7, 5.6, 2.9, 3.2]),
   Object.freeze([1.5, 3.8, 4.2, 3.0, 6.0]),
 ]);
 
@@ -77,10 +77,10 @@ const crowns = boss('crowns', 'The Ten-Crowned King', CROWNS_Y, { ...CROWNS_SIZE
     atk('fan', E[0][2], 'armsR', { ...CROWNS_FAN }),
     atk('rain', E[0][3], 'headT', { ...CROWNS_RAIN[0] }),
   ], { rate: R[0], minions: minions(), regrow: true }),
-  // The heads grow back angrier: thrown blades, a spiral from the heart, heavier rain.
+  // The heads grow back angrier: a fan from the left arms, a spiral from the heart, heavier rain.
   phase(U[1], 'hover', [
     atk('aimed', E[1][0], 'head'),
-    atk('shuriken', E[1][1], 'armsL'),
+    atk('fan', E[1][1], 'armsL', { ...CROWNS_FAN }),
     atk('spiral', E[1][2], 'heart', { count: CROWNS_SPIRAL_COUNT }),
     atk('rain', E[1][3], 'headT', { ...CROWNS_RAIN[1] }),
   ], { rate: R[1], minions: minions(), regrow: true }),
