@@ -1,19 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { LOOKS, made, recorder, tracker, fileRules } from './aliens-bath-kit.js';
+import { LOOKS, made, recorder, tracker, fileRules, colours, toRgb } from './aliens-bath-kit.js';
 
-// What world 21 (Golden Isle) draws on the player's side: a golden sky chariot for the ship (ship-isle.js), golden arrows with flaming
-// tips for its shots, turned the way they fly (shots-isle.js), and a lotus for the pickup rim (pickup-isle.js). The look is not in LOOKS
+// What world 21 (Golden Isle) draws on the player's side: a golden sky chariot for the ship (ship-isle.js), golden arrows tipped in cool
+// colours for its shots, turned the way they fly (shots-isle.js), and a lotus for the pickup rim (pickup-isle.js). The look is not in LOOKS
 // until part 027, so it is built here as the game will.
 const { default: w21 } = await import('../../src/ui/looks/w21.js');
 const { drawShots } = await import('../../src/ui/lasers-view.js');
 const { drawShip } = await import('../../src/ui/ship-view.js');
 const { drawPickups } = await import('../../src/ui/pickups-view.js');
 const { CHARIOT, chariotSprite } = await import('../../src/ui/ship-isle.js');
-const { ARROW_W, HEAD, arrowSprite } = await import('../../src/ui/shots-isle.js');
+const { ARROW_W, HEAD, ARROW_HUES, arrowSprite, paintArrow } = await import('../../src/ui/shots-isle.js');
 const { dartSprite } = await import('../../src/ui/ship-press.js');
 const { ISLE_WORLD } = await import('../../src/ui/isle-kit.js');
-const { VERMILION, GOLD } = await import('../../src/ui/aliens/w21-kit.js');
+const { VERMILION, GOLD, GOLD_D, GOLD_P } = await import('../../src/ui/aliens/w21-kit.js');
 const { FRAMES } = await import('../../src/ui/pickup-skins.js');
 const { glow } = await import('../../src/ui/sprites.js');
 const { quiver } = await import('../../src/core/quiver.js');
@@ -51,13 +51,31 @@ test("world 21's ship is the golden chariot: one baked sprite on the ship, no en
   assert.ok(sprite.strokes.length > 0 && sprite.fills.length > 0, 'painted');
 });
 
+const ARROWS = () => new Set(ARROW_HUES.map((h) => arrowSprite(h)));
+// The hue of an [r, g, b] colour in degrees, null for a grey.
+const hueDeg = ([r, g, b]) => {
+  const [mx, mn] = [Math.max(r, g, b), Math.min(r, g, b)];
+  if (mx - mn < 24) return null;
+  const d = mx - mn;
+  const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return h * 60;
+};
+
 test("world 21's plain shots are golden arrows, one sprite a shot and no streak, the arrowhead at the shot", () => {
   const T = tracker();
-  drawShots(T.ctx, { shots: [shot(300), shot(400), shot(500, { vx: 400 })] }, look, 1);
-  assert.equal(T.calls.length, 3, 'one blit a shot');
-  assert.ok(T.calls.every((c) => c.img === arrowSprite()), 'every one an arrow');
-  const sprite = arrowSprite();
-  assert.ok(made.includes(sprite) && sprite.fills.includes(VERMILION), 'baked, with vermilion fletching');
+  const shots = [shot(300), shot(400), shot(500, { vx: 400 }), shot(600)];
+  drawShots(T.ctx, { shots }, look, 1);
+  assert.equal(T.calls.length, shots.length, 'one blit a shot');
+  assert.ok(T.calls.every((c) => ARROWS().has(c.img)), 'every one an arrow');
+  assert.equal(new Set(T.calls.map((c) => c.img)).size, ARROW_HUES.length, 'shots in turn take every colour, so a volley flies in several');
+  const again = tracker();
+  drawShots(again.ctx, { shots }, look, 1);
+  assert.deepEqual(again.calls.map((c) => c.img), T.calls.map((c) => c.img), 'a shot keeps its colour from frame to frame');
+  for (const hue of ARROW_HUES) {
+    const sprite = arrowSprite(hue);
+    assert.ok(made.includes(sprite) && sprite.fills.includes(hue), `baked, its fletching in ${hue}`);
+    assert.ok(!sprite.fills.includes(VERMILION), 'no vermilion on it');
+  }
   const r = recorder();
   drawShots(r.ctx, { shots: [shot(300)] }, look, 1);
   assert.equal(r.calls.filter(([k]) => k === 'stroke').length, 0, 'no streak');
@@ -67,7 +85,23 @@ test("world 21's plain shots are golden arrows, one sprite a shot and no streak,
   assert.deepEqual([blit[2], blit[3]], [-ARROW_W / 2, -HEAD], 'its head there');
   const others = tracker();
   drawShots(others.ctx, { shots: [shot(300, { broadside: 1, vx: SHOT_SPEED, vy: 0 }), shot(400, { trident: true }), shot(500, { mirror: true })] }, look, 1);
-  assert.ok(!others.calls.some((c) => c.img === arrowSprite()), 'the side shots, tridents and mirror bolts keep their own');
+  assert.ok(!others.calls.some((c) => ARROWS().has(c.img)), 'the side shots, tridents and mirror bolts keep their own');
+});
+
+test("the arrows' colours are cool, green to violet, so none is taken for the host's red fire; the rest of an arrow is its gold, white or ink", () => {
+  const enemy = hueDeg(toRgb(look.palette.enemy));
+  for (const hue of ARROW_HUES) {
+    const h = hueDeg(toRgb(hue));
+    assert.ok(h >= 90 && h <= 300, `${hue} is ${Math.round(h)} degrees, between green and violet`);
+    assert.ok(Math.min(Math.abs(h - enemy), 360 - Math.abs(h - enemy)) >= 90, `${hue} sits far from the enemy's ${look.palette.enemy}`);
+    const own = toRgb(hue).join();
+    const shaft = new Set([GOLD, GOLD_D, GOLD_P].map((c) => toRgb(c).join()));
+    for (const c of colours((b) => paintArrow(b(), hue))) {
+      const rgb = toRgb(c);
+      const ok = rgb.join() === own || shaft.has(rgb.join()) || Math.min(...rgb) >= 230 || Math.max(...rgb) < 60;
+      assert.ok(ok, `${hue}'s arrow paints ${c}`);
+    }
+  }
 });
 
 test('an arrow is drawn pointing the way it flies: one flying down is turned from one flying up', () => {
@@ -114,7 +148,7 @@ test('the pickup rim is a lotus: its own frame, inside the 60 px sprite, dressin
 });
 
 test("no other world draws world 21's chariot or arrows", () => {
-  const ours = new Set([chariotSprite(), arrowSprite()]);
+  const ours = new Set([chariotSprite(), ...ARROWS()]);
   for (const other of LOOKS.filter((l) => l.world !== ISLE_WORLD)) {
     const T = tracker();
     drawShip(T.ctx, { ship: ship() }, other, 1);
