@@ -2,6 +2,8 @@
 // isle's colours (gold leaf, crimson dusk, a warm violet sea, blank grey stones, brass and marigold) and where the low sun and the
 // island's three peaks stand, so the sky and the far layer agree. The brightest gold is kept low, under the alien rows (the renderer
 // lights with 'lighter'); above them the dusk stays mid-dark.
+import { HEIGHT } from '../core/kinds.js';
+
 export const MARK = 'cocode.dk · graph-loop · 2026'; // the palm-leaf page on the near layer's water (parallax-isle-mark.js)
 export const ISLE_WORLD = 21; // the renderer picks the chariot (ship-isle.js), its arrows (shots-isle.js) and the pickup rim (pickup-isle.js) by it
 export const MARGIN = 160; // parallax.js's margin, each side of a layer (not imported: parallax.js imports the painters)
@@ -13,10 +15,18 @@ export const PAL = {
 };
 
 export const SUN = { x: 1400, y: 700, r: 96 }; // the great low sun, in the frame: its disc under the alien rows, sinking into the sea (mid layer)
+export const SEA_TOP = 30; // the sea's horizon in the mid layer, from its top
+export const MID_HEIGHT = 340; // the mid layer's height (looks/w21.js, islecauseway)
 export const ISLE = {
-  peaks: [[620, 580], [870, 650], [1120, 560]], spread: 400, // the mountain's three peaks: far-layer x and height over its foot
-  tiers: [300, 360, 420], // the gilded walls' tops, far-layer y, one tier above the next
-  fires: [470, 700, 1010], // frame x of the burning quarters: a tower there burns (the far layer) and smoke rises over it (the sky)
-  fireY: 560, // frame y the smoke rises from, behind the towers
+  sea: HEIGHT - MID_HEIGHT + SEA_TOP, // the frame y of the island's waterline: the mid layer's horizon
+  peaks: [[470, 300], [720, 368], [975, 318]], spread: 420, // the mountain's three peaks: frame x, height over the waterline
+  seed: 2122, // the city's own layout, the same on every level of the world
+  tiers: [754, 702, 650, 600, 552], tall: [92, 78, 66, 56, 48], // the walled terraces, frame y, near to far, and the height of a building on each
+  fires: [[455, 2], [700, 3], [1010, 1]], // the burning roofs: frame x and terrace; smoke rises over each (fireAt, the sky)
 };
-export const SEA_TOP = 30; // the sea's horizon in the mid layer (340 tall: frame 770)
+// Where the smoke of a burning roof starts, in the frame: over the burning hall's eaves (parallax-isle-city.js).
+export const fireAt = ([x, t]) => [x, ISLE.tiers[t] - ISLE.tall[t] * 0.62];
+// Where the sky's cast is painted (the owner's, 2026-11-19): each figure's box, top left, in the frame, and on the boss level the
+// champion's box and scale, low on the right out of the king's reach (finale). The near shore's cast stands where parallax-isle-shore.js
+// SHORE says.
+export const CAST = { vulture: [140, 130], champion: [1450, 250], finale: [1700, 558, 0.44] };

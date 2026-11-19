@@ -1,19 +1,21 @@
 // World 21, Golden Isle: dusk over a warm sea before an island city of gold, the last battle of a long war. The sky (sky-bodies-13.js
-// isledusk) is towering monsoon cloud lit gold and crimson round a great low sun, with arrows of light streaking high like comets; far
-// off, the city on its three-peaked mountain, gilded walls and stepped temple towers, part of it burning (parallax-isle.js islecity);
-// nearer, a causeway of great floating stones crosses the sea toward it, lit by torches (islecauseway); in front the swell of the sea,
-// floating stones and drifting brass lamps, and the palm-leaf page of the maker's mark low on the right (islesea). Embers rise and
-// marigold petals fall (ambient-13.js). The renderer lights with 'lighter', so the gold is kept low and the sky above the fight mid-dark.
-import { PAL } from '../isle-kit.js';
+// isledusk) is low monsoon cloud lit gold and crimson round a great low sun, arrows of light streaking high like comets, the great
+// vulture gliding and the champion leaping with a mountain held up; far off, the city of gold on its three-peaked mountain, walled
+// terraces of palaces, domes and towers, some roofs burning, and the captive queen's grove (parallax-isle.js islecity); nearer, a
+// causeway of great floating stones crosses the sea toward it, lit by torches, the monkey host crossing it with boulders
+// (islecauseway); in front the swell of the sea, floating stones, brass lamps and lotus, the near shore where the host masses behind
+// the archer, and the palm-leaf page of the maker's mark low on the right (islesea). Embers rise and marigold petals fall
+// (ambient-13.js). The renderer lights with 'lighter', so the gold is kept low and the sky above the fight mid-dark.
+import { PAL, MID_HEIGHT } from '../isle-kit.js';
 
 export default {
   sky: [[0, '#100a20'], [0.3, '#24122c'], [0.5, '#3e1630'], [0.62, '#7a2a30'], [0.78, '#c4562e'], [1, '#e8a04a']],
   body: 'isledusk',
   haze: '#5a2430',
   layers: [
-    { kind: 'islecity', color: '#140a18', height: 680, speed: 0.06, roughness: 0.4, rim: '#d8a040', haze: 0.22, glow: PAL.gold },
-    { kind: 'islecauseway', color: '#120e22', height: 340, speed: 0.22, roughness: 0.4, rim: '#c87a3a', haze: 0.06, glow: PAL.ember },
-    { kind: 'islesea', color: '#0c0a1a', height: 220, speed: 0.55, roughness: 0.5, rim: '#b0703a', haze: 0 },
+    { kind: 'islecity', color: '#1a0e1c', height: 830, speed: 0.06, roughness: 0.4, rim: '#c8903a', haze: 0.18, glow: PAL.gold },
+    { kind: 'islecauseway', color: '#120e22', height: MID_HEIGHT, speed: 0.22, roughness: 0.4, rim: '#c87a3a', haze: 0.06, glow: PAL.ember },
+    { kind: 'islesea', color: '#0c0a1a', height: 380, speed: 0.55, roughness: 0.5, rim: '#b0703a', haze: 0 },
   ],
   ambient: [
     { kind: 'marigolds', phase: 'mid', n: 18, colors: [PAL.marigold, PAL.marigoldDeep, PAL.gold], size: [10, 18], speed: 26, alpha: 0.55 },
