@@ -106,6 +106,14 @@ quoted lines, so the repo can be public.
   (only they take full damage; armour plates take 25 %), 2–3 phases switched at hp thresholds,
   every attack telegraphed ≥ 0.6 s. Ends in a long destruction chain (staggered blasts, debris,
   white-out flash).
+  - **Alive (from world 21 on).** The owner (2026-11-19) found the Ten-Crowned King "very rigid" and "completely dead", and made
+    it "the norm from now that the boss must be more alive". Every boss from world 21 on is drawn through `bosses/life.js`: each
+    rigged part bends about a pivot and squashes and stretches along it, on one damped spring driven by four inputs (a sway at
+    rest, out of step and wider in each later phase; a lean against the boss's motion that swings past when he stops; a squash
+    and twist when the part is hit; a wind-up while its warn counts down and a lunge when it fires), and the whole drawing
+    breathes slowly. Pieces of the body that must move with a part (the King's necks and upper arms) are baked as limbs under a
+    front layer, so nothing tears. It is art only: the hit boxes stay where the core puts them, no part's centre is drawn more
+    than `LIFE_MAX_PX` from where the core puts it, and difficulty is unchanged. The bosses of worlds 1-20 are left as they were.
 - **The gun (R70).** The user asked for "the initial weapons firing rate 1.5 times higher", tried it, and found "1.5
   was too much. decrease to 1.25"; then "increase the rapid fire's projectile speed". The gun fires on a tick, so its
   0.18 s cooldown came to a shot every 11 ticks (5.45 a second). `COOLDOWN` is now 0.144 s (0.18 / 1.25), a shot

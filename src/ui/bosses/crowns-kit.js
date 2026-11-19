@@ -7,7 +7,7 @@
 //          the host's colours (aliens/w21-kit.js)
 //   glow(l, x, y, r, c, a)   an additive bloom on the lights layer
 //   skin(g, x0, y0, x1, y1)  the king's dark skin, lit from the upper left
-//   neckOf(id)               [x, y, w] where a head's neck meets its chin, and its width
+//   neckOf(id)               [x, y, w] where a head's neck meets its chin, and its width; neckBase(id) the y it ends in the mantle
 // Bake-time only; nothing here runs per frame.
 import look from '../looks/w21.js';
 import { BOSSES8 } from '../../core/bosses-data-8.js';
@@ -41,3 +41,6 @@ export function neckOf(id) {
   const p = PART[id];
   return [p.x, p.y + p.h * 0.25, p.w * NECK];
 }
+
+// The y where a head's neck ends down in the mantle (the head above the great one's runs down behind it).
+export const neckBase = (id) => neckOf(id)[1] + (id === 'headT' ? 80 : 34);

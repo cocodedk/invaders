@@ -1,6 +1,6 @@
 // A boss's parts per frame, in their state (bosses/index.js draws the hull round them):
 //   partStage(p)                       0 | 1 | 2, how cracked a part is drawn (hp lost out of max)
-//   halos(ctx, b, pal, t, k)           the pulsing glow round each live weak point
+//   halos(ctx, b, B, pal, t, k)        the pulsing glow round each live weak point
 //   partBodies(ctx, b, B, look, t)     whole, cracked as it loses hp, white for FLASH s after a hit,
 //                                      split open once `cracked`, sliding open once a phase opens
 //                                      it, charred wreckage (or its fallen art) once destroyed
@@ -12,10 +12,12 @@
 //                                      glow at a part's centre, dx, dy aside, in boss coordinates
 // What changed when (hit, crack, open) is this module's own memory, a WeakMap per part; a part
 // first seen already open or cracked is drawn finished, so a frozen dev frame or a cloned world
-// never replays the transition. Nothing on world or fx is written.
+// never replays the transition. Nothing on world or fx is written. A module with `life` (life.js) has each part's body, flash, cracks,
+// lights, halo and charge-up drawn through that part's transform; one without draws exactly as before.
 import { glow, star } from '../sprites.js';
 import { clamp, smooth } from '../../core/math.js';
 import { cracked, exposed, ruin } from './cracks.js';
+import { eachPart, lifeOf, lifeOn } from './life.js';
 
 const FLASH = 0.06; // s a part shows white after losing hp
 const OPEN = 1.6; // s a part takes to slide open (the fortress trench)
@@ -61,26 +63,26 @@ function sliding(ctx, img, x, y, e) {
   ctx.globalAlpha = 1;
 }
 
-export function halos(ctx, b, pal, t, k) {
+export function halos(ctx, b, B, pal, t, k) {
   ctx.globalCompositeOperation = 'lighter';
-  for (const p of b.parts) {
-    if (p.hp <= 0 || !p.weak) continue;
+  eachPart(ctx, b, B, t, (p) => {
+    if (p.hp <= 0 || !p.weak) return;
     const r = Math.max(p.w, p.h) * 0.95;
     ctx.globalAlpha = k * (0.26 + 0.3 * pulseOf(p, t));
     ctx.drawImage(glow(pal.weak), p.x - r, p.y - r, r * 2, r * 2);
-  }
+  });
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
 }
 
 export function partBodies(ctx, b, B, look, t) {
-  for (const p of b.parts) {
+  eachPart(ctx, b, B, t, (p) => {
     const set = B.parts[p.id];
     const m = memo(p, t);
     const [x, y] = corner(p, set);
     if (p.hp <= 0) {
       ctx.drawImage(ruin(set, p.open), x, y);
-      continue;
+      return;
     }
     const stage = partStage(p);
     const img = p.cracked ? exposed(set, look.palette.boss.weak).body : stage ? cracked(set, stage) : set.body;
@@ -94,7 +96,7 @@ export function partBodies(ctx, b, B, look, t) {
       ctx.drawImage(set.flash, x, y);
       ctx.globalAlpha = 1;
     }
-  }
+  });
 }
 
 // A part sliding open floods light: a white core and a swelling glow in the weak colour, a tall
@@ -110,19 +112,19 @@ function openBurst(ctx, p, weak, e, k) {
 }
 
 export function partLights(ctx, b, B, look, t, k) {
-  for (const p of b.parts) {
+  eachPart(ctx, b, B, t, (p) => {
     const set = B.parts[p.id];
     const [x, y] = corner(p, set);
     if (p.hp <= 0) {
       if (set.down) { // fallen art carries its own lights, no embers
         ctx.globalAlpha = k;
         ctx.drawImage(set.down.lights, x, y);
-        continue;
+        return;
       }
       ctx.globalAlpha = k * 0.4 * (0.6 + 0.4 * Math.sin(t * 17 + p.dx));
       const r = Math.min(p.w, p.h) * 0.7;
       ctx.drawImage(glow('#ff5a1a'), p.x - r, p.y - r, r * 2, r * 2);
-      continue;
+      return;
     }
     const m = memo(p, t);
     const pulse = pulseOf(p, t);
@@ -145,16 +147,18 @@ export function partLights(ctx, b, B, look, t, k) {
         ctx.drawImage(glow('#ffffff'), p.x - r, p.y - r, r * 2, r * 2);
       }
     }
-  }
+  });
 }
 
 // A glow in the enemy colour swelling toward the shot, a white-hot core, a spinning flare in the
 // last half, and the part's own lights flaring.
 export function warns(ctx, b, B, look, t, k) {
   const col = look.palette.enemy;
+  const L = lifeOf(b, B, t);
   for (const w of b.warns) {
     const p = b.parts.find((q) => q.id === w.part);
     if (!p) continue;
+    const on = lifeOn(ctx, b, L, p.id);
     const e = clamp(1 - w.left / w.total, 0, 1);
     const r = 28 + 84 * e;
     ctx.globalAlpha = k * (0.35 + 0.6 * e);
@@ -175,5 +179,6 @@ export function warns(ctx, b, B, look, t, k) {
       ctx.drawImage(star(col), -s, -s, s * 2, s * 2);
       ctx.restore();
     }
+    if (on) ctx.restore();
   }
 }
