@@ -43,7 +43,7 @@ export function createInput(canvas) {
       if (MOVE[e.code]) input.onKey?.(e.code, e); // menus scroll on a held arrow
       return;
     }
-    if (m.active && !MOVE[e.code] && !isPause(e.code)) lock.ask(); // the pointer has the ship and Space fires: no click needed
+    if (m.active && m.mouse && !MOVE[e.code] && !isPause(e.code)) lock.ask(); // a mouse has the ship and Space fires
     input.down.add(e.code);
     input.taps.add(e.code);
     if (MOVE[e.code]) Object.assign(m, { active: false, walk: true }); // the keys take the ship back from the pointer
@@ -64,12 +64,14 @@ export function createInput(canvas) {
       m.y = e.clientY;
     }
     m.active = true;
+    m.mouse = e.pointerType === 'mouse'; // a touch or a pen never takes the lock
     if (m.left && !(e.buttons & 1)) m.left = false; // its pointerup went missing
     if (m.right && !(e.buttons & 2)) m.right = false;
   });
   canvas.addEventListener('pointerdown', (e) => {
     if (!lock.held()) Object.assign(m, { x: e.clientX, y: e.clientY }); // frozen under lock: keep the steered spot
     m.active = true;
+    m.mouse = e.pointerType === 'mouse';
     if (e.button === 0) m.left = true;
     if (e.button === 2) m.right = true;
     input.taps.add(`Mouse${e.button}`);
