@@ -451,6 +451,23 @@ quoted lines, so the repo can be public.
     number and runs in world 20 alone, so worlds 1-19 replay unchanged. The boss, the Night Editor, is a colossal ink
     octopus in a green eyeshade gripping a red pencil in each arm (`bosses-data-7.js`); like the other side-world bosses
     it never charges. World 20 runs a notch above world 19 by d, level for level, because the copy doubles the ship's gun.
+  - **World 21, Golden Isle: the returning arrow (R73).** Inspired by the last battle of the Ramayana, the ancient Indian
+    epic: the war at dusk before an island city of gold. Only this document says so; no character, place or weapon name
+    from the epic appears in the game's code, data or text, no figure the tradition reveres is drawn (the hero is there only
+    as the player's empty chariot and its arrows), and no sacred symbol, script or verse is on any sprite or card. Its five
+    levels are four wave levels and the Ten-Crowned King, with free flight as in every world from 18 on, no bunkers, the six
+    standard powers and a carrier in every wave level. The twist is new, `quiver` (`quiver.js`): every ship shot that
+    reaches the top of the field turns back once and flies straight at `QUIVER_SPEED` to where the ship stood on that tick.
+    On the way back it is still a ship shot (it hurts, kills and scores), never hurts the ship and collects nothing; the
+    laser beam and the bomb are left alone. The state is a flag on each shot, draws no random number and runs in world 21
+    alone, so worlds 1-20 replay unchanged. The boss, the Ten-Crowned King (`crowns`, `bosses-data-8.js`), is a colossal
+    ten-headed king on a flying throne, twenty arms behind him gripping swords, maces, bows, axes and spears, a gilded
+    breastplate over his heart. His heads grow back (the kit's `regrow`) in every phase but the last; the plate cracks
+    only with all ten heads down at once, the last phase bares the heart, and the two heads above the plate are reached by
+    the returning arrows from above. Like the other side-world bosses he never charges. The ship is a golden sky chariot of
+    lotus petals firing arrows of light, the backdrop a monsoon dusk over a warm sea, the city's stepped towers on its
+    mountain and a causeway of blank floating stones; a palm-leaf page low on the right carries a quiet maker's mark
+    (`MARK`). World 21 runs a notch above world 20 by d, level for level, because every shot gets a second pass.
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -480,6 +497,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 18 | Anvil Sky | a dogfight inside a thunderstorm, the first free-flight world (R67) | dusk inside a storm: towering anvil clouds lit from within by lightning, rain curtains, a low orange sun under the cloud deck | free flight and dragged bullets; the side guns are a power there (R67) | the Squall Ray: a colossal manta of thundercloud, iron plates on its spine and wings, a storm heart glowing through its back, a Tesla coil at each wing tip |
 | 19 | Rubber Regatta | a sunlit bathhouse at toy scale, the first comic world: bath toys invade over mountains of foam | a glazed green tiled bathroom wall steamed to cream and butter light at the waterline: brass dolphin taps as tall as towers pouring waterfalls, a shelf skyline of bottles and a loofah, crests of foam | the bonk: nothing shot dies, it is knocked silly and hops as a dizzy toy that the ship can bat into the others and into the boss (new, ruling R71); free flight as in every world from 18 on | the Dowager Duck: a colossal rubber duck in a frilly polka-dot shower cap, striped armbands and a huge orange bill |
 | 20 | Midnight Press | a printing hall at night, the presses running past midnight | type cases, rollers and drying sheets under green-shaded lamps, ink everywhere | the echo: a carbon copy of the ship flies its path a beat late and fires when it fired (new, ruling R72); free flight as in every world from 18 on | the Night Editor: a colossal ink octopus in a green eyeshade, a red pencil in each arm |
+| 21 | Golden Isle | the last battle at dusk before an island city of gold, inspired by the war that ends the Ramayana | a monsoon dusk lit gold and crimson over a warm sea, the gilded city with its stepped towers on a three-peaked mountain, a causeway of floating stones, brass lamps and marigold petals | the returning arrow: every ship shot that reaches the top turns back to where the ship stood (new, ruling R73); free flight as in every world from 18 on | the Ten-Crowned King: a colossal ten-headed king on a flying throne, twenty arms with swords, maces, bows, axes and spears, heads that grow back |
 
 ## Look and effects
 

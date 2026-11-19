@@ -29,9 +29,9 @@ export const CROWNS_RATE = Object.freeze([1.0, 1.2, 1.4]);
 
 // Seconds between the attacks of each phase, in the order they are listed below.
 export const CROWNS_EVERY = Object.freeze([
-  Object.freeze([1.8, 3.4, 3.6, 3.9]),
+  Object.freeze([1.8, 6.8, 7.2, 3.9]),
   Object.freeze([1.7, 2.8, 2.9, 3.2]),
-  Object.freeze([1.5, 1.9, 2.1, 3.0, 6.0]),
+  Object.freeze([1.5, 3.8, 4.2, 3.0, 6.0]),
 ]);
 
 // Bullet counts and spreads of the attacks.

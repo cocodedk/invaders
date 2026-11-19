@@ -5,9 +5,11 @@ import { BOSSES4 } from './bosses-data-4.js';
 import { BOSSES5 } from './bosses-data-5.js';
 import { BOSSES6 } from './bosses-data-6.js';
 import { BOSSES7 } from './bosses-data-7.js';
+import { BOSSES8 } from './bosses-data-8.js';
 
 // The first four bosses (worlds 1-4); bosses-data-2.js holds worlds 5-8, bosses-data-3.js worlds 9-12,
-// bosses-data-4.js worlds 13-15, bosses-data-5.js worlds 16-18, bosses-data-6.js world 19, bosses-data-7.js world 20.
+// bosses-data-4.js worlds 13-15, bosses-data-5.js worlds 16-18, bosses-data-6.js world 19, bosses-data-7.js world 20,
+// bosses-data-8.js world 21.
 // Each is built from its world's look: parts are where the picture needs them, the attack mix is
 // what the world shoots.
 // Layouts keep a clear column to some weak part from below at every moment of the fight (the boss
@@ -134,7 +136,7 @@ const shogun = boss('shogun', 'Shogun mecha', 320, { w: 600, h: 440 }, [
   ], { rate: 1.15, minions: [minion('carrier', 1, 5, 'torso')] }),
 ]);
 
-export const BOSS_DEFS = [mothership, pyramid, fortress, shogun, ...BOSSES2, ...BOSSES3, ...BOSSES4, ...BOSSES5, ...BOSSES6, ...BOSSES7];
+export const BOSS_DEFS = [mothership, pyramid, fortress, shogun, ...BOSSES2, ...BOSSES3, ...BOSSES4, ...BOSSES5, ...BOSSES6, ...BOSSES7, ...BOSSES8];
 
 const BY_KIND = new Map(BOSS_DEFS.map((d) => [d.kind, d]));
 

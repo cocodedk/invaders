@@ -12,9 +12,9 @@ import { ORBIT_LIFT } from '../../src/core/boss-move.js';
 import { step, drain, ofType, TICK } from './world-kit.js';
 import { bossWorld, part, shotOn } from './boss-kit.js';
 
-// The Ten-Crowned King (world 21) is not in BOSS_DEFS yet (the world's last part lists it): the rules
-// boss-data.test.js holds every entry to, applied to it alone, then its fight (R9, R10) on a test level
-// that carries world 21, its returning arrow and free flight, the boss found by kind through registerBoss.
+// The Ten-Crowned King (world 21): the rules boss-data.test.js holds every entry to, applied to it alone, then its
+// fight (R9, R10) on a test level that carries world 21, its returning arrow and free flight, the boss found by kind
+// (registerBoss, a no-op now that BOSS_DEFS lists it).
 const [king] = BOSSES8;
 registerBoss(king);
 const sum = (parts) => parts.reduce((n, p) => n + p.hp, 0);

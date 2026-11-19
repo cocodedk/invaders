@@ -22,6 +22,7 @@ export const PARS = {
   'w18-1': 65, 'w18-2': 55, 'w18-3': 90, 'w18-4': 55, 'w18-5': 85,
   'w19-1': 45, 'w19-2': 45, 'w19-3': 90, 'w19-4': 70, 'w19-5': 70,
   'w20-1': 45, 'w20-2': 70, 'w20-3': 85, 'w20-4': 80, 'w20-5': 70,
+  'w21-1': 50, 'w21-2': 95, 'w21-3': 85, 'w21-4': 90, 'w21-5': 80,
 };
 export const DEFAULT_PAR = 60; // s, for a level with no entry (the tests' own levels)
 export const parOf = (level) => PARS[level.id] ?? DEFAULT_PAR;

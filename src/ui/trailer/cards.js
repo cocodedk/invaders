@@ -139,6 +139,11 @@ export const VOICES = [
     ['{kills}', 'STRUCK FROM THE RECORD.'],
     ['{near} IN THE INK.', '{time} BEFORE THE DEADLINE.'],
   ],
+  [ // Golden Isle: the last battle at dusk before an island city of gold, and an arrow that comes home
+    ['THE CITY OF GOLD AT DUSK.', 'THE LAST BATTLE.', 'EVERY ARROW COMES HOME.'],
+    ['{kills}', 'FELL BEFORE THE GOLDEN GATES.'],
+    ['{near} IN THE GOLD.', '{time} OF THE LAST DUSK.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.
