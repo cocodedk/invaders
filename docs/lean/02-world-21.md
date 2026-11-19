@@ -9,6 +9,7 @@ shared:
     - "2026-11-19, the runner on the person's standing word ('dont make it easy', memory/balance-harness.md, 2026-10-27; the game must never become too easy): R23's first bar, that the king clear at least half the probe's seeds, forced a 2.5x slower boss far easier than world 20's. The bar is now the range of worlds 18-20's bosses across all six lags, with no wave level at zero."
     - "The person (2026-11-18) asked for a new world with a Ramayana theme, 'an epic world'; the runner and the advisor settled the design. The epic lives in the art, the boss and the music; the world has one rule, as every world does."
     - "Original names (CLAUDE.md): the world is 'Golden Isle', the boss 'The Ten-Crowned King' (kind crowns), the rule 'the returning arrow' (twist quiver, ruling R73). No character, place or weapon name from the epic appears in the game's code, data or text; only the design spec says what inspired the world. The person may overrule any name."
+    - "The owner (2026-11-19), on world 21 as it opened: 'the background of Ramayana must contain more symbols of Ramayana. almost packed with personalities and Lanka must look better'; then, told C1 was the runner's rule: 'continue with the new cast'. C1 is amended for the backdrop only (see C1)."
     - "The person (2026-11-18) wants a maker's mark like world 19's plate and world 20's colophon, 'but more subtle and not like propaganda'. The runner chose its form and words (R12); the person may change the one constant."
     - "World 20's decisions carry over: world 21 gets its own ship, shots, power-up skins and music ('if possible innovate'); the per-world rows a test or the renderer requires for every world (the lobby tagline and poster time, the trailer voice, the trailer TYPE row, the film tint) are in scope, their words and typography the builder's, in the voice of the other worlds; og.png stays out."
   design: >-
@@ -19,7 +20,7 @@ shared:
     every glow a cached sprite.
   constraints:
     - id: C1
-      rule: "Only the demon king's host are enemies, targets or minions. No figure the tradition reveres (the hero, his brother, his queen, the monkey host and its champion, the vulture, any god) is drawn anywhere, as a foe or otherwise; the hero is present only as the player's chariot and its arrows."
+      rule: "Only the demon king's host are enemies, targets or minions. No figure the tradition reveres (the hero, his brother, his queen, the monkey host and its champion, the vulture, any god) is drawn as a foe, a target, a minion or any sprite of play; the hero is present only as the player's chariot and its arrows. Amended 2026-11-19, for the backdrop only (the sky body and the three parallax layers), on the owner's words: 'the background of Ramayana must contain more symbols of Ramayana. almost packed with personalities and Lanka must look better'; told that the old rule (no revered figure drawn anywhere) was the runner's and not theirs, the owner answered the same day: 'continue with the new cast'. The backdrop may now paint the revered cast, dignified and heroic, never comic: the monkey host and its champion, the great vulture, the captive queen and the hero's brother, and the story's own objects (the great bow, the bridge of floating stones, the golden deer, the signet ring, the mace, the flying chariot, the ashoka grove, lotus, lamps). C2, C3 and C4 hold as written."
     - id: C2
       rule: "No enemy, minion or boss has the form of a revered being: no monkey, no elephant head, no eagle or vulture head, no many-hooded serpent. The boss's weapons are swords, maces, bows, axes, spears and shields: no discus, no trident, no conch."
     - id: C3
@@ -186,8 +187,11 @@ Three drafts, each from a set piece of the epic's war:
 
 ## Respect
 
-The epic is sacred to many. C1-C4 keep revered figures and symbols out of the game entirely: the player is never a
-drawn figure, the enemies are only the demon king's host, and nothing sacred is written or drawn.
+The epic is sacred to many. C1-C4 keep revered figures out of play and sacred symbols out of the game: the player is
+never a drawn figure, the enemies are only the demon king's host, and nothing sacred (script, verse, name, worship
+mark) is written or drawn. Since 2026-11-19, on the owner's word (C1), the backdrop paints the story's revered cast and
+objects, dignified and heroic, behind the fight: the monkey host on the causeway, its champion in the sky, the vulture,
+the captive queen in her grove and the hero's brother on the near shore.
 
 ## For the runner
 

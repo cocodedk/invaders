@@ -6,7 +6,7 @@ import { recorder } from './dom-kit.js';
 // World 21's backdrop (024) under stand-in canvases, with the look as the game will have it: the mark's text, the sky body, layers and
 // ambient kinds registered under names no other world uses and drawing, the mark on the near layer low on the right, smaller than
 // world 20's colophon, with no shadow and no lamp's glow on it, in the frame wherever the ship flies and clear of the HUD, and the files
-// of this part free of shadowBlur and under 200 lines.
+// of the backdrop (its cast and city painters among them, isle-cast.test.js) free of shadowBlur and under 200 lines.
 const { readdirSync, readFileSync } = await import('node:fs');
 const look = { world: 21, ...(await import('../../src/ui/looks/w21.js')).default };
 const { LOOKS } = await import('../../src/ui/looks/index.js');
@@ -91,9 +91,9 @@ test('the mark is drawn on the near layer, low on the right, smaller than the co
 
 test('no file of this part uses shadowBlur, and each stays under 200 lines', () => {
   const dir = new URL('../../src/ui/', import.meta.url);
-  const names = readdirSync(dir).filter((n) => /^(parallax-isle|sky-bodies-13|ambient-13|isle-kit)/.test(n)).map((n) => new URL(n, dir));
+  const names = readdirSync(dir).filter((n) => /^(parallax-isle|sky-bodies-13|ambient-13|isle-)/.test(n)).map((n) => new URL(n, dir));
   names.push(new URL('looks/w21.js', dir));
-  assert.equal(names.length, 9);
+  assert.equal(names.length, 23); // with the cast and the city's own painters (isle-*.js, parallax-isle-shore.js), the painted kit, mountain, head, summit palace, the city's golds and the giant with his head, 2026-11-19
   for (const f of names) {
     const src = readFileSync(f, 'utf8');
     assert.ok(!src.includes('shadowBlur'), `${f.pathname} uses shadowBlur`);
