@@ -17,16 +17,18 @@ export const STYLES_2 = {
         [32, 1], [35, 3], [38, 5], [40, 6], [42, 5], [44, 3], [48, 2], [60, 0]]),
       drum: 'B.W...W.B.W.S.W.' + 'B.W.L.WLBLW.S.W.' + 'B.W...W.B.W.S.W.' + 'B.W.L.WLBLW.S.W.' },
   },
-  // 4/4 at 84 bpm, two bars of eighth-note steps to a pass: a press turning over at midnight, in D on the phrygian dominant. A slow
-  // mechanical pulse: a kick on every beat but the bar's second and fourth, where the bass plucks the chord's root and a press's
-  // clank (the snare-ish noise) falls, and a gear's tick on every off-beat. Over it struck type metal (an FM tone on the
-  // square root of two, an inharmonic clang) climbs the flat second and the major third slowly, with rests.
+  // 4/4 at 126 bpm, four bars of sixteenth-note steps to a pass: a newsroom racing its deadline, in D on the lydian dominant (the owner
+  // found the old slow pulse gloomy and sad and asked for more beats, a typewriter and action, 2026-11-20). A punchy stab (an FM tone
+  // on a whole ratio, bright and gone at once) jumps up the chord and back with rests; under it the press's beat played dry
+  // (music-press.js): a stamp of a kick with the bass on one and three and the a of three, the press's slam on two and four, a
+  // typist's keys in bursts between, and at the end of each pass the margin bell and the carriage zipping back.
   press: {
     mood: 'press', wave: 'triangle', cut: 3800, wet: 0.3, pitch: 0.92,
-    music: { vol: 0.9, drone: { wave: 'triangle', oct: 2, cut: 420, fifth: true, gain: 0.012 },
-      lead: { wave: 'sine', oct: 4, cut: 3600, len: 3, gain: 0.08, fm: { ratio: 1.41, index: 1.6 } },
-      div: 2, seq: [0, null, null, 1, null, null, 2, null, 4, null, null, 2, 1, null, 0, null],
-      drum: 'khzhkhsh' + 'khzhkhsh' },
+    music: { vol: 0.98, drone: { wave: 'triangle', oct: 2, cut: 420, fifth: true, gain: 0.006 },
+      lead: { wave: 'sine', oct: 4, cut: 5200, len: 2.5, gain: 0.19, fm: { ratio: 1, index: 3 } },
+      div: 4, seq: tune(64, [[0, 0], [2, 2], [3, 4], [6, 7], [8, 6], [10, 4], [16, 5], [19, 4], [22, 2], [24, 3], [26, 4],
+        [32, 0], [34, 2], [35, 4], [38, 7], [40, 8], [42, 7], [48, 6], [51, 4], [54, 2], [56, 0]]),
+      drum: 'X.QUZ.QQX.QXZQ.Q' + 'X.QUZQ.QX.UQZQQ.' + 'X.QUZ.QQX.QXZQ.Q' + 'X.QUZ.QQX.QXZF..' },
   },
   // 4/4 at 96 bpm, four bars of sixteenth-note steps to a pass: the last battle at dusk before a city of gold, in E on the double
   // harmonic major. A buzzing drone on the root and fifth holds under a sitar (music-isle.js) that climbs the chord, falls home by
