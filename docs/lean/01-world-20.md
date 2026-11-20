@@ -46,8 +46,11 @@ and 95 levels to 20 worlds and 100 levels. Worlds 1-19 play exactly as before.
 - Its own ship, its own shot skin and its own power-up skins, in the hall's paper, ink and vermilion: the ship is a
   folded paper dart with an inked nib, and its shots are ink strokes. The carbon copy is the same ship drawn as a
   faint blue carbon tracing, and its shots are blue.
-- Its own music mood, made the way world 19's is: a night-press mood (a slow mechanical pulse, like a press
-  turning over) on a scale no other world uses.
+- Its own music mood, made the way world 19's is: a night-press mood on a scale no other world uses. Amended
+  2026-11-20 on the owner's words (see Decisions): a newsroom racing its deadline, a punchy stab over the press's
+  beat and a typewriter (keys in bursts, the margin bell and the carriage's return at the end of each pass), in D on
+  the lydian dominant at 126 bpm, its loudness matched to the others. It was a slow mechanical pulse on the phrygian
+  dominant at 84 bpm.
 - The colophon: a printed sheet in the near parallax layer, low on the right where world 19 has its brass
   plate (`src/ui/parallax-bath-plate.js` is the reference), reading exactly
   `built by graph skill fable-5.2 2026-11-18. cocode.dk`. It stays in the frame, clear of the HUD, and is
@@ -85,6 +88,10 @@ and 95 levels to 20 worlds and 100 levels. Worlds 1-19 play exactly as before.
   (`TYPE` in `src/ui/trailer/draw.js`). They are in scope, and so is any other per-world row a test or the
   renderer requires for every world. The person said "use your imagination" (2026-11-18): the words and the
   typography are the builder's, in the voice of the other worlds.
+- The owner, 2026-11-20: "change the music of Midnight Press. It is very gloomy and sad. more beats and
+  typewritter and action sounds". The loop was re-made (see The look): the scale `night` became the lydian
+  dominant, so world 20's effects play in it too, and the drum line became the press's own letters (X U Z Q F,
+  `src/ui/music-press.js`). The aliens' frame rate follows the tempo, so they animate faster.
 
 ## Out of scope
 

@@ -29,6 +29,6 @@ export default {
   bullet: 'orb',
   bunker: { fill: '#3a3440', light: '#c8b994', dark: '#0d0b10', edge: '#efe4c8', accent: '#e2401c', skin: 'rubble' }, // the level has none: rubble if one is ever set
   power: { spread: '#ffe14a', laser: '#7ad8ff', rapid: '#ff9a4a', shield: '#a8b8ff', homing: '#e2a2ff', slow: '#fff0c8', bomb: '#ff4a5a', life: '#9dff7a' },
-  music: { mood: 'press', root: 'D', scale: 'night', bpm: 84 }, // part 5 makes the mood: a slow mechanical pulse, a press turning over
+  music: { mood: 'press', root: 'D', scale: 'night', bpm: 126 }, // a newsroom racing its deadline: a typewriter over the press's beat (sound-data.js press)
   tint: { shade: 'rgba(226,64,28,0.18)', glow: 'rgba(239,228,200,0.06)' }, // the frame in bullet time and the slow power: vermilion
 };

@@ -14,6 +14,6 @@ export const SCALES = {
   melodic: [0, 2, 3, 5, 7, 9, 11], // the melodic minor going up: a minor key with the sixth and seventh raised, a dawn over ruins
   bright: [0, 2, 4, 7, 9], // the major pentatonic: five open notes with no semitone, a storm's heroic tunes
   sunny: [0, 2, 4, 5, 7, 9], // the major with no leading tone: six notes and nothing that pulls, a bath-time tune
-  night: [0, 1, 4, 5, 7, 8, 10], // the phrygian dominant: a flat second under a major third, a press hall at midnight
+  night: [0, 2, 4, 6, 7, 9, 10], // the lydian dominant: a major key with a raised fourth and a flat seventh, a press hall racing a deadline
   doubleharmonic: [0, 1, 4, 5, 7, 8, 11], // the double harmonic major: two augmented seconds, a golden city at dusk
 };
