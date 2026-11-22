@@ -54,9 +54,12 @@ function stepWave(world, dt) {
   }
 }
 
-// The last wave gone, or the boss's destruction chain over.
+// The last wave gone, or the boss's destruction chain over, or a course scrolled to its length with no hold standing (course-hold.js).
+// A course asks nothing of its respawn: the scroll stands still while one is pending, so the clear that lands on the tick the
+// last life is lost wins, as a shot in flight still kills the last alien then.
 function won(world) {
   const { waves } = world.level;
+  if (world.course) return world.course.dist >= world.level.course.length && world.course.held === null;
   if (world.boss) return world.boss.dying === 0;
   return Boolean(waves) && world.wave >= waves.length && world.gap === null && empty(world);
 }

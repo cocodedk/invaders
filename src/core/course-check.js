@@ -11,10 +11,11 @@ import { emit } from './util.js';
 // The level's start is checkpoint 0 (startCheck). A hit that leaves a life is ordinary (hitShip); a death is the last
 // life lost. After RESPAWN_DELAY s the leg rebuilds from the record: the screen is cleared (a ground object, an air craft,
 // a bullet, a shot, a pickup, a seed), dist and next go back, so every entry after the checkpoint spawns again as it was
-// (a hold too, whole), the score, the bombs, the abilities and the marks go back, the power-up, the reserve and the combo
-// are lost, and the ship stands at the checkpoint's x on RESPAWN_Y, blinking, with its lives refilled to the record's, never
-// fewer than LIVES. Nothing earned since the checkpoint survives a death, so dying never pays. course.lit counts the
-// checkpoints reached and a respawn keeps it: the last one stays lit. The respawn draws no rng and reads no input.
+// (a hold too, whole: one standing is let go, course.held null), the score, the bombs, the abilities and the marks go back,
+// the power-up, the reserve and the combo are lost, and the ship stands at the checkpoint's x on RESPAWN_Y, blinking, with
+// its lives refilled to the record's, never fewer than LIVES. Nothing earned since the checkpoint survives a death, so dying
+// never pays. course.lit counts the checkpoints reached and a respawn keeps it: the last one stays lit. The respawn draws no
+// rng and reads no input.
 
 export const RESPAWN_DELAY = 1.2; // s from the last life lost to the leg rebuilding (the wreck's beat)
 export const RESPAWN_Y = 900; // screen y of the respawn line: a checkpoint is reached there, and the ship is placed there
@@ -52,8 +53,7 @@ function respawn(world) {
   const c = course.check;
   for (const list of [world.aliens, world.bullets, world.shots, world.pickups, course.ground, course.seeds]) list.length = 0;
   course.marks.length = c.marks;
-  Object.assign(course, { dist: c.dist, next: c.next, abilities: [...c.abilities], respawn: null });
-  if ('held' in course) course.held = null; // a hold standing is let go; its entry spawns it again, whole (course-hold.js)
+  Object.assign(course, { dist: c.dist, next: c.next, abilities: [...c.abilities], respawn: null, held: null });
   restoreScore(world, c.score);
   Object.assign(ship, {
     alive: true, x: c.x, y: RESPAWN_Y, fromX: c.x, fromY: RESPAWN_Y, vx: 0, vy: 0, pointed: false,

@@ -32,6 +32,7 @@ export const SILENT = {
   checkpoint: 'world 22: sounds and effects come in Task 12',
   ability: 'world 22: sounds and effects come in Task 12',
   respawn: 'world 22: sounds and effects come in Task 12',
+  holdBreak: 'world 22: sounds and effects come in Task 12',
 };
 
 const at = (e) => ({ x: e.x });

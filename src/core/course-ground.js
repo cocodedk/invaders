@@ -13,6 +13,7 @@ import { inView } from './course-kinds.js';
 //   crate   + drop  the pickup it holds ('bomb' or 'life'), or null for the usual random drop (powerups.js dropPickup)
 //   pillar  + w, h  its box's size, its (x, y) being the centre; it rams the ship (course-terrain.js)
 //   checkpoint + grants, reached  the ability it grants ('seed' or null), and whether the ship has reached it (course-check.js)
+//   gate    + holdId  the hold it belongs to, the index of its entry in the level's spawns (course-hold.js); it has hp and breaks like a turret
 // A turret is an enemy, so its timer runs in the slowed enemy time of the tick (bullet time slows it), and it draws no
 // rng: its shot is the heavy pattern, an aimed bullet, which does not. Ground targets are low: the ship flies over them
 // and nothing rams, and no ship shot or beam touches them (collide.js knows nothing of the ground). Only hurtGround hurts
@@ -22,7 +23,7 @@ import { inView } from './course-kinds.js';
 export const TURRET_COOL = 2.5; // s between a turret's shots
 export const TURRET_PATTERN = 'heavy'; // what it fires, at the ship: a big slow bullet that takes several hits (course-cut.js)
 export const GROUND_R = 36; // px: how far a ground object reaches from its centre, for the seeds' bursts (course-seed.js)
-export const GROUND_SCORE = { turret: 300, crate: 200 }; // points for breaking one, before the combo; the kinds that can be hurt
+export const GROUND_SCORE = { turret: 300, crate: 200, gate: 500 }; // points for breaking one, before the combo; the kinds that can be hurt
 
 // A ground object of the course entry `e` (course.js hands it over on the tick its `at` comes up).
 export function spawnGround(world, e) {
@@ -31,6 +32,7 @@ export function spawnGround(world, e) {
   if (e.kind === 'crate') g.drop = e.drop ?? null;
   if (e.kind === 'pillar') Object.assign(g, { w: e.w, h: e.h });
   if (e.kind === 'checkpoint') Object.assign(g, { grants: e.grants ?? null, reached: false });
+  if (e.kind === 'gate') g.holdId = e.holdId;
   world.course.ground.push(g);
 }
 

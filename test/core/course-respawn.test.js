@@ -157,15 +157,6 @@ test('a ship that goes down on the tick a checkpoint comes to the line has not r
   assert.ok(until(world, () => world.course.lit > 0), 'it comes again after the respawn');
 });
 
-test('a hold standing at the death is let go (course.held, once holds exist)', () => {
-  const world = flight([checkpoint(0, X)], { speed: FAST });
-  assert.ok(until(world, () => world.course.lit > 0));
-  world.course.held = { holdId: 0, t: 4 };
-  kill(world);
-  assert.ok(until(world, () => world.ship.alive));
-  assert.equal(world.course.held, null);
-});
-
 test('stepping is deterministic, through a death and from a snapshot taken during the beat', () => {
   const run = (world) => {
     const hashes = [];

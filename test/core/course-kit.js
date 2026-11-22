@@ -1,6 +1,10 @@
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { WIDTH, HEIGHT, MID_X } from '../../src/core/kinds.js';
 import { AIR_MARGIN } from '../../src/core/course-air.js';
+import { SPAWN_Y } from '../../src/core/course-kinds.js';
+import { BOMB_DAMAGE } from '../../src/core/damage.js';
+import { hurtGround } from '../../src/core/course-ground.js';
+import { HOLD_Y } from '../../src/core/course-hold.js';
 import { TICK, IDLE, step } from './world-kit.js';
 
 // Shared by the course tests (world 22): a test-only course level, which createWorld takes as it takes the
@@ -31,9 +35,9 @@ export function until(world, done, limit = 3000) {
 
 // A course world around `spawns` with its intro over, no play tick taken yet and the enemy quiet (fireMult 0
 // unless given); `d` is the level's difficulty, `speed` the scroll's, px/s, `starts` the abilities it begins with and
-// `walls` its wall keyframes ([at, left, right] each; none by default).
-export function flight(spawns, { fireMult = 0, d, speed = 100, starts = [], walls = [] } = {}) {
-  const world = createWorld(courseLevel({ speed, length: 6000, starts, walls, spawns }, d));
+// `walls` its wall keyframes ([at, left, right] each; none by default) and `length` the px of scroll that clear it.
+export function flight(spawns, { fireMult = 0, d, speed = 100, starts = [], walls = [], length = 6000 } = {}) {
+  const world = createWorld(courseLevel({ speed, length, starts, walls, spawns }, d));
   world.scale.fireMult = fireMult;
   while (world.state === 'intro') stepWorld(world, TICK, IDLE);
   return world;
@@ -45,3 +49,25 @@ export const launched = (spawns, opts) => {
   step(world);
   return world;
 };
+
+// The end hold (world 22). `hold()` is an entry with two gates and no flights, over which `o` goes; a gate is { x, dy, hp } and a
+// flight is an air entry with a time t: it comes t s after the stop, and again every `period`. `stopOf` is the dist the scroll stops at (the
+// entry's anchor, which dy measures from, then stands at HOLD_Y). `standing` is a world stepped until a hold stands, `breakAll` breaks every
+// gate on the ground, and `alive` counts the aliens with hp.
+export const HOLD_AT = 100; // where a hold entry comes up
+export const HOLD_PERIOD = 3; // s between the comings of a flight
+export const GATE_HP = BOMB_DAMAGE; // one bomb breaks a gate; a seed burst takes less off
+export const gate = (x, dy = 0) => ({ x, dy, hp: GATE_HP });
+export const kite = (t, o = {}) => ({ t, role: 'g', path: 'swoop', x: 500, pattern: 'aimed', ...o });
+export const hold = (o = {}) =>
+  ({ kind: 'hold', at: HOLD_AT, targets: [gate(600), gate(1200, 40)], flights: [], period: HOLD_PERIOD, ...o });
+export const stopOf = (e) => e.at + HOLD_Y - SPAWN_Y;
+export const gates = (world) => world.course.ground.filter((g) => g.kind === 'gate');
+export function standing(spawns, opts = {}) {
+  const world = flight(spawns, { speed: FAST, ...opts });
+  if (!until(world, () => world.course.held)) throw new Error('no hold stood');
+  return world;
+}
+export const WAIT = 30; // ticks the hold tests stand and watch
+export const alive = (world) => world.aliens.filter((a) => a.hp > 0).length;
+export const breakAll = (world) => gates(world).forEach((g) => hurtGround(world, g, g.hp));
