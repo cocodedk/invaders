@@ -14,8 +14,8 @@ import { SPAWN_Y, GROUND_MARGIN } from './course-kinds.js';
 //           its `starts` and a checkpoint can grant more
 //   seeds   the seeds in the air, { x, at, t }; seedCool is the s until the next may drop
 //   marks   where seeds have burst, { x, at, r }; the view paints the ground's change from them
-//   ground  the objects on the ground now, each { id, kind, at, x, y, hp } (a turret and a crate hold a little more,
-//           course-ground.js); y is never stored as a speed, it is derived from the scroll (y = SPAWN_Y + dist - at),
+//   ground  the objects on the ground now, each { id, kind, at, x, y, hp } (a turret, a crate and a pillar hold a
+//           little more, course-ground.js); y is never stored as a speed, it is derived from the scroll (y = SPAWN_Y + dist - at),
 //           so whatever stops `dist` stops the ground too
 // The level's own data (`level.course`: speed, length, starts, walls, spawns) is read from the level, never copied.
 // SPAWN_Y and the other constants more than one module reads are in course-kinds.js.

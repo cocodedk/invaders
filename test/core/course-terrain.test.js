@@ -75,10 +75,11 @@ test('one move that crosses a pinch in the walls is a hit, though both its ends 
 });
 
 test('a pillar crossed in one move is a hit; the same move beside it is not', () => {
-  const crossing = terrain([], [pillar(500)]);
+  const entry = pillar(500);
+  const crossing = terrain([], [entry]);
   step(crossing, 1, at(960, 1000));
   const [p] = crossing.course.ground;
-  assert.deepEqual({ w: p.w, h: p.h }, { w: 100, h: 200 }, 'the pillar carries its size');
+  assert.deepEqual({ w: p.w, h: p.h }, { w: entry.w, h: entry.h }, 'the pillar carries its size');
   step(crossing, 1, at(900, 200));
   assert.equal(crossing.hits, 1);
   assert.equal(ofType(drain(crossing), 'shipHit')[0].source, 'pillar');
