@@ -14,7 +14,7 @@ import { WIDTH, HEIGHT } from './kinds.js';
 
 // One tick of play, in the order that decides ties:
 //   combo -> projectiles move -> ship moves and shoots -> aliens and the boss move, dive, shoot ->
-//   power-ups, bomb and beam -> collisions -> a course's scroll and ground (world 22 only) -> the world's twist
+//   power-ups, bomb and beam -> collisions -> a course's scroll, ground and air craft (world 22 only) -> the world's twist
 //   -> the dead are pruned -> wave flow -> win or lose.
 // New projectiles stay where they were fired until the next tick. Projectiles move before anything
 // is fired and collisions run after every kill and hit is possible, so a shot in flight still kills
@@ -87,7 +87,7 @@ export function stepPlay(world, dt, input) {
   stepBomb(world);
   stepBeam(world, dt, input);
   collide(world, dt, slow);
-  if (world.course) stepCourse(world, dt);
+  if (world.course) stepCourse(world, dt, slow);
   applyTwist(world, dt);
   cull(world);
   stepWave(world, dt);

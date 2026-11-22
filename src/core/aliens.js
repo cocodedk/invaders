@@ -23,7 +23,7 @@ import { emit } from './util.js';
 
 export const ENTER_TIME = 1.5; // formations-2.js: entryPosition's length
 export const DIVE_TIME = 2.2; // formations-2.js: diveCurve's length
-const MAX_BULLETS = 400;
+export const MAX_BULLETS = 400;
 
 // Is the alien swooping (out on a dive, or on its way home)?
 export const isSwooping = (a) => a.mode === 'dive' || a.mode === 'return';
@@ -49,15 +49,18 @@ const place = (a, p) => {
   a.y = p.y;
 };
 
-// Spawn the next wave (world.wave counts the waves spawned so far). R2: armorBonus is extra hp for
-// armored and gunner aliens only.
+// The hp an alien of `role` is made with. R2: armorBonus is extra hp for armored and gunner aliens only. A
+// course's air craft (course-air.js) are made with the same.
+export const roleHp = (world, role) =>
+  ROLES[role].hp + (role === 'armored' || role === 'gunner' ? world.scale.armorBonus : 0);
+
+// Spawn the next wave (world.wave counts the waves spawned so far).
 export function spawnWave(world) {
   const spec = world.level.waves[world.wave];
   world.wave += 1;
   const slots = makeSlots(spec);
   for (const slot of slots) {
-    const bonus = slot.role === 'armored' || slot.role === 'gunner' ? world.scale.armorBonus : 0;
-    const hp = ROLES[slot.role].hp + bonus;
+    const hp = roleHp(world, slot.role);
     const a = {
       id: world.nextId++, role: slot.role, x: 0, y: 0, hp, maxHp: hp,
       slot, mode: 'enter', t: 0, dive: null,

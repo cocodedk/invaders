@@ -1,10 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
-import { SPAWN_Y, GROUND_MARGIN } from '../../src/core/course.js';
+import { SPAWN_Y, GROUND_MARGIN } from '../../src/core/course-kinds.js';
+import { enemyDt } from '../../src/core/twists-2.js';
 import { HEIGHT } from '../../src/core/kinds.js';
 import { level, wave, step, TICK, IDLE } from './world-kit.js';
-import { courseLevel } from './course-kit.js';
+import { courseLevel, air } from './course-kit.js';
 
 // Test-local data: a scroll speed, and entries placed off a tick boundary (one tick scrolls SPEED * TICK px).
 const SPEED = 100;
@@ -92,4 +93,22 @@ test('stepping a snapshot from the same inputs gives the same course state', () 
   step(copy, 200);
   assert.deepEqual(copy.course, world.course);
   assert.ok(world.course.next > 1);
+});
+
+test('bullet time slows the air craft, whichever way it comes, and neither the scroll nor the ground', () => {
+  for (const slowDown of [(w) => { w.ship.power = { kind: 'slow', left: Infinity }; }, (w) => { w.slow = 10; }]) {
+    const spawns = [air({ at: 10 }), stone(20)];
+    const slowed = fresh(spawns);
+    const normal = fresh(spawns);
+    slowDown(slowed);
+    assert.ok(enemyDt(slowed, TICK) < TICK && enemyDt(normal, TICK) === TICK, 'this world runs in bullet time, the other does not');
+    step(slowed, 90);
+    step(normal, 90);
+    assert.equal(slowed.course.dist, normal.course.dist, 'the scroll keeps real time');
+    assert.deepEqual(slowed.course.ground, normal.course.ground, 'and so does the ground');
+    const [s] = slowed.aliens;
+    const [n] = normal.aliens;
+    assert.ok(n.t > 0 && Math.abs(s.t - (n.t * enemyDt(slowed, TICK)) / TICK) < 1e-9, 'the craft flew on the slowed time');
+    assert.ok(s.y < n.y, 'so it has come less far');
+  }
 });
