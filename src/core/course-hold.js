@@ -18,10 +18,11 @@ import { SPAWN_Y } from './course-kinds.js';
 // hold is left (the ground weapon and the bomb hurt them like any target, course-ground.js) the hold breaks: 'holdBreak',
 // `held` is null and the scroll goes on. A hold whose gates are all broken before the scroll reaches it never stops it and
 // says nothing: nothing is left to hold the ship.
-// The data rules (Task 7 checks them): `period` > 0; a gate must be where the ship can hurt it when the scroll stops, on
-// the screen and in the band (`dy` in [0, HOLD_Y]); a hold's entry comes up beyond the screen a checkpoint saw (course-check.js),
-// so a respawn spawns it again whole; and a level's length is at least where its last hold stops the scroll (a shorter one clears
-// before the hold is reached), and exactly that when the level ends on the hold, which then clears on the tick the hold breaks.
+// The data rules (a check on the level's data should hold them): `period` > 0; a gate must be where the ship can hurt it
+// when the scroll stops, on the screen and in the band (`dy` in [0, HOLD_Y]); a hold's entry comes up beyond the screen a
+// checkpoint saw (course-check.js), so a respawn spawns it again whole; and a level's length is at least where its last hold
+// stops the scroll (a shorter one clears before the hold is reached), and exactly that when the level ends on the hold, which
+// then clears on the tick the hold breaks.
 
 export const HOLD_Y = 300; // screen y the hold's anchor stands at when the scroll stops: well up the screen, in the ship's reach
 export const HOLD_FLIGHTS_MAX = 6; // air craft alive at most while a hold stands, the level's own and the hold's together

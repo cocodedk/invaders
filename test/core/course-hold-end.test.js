@@ -4,7 +4,8 @@ import { hitShip } from '../../src/core/ship.js';
 import { SPAWN_Y } from '../../src/core/course-kinds.js';
 import { hurtGround } from '../../src/core/course-ground.js';
 import { SEED_DMG } from '../../src/core/course-seed.js';
-import { RESPAWN_Y } from '../../src/core/course-check.js';
+import { EPS } from '../../src/core/kinds.js';
+import { RESPAWN_DELAY, RESPAWN_Y } from '../../src/core/course-check.js';
 import { TICK, FIRE, step, drain, ofType, bulletOnShip } from './world-kit.js';
 import { flight, checkpoint, until, FAST, HOLD_PERIOD, WAIT, gate, kite, hold, stopOf, gates, standing, alive, breakAll } from './course-kit.js';
 
@@ -13,6 +14,7 @@ import { flight, checkpoint, until, FAST, HOLD_PERIOD, WAIT, gate, kite, hold, s
 const PAST = 5 * FAST * TICK; // px of scroll a level has beyond its hold
 const BEYOND = 200; // px a hold lies past the screen a checkpoint saw when it was reached
 const X = 700; // where the checkpoint stands
+const BEAT_TICKS = Math.ceil((RESPAWN_DELAY - EPS) / TICK) + 1; // ticks that more than run a death's beat down
 
 test('a course clears on the tick dist reaches its length with no hold standing, and not before', () => {
   const LENGTH = 300;
@@ -63,8 +65,8 @@ test('the last life lost on the tick the last gate breaks still clears, with no 
   const world = dieInHold(true);
   assert.equal(world.ship.alive, false);
   assert.equal(world.state, 'cleared');
-  step(world, 2 * WAIT);
-  assert.deepEqual(ofType(world.events, 'respawn'), []);
+  step(world, BEAT_TICKS);
+  assert.deepEqual([world.state, world.ship.alive, ofType(world.events, 'respawn')], ['cleared', false, []]);
   const rebuilt = dieInHold(false);
   assert.equal(rebuilt.state, 'play', 'with a gate standing the same death is no clear');
   assert.ok(until(rebuilt, () => rebuilt.ship.alive));

@@ -85,7 +85,8 @@ test('a period of zero cannot hang the step', () => {
 });
 
 test('breaking every gate ends the hold with holdBreak and the scroll goes on; a gate left standing keeps it', () => {
-  const world = standing([hold()]);
+  const e = hold();
+  const world = standing([e]);
   const { course } = world;
   const [a, b] = gates(world);
   drain(world);
@@ -98,7 +99,7 @@ test('breaking every gate ends the hold with holdBreak and the scroll goes on; a
   hurtGround(world, b, b.hp);
   step(world);
   assert.equal(course.held, null);
-  assert.deepEqual(ofType(drain(world), 'holdBreak').map((e) => e.holdId), [0]);
+  assert.deepEqual(ofType(drain(world), 'holdBreak').map((v) => v.holdId), [world.level.course.spawns.indexOf(e)]);
   assert.equal(course.dist, dist, 'the tick it breaks is the last that stands still');
   step(world);
   assert.ok(Math.abs(course.dist - dist - FAST * TICK) < EPS);
