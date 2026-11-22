@@ -44,4 +44,14 @@ export const STYLES_2 = {
         [32, 4], [35, 5], [38, 7], [40, 6], [42, 7], [44, 5], [48, 4], [51, 2], [54, 1], [56, 0]]),
       drum: 'D.GNJ..NJ.G.D.NG' + 'D.GNJ..NJ.G.D.E.' + 'D.NNI.N.I.NNN.N.' + 'N.NNJ.GNR...D.G.' },
   },
+  // 4/4 at 104 bpm, four bars of eighth-note steps to a pass: a placeholder for Wanderlight (world 22) until the world has its own music,
+  // shaped like the calm styles before it: a soft sine drone, a triangle lead walking up the major chord and back with rests, and a frame
+  // drum on every beat (the drum letter f is in music-drums.js). Nothing here has been matched to the other loops' level.
+  road: {
+    mood: 'road', wave: 'triangle', cut: 4800, wet: 0.34, pitch: 1.04,
+    music: { vol: 0.9, drone: { wave: 'sine', oct: 2, cut: 420, fifth: true, gain: 0.01 },
+      lead: { wave: 'triangle', oct: 4, cut: 4200, len: 3, gain: 0.15 },
+      div: 2, seq: tune(32, [[0, 0], [3, 2], [6, 4], [8, 5], [10, 4], [12, 2], [16, 4], [19, 2], [22, 1], [24, 0], [28, 2]]),
+      drum: 'f.f.f.f.' },
+  },
 };
