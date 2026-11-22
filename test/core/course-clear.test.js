@@ -11,7 +11,7 @@ import { unfair } from './course-fair-kit.js';
 
 const level = courseLevel(FAIR_COURSE);
 
-test('the fair course clears within its pars, its hold standing until the seeds break it', () => {
+test('the fair course clears within its pars, its hold standing until its gates are broken', () => {
   const { world, types, held } = flyCourse(level);
   assert.equal(world.state, 'cleared');
   assert.ok(world.t - INTRO <= CLEAR_PARS * parOf(level), `cleared at ${world.t.toFixed(1)} s`);
@@ -20,9 +20,9 @@ test('the fair course clears within its pars, its hold standing until the seeds 
   assert.ok(world.course.ground.every((g) => g.kind !== 'gate' || g.hp === 0), 'every gate is broken');
 });
 
-test('a gate no seed can reach stalls the scroll: the flight does not clear', () => {
+test('a gate that neither a seed nor a shot can reach stalls the scroll: the flight does not clear', () => {
   const data = structuredClone(FAIR_COURSE);
-  data.spawns.at(-1).targets[0].x = 100; // in the wall: the pilot does not go for it, and a seed from the band is too far
+  data.spawns.at(-1).targets[0].x = 100; // in the wall: the pilot does not go for it, and a seed or a shot from the band is too far
   assert.deepEqual(unfair(courseLevel(data)).map((v) => v.split(':')[0]), ['reach']);
   const { world } = flyCourse(courseLevel(data));
   assert.equal(world.state, 'play');

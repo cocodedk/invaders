@@ -27,6 +27,7 @@ export const SILENT = {
   failed: 'the failed screen plays the stinger',
   cleared: 'the results screen plays the stinger after the slow motion',
   groundKill: 'world 22: sounds and effects come in Task 12',
+  groundHit: 'world 22: sounds and effects come in Task 12',
   seedBurst: 'world 22: sounds and effects come in Task 12',
   chip: 'world 22: sounds and effects come in Task 12 (a broken bullet, cut, sounds as the shuriken cut does)',
   checkpoint: 'world 22: sounds and effects come in Task 12',

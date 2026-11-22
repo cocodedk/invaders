@@ -100,7 +100,9 @@ or `boss`, and the world carries a `course` state:
     points, scoring, drops and sprites, and they ram as aliens do in free flight.
   - **Ground targets:** objects on the ground that drift with it. The **turret** kind fires slow aimed shots
     while on screen. The **crate** kind fires nothing and holds a pickup. They are low, so the ship flies over
-    them and they never ram. Only the ground weapon and bombs hurt them; the gun fires over them.
+    them and they never ram. Everything on the ground that stands is shootable (owner, 2026-11-22: "every kind of target and enemy
+    structure and anything related to an enemy"): the gun, the laser beam, the ground weapon and bombs hurt turrets, crates, gates,
+    pillars and the dormant stones alike; only the lanterns and the valley's rock are no enemy's, and shots fly over those.
   - **Obstacles:** tall terrain that rams (a hit, see Death). **Walls** narrow and widen the flyable band (its
     left and right edges given as keyframes by distance). **Pillars** are columns standing inside the band. They
     can't be destroyed.
@@ -190,7 +192,7 @@ About two minutes in three stretches, split by two checkpoints, ending on a hold
 2. **The ground wakes.** Turrets fire. Crates hold pickups. Pillars stand in the band, and the walls pinch into a
    gorge. A bridge carries a pair of turrets. Checkpoint 2.
 3. **The end hold.** Faster air craft and dives, turrets on both sides. Then the hold: the scroll stops, and its
-   targets (higher hp) must be broken by the ground weapon while its own air craft swarm. When the hold breaks,
+   targets (higher hp) must be broken, by the gun or the ground weapon, while its own air craft swarm. When the hold breaks,
    the leg is cleared.
 
 Spawn positions, counts, speeds and hit points are the builder's, tuned by playing it. The owner's standing word
@@ -225,7 +227,10 @@ is not to make things easy; the first stretch is still the gentlest of the leg.
 - Top-down, scrolling upward, so the gun still fires up.
 - On a death (the last life lost), score, bombs and the ground's marks go back to the checkpoint, the power-up
   and the combo are lost, and the lives refill to the checkpoint's count, at least 3.
-- Only the ground weapon and bombs hurt ground targets. The gun flies over them.
+- Every ground object that stands is shootable (owner, 2026-11-22: "every kind of target and enemy structure and anything related to
+  an enemy", after flying Leg 1): the ship's shots and its beam hurt it as the ground weapon and bombs do (an air craft in the path
+  takes a shot first; a broken pillar no longer rams), and only the lanterns and the rock are left alone. How long steady fire takes is
+  `BREAK_SECS` (a stone half a second, a turret one, a pillar two, a gate three), which sets the hp.
 - Shooting down incoming fire: small bullets take 1 hit, homing 2, the new heavy shot 3. A gun shot deals 1 and is
   spent, the laser beam wears bullets down over time, and enemy lasers can't be shot. World 22 only.
 - Walls and pillars hit through `hitShip` like everything else, so a shield or the blinking lets the ship skim

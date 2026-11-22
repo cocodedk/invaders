@@ -13,7 +13,8 @@ import { IDLE } from './world-kit.js';
 //   the nearest ground target it can still hurt that stands ahead of the seeds' landing line inside the band: its x, and the row a
 //   seed dropped from there lands on it (a seed falls SEED_REACH px ahead of the ship), kept on the respawn line or above; or
 //   with none, the middle of the band, on the respawn line.
-// So the ground weapon is the only thing that has to break the gates of a hold, and the proof is that it can.
+// So the ship's own fire (its shots and the seeds, both held on the target's column) is all it takes to break the gates of a hold, and
+// the proof is that it does.
 
 export const CLEAR_PARS = 3; // a leg must clear within this many of its pars
 

@@ -3,7 +3,7 @@
 // cropped to a 2:3 poster round the boss (the field's middle when there is none). Kept for the session (no image files).
 // A bake comes in eight slices (the run-up, the world's alien sprites, its boss, worlds 15, 16 and 17's own sprites,
 // the view, the frame), one per idle period while the title or the lobby is up, so no single frame carries a whole poster
-// and nothing is baked while a level plays. A run-up of more than RUNUP_SLICE ticks (a course's: world 22's is 87 s of flight) is
+// and nothing is baked while a level plays. A run-up of more than RUNUP_SLICE ticks (a course's: world 22's is 90 s of flight) is
 // itself cut into slices of that many ticks.
 //   warmPosters(allowed)   start baking in idle slices; allowed() says whether now is a menu
 //   prefer(worlds)         bake these worlds' posters next (the ones in view); the rest follow in order
@@ -57,12 +57,14 @@ const FRAME_H = 432;
 // s into each boss fight: in place, mid-attack; a course (world 22) has no boss, so it is s into the flight, the autopilot flying
 // it. The autopilot knows nothing of walls: it loses all its lives on stretch 1's narrowing twice and starts the leg over, so the
 // moment is found by running it, not by reading the data: the first pass of stretch 2, the ship alive and not blinking, and a live
-// craft, a turret and a crate inside the poster's crop (x 660-1260, y 0-900). Find it again after any change to Leg 1's data.
-const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 87.4];
+// craft, a turret and a pillar inside the poster's crop (x 660-1260, y 0-900; test/ui/posters.test.js checks it). The autopilot fires,
+// and its shots break whatever stands in its column (course-shots.js), a crate among it, so the pillar stands in for the crate. Find
+// it again after any change to Leg 1's data or to what the ship's shots can hurt.
+export const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 89.9];
 const LIT = 0.4; // s of effects before the frame (muzzle flashes, sparks); the run-up before has none
 export const RUNUP_SLICE = 600; // ticks of the run-up an idle period steps at most: 10 s of play, a few ms on a desktop and still a slice on a Pi
-const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
-const CROP_H = 900;
+export const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
+export const CROP_H = 900;
 const posters = new Map();
 
 export const posterFor = (world) => posters.get(world) ?? null;

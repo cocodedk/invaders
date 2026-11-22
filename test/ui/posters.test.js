@@ -6,7 +6,8 @@ import { installCanvas } from './dom-kit.js';
 // bake must not throw (a throw in an idle slice would leave the baker stuck).
 installCanvas();
 globalThis.requestIdleCallback = (fn) => setImmediate(fn);
-const { warmPosters, posterFor, posterLevel, runUp, RUNUP_SLICE, TAGLINES } = await import('../../src/ui/screens/posters.js');
+const { warmPosters, posterFor, posterLevel, runUp, RUNUP_SLICE, TAGLINES, AT, CROP_W, CROP_H } = await import('../../src/ui/screens/posters.js');
+const { W } = await import('../../src/ui/sprites.js');
 const { WORLDS, LEVELS } = await import('../../src/core/levels.js');
 const { createWorld } = await import('../../src/core/world.js');
 const { TICK } = await import('../../src/core/kinds.js');
@@ -74,4 +75,16 @@ test('a long run-up is stepped in slices of at most RUNUP_SLICE ticks, every tic
 
 test('a run-up shorter than a slice stays one slice', () => {
   assert.deepEqual(ticksPerSlice((RUNUP_SLICE / 2) * TICK), [RUNUP_SLICE / 2]);
+});
+
+test("world 22's poster moment, 90 s into the autopilot's flight, shows a live craft, a turret and a pillar inside the crop", () => {
+  const level = posterLevel(WORLDS.length);
+  const w = createWorld(level, level.seed);
+  for (const slice of runUp(w, createFx(), fxRng(level.seed), AT[WORLDS.length - 1])) assert.equal(slice, undefined);
+  const x0 = W / 2 - CROP_W / 2; // the crop is centred on the field when there is no boss
+  const inCrop = (o) => o.x >= x0 && o.x <= x0 + CROP_W && o.y >= 0 && o.y <= CROP_H;
+  const standing = (kind) => w.course.ground.some((g) => g.kind === kind && g.hp > 0 && inCrop(g));
+  assert.ok(w.ship.alive && w.ship.invuln === 0, 'the ship is alive and not blinking');
+  assert.ok(w.aliens.some((a) => a.hp > 0 && inCrop(a)), 'a live air craft');
+  assert.ok(standing('turret') && standing('pillar'), 'a turret and a pillar');
 });

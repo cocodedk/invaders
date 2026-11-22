@@ -19,10 +19,12 @@ const crate = (x, drop = null, hp = HP) => ({ kind: 'crate', at: 0, x, hp, drop 
 const yOf = (world, at) => SPAWN_Y + world.course.dist - at;
 const put = (world, g, y) => { g.at = SPAWN_Y + world.course.dist - y; }; // the object stands at screen y now
 
-// A course world past one play tick (the entries are on the ground), the ship unhurtable, with `starts` abilities.
+// A course world past one play tick (the entries are on the ground), the ship unhurtable, with `starts` abilities. Its gun is
+// jammed: the shots hurt the ground too (course-shots.js), and these tests are about the seeds, which drop with fire held.
 function seedWorld(spawns = [turret()], starts = ['seed']) {
   const world = launched(spawns, { speed: SPEED, starts });
   world.ship.invuln = Infinity;
+  world.ship.cooldown = Infinity;
   return world;
 }
 // A seed dropped this tick, with the first ground object moved to (dx, dat) from where it will burst.
@@ -91,7 +93,9 @@ test('a seed bursts SEED_FALL after it is dropped: it hurts the turret under it,
   assert.equal(g.hp, HP - SEED_DMG);
   assert.deepEqual(world.course.marks, [{ x: seed.x, at: seed.at, r: SEED_R }]);
   assert.equal(world.course.seeds.length, 0);
-  assert.deepEqual(drain(world), [{ type: 'seedBurst', tick: world.tick, x: seed.x, y: yOf(world, seed.at), r: SEED_R }]);
+  const events = drain(world);
+  assert.deepEqual(ofType(events, 'seedBurst'), [{ type: 'seedBurst', tick: world.tick, x: seed.x, y: yOf(world, seed.at), r: SEED_R }]);
+  assert.deepEqual(ofType(events, 'groundHit').map((e) => e.kind), ['turret'], 'and the turret, which stood, says it was hit');
   assert.equal(world.rng.s, rng, 'no draw on the way');
 });
 
@@ -108,17 +112,17 @@ test('the burst is a ring: SEED_R plus the ground object\'s own reach, round, no
   }
 });
 
-test('a burst breaks a turret it takes the last hp from (points, groundKill), hurts a crate, and leaves a stone alone', () => {
-  const world = seedWorld([turret(MID_X, SEED_DMG), crate(MID_X), { kind: 'stone', at: 0, x: MID_X }]);
+test('a burst breaks a turret it takes the last hp from (points, groundKill), hurts a crate and a stone, and leaves a lantern alone', () => {
+  const world = seedWorld([turret(MID_X, SEED_DMG), crate(MID_X), { kind: 'stone', at: 0, x: MID_X, hp: HP }, { kind: 'checkpoint', at: 0, x: MID_X }]);
   const seed = dropOnto(world);
-  const [, c, stone] = world.course.ground;
-  Object.assign(c, { x: seed.x, at: seed.at });
-  Object.assign(stone, { x: seed.x, at: seed.at });
+  const [, ...others] = world.course.ground;
+  for (const g of others) Object.assign(g, { x: seed.x, at: seed.at });
   drain(world);
   burst(world);
-  assert.deepEqual([c.hp, stone.hp, world.score], [HP - SEED_DMG, null, GROUND_SCORE.turret]);
+  assert.deepEqual(others.map((g) => g.hp), [HP - SEED_DMG, HP - SEED_DMG, null]);
+  assert.equal(world.score, GROUND_SCORE.turret);
   assert.deepEqual(ofType(drain(world), 'groundKill').map((e) => e.kind), ['turret']);
-  assert.deepEqual(world.course.ground.map((g) => g.kind), ['crate', 'stone'], 'the broken turret is off the ground');
+  assert.deepEqual(world.course.ground.map((g) => g.kind), ['crate', 'stone', 'checkpoint'], 'the broken turret is off the ground');
 });
 
 test('a burst with nothing in reach still leaves its mark', () => {
@@ -135,19 +139,19 @@ test('a ship that is down drops no seed', () => {
   assert.equal(world.course.seeds.length, 0);
 });
 
-// A bomb world: a turret on screen, one above the top edge, a crate and a stone on screen; the bomb comes next tick.
+// A bomb world: a turret on screen, one above the top edge, a crate, a stone and a lantern on screen; the bomb comes next tick.
 function bombWorld() {
-  const world = seedWorld([turret(300), turret(500), crate(1500), { kind: 'stone', at: 0, x: 900 }], []);
-  [400, -40, 600, 300].forEach((y, i) => put(world, world.course.ground[i], y));
+  const world = seedWorld([turret(300), turret(500), crate(1500), { kind: 'stone', at: 0, x: 900, hp: HP }, { kind: 'checkpoint', at: 0, x: 700 }], []);
+  [400, -40, 600, 300, 200].forEach((y, i) => put(world, world.course.ground[i], y));
   return world;
 }
 const BOMB = input({ bomb: true });
 
-test('a bomb hurts every ground object on screen and none above the top edge, and a stone takes nothing', () => {
+test('a bomb hurts every ground object on screen and none above the top edge, and a lantern takes nothing', () => {
   const world = bombWorld();
   step(world, 1, BOMB);
-  const [on, above, c, stone] = world.course.ground;
-  assert.deepEqual([on.hp, above.hp, c.hp, stone.hp], [HP - BOMB_DAMAGE, HP, HP - BOMB_DAMAGE, null]);
+  const [on, above, c, stone, lantern] = world.course.ground;
+  assert.deepEqual([on.hp, above.hp, c.hp, stone.hp, lantern.hp], [HP - BOMB_DAMAGE, HP, HP - BOMB_DAMAGE, HP - BOMB_DAMAGE, null]);
   assert.equal(world.ship.bombs, 0);
 });
 
@@ -173,14 +177,9 @@ test('a bomb breaks a crate like any other blow: its points and what it held', (
   assert.deepEqual([world.score, world.pickups.map((p) => p.kind)], [GROUND_SCORE.crate, ['life']]);
 });
 
-test('the laser beam burns no ground object, though one stands in its column', () => {
+test('the ground is not one of damage.js targets: the bomb hurts it once, here, and the beam and the shots through course-shots.js', () => {
   const world = seedWorld([turret()], []);
-  const g = world.course.ground[0];
-  put(world, g, 400);
-  world.ship.power = { kind: 'laser', left: 99 };
-  step(world, 30, FIRE);
-  assert.ok(world.ship.beam, 'the beam was on');
-  assert.equal(g.hp, HP);
+  put(world, world.course.ground[0], 400);
   assert.deepEqual(targets(world).filter((t) => world.course.ground.includes(t)), []);
 });
 

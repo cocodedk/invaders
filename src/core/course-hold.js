@@ -15,7 +15,7 @@ import { SPAWN_Y } from './course-kinds.js';
 // air craft: a flight comes at its `t` and again every `period` s (a pure function of the clock, so `held` is
 // all the state it takes), as the air craft its role, path, x and pattern name (course-air.js), while fewer than
 // HOLD_FLIGHTS_MAX are alive. A flight that comes when the sky is full is lost, not kept for later. When no gate of the
-// hold is left (the ground weapon and the bomb hurt them like any target, course-ground.js) the hold breaks: 'holdBreak',
+// hold is left (the ship's shots and beam, the ground weapon and the bomb hurt them like any target, course-ground.js) the hold breaks: 'holdBreak',
 // `held` is null and the scroll goes on. A hold whose gates are all broken before the scroll reaches it never stops it and
 // says nothing: nothing is left to hold the ship.
 // The data rules (a check on the level's data should hold them): `period` > 0; a gate must be where the ship can hurt it

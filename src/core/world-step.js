@@ -8,6 +8,7 @@ import { stepBeam, stepBomb } from './weapons.js';
 import { collide } from './collide.js';
 import { stepCourse } from './course.js';
 import { cutBullets } from './course-cut.js';
+import { gunVsGround } from './course-shots.js';
 import { stepBullet } from './patterns.js';
 import { tickCombo, awardClear, stars } from './scoring.js';
 import { emit, prune } from './util.js';
@@ -15,8 +16,9 @@ import { WIDTH, HEIGHT } from './kinds.js';
 
 // One tick of play, in the order that decides ties:
 //   combo -> projectiles move -> ship moves and shoots -> aliens and the boss move, dive, shoot ->
-//   power-ups, bomb and beam -> the shots and the beam break incoming bullets (world 22 only) -> collisions -> a course's
-//   scroll, ground and air craft (world 22 only) -> the world's twist -> the dead are pruned -> wave flow -> win or lose.
+//   power-ups, bomb and beam -> the shots and the beam break incoming bullets (world 22 only) -> collisions -> the shots and the
+//   beam hurt the ground (world 22 only) -> a course's scroll, ground and air craft (world 22 only) -> the world's twist -> the
+//   dead are pruned -> wave flow -> win or lose.
 // New projectiles stay where they were fired until the next tick. Projectiles move before anything
 // is fired and collisions run after every kill and hit is possible, so a shot in flight still kills
 // the last alien on the tick the ship loses its last life, and settle() then favours the player.
@@ -93,7 +95,10 @@ export function stepPlay(world, dt, input) {
   stepBeam(world, dt, input);
   if (world.course) cutBullets(world, dt, slow);
   collide(world, dt, slow);
-  if (world.course) stepCourse(world, dt, slow, input);
+  if (world.course) {
+    gunVsGround(world, dt); // after collide: an air craft takes a shot before the ground does
+    stepCourse(world, dt, slow, input);
+  }
   applyTwist(world, dt);
   cull(world);
   stepWave(world, dt);

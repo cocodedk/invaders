@@ -44,11 +44,12 @@ function hitsWall(world) {
   return false;
 }
 
-// A pillar is a ground object { kind: 'pillar', x, y, w, h } whose (x, y) is the centre of its box.
+// A pillar is a ground object { kind: 'pillar', x, y, w, h, hp } whose (x, y) is the centre of its box. It rams while it has hp: one the
+// ship's shots have broken this tick (course-shots.js runs before) no longer does.
 function hitsPillar(world) {
   const s = world.ship;
   const { x, y } = fromOf(s);
-  const touches = (g) => g.kind === 'pillar' && segBoxDist2(x, y, s.x, s.y, g.x, g.y, g.w, g.h) <= SHIP_R * SHIP_R;
+  const touches = (g) => g.kind === 'pillar' && g.hp > 0 && segBoxDist2(x, y, s.x, s.y, g.x, g.y, g.w, g.h) <= SHIP_R * SHIP_R;
   return world.course.ground.some(touches);
 }
 

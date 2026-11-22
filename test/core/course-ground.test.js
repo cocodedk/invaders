@@ -100,18 +100,15 @@ test('a crate fires nothing, however long it is on screen', () => {
   assert.equal(world.course.ground[0].cool, undefined, 'it has no timer');
 });
 
-test('a ship shot passes through a turret and leaves it whole', () => {
+test('a ship shot hurts a turret by a point and is spent, and breaks nothing yet (course-shots.test.js has the rest)', () => {
   const world = turretWorld();
   untilY(world, HEIGHT / 2);
   drain(world);
   const g = world.course.ground[0];
   shotAt(world, g);
-  step(world, 4);
-  const [shot] = world.shots;
-  assert.ok(shot && shot.y < g.y, 'the shot flew on past');
-  assert.equal(g.hp, 3);
-  assert.equal(world.score, 0);
-  assert.equal(ofType(drain(world), 'groundKill').length, 0);
+  step(world);
+  assert.deepEqual([g.hp, world.shots.length, world.score], [2, 0, 0]);
+  assert.deepEqual(world.events.map((e) => [e.type, e.kind]), [['groundHit', 'turret']]);
 });
 
 test('hurtGround takes hp off a turret; at 0 it scores, says so, and the broken turret is gone next tick', () => {
@@ -120,7 +117,8 @@ test('hurtGround takes hp off a turret; at 0 it scores, says so, and the broken 
   drain(world);
   const g = world.course.ground[0];
   hurtGround(world, g, 1);
-  assert.deepEqual([g.hp, world.score, world.events.length], [2, 0, 0]);
+  assert.deepEqual([g.hp, world.score], [2, 0]);
+  assert.deepEqual(drain(world), [{ type: 'groundHit', tick: world.tick, kind: 'turret', x: g.x, y: g.y }], 'a hit that leaves it standing');
   hurtGround(world, g, 99);
   assert.equal(g.hp, 0, 'hp stops at 0');
   assert.equal(world.score, GROUND_SCORE.turret);
@@ -164,16 +162,17 @@ test('a crate with no drop of its own drops a random pickup there, on the world 
   assert.notEqual(world.rng.s, rng);
 });
 
-test('a stone, a pillar and a checkpoint cannot be hurt, and stay on the ground', () => {
-  const world = flight(['stone', 'pillar', 'checkpoint'].map((kind, i) => ({ kind, at: i, x: 800 + i })));
+test('a lantern cannot be hurt, and stays on the ground; a stone and a pillar are hurt like any target and pay when they break', () => {
+  const world = flight(['stone', 'pillar', 'checkpoint'].map((kind, i) => ({ kind, at: i, x: 800 + i, w: 50, h: 50 })));
   step(world, 4);
-  const before = structuredClone(world.course.ground);
-  assert.equal(before.length, 3);
-  for (const g of world.course.ground) hurtGround(world, g, 99);
-  assert.deepEqual(world.course.ground, before);
-  assert.deepEqual([world.score, world.events.length, world.combo.timer], [0, 0, 0]);
+  const [stone, pillar, lantern] = world.course.ground;
+  const before = structuredClone(lantern);
+  hurtGround(world, lantern, 99);
+  assert.deepEqual([lantern, world.score, world.events.length, world.combo.timer], [before, 0, 0, 0]);
+  for (const g of [stone, pillar]) hurtGround(world, g, g.hp);
+  assert.equal(world.score, GROUND_SCORE.stone + 2 * GROUND_SCORE.pillar, 'the second kill of the combo is worth double');
   step(world);
-  assert.equal(world.course.ground.length, 3);
+  assert.deepEqual(world.course.ground, [lantern], 'only the lantern is left');
 });
 
 test('only a turret and a crate hold more than the plain ground object', () => {

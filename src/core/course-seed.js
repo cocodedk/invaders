@@ -4,7 +4,8 @@ import { BOMB_DAMAGE } from './damage.js';
 import { SPAWN_Y, inView } from './course-kinds.js';
 import { GROUND_R, hurtGround } from './course-ground.js';
 
-// The ground weapon (world 22) and the bomb on the ground: the only two things that hurt a ground object.
+// The ground weapon (world 22) and the bomb on the ground: two of the four things that hurt a ground object (the ship's shots
+// and its beam, course-shots.js, are the other two).
 // A seed is { x, at, t } in course.seeds: dropped where the ship's gun is, SEED_REACH px ahead of it on the screen, it
 // is fixed to the ground it fell on (x and `at` are course coordinates, so the scroll carries it down the screen with
 // the land) and bursts `t` s later. A burst hurts every ground object on the screen within SEED_R of it (one above the top

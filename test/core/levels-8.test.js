@@ -4,6 +4,7 @@ import { JOURNEY } from '../../src/core/levels-8.js';
 import { LEVELS, WORLDS, levelById, reelName } from '../../src/core/levels.js';
 import { difficulty } from '../../src/core/difficulty.js';
 import { INTRO } from '../../src/core/kinds.js';
+import { hpFor } from '../../src/core/course-kinds.js';
 import { RATINGS } from '../../src/core/ratings.js';
 import { parOf } from '../../src/core/pars.js';
 import { unfair } from './course-fair-kit.js';
@@ -52,6 +53,12 @@ test('the leg has two lanterns, the first granting the seed, and ends on its hol
   assert.equal(lanterns[0].grants, 'seed');
   assert.equal(leg.course.spawns.at(-1).kind, 'hold');
   assert.ok(leg.course.spawns.some((e) => e.kind === 'air') && kinds('turret').length > 0 && kinds('crate').length > 0);
+});
+
+test('the leg\'s turrets and the gates of its hold are as tough as BREAK_SECS says: the shots break them in about that long', () => {
+  assert.ok(kinds('turret').every((e) => e.hp === hpFor('turret')));
+  const gates = kinds('hold').flatMap((e) => e.targets);
+  assert.ok(gates.length > 0 && gates.every((t) => t.hp === hpFor('gate')));
 });
 
 test('the leg can be cleared: a steered, unhittable flight reaches the end of its hold within its pars', () => {

@@ -5,6 +5,7 @@
 // px of scroll: an entry comes up above the screen when the scroll reaches it, and a second of scroll is `speed` px. A leg's data must
 // break none of the rules of test/core/course-fair-kit.js, which levels-8.test.js runs on every leg.
 import { WIDTH as W, MID_X } from './kinds.js';
+import { hpFor } from './course-kinds.js';
 
 export const course = (seed, data) => ({ seed, bunkers: false, course: data });
 
@@ -12,7 +13,8 @@ export const course = (seed, data) => ({ seed, bunkers: false, course: data });
 // nothing and always drops a power-up), its path, the x it starts at and the pattern it fires; a crate holds 'bomb', 'life' or, with
 // none, the usual random drop; a lantern is a checkpoint, and grants an ability or nothing.
 const air = (at, role, path, x, pattern) => ({ kind: 'air', at, role, path, x, pattern });
-const turret = (at, x, hp) => ({ kind: 'turret', at, x, hp });
+// A turret's hp, and a gate's below, come from course-kinds.js hpFor: the seconds of steady fire BREAK_SECS names, in shots.
+const turret = (at, x) => ({ kind: 'turret', at, x, hp: hpFor('turret') });
 const crate = (at, x, hp, drop = null) => ({ kind: 'crate', at, x, hp, drop });
 const stone = (at, x) => ({ kind: 'stone', at, x });
 const pillar = (at, x, w, h) => ({ kind: 'pillar', at, x, w, h });
@@ -24,6 +26,7 @@ const RIGHT = W + 60;
 // Each lantern leaves its quiet stretch behind it: nothing comes up for a while, and the walls stand open to the whole width.
 const LANTERN_1 = 5200;
 const LANTERN_2 = 12200;
+const GATE_HP = hpFor('gate'); // the hold's gates all stand as long under steady fire
 const GATE_AT = 20620; // where the hold's anchor comes up; the scroll stops 380 px on (course-hold.js stopAt), which is the leg's length
 
 const WALLS = [
@@ -33,7 +36,8 @@ const WALLS = [
 ];
 
 // Stretch 1, grey: air craft only, swooping and crossing (grunts, with one gunner, a carrier and two divers). The stones stand shut along
-// the banks, and the walls teach the band: wide, then a gentle narrowing. Nothing here can be hurt from the ground: the seed comes at the lantern.
+// the banks, and the walls teach the band: wide, then a gentle narrowing. The stones can be shot as they pass (every ground object can, the
+// owner's rule), but nothing here asks it: the seed, the ground weapon, comes at the lantern.
 const STRETCH_1 = [
   air(500, 'g', 'swoop', 576, 'aimed'), stone(700, 160), stone(700, 1760),
   air(900, 'g', 'swoop', 1344, 'aimed'),
@@ -51,16 +55,16 @@ const STRETCH_1 = [
   lantern(LANTERN_1, 'seed'),
 ];
 
-// Stretch 2, the ground wakes: turrets fire, crates hold pickups, pillars stand in the river, the walls pinch into a gorge, and a bridge
-// carries a pair of turrets side by side (a seed between them hurts both).
+// Stretch 2, the ground wakes: turrets fire, crates hold pickups, pillars stand in the river (the shots wear one down, as they do a turret: hp
+// is course-ground.js GROUND_HP), the walls pinch into a gorge, and a bridge carries a pair of turrets side by side (a seed between them hurts both).
 const STRETCH_2 = [
-  turret(6700, 700, 3), air(6900, 'g', 'swoop', 1344, 'aimed'),
+  turret(6700, 700), air(6900, 'g', 'swoop', 1344, 'aimed'),
   crate(7200, 1130, 2), air(7400, 'u', 'cross', LEFT, 'fan'),
-  turret(7700, 1100, 3), crate(8000, 560, 2, 'bomb'),
+  turret(7700, 1100), crate(8000, 560, 2, 'bomb'),
   pillar(8200, 900, 140, 150), air(8300, 'd', 'dive', 1100, 'aimed'), air(8600, 'g', 'swoop', 480, 'aimed'),
-  pillar(8800, 1250, 140, 150), turret(9000, 620, 3), air(9300, 'u', 'swoop', 1300, 'homing'),
+  pillar(8800, 1250, 140, 150), turret(9000, 620), air(9300, 'u', 'swoop', 1300, 'homing'),
   air(9900, 'g', 'swoop', 1200, 'aimed'), pillar(10100, 960, 140, 150), air(10300, 'u', 'swoop', 700, 'aimed'),
-  turret(10600, 860, 4), turret(10600, 1060, 4), air(10800, 'g', 'cross', RIGHT, 'fan'), // the bridge: twin turrets, a seed between them hurts both
+  turret(10600, 860), turret(10600, 1060), air(10800, 'g', 'cross', RIGHT, 'fan'), // the bridge: twin turrets, a seed between them hurts both
   crate(11000, 960, 2, 'life'), air(11300, 'd', 'dive', 800, 'aimed'), air(11600, 'u', 'swoop', 1200, 'ring'),
   lantern(LANTERN_2),
 ];
@@ -69,22 +73,22 @@ const STRETCH_2 = [
 // a capstone of three eyes on two uprights, and four flights of craft that come round again every `period` s while it stands.
 const STRETCH_3 = [
   air(13800, 'g', 'dive', 640, 'aimed'), air(13900, 'g', 'dive', 1280, 'aimed'), air(14200, 'u', 'cross', LEFT, 'fan'),
-  turret(14500, 360, 3), turret(14500, 1560, 3), air(14800, 'a', 'swoop', 960, 'homing'), air(15000, 'd', 'dive', 1100, 'aimed'),
+  turret(14500, 360), turret(14500, 1560), air(14800, 'a', 'swoop', 960, 'homing'), air(15000, 'd', 'dive', 1100, 'aimed'),
   crate(15200, 960, 2), air(15400, 'u', 'cross', RIGHT, 'ring'), air(15500, 'g', 'swoop', 480, 'aimed'),
-  turret(15800, 520, 4), turret(15800, 1400, 4), air(16000, 'c', 'swoop', 1200, 'aimed'),
+  turret(15800, 520), turret(15800, 1400), air(16000, 'c', 'swoop', 1200, 'aimed'),
   air(16200, 'a', 'dive', 800, 'aimed'), air(16400, 'u', 'cross', LEFT, 'homing'),
-  turret(16800, 360, 3), turret(16800, 1560, 3), air(16900, 'd', 'dive', 960, 'aimed'),
+  turret(16800, 360), turret(16800, 1560), air(16900, 'd', 'dive', 960, 'aimed'),
   air(17100, 'g', 'dive', 700, 'aimed'), air(17200, 'g', 'dive', 1220, 'aimed'),
   crate(17400, 960, 2, 'bomb'), air(17600, 'u', 'cross', RIGHT, 'fan'), air(17700, 'u', 'cross', LEFT, 'ring'),
-  turret(18000, 480, 4), turret(18000, 1440, 4), air(18300, 'a', 'swoop', 640, 'homing'), air(18400, 'a', 'swoop', 1280, 'homing'),
+  turret(18000, 480), turret(18000, 1440), air(18300, 'a', 'swoop', 640, 'homing'), air(18400, 'a', 'swoop', 1280, 'homing'),
   air(18700, 'd', 'dive', 900, 'aimed'), air(18800, 'd', 'dive', 1020, 'aimed'), crate(19000, 700, 2),
-  air(19200, 'u', 'cross', LEFT, 'ring'), turret(19600, 360, 3), turret(19600, 1560, 3),
+  air(19200, 'u', 'cross', LEFT, 'ring'), turret(19600, 360), turret(19600, 1560),
   air(20000, 'g', 'dive', 600, 'aimed'), air(20100, 'g', 'dive', 1320, 'aimed'), air(20300, 'c', 'swoop', 960, 'aimed'),
   {
     kind: 'hold', at: GATE_AT, period: 5,
     targets: [
-      { x: 800, dy: 180, hp: 8 }, { x: 960, dy: 200, hp: 8 }, { x: 1120, dy: 180, hp: 8 }, // the capstone's eyes
-      { x: 560, dy: 40, hp: 6 }, { x: 1360, dy: 40, hp: 6 }, // the uprights
+      { x: 800, dy: 180, hp: GATE_HP }, { x: 960, dy: 200, hp: GATE_HP }, { x: 1120, dy: 180, hp: GATE_HP }, // the capstone's eyes
+      { x: 560, dy: 40, hp: GATE_HP }, { x: 1360, dy: 40, hp: GATE_HP }, // the uprights
     ],
     flights: [
       { t: 1, role: 'g', path: 'swoop', x: 500, pattern: 'aimed' }, { t: 2, role: 'g', path: 'swoop', x: 1420, pattern: 'fan' },

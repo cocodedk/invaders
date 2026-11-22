@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { SPAWN_Y, GROUND_MARGIN } from '../../src/core/course-kinds.js';
+import { GROUND_HP } from '../../src/core/course-ground.js';
 import { enemyDt } from '../../src/core/twists-2.js';
 import { HEIGHT } from '../../src/core/kinds.js';
 import { level, wave, step, TICK, IDLE } from './world-kit.js';
@@ -54,7 +55,7 @@ test('an entry spawns on the first tick dist reaches its at, at y = SPAWN_Y + di
   assert.equal(world.course.next, 1);
   assert.equal(ground.length, 1);
   const g = ground[0];
-  assert.deepEqual({ kind: g.kind, at: g.at, x: g.x, hp: g.hp }, { kind: 'stone', at, x: 640, hp: null });
+  assert.deepEqual({ kind: g.kind, at: g.at, x: g.x, hp: g.hp }, { kind: 'stone', at, x: 640, hp: GROUND_HP.stone });
   assert.equal(g.y, SPAWN_Y + dist - at);
   assert.ok(g.y >= SPAWN_Y && g.y < SPAWN_Y + SPEED * TICK, 'it enters just above the top edge');
   step(world, 3);
