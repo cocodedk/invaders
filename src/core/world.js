@@ -5,6 +5,7 @@ import { spawnWave, stepAliens } from './aliens.js';
 import { layoutBunkers } from './bunkers.js';
 import { spawnBoss, stepBoss } from './boss.js';
 import { createTwist } from './twists.js';
+import { createCourse } from './course.js';
 import { stepPlay } from './world-step.js';
 import { finished } from './util.js';
 import { INTRO } from './kinds.js';
@@ -16,10 +17,11 @@ export { stars } from './scoring.js';
 // bullets, pickups, bunkers, boss, wave, score, combo, hits, state, events) plus what the pure
 // simulation needs: rng (a { s } state, draw with rand), scale (scaled(level.d), constant),
 // intro (seconds of intro left), gap (seconds to the next wave, or null), march (the current wave's
-// own state, aliens.js), nextId (the next alien id).
+// own state, aliens.js), nextId (the next id, for the aliens and for a course's ground objects).
 // `wave` counts the waves spawned so far (1 while the first is in play; 0 on a boss level, where
 // `boss` holds the fight instead: boss.js). wind, slow, saucer, wrecks, well and twist carry the
-// level's twist (twists.js).
+// level's twist (twists.js). A course level (world 22: no waves, no boss) also has `course`, the scroll and
+// its ground (course.js); no other level has the key.
 // `events` is only pushed to here; main drains it after every step.
 
 export function createWorld(level, seed = level.seed) {
@@ -32,6 +34,7 @@ export function createWorld(level, seed = level.seed) {
   };
   if (level.waves) spawnWave(world);
   if (level.boss) spawnBoss(world, level.boss);
+  if (level.course) world.course = createCourse(level);
   return Object.assign(world, createTwist(level, world.rng));
 }
 
