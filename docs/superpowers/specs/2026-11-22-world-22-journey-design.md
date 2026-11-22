@@ -29,8 +29,7 @@ Decided by the owner in this conversation:
 
 - A third kind of level beside wave levels and boss levels: a **course**, a stretch of land that scrolls
   under the ship with ground targets, air craft and obstacles placed along it, and checkpoints.
-- World 22's first level, **Leg 1**, built and flyable, with its one ability, in the lavish art of the
-  later worlds.
+- World 22's first level, **Leg 1**, built and flyable, with its one ability, in the simple look of the mockup.
 - A frame that makes adding Leg 2 mostly data, art and one new ability.
 
 ## Non-goals (for this build)
@@ -274,7 +273,9 @@ it wakes.
 - **Music:** bright and driving, with a road-trip feel: a plucked lead over warm pads, hand claps and a punchy
   beat, a major-third scale, and the world's own sounds (a lantern chime, a paper flutter). It is matched to the
   other loops' loudness (`memory/music-loudness.md`).
-- **Art bar:** worlds 13, 15 and 16. Show the owner a sample still of the painted valley before the full art pass.
+- **Art bar:** the simple mockup (`https://claude.ai/artifact/U6svQwRCu16DFD8DrW52Lj`). The owner, 2026-11-22: "I like the simplicity
+  of the artifact. let's keep it simple like that. The journey is more important to me right now than the glitter."
+  Effort goes into the journey (more legs, more abilities), not polish.
 - **Theme calls (overrule any):** the names Wanderlight, the Hush, Bloom, Dawn Valley and the Grey Gate, and
   lanterns as the checkpoints.
 
