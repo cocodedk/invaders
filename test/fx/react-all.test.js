@@ -13,7 +13,7 @@ import { TICK, react } from './fx-kit.js';
 import { sampleEvent } from '../event-sample.js';
 
 // Events the core emits that fx deliberately leaves to the screens.
-const SILENT = ['failed'];
+const SILENT = ['failed', 'groundKill']; // groundKill: world 22: sounds and effects come in Task 12
 
 test('every event type the core emits has a reaction, or is listed as silent here', () => {
   const dir = fileURLToPath(new URL('../../src/core/', import.meta.url));

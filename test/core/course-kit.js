@@ -19,9 +19,9 @@ export const onScreen = (a) => a.x >= 0 && a.x <= WIDTH && a.y >= 0 && a.y <= HE
 export const air = (o = {}) => ({ kind: 'air', at: 0, role: 'g', path: 'swoop', x: col(0.4), pattern: 'aimed', ...o });
 
 // A course world around `spawns` with its intro over, no play tick taken yet and the enemy quiet (fireMult 0
-// unless given); `d` is the level's difficulty.
-export function flight(spawns, { fireMult = 0, d } = {}) {
-  const world = createWorld(courseLevel({ speed: 100, length: 6000, starts: [], walls: [], spawns }, d));
+// unless given); `d` is the level's difficulty and `speed` the scroll's, px/s.
+export function flight(spawns, { fireMult = 0, d, speed = 100 } = {}) {
+  const world = createWorld(courseLevel({ speed, length: 6000, starts: [], walls: [], spawns }, d));
   world.scale.fireMult = fireMult;
   while (world.state === 'intro') stepWorld(world, TICK, IDLE);
   return world;

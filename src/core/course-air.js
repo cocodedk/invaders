@@ -2,7 +2,7 @@ import { WIDTH, HEIGHT, MID_X } from './kinds.js';
 import { ROLE } from './levels-2.js';
 import { clamp } from './math.js';
 import { fire, roleHp } from './aliens.js';
-import { SPAWN_Y, CROSS_Y } from './course-kinds.js';
+import { SPAWN_Y, CROSS_Y, inView } from './course-kinds.js';
 
 // Air craft (world 22): ordinary aliens that fly a path through a course instead of holding a formation, so
 // shots, rams, scoring and drops are the aliens' own (aliens.js, collide.js). They sit in world.aliens as
@@ -50,7 +50,6 @@ export function spawnAir(world, e) {
 }
 
 const gone = (a) => a.x < -AIR_MARGIN || a.x > WIDTH + AIR_MARGIN || a.y > HEIGHT + AIR_MARGIN;
-const inView = (a) => a.x >= 0 && a.x <= WIDTH && a.y >= 0 && a.y <= HEIGHT;
 
 // One tick of every live craft, `dt` being the enemy time of the tick (bullet time slows it): fly, lock a dive,
 // retire what has left, and fire (aliens.js `fire`, once for each pattern among the craft still flying, in the
