@@ -9,6 +9,10 @@ import { flight, checkpoint, until, FAST } from './course-kit.js';
 // Checkpoints: how one is reached and what it records. Death and the respawn are course-respawn.test.js.
 
 const X = 700; // where a checkpoint stands
+const SECOND = { at: 2000, x: 1200 }; // and a second one
+const SCORE = 1230; // what the run holds when it reaches the first
+const BOMBS = 3;
+const MARKS = [{ x: 1, at: 1, r: 1 }]; // bursts on the ground by then
 
 // The world stepped until its first checkpoint event, with the ground object read before every tick: it was above the line
 // (and nothing had been announced) until the tick it came down to it.
@@ -29,10 +33,11 @@ test('the level starts as checkpoint 0: a record of the start, with the level\'s
 });
 
 test('a checkpoint is reached on the tick it comes down to RESPAWN_Y: announced, its ability granted, the moment recorded', () => {
-  const world = flight([checkpoint(0, X, 'seed')], { speed: FAST });
-  Object.assign(world.ship, { lives: LIVES + 2, bombs: 3 });
-  world.score = 1230;
-  world.course.marks.push({ x: 1, at: 1, r: 1 });
+  const spawns = [checkpoint(0, X, 'seed')];
+  const world = flight(spawns, { speed: FAST });
+  Object.assign(world.ship, { lives: LIVES + 2, bombs: BOMBS });
+  world.score = SCORE;
+  world.course.marks.push(...MARKS);
   const g = reach(world);
   const { course } = world;
   assert.ok(g.y >= RESPAWN_Y, 'it is at the line');
@@ -42,7 +47,7 @@ test('a checkpoint is reached on the tick it comes down to RESPAWN_Y: announced,
   assert.deepEqual(course.abilities, ['seed']);
   assert.equal(course.lit, 1);
   assert.deepEqual(course.check, {
-    dist: course.dist, next: 1, score: 1230, bombs: 3, lives: LIVES + 2, abilities: ['seed'], marks: 1, x: X,
+    dist: course.dist, next: spawns.length, score: SCORE, bombs: BOMBS, lives: LIVES + 2, abilities: ['seed'], marks: MARKS.length, x: X,
   });
   course.abilities.push('later');
   assert.deepEqual(course.check.abilities, ['seed'], 'a later grant does not change the record');
@@ -63,11 +68,12 @@ test('a checkpoint with no grant, or one whose ability is already held, adds not
 });
 
 test('each checkpoint is the new record, and lit counts them (the index says which)', () => {
-  const world = flight([checkpoint(0, X, 'seed'), checkpoint(2000, 1200)], { speed: FAST });
-  assert.ok(until(world, () => world.course.lit === 2));
-  assert.deepEqual(ofType(world.events, 'checkpoint').map((e) => e.index), [1, 2]);
-  assert.equal(world.course.check.x, 1200);
-  assert.equal(world.course.check.next, 2);
+  const spawns = [checkpoint(0, X, 'seed'), checkpoint(SECOND.at, SECOND.x)];
+  const world = flight(spawns, { speed: FAST });
+  assert.ok(until(world, () => world.course.lit === spawns.length));
+  assert.deepEqual(ofType(world.events, 'checkpoint').map((e) => e.index), spawns.map((_, i) => i + 1));
+  assert.equal(world.course.check.x, SECOND.x);
+  assert.equal(world.course.check.next, spawns.length);
   assert.deepEqual(world.course.check.abilities, ['seed'], 'the second grants nothing, the first stays held');
 });
 

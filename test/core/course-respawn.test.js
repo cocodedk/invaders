@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EPS, MID_X } from '../../src/core/kinds.js';
-import { LIVES, INVULN, hitShip } from '../../src/core/ship.js';
+import { LIVES, INVULN, createShip, hitShip } from '../../src/core/ship.js';
 import { SPAWN_Y } from '../../src/core/course-kinds.js';
 import { hurtGround } from '../../src/core/course-ground.js';
 import { RESPAWN_DELAY, RESPAWN_Y } from '../../src/core/course-check.js';
@@ -14,7 +14,10 @@ import { air, flight, checkpoint, until, FAST } from './course-kit.js';
 const X = 700; // where the checkpoint stands
 const LATER = RESPAWN_Y - SPAWN_Y + 220; // an entry's `at` past the checkpoint at 0, beyond the screen it saw when it was reached
 const DELAY_TICKS = Math.ceil((RESPAWN_DELAY - EPS) / TICK); // ticks the beat runs, the tick of the death not counted
-const turret = (at) => ({ kind: 'turret', at, x: 900, hp: 3 });
+const TURRET_HP = 3;
+const HURT = 1; // hp the run takes off the turret after the checkpoint
+const POINTER = { x: 200, y: 700 }; // where the pointer stands in the tests that hold it
+const turret = (at) => ({ kind: 'turret', at, x: 900, hp: TURRET_HP });
 const ground = (world, kind) => world.course.ground.find((g) => g.kind === kind);
 const kill = (world) => {
   world.ship.lives = 1;
@@ -27,7 +30,7 @@ function leg(lives = LIVES + 2) {
   const world = flight([checkpoint(0, X, 'seed'), turret(LATER), air({ at: LATER })], { speed: FAST });
   Object.assign(world.ship, { lives, bombs: 2 });
   world.score = 1000;
-  assert.ok(until(world, () => world.course.lit === 1));
+  assert.ok(until(world, () => world.course.lit > 0));
   assert.ok(until(world, () => world.aliens.length > 0 && ground(world, 'turret')));
   return world;
 }
@@ -35,7 +38,7 @@ function leg(lives = LIVES + 2) {
 // What the run earns and holds after the checkpoint, all of it lost on a death.
 function gather(world) {
   const { ship, course } = world;
-  hurtGround(world, ground(world, 'turret'), 1);
+  hurtGround(world, ground(world, 'turret'), HURT);
   world.score += 500;
   world.combo.mult = 4;
   world.combo.timer = 1;
@@ -51,6 +54,7 @@ test('the last life lost starts the beat, and the leg rebuilds from the checkpoi
   const world = leg();
   const { ship, course } = world;
   const record = structuredClone(course.check);
+  const { lit } = course;
   gather(world);
   assert.equal(kill(world), true);
   assert.equal(ship.alive, false);
@@ -72,7 +76,7 @@ test('the last life lost starts the beat, and the leg rebuilds from the checkpoi
   assert.deepEqual(course.abilities, record.abilities);
   assert.notEqual(course.abilities, course.check.abilities, 'a copy: a later grant cannot change the record');
   assert.deepEqual(course.check, record, 'the record is kept');
-  assert.equal(course.lit, 1, 'the last checkpoint stays lit');
+  assert.equal(course.lit, lit, 'the last checkpoint stays lit');
   for (const list of [world.aliens, world.bullets, world.shots, world.pickups, course.ground, course.seeds]) assert.equal(list.length, 0);
   assert.deepEqual(world.combo, { mult: 1, timer: 0 });
   assert.deepEqual([ship.alive, ship.x, ship.y, ship.invuln, ship.lives, ship.bombs], [true, X, RESPAWN_Y, INVULN, record.lives, record.bombs]);
@@ -82,17 +86,18 @@ test('the last life lost starts the beat, and the leg rebuilds from the checkpoi
 test('every entry after the checkpoint comes again as it was, a hurt target at full hp; the checkpoint itself does not', () => {
   const world = leg();
   const first = ground(world, 'turret');
+  const { lit } = world.course;
   gather(world);
-  assert.equal(first.hp, 2);
+  assert.equal(first.hp, TURRET_HP - HURT);
   kill(world);
   assert.ok(until(world, () => world.course.respawn === null && world.ship.alive));
   assert.ok(until(world, () => ground(world, 'turret') && world.aliens.length > 0));
   const again = ground(world, 'turret');
   assert.notEqual(again.id, first.id);
-  assert.deepEqual([again.at, again.x, again.hp], [first.at, first.x, 3]);
+  assert.deepEqual([again.at, again.x, again.hp], [first.at, first.x, TURRET_HP]);
   assert.equal(world.course.ground.some((g) => g.kind === 'checkpoint'), false);
-  assert.equal(world.course.lit, 1, 'and it is not reached twice');
-  assert.deepEqual(ofType(world.events, 'checkpoint').length, 1);
+  assert.equal(world.course.lit, lit, 'and it is not reached twice');
+  assert.equal(ofType(world.events, 'checkpoint').length, lit);
 });
 
 test('lives refill to the checkpoint\'s, and never fewer than the start\'s', () => {
@@ -113,7 +118,7 @@ test('a death before any checkpoint returns to the start: checkpoint 0', () => {
   kill(world);
   assert.ok(until(world, () => world.ship.alive));
   const { ship, course } = world;
-  assert.deepEqual([course.dist, course.next, world.score, ship.x, ship.y, ship.bombs], [0, 0, 0, MID_X, RESPAWN_Y, 1]);
+  assert.deepEqual([course.dist, course.next, world.score, ship.x, ship.y, ship.bombs], [0, 0, 0, MID_X, RESPAWN_Y, createShip().bombs]);
   assert.deepEqual(course.abilities, ['seed']);
   assert.equal(course.ground.length, 0);
   assert.ok(until(world, () => ground(world, 'turret')), 'the turret comes again');
@@ -125,7 +130,7 @@ test('a ship that is down neither moves, fires, drops a seed nor bombs, and a bo
   kill(world);
   const { ship, course } = world;
   const { x, y, bombs } = ship;
-  const keys = input({ fire: true, bomb: true, target: { x: 200, y: 700 } });
+  const keys = input({ fire: true, bomb: true, target: POINTER });
   step(world, 1, keys);
   const { dist } = course;
   for (let i = 1; i < DELAY_TICKS; i++) {
@@ -138,7 +143,7 @@ test('a ship that is down neither moves, fires, drops a seed nor bombs, and a bo
   assert.deepEqual(world.events.filter((e) => e.type === 'fire' || e.type === 'bomb'), [], 'nothing was fired or bombed');
   step(world, 3, keys);
   assert.equal(ship.bombs, bombs, 'the key held through the beat is no fresh press');
-  assert.deepEqual([world.shots.length > 0, ship.x, ship.y], [true, 200, 700], 'a living ship fires and follows the pointer');
+  assert.deepEqual([world.shots.length > 0, ship.x, ship.y], [true, POINTER.x, POINTER.y], 'a living ship fires and follows the pointer');
 });
 
 test('a ship that goes down on the tick a checkpoint comes to the line has not reached it', () => {
@@ -149,12 +154,12 @@ test('a ship that goes down on the tick a checkpoint comes to the line has not r
   step(world);
   assert.ok(world.course.ground[0].y >= RESPAWN_Y, 'it came to the line');
   assert.deepEqual([world.course.lit, ofType(world.events, 'checkpoint').length, world.course.abilities], [0, 0, []]);
-  assert.ok(until(world, () => world.course.lit === 1), 'it comes again after the respawn');
+  assert.ok(until(world, () => world.course.lit > 0), 'it comes again after the respawn');
 });
 
 test('a hold standing at the death is let go (course.held, once holds exist)', () => {
   const world = flight([checkpoint(0, X)], { speed: FAST });
-  assert.ok(until(world, () => world.course.lit === 1));
+  assert.ok(until(world, () => world.course.lit > 0));
   world.course.held = { holdId: 0, t: 4 };
   kill(world);
   assert.ok(until(world, () => world.ship.alive));
