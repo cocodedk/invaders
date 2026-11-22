@@ -51,6 +51,13 @@ export function awardFlat(world, points) {
   world.score += points;
 }
 
+// A course's respawn (world 22): the score goes back to what the checkpoint held, and the combo is lost.
+export function restoreScore(world, score) {
+  world.score = score;
+  world.combo.mult = 1;
+  world.combo.timer = 0;
+}
+
 // A pickup collected: its points go on the score. Returns the fields of the event that announces it,
 // which the caller emits: `pickup` (the ship caught it) or `sweep` (the clear swept it up).
 export function awardPickup(world, p) {

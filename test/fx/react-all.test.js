@@ -13,7 +13,8 @@ import { TICK, react } from './fx-kit.js';
 import { sampleEvent } from '../event-sample.js';
 
 // Events the core emits that fx deliberately leaves to the screens.
-const SILENT = ['failed', 'groundKill', 'seedBurst', 'chip']; // groundKill, seedBurst, chip: world 22: sounds and effects come in Task 12
+// groundKill, seedBurst, chip, checkpoint, ability, respawn: world 22: sounds and effects come in Task 12
+const SILENT = ['failed', 'groundKill', 'seedBurst', 'chip', 'checkpoint', 'ability', 'respawn'];
 
 test('every event type the core emits has a reaction, or is listed as silent here', () => {
   const dir = fileURLToPath(new URL('../../src/core/', import.meta.url));

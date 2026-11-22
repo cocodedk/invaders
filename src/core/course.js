@@ -3,6 +3,7 @@ import { prune } from './util.js';
 import { spawnAir, stepAir } from './course-air.js';
 import { spawnGround, stepGround } from './course-ground.js';
 import { stepSeeds } from './course-seed.js';
+import { startCheck, reachCheckpoints, stepRespawn } from './course-check.js';
 import { terrainHits } from './course-terrain.js';
 import { SPAWN_Y, GROUND_MARGIN } from './course-kinds.js';
 
@@ -14,6 +15,9 @@ import { SPAWN_Y, GROUND_MARGIN } from './course-kinds.js';
 //           its `starts` and a checkpoint can grant more
 //   seeds   the seeds in the air, { x, at, t }; seedCool is the s until the next may drop
 //   marks   where seeds have burst, { x, at, r }; the view paints the ground's change from them
+//   respawn s left of the beat after the last life was lost, or null; the scroll stands still through it (course-check.js)
+//   check   the record of the last checkpoint reached, checkpoint 0 being the start, and lit how many have been reached
+//           (course-check.js)
 //   ground  the objects on the ground now, each { id, kind, at, x, y, hp } (a turret, a crate and a pillar hold a
 //           little more, course-ground.js); y is never stored as a speed, it is derived from the scroll (y = SPAWN_Y + dist - at),
 //           so whatever stops `dist` stops the ground too
@@ -21,20 +25,25 @@ import { SPAWN_Y, GROUND_MARGIN } from './course-kinds.js';
 // SPAWN_Y and the other constants more than one module reads are in course-kinds.js.
 
 export function createCourse(level) {
-  return { dist: 0, next: 0, ground: [], abilities: [...(level.course.starts ?? [])], marks: [], seeds: [], seedCool: 0 };
+  return {
+    dist: 0, next: 0, ground: [], abilities: [...(level.course.starts ?? [])], marks: [], seeds: [], seedCool: 0,
+    respawn: null, check: startCheck(level), lit: 0,
+  };
 }
 
 // One tick of the course: scroll, move the air craft (course-air.js: they fly paths in seconds, not with the
 // scroll, and in `slow`, the enemy time of this tick: stepPlay's enemyDt, bullet time included; `dist` and the
 // ground keep real time, but the turrets on it fire in `slow`), let the entries whose `at` has come up spawn in array
-// order (an air craft becomes an alien, every other kind a ground object), put the ground where the scroll says, let the
-// walls and the pillars ram the ship (course-terrain.js), drop the seeds and let the ones and the bomb that are due
-// hurt it (`input` is the tick's, course-seed.js), let the turrets fire (course-ground.js), and drop what has broken or
-// sunk off the bottom. An air craft spawned this tick stands at its start until the next one.
+// order (an air craft becomes an alien, every other kind a ground object), put the ground where the scroll says, reach
+// the checkpoints that have come down to the respawn line (course-check.js), let the walls and the pillars ram the ship
+// (course-terrain.js), drop the seeds and let the ones and the bomb that are due hurt it (`input` is the tick's,
+// course-seed.js), let the turrets fire (course-ground.js), drop what has broken or sunk off the bottom, and last start
+// or run down the beat after a death (course-check.js). While that beat runs nothing scrolls, so no entry comes up. An air
+// craft spawned this tick stands at its start until the next one.
 export function stepCourse(world, dt, slow = dt, input = {}) {
   const { course } = world;
   const { speed, spawns } = world.level.course;
-  course.dist += speed * dt;
+  if (course.respawn === null) course.dist += speed * dt;
   stepAir(world, slow);
   while (course.next < spawns.length && spawns[course.next].at <= course.dist) {
     const e = spawns[course.next++];
@@ -42,9 +51,11 @@ export function stepCourse(world, dt, slow = dt, input = {}) {
     else spawnGround(world, e);
   }
   for (const g of course.ground) g.y = SPAWN_Y + course.dist - g.at;
+  reachCheckpoints(world);
   terrainHits(world);
   stepSeeds(world, dt, input);
   stepGround(world, slow);
   // hp 0 is broken, a stone has hp null; an object goes once its top edge is past the margin (h is a pillar's height)
   prune(course.ground, (g) => g.hp !== 0 && g.y - (g.h ?? 0) / 2 <= HEIGHT + GROUND_MARGIN);
+  stepRespawn(world, dt);
 }

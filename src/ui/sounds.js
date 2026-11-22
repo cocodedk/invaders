@@ -29,6 +29,9 @@ export const SILENT = {
   groundKill: 'world 22: sounds and effects come in Task 12',
   seedBurst: 'world 22: sounds and effects come in Task 12',
   chip: 'world 22: sounds and effects come in Task 12 (a broken bullet, cut, sounds as the shuriken cut does)',
+  checkpoint: 'world 22: sounds and effects come in Task 12',
+  ability: 'world 22: sounds and effects come in Task 12',
+  respawn: 'world 22: sounds and effects come in Task 12',
 };
 
 const at = (e) => ({ x: e.x });

@@ -63,13 +63,14 @@ function won(world) {
 
 // Cleared beats failed: the last wave gone is a clear even if the ship died that same tick. A clear
 // first sweeps up the pickups still falling (their sweep events, then `cleared` with every point in).
+// A course (world 22) never fails: its last life lost sends it back to its checkpoint (course-check.js).
 function settle(world) {
   if (won(world)) {
     sweepPickups(world);
     const { bonus, medal } = awardClear(world); // the whole tally stays on world.tally
     world.state = 'cleared';
     emit(world, 'cleared', { score: world.score, bonus, stars: stars(world), medal });
-  } else if (world.ship.lives <= 0) {
+  } else if (!world.course && world.ship.lives <= 0) {
     world.state = 'failed';
     emit(world, 'failed');
   }

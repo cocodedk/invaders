@@ -12,6 +12,7 @@ import { inView } from './course-kinds.js';
 //           first shot comes TURRET_COOL s after the turret appears, and one that is not seen never fires)
 //   crate   + drop  the pickup it holds ('bomb' or 'life'), or null for the usual random drop (powerups.js dropPickup)
 //   pillar  + w, h  its box's size, its (x, y) being the centre; it rams the ship (course-terrain.js)
+//   checkpoint + grants, reached  the ability it grants ('seed' or null), and whether the ship has reached it (course-check.js)
 // A turret is an enemy, so its timer runs in the slowed enemy time of the tick (bullet time slows it), and it draws no
 // rng: its shot is the heavy pattern, an aimed bullet, which does not. Ground targets are low: the ship flies over them
 // and nothing rams, and no ship shot or beam touches them (collide.js knows nothing of the ground). Only hurtGround hurts
@@ -29,6 +30,7 @@ export function spawnGround(world, e) {
   if (e.kind === 'turret') g.cool = TURRET_COOL;
   if (e.kind === 'crate') g.drop = e.drop ?? null;
   if (e.kind === 'pillar') Object.assign(g, { w: e.w, h: e.h });
+  if (e.kind === 'checkpoint') Object.assign(g, { grants: e.grants ?? null, reached: false });
   world.course.ground.push(g);
 }
 
