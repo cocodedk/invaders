@@ -17,7 +17,8 @@ import { emit } from './util.js';
 //                second in b.burn (damage.js drip does the same for aliens) and loses one hp for each whole point
 // A bullet that is hurt but not broken says 'chip' { x, y, pattern, hp }. One that breaks is dropped with the dead, pays
 // CUT_SCORE outside the combo, and says 'cut' { x, y, pattern } (the event the shuriken's cut already uses).
-// A course has no boss, so a shot is only ever weighed against air craft. Seeds and the ground never touch a bullet.
+// A course has no boss for now (the design leaves it for later; a boss would need its parts weighed against a bullet here too), so
+// a shot is only ever weighed against air craft. Seeds and the ground never touch a bullet.
 
 export const BULLET_HP = { aimed: 1, fan: 1, ring: 1, spiral: 1, rain: 1, homing: 2, heavy: 3 };
 export const CUT_DMG = 1; // hp a gun shot takes off a bullet

@@ -6,6 +6,7 @@ import { TURRET_PATTERN } from '../../src/core/course-ground.js';
 import { BEAM_W } from '../../src/core/weapons.js';
 import { LASER_WARN, LASER_BEAM } from '../../src/core/patterns.js';
 import { bolt, SHOT_SPEED, SHIP_R } from '../../src/core/ship.js';
+import { enemyDt } from '../../src/core/twists-2.js';
 import { step, shotAt, drain, ofType, FIRE } from './world-kit.js';
 import { flight, air } from './course-kit.js';
 
@@ -48,6 +49,7 @@ function breakIt(world, b) {
 test('every bullet with hit points breaks after BULLET_HP / CUT_DMG shots: a chip for each hit before the last, then a cut', () => {
   assert.ok(BULLET_HP.aimed <= CUT_DMG, 'a small bullet breaks on the first shot');
   assert.ok(BULLET_HP.aimed < BULLET_HP.homing && BULLET_HP.homing < BULLET_HP.heavy, 'a homing bullet takes more, a heavy one most');
+  assert.ok(TURRET_PATTERN === 'heavy' && BULLET_HP[TURRET_PATTERN] === Math.max(...Object.values(BULLET_HP)), 'the turrets fire the toughest');
   for (const pattern of Object.keys(BULLET_HP)) {
     const world = cutWorld();
     const b = put(world, pattern);
@@ -85,7 +87,7 @@ test('a cut pays CUT_SCORE, outside the combo, and is not a near miss however cl
 });
 
 test('a shot breaks a bullet it touches, and not one it passes by or one it reaches after it ran out of life', () => {
-  const reach = BULLET_R + 5; // the bullet's radius and the shot's
+  const reach = BULLET_R + bolt(0, 0, 0, 0).r; // the bullet's radius and the shot's
   for (const [dx, life, cut, flies] of [[reach - 1, 1, true, false], [reach + 1, 1, false, true], [0, TICK / 2, false, false]]) {
     const world = cutWorld();
     const b = put(world, 'aimed');
@@ -97,17 +99,20 @@ test('a shot breaks a bullet it touches, and not one it passes by or one it reac
   }
 });
 
-test('a bullet that crossed the shot\'s path within the tick was met, wherever it ended', () => {
-  const world = cutWorld();
-  const run = 50; // px it flies sideways in one tick, from one side of the shot's column to the other
-  const b = put(world, 'aimed', BULLET.x - run / 2, BULLET.y);
-  b.vx = run / TICK;
-  const shot = bolt(BULLET.x, BULLET.y + 10, 0, -SHOT_SPEED);
-  world.shots.push(shot);
-  step(world);
-  assert.ok(b.x - BULLET.x > BULLET_R + 5, 'it ended well clear of the column');
-  assert.equal(b.life <= 0, true);
-  assert.equal(world.shots.includes(shot), false);
+test('a bullet that crossed the shot\'s path within the tick was met, wherever it ended; one that flew away from it was not, in bullet time too', () => {
+  const run = 50; // px it flies sideways in one tick: across the shot's column, or off from just outside its reach
+  const reach = BULLET_R + bolt(0, 0, 0, 0).r;
+  for (const [kind, dx, cut] of [[null, -run / 2, true], ['slow', -run / 2, true], ['slow', reach + 2, false]]) {
+    const world = cutWorld();
+    world.ship.power = kind && { kind, left: 60 };
+    const b = put(world, 'aimed', BULLET.x + dx, BULLET.y);
+    b.vx = run / enemyDt(world, TICK);
+    const shot = bolt(BULLET.x, BULLET.y + 10, 0, -SHOT_SPEED);
+    world.shots.push(shot);
+    step(world);
+    assert.ok(b.x - BULLET.x > reach, 'it ended well clear of the column');
+    assert.deepEqual([b.life <= 0, !world.shots.includes(shot)], [cut, cut]);
+  }
 });
 
 test('two shots in one tick cannot both spend themselves on one bullet that the first broke', () => {
@@ -190,9 +195,4 @@ test('the beam leaves alone what is outside its column, below the muzzle, or an 
   const idle = put(quiet, 'heavy', quiet.ship.x, BULLET.y);
   step(quiet, 60);
   assert.ok(idle.life > 0 && idle.hp === undefined);
-});
-
-test('the turrets fire the heavy shot, so they are the bullets that take the most hits', () => {
-  assert.equal(TURRET_PATTERN, 'heavy');
-  assert.equal(BULLET_HP[TURRET_PATTERN], Math.max(...Object.values(BULLET_HP)));
 });
