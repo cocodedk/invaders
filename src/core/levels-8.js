@@ -1,53 +1,104 @@
 // Level data for world 22 (Wanderlight): a world of one level, which is a course (course.js) in place of waves or a boss.
 // `course(seed, data)` is a level spec like `lv` in levels-2.js, and `data` is { speed, length, starts, walls, spawns }: the scroll's
 // speed in px/s and length in px, the abilities the leg begins with, the wall keyframes ([at, left, right]) and the entries, in order of
-// `at` (what each kind takes is in course-air.js, course-ground.js, course-hold.js and course-check.js). A leg's data must break none of
-// the rules of test/core/course-fair-kit.js, which levels-8.test.js runs on every leg.
+// `at` (what each kind takes is in course-air.js, course-ground.js, course-hold.js and course-check.js). `at` is a row of the course in
+// px of scroll: an entry comes up above the screen when the scroll reaches it, and a second of scroll is `speed` px. A leg's data must
+// break none of the rules of test/core/course-fair-kit.js, which levels-8.test.js runs on every leg.
+import { WIDTH as W, MID_X } from './kinds.js';
 
 export const course = (seed, data) => ({ seed, bunkers: false, course: data });
 
-// Leg 1, for now a placeholder that obeys every data rule: open land that narrows into a gorge with a pillar in it and opens again,
-// a checkpoint that grants the ground weapon (seeds), a stretch of turrets, a crate and air craft, a second checkpoint, one more
-// stretch, and the end hold of two gates. The real Leg 1 replaces it. Its entries stand where the quiet stretches allow: after a
-// checkpoint nothing comes up for a while and the walls stay open to the whole width (course-fair-kit.js, `quiet`).
+// The shorthand, one entry a call. An air craft takes its role letter (g grunt, d diver, u gunner, a armored, c carrier: a carrier fires
+// nothing and always drops a power-up), its path, the x it starts at and the pattern it fires; a crate holds 'bomb', 'life' or, with
+// none, the usual random drop; a lantern is a checkpoint, and grants an ability or nothing.
+const air = (at, role, path, x, pattern) => ({ kind: 'air', at, role, path, x, pattern });
+const turret = (at, x, hp) => ({ kind: 'turret', at, x, hp });
+const crate = (at, x, hp, drop = null) => ({ kind: 'crate', at, x, hp, drop });
+const stone = (at, x) => ({ kind: 'stone', at, x });
+const pillar = (at, x, w, h) => ({ kind: 'pillar', at, x, w, h });
+const lantern = (at, grants = null) => ({ kind: 'checkpoint', at, x: MID_X, grants });
+const LEFT = -60; // where a crossing starts: beyond the edge it comes from
+const RIGHT = W + 60;
+
+// Leg 1, Dawn Valley: about two minutes of scroll in three stretches, split by two lanterns (checkpoints), ending on the Grey Gate.
+// Each lantern leaves its quiet stretch behind it: nothing comes up for a while, and the walls stand open to the whole width.
+const LANTERN_1 = 5200;
+const LANTERN_2 = 12200;
+const GATE_AT = 20620; // where the hold's anchor comes up; the scroll stops 380 px on (course-hold.js stopAt), which is the leg's length
+
+const WALLS = [
+  [0, 0, W], [1900, 0, W], [3200, 260, 1660], [3900, 260, 1660], [4900, 0, W], // open land, then a gentle narrowing, then open
+  [8900, 0, W], [9700, 480, 1440], [11200, 480, 1440], [12100, 0, W], // the gorge: 960 px of river
+  [14300, 0, W], [15300, 240, 1680], // the banks close in for stretch 3 and stay
+];
+
+// Stretch 1, grey: air craft only, swooping and crossing (grunts, with one gunner, a carrier and two divers). The stones stand shut along
+// the banks, and the walls teach the band: wide, then a gentle narrowing. Nothing here can be hurt from the ground: the seed comes at the lantern.
+const STRETCH_1 = [
+  air(500, 'g', 'swoop', 576, 'aimed'), stone(700, 160), stone(700, 1760),
+  air(900, 'g', 'swoop', 1344, 'aimed'),
+  air(1250, 'g', 'cross', LEFT, 'aimed'), stone(1400, 160), stone(1400, 1760),
+  air(1600, 'c', 'swoop', 1500, 'aimed'),
+  air(1900, 'g', 'cross', RIGHT, 'fan'), air(2000, 'g', 'swoop', 480, 'aimed'),
+  stone(2150, 160), stone(2150, 1760),
+  air(2400, 'g', 'swoop', 1440, 'fan'), air(2650, 'g', 'swoop', 640, 'aimed'),
+  stone(2800, 160), stone(2800, 1760),
+  air(2900, 'd', 'cross', LEFT, 'aimed'), air(3200, 'g', 'swoop', 1280, 'fan'),
+  stone(3400, 380), stone(3400, 1540),
+  air(3500, 'g', 'cross', RIGHT, 'aimed'), air(3800, 'u', 'swoop', 700, 'aimed'),
+  stone(4000, 380), stone(4000, 1540),
+  air(4200, 'g', 'swoop', 1260, 'fan'), air(4400, 'd', 'cross', LEFT, 'aimed'), air(4700, 'g', 'swoop', 560, 'aimed'),
+  lantern(LANTERN_1, 'seed'),
+];
+
+// Stretch 2, the ground wakes: turrets fire, crates hold pickups, pillars stand in the river, the walls pinch into a gorge, and a bridge
+// carries a pair of turrets side by side (a seed between them hurts both).
+const STRETCH_2 = [
+  turret(6700, 700, 3), air(6900, 'g', 'swoop', 1344, 'aimed'),
+  crate(7200, 1130, 2), air(7400, 'u', 'cross', LEFT, 'fan'),
+  turret(7700, 1100, 3), crate(8000, 560, 2, 'bomb'),
+  pillar(8200, 900, 140, 150), air(8300, 'd', 'dive', 1100, 'aimed'), air(8600, 'g', 'swoop', 480, 'aimed'),
+  pillar(8800, 1250, 140, 150), turret(9000, 620, 3), air(9300, 'u', 'swoop', 1300, 'homing'),
+  air(9900, 'g', 'swoop', 1200, 'aimed'), pillar(10100, 960, 140, 150), air(10300, 'u', 'swoop', 700, 'aimed'),
+  turret(10600, 860, 4), turret(10600, 1060, 4), air(10800, 'g', 'cross', RIGHT, 'fan'), // the bridge: twin turrets, a seed between them hurts both
+  crate(11000, 960, 2, 'life'), air(11300, 'd', 'dive', 800, 'aimed'), air(11600, 'u', 'swoop', 1200, 'ring'),
+  lantern(LANTERN_2),
+];
+
+// Stretch 3, the Grey Gate: faster craft and dives, turrets on both banks, a last bomb before the hold. Then the hold itself: the dolmen,
+// a capstone of three eyes on two uprights, and four flights of craft that come round again every `period` s while it stands.
+const STRETCH_3 = [
+  air(13800, 'g', 'dive', 640, 'aimed'), air(13900, 'g', 'dive', 1280, 'aimed'), air(14200, 'u', 'cross', LEFT, 'fan'),
+  turret(14500, 360, 3), turret(14500, 1560, 3), air(14800, 'a', 'swoop', 960, 'homing'), air(15000, 'd', 'dive', 1100, 'aimed'),
+  crate(15200, 960, 2), air(15400, 'u', 'cross', RIGHT, 'ring'), air(15500, 'g', 'swoop', 480, 'aimed'),
+  turret(15800, 520, 4), turret(15800, 1400, 4), air(16000, 'c', 'swoop', 1200, 'aimed'),
+  air(16200, 'a', 'dive', 800, 'aimed'), air(16400, 'u', 'cross', LEFT, 'homing'),
+  turret(16800, 360, 3), turret(16800, 1560, 3), air(16900, 'd', 'dive', 960, 'aimed'),
+  air(17100, 'g', 'dive', 700, 'aimed'), air(17200, 'g', 'dive', 1220, 'aimed'),
+  crate(17400, 960, 2, 'bomb'), air(17600, 'u', 'cross', RIGHT, 'fan'), air(17700, 'u', 'cross', LEFT, 'ring'),
+  turret(18000, 480, 4), turret(18000, 1440, 4), air(18300, 'a', 'swoop', 640, 'homing'), air(18400, 'a', 'swoop', 1280, 'homing'),
+  air(18700, 'd', 'dive', 900, 'aimed'), air(18800, 'd', 'dive', 1020, 'aimed'), crate(19000, 700, 2),
+  air(19200, 'u', 'cross', LEFT, 'ring'), turret(19600, 360, 3), turret(19600, 1560, 3),
+  air(20000, 'g', 'dive', 600, 'aimed'), air(20100, 'g', 'dive', 1320, 'aimed'), air(20300, 'c', 'swoop', 960, 'aimed'),
+  {
+    kind: 'hold', at: GATE_AT, period: 5,
+    targets: [
+      { x: 800, dy: 180, hp: 8 }, { x: 960, dy: 200, hp: 8 }, { x: 1120, dy: 180, hp: 8 }, // the capstone's eyes
+      { x: 560, dy: 40, hp: 6 }, { x: 1360, dy: 40, hp: 6 }, // the uprights
+    ],
+    flights: [
+      { t: 1, role: 'g', path: 'swoop', x: 500, pattern: 'aimed' }, { t: 2, role: 'g', path: 'swoop', x: 1420, pattern: 'fan' },
+      { t: 3, role: 'u', path: 'cross', x: RIGHT, pattern: 'ring' }, { t: 4, role: 'd', path: 'dive', x: 960, pattern: 'aimed' },
+    ],
+  },
+];
+
 const LEG_1 = {
   speed: 200,
-  length: 9080, // where the end hold stops the scroll (course-hold.js stopAt): the leg ends on it
+  length: 21000, // where the hold stops the scroll (course-hold.js stopAt): the leg ends on it
   starts: [],
-  walls: [
-    [0, 0, 1920], [800, 0, 1920], [1400, 400, 1500], [2200, 400, 1500], [2800, 0, 1920],
-    [4580, 0, 1920], [4980, 300, 1600], [5700, 300, 1600], [6300, 0, 1920],
-    [7780, 0, 1920], [8200, 300, 1600],
-  ],
-  spawns: [
-    { kind: 'air', at: 500, role: 'g', path: 'swoop', x: 576, pattern: 'aimed' },
-    { kind: 'air', at: 700, role: 'g', path: 'cross', x: -50, pattern: 'fan' },
-    { kind: 'turret', at: 1000, x: 500, hp: 3 },
-    { kind: 'air', at: 1100, role: 'd', path: 'dive', x: 1152, pattern: 'aimed' },
-    { kind: 'crate', at: 1200, x: 1400, hp: 2, drop: 'bomb' },
-    { kind: 'stone', at: 1300, x: 1000 },
-    { kind: 'pillar', at: 1800, x: 900, w: 140, h: 140 },
-    { kind: 'air', at: 2000, role: 'u', path: 'swoop', x: 1344, pattern: 'ring' },
-    { kind: 'checkpoint', at: 3200, x: 960, grants: 'seed' },
-    { kind: 'turret', at: 4680, x: 700, hp: 3 },
-    { kind: 'crate', at: 4780, x: 1200, hp: 2, drop: 'life' },
-    { kind: 'air', at: 4880, role: 'a', path: 'dive', x: 960, pattern: 'aimed' },
-    { kind: 'air', at: 4980, role: 'u', path: 'swoop', x: 768, pattern: 'homing' },
-    { kind: 'pillar', at: 5400, x: 1000, w: 140, h: 140 },
-    { kind: 'air', at: 5600, role: 'd', path: 'cross', x: 1970, pattern: 'fan' },
-    { kind: 'checkpoint', at: 6400, x: 960, grants: null },
-    { kind: 'turret', at: 7880, x: 900, hp: 3 },
-    { kind: 'air', at: 8000, role: 'g', path: 'swoop', x: 1152, pattern: 'aimed' },
-    { kind: 'air', at: 8200, role: 'u', path: 'swoop', x: 640, pattern: 'homing' },
-    {
-      kind: 'hold', at: 8700, period: 5,
-      targets: [{ x: 600, dy: 0, hp: 6 }, { x: 1200, dy: 60, hp: 6 }],
-      flights: [
-        { t: 2, role: 'g', path: 'swoop', x: 500, pattern: 'aimed' },
-        { t: 4, role: 'd', path: 'cross', x: 1970, pattern: 'fan' },
-      ],
-    },
-  ],
+  walls: WALLS,
+  spawns: [...STRETCH_1, ...STRETCH_2, ...STRETCH_3],
 };
 
 export const JOURNEY = [[course(220519, LEG_1)]];
