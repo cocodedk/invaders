@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { HEIGHT } from '../../src/core/kinds.js';
 import { SPAWN_Y } from '../../src/core/course-kinds.js';
 import { TURRET_COOL, TURRET_PATTERN, GROUND_SCORE, hurtGround } from '../../src/core/course-ground.js';
+import { HEAVY_SPEED } from '../../src/core/patterns.js';
 import { COMBO_WINDOW } from '../../src/core/scoring.js';
 import { makePickup } from '../../src/core/powerups.js';
 import { enemyDt } from '../../src/core/twists-2.js';
@@ -60,17 +61,18 @@ test('a turret on screen fires every TURRET_COOL, the first shot a whole cooldow
   assert.equal(world.rng.s, rng, 'no draw on the way');
 });
 
-test('the shot is the turret pattern, aimed at the ship, from the turret, at the speed of the world bullets', () => {
+test('the shot is the turret pattern, aimed at the ship, from the turret, at the heavy shot\'s share of the world bullets\' speed', () => {
   const world = turretWorld();
   untilSeen(world);
   const { b, g } = shotsOf(world, 1)[0];
   const { ship, scale } = world;
   assert.equal(b.pattern, TURRET_PATTERN);
   assert.deepEqual([b.x, b.y], [g.x, g.y]);
-  assert.ok(Math.abs(Math.hypot(b.vx, b.vy) - scale.bulletSpeed) < 1e-6);
+  const speed = scale.bulletSpeed * HEAVY_SPEED;
+  assert.ok(Math.abs(Math.hypot(b.vx, b.vy) - speed) < 1e-6);
   const dist = Math.hypot(ship.x - g.x, ship.y - g.y);
-  assert.ok(Math.abs(b.vx / scale.bulletSpeed - (ship.x - g.x) / dist) < 1e-9);
-  assert.ok(Math.abs(b.vy / scale.bulletSpeed - (ship.y - g.y) / dist) < 1e-9);
+  assert.ok(Math.abs(b.vx / speed - (ship.x - g.x) / dist) < 1e-9);
+  assert.ok(Math.abs(b.vy / speed - (ship.y - g.y) / dist) < 1e-9);
 });
 
 test('a turret that has sunk below the bottom edge no longer fires, though its timer is up', () => {

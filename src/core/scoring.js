@@ -8,7 +8,8 @@ import { parOf } from './pars.js';
 // raises mult by 1 (up to COMBO_MAX); timer counts down and mult falls back to 1 at 0. A pickup is
 // worth a flat PICKUP_POINTS, caught or swept up at the clear (R51), and a boss's death a flat
 // BOSS_POINTS: no multiplier, the combo untouched, so they read the same every time. A kill's points come
-// through awardPoints: an alien's (awardKill) and a ground target's (world 22). The clear tallies
+// through awardPoints: an alien's (awardKill) and a ground target's (world 22). A bullet broken by a shot (world 22) is
+// a flat award too (awardFlat), outside the combo. The clear tallies
 // the round (R66): the clear bonus, BOMB_POINTS for each bomb held when none was fired, LIFE_POINTS for
 // each life held, and then the whole round times its speed (speedOf). A clear without a power-up
 // caught earns the level's medal (ranks.js).
@@ -43,6 +44,11 @@ export function awardKill(world, alien, scored = true) {
   const { id, role, x, y } = alien;
   emit(world, 'kill', { id, role, x, y, score: points, mult: c.mult, scored });
   emit(world, 'explode', { x, y, size: 1 });
+}
+
+// `points` on the score and nothing else moved: no combo. A broken bullet's (world 22, course-cut.js).
+export function awardFlat(world, points) {
+  world.score += points;
 }
 
 // A pickup collected: its points go on the score. Returns the fields of the event that announces it,

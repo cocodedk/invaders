@@ -7,10 +7,10 @@ import { GROUND_R, hurtGround } from './course-ground.js';
 // The ground weapon (world 22) and the bomb on the ground: the only two things that hurt a ground object.
 // A seed is { x, at, t } in course.seeds: dropped where the ship's gun is, SEED_REACH px ahead of it on the screen, it
 // is fixed to the ground it fell on (x and `at` are course coordinates, so the scroll carries it down the screen with
-// the land) and bursts `t` s later. A burst hurts every ground object within SEED_R of it (a ground object counts
-// from its own edge, GROUND_R), adds { x, at, r } to course.marks (what the view paints, so a respawn or a snapshot
-// shows the same land) and says 'seedBurst'. Seeds are the player's, so they run in real time, and they never touch a
-// bullet or an air craft. The ability is `'seed'` in course.abilities (a level's `starts`, or a checkpoint's grant);
+// the land) and bursts `t` s later. A burst hurts every ground object on the screen within SEED_R of it (one above the top
+// edge, which the player cannot see, takes nothing; a ground object counts from its own edge, GROUND_R), adds { x, at, r }
+// to course.marks (what the view paints, so a respawn or a snapshot shows the same land) and says 'seedBurst'. Seeds are
+// the player's, so they run in real time, and they never touch a bullet or an air craft. The ability is `'seed'` in course.abilities (a level's `starts`, or a checkpoint's grant);
 // with it, holding fire drops one every SEED_COOLDOWN s as well as the gun's shots. They draw no rng.
 
 export const SEED_COOLDOWN = 0.4; // s between one seed and the next while fire is held
@@ -27,7 +27,7 @@ function burst(world, s) {
   const { course } = world;
   const reach2 = (SEED_R + GROUND_R) ** 2;
   for (const g of course.ground) {
-    if ((g.x - s.x) ** 2 + (g.at - s.at) ** 2 <= reach2) hurtGround(world, g, SEED_DMG);
+    if (inView(g) && (g.x - s.x) ** 2 + (g.at - s.at) ** 2 <= reach2) hurtGround(world, g, SEED_DMG);
   }
   course.marks.push({ x: s.x, at: s.at, r: SEED_R });
   emit(world, 'seedBurst', { x: s.x, y: yOf(course, s.at), r: SEED_R });

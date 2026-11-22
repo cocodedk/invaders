@@ -15,6 +15,9 @@ const LIFE = 6; // s; long enough to cross the screen at the slowest speed, shor
 const HOMING_TURN = Math.PI / 3; // 60 degrees a second
 const HOMING_LIFE = 4;
 const LASER_R = 9; // half of the 18 px beam
+export const HEAVY_R = 16; // px: twice the small bullets', so it reads as heavy
+export const HEAVY_SPEED = 0.5; // x the pattern speed: slow
+export const HEAVY_LIFE = 10; // s: slow, so long a life that it can cross the whole screen
 
 function shot(pattern, from, angle, speed, r, life) {
   return { pattern, x: from.x, y: from.y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, r, life };
@@ -73,6 +76,10 @@ const EMIT = {
     b.turn = HOMING_TURN;
     return [b];
   },
+
+  // The heavy shot (world 22 only: a course's turrets fire it, and it takes several hits to break, course-cut.js): one aimed
+  // bullet, big and slow. It needs no rng.
+  heavy: (from, target, p) => [shot('heavy', from, angleTo(from, target), p.speed * HEAVY_SPEED, HEAVY_R, HEAVY_LIFE)],
 
   // One big slow star: 0.6x speed, radius 18, so long a life that it can cross the whole screen.
   shuriken: (from, target, p) => [shot('shuriken', from, angleTo(from, target), p.speed * 0.6, 18, 10)],
