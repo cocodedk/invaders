@@ -1,8 +1,8 @@
 // Keyboard and mouse, adapted from Barrage. Held keys live in `down`; presses also land in `taps`
 // until the next tick reads them, so a tap shorter than a frame still fires or bombs. The pointer
 // steers once it moves (or clicks) and hands back to the keys as soon as a movement key is pressed.
-// Controls (spec): arrows/WASD move · Space fires (hold for auto-fire) · B or Shift bombs ·
-// P/Esc pauses · M mutes · Enter confirms. Mouse: the ship is where the pointer points in the very
+// Controls (the spec's, plus F from 2026-11-22): arrows/WASD move · Space fires (hold it) · F switches auto-fire on and off · B or Shift
+// bombs · P/Esc pauses · M mutes · Enter confirms. Mouse: the ship is where the pointer points in the very
 // tick, in every world (R68; a pointer that wakes after the keys had the ship walks it there first, at a
 // hand's pace, see readInput), the left button fires, the right button bombs.
 //   createInput(canvas) -> input   input.onKey(code, event) for screens and global keys,
@@ -13,6 +13,9 @@
 //   resetInput(input)              forget held keys and buttons (a screen took over)
 //   input.lock                     pointer lock while a level is flown (pointer-lock.js): no more moves lost
 //                                  at the window's edge; main.js sets input.playing and input.onLockLost
+//   input.autofire                 F's switch (AUTOFIRE_KEY): readInput fires while it is on, as if Space were held.
+//                                  A choice for the session, so resetInput leaves it and nothing saves it. A laptop
+//                                  touchpad freezes while a key is held, so holding Space cannot fire and steer at once
 // Keys with Alt, Ctrl or Meta held are left alone: Alt+Left must stay the browser's Back.
 import { MOVE, isPause } from './keys.js';
 import { ZONE } from '../core/ship.js';
@@ -23,13 +26,14 @@ import { createLock, lockedMove } from './pointer-lock.js';
 
 const FIRE = ['Space'];
 const BOMB = ['KeyB', 'ShiftLeft', 'ShiftRight'];
+export const AUTOFIRE_KEY = 'KeyF';
 const GAME_KEYS = new Set([...Object.keys(MOVE), 'Space', 'Enter', 'NumpadEnter', 'Escape', 'Tab']);
 
 export function createInput(canvas) {
   const input = {
     canvas, down: new Set(), taps: new Set(),
     mouse: { x: null, y: null, left: false, right: false, active: false, slack: null, walk: false },
-    onKey: null, onGesture: null, playing: null, onLockLost: null,
+    onKey: null, onGesture: null, playing: null, onLockLost: null, autofire: false,
   };
   const m = input.mouse;
   const lock = (input.lock = createLock(canvas, input));
@@ -43,6 +47,7 @@ export function createInput(canvas) {
       if (MOVE[e.code]) input.onKey?.(e.code, e); // menus scroll on a held arrow
       return;
     }
+    if (e.code === AUTOFIRE_KEY && input.playing?.()) input.autofire = !input.autofire; // a tap switches it, in play only
     if (m.active && m.mouse && !MOVE[e.code] && !isPause(e.code)) lock.ask(); // a mouse has the ship and Space fires
     input.down.add(e.code);
     input.taps.add(e.code);
@@ -157,7 +162,7 @@ export function readInput(input, view, zone = ZONE, ship = null) {
   if (!m.active) m.slack = null; // the keys have the ship: the pointer starts from where it is again
   const raw = {
     dx, dy,
-    fire: any(input, FIRE) || m.left || input.taps.has('Mouse0'),
+    fire: any(input, FIRE) || m.left || input.taps.has('Mouse0') || input.autofire === true,
     bomb: any(input, BOMB) || m.right || input.taps.has('Mouse2'),
     target: m.active ? steer(m, view, zone) : null,
   };

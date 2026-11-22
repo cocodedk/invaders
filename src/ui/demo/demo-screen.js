@@ -82,7 +82,7 @@ export function demoScreen({ skip }) {
       tryLeft = TRY_SHOW;
       [...dots.children].forEach((dot) => { dot.className = 'past'; });
       show('Your turn', 'try', 'Same level, your hands',
-        'Fly with {←}{↑}{↓}{→} or the mouse, hold {Space} to fire, {B} to bomb.', '{Esc} pause  ·  {M} sound');
+        'Fly with {←}{↑}{↓}{→} or the mouse, hold {Space} to fire or tap {F} for auto-fire, {B} to bomb.', '{Esc} pause  ·  {M} sound');
     },
     update(dt) {
       if (tryLeft <= 0) return;

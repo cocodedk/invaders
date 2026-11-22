@@ -43,7 +43,8 @@ on the title screen keeps your best run of every level. Lose one and you get the
 | Action | Keyboard | Mouse |
 |---|---|---|
 | Move | Arrows or WASD | the ship follows the pointer |
-| Fire (hold for auto-fire) | Space | left button |
+| Fire | hold Space | hold the left button |
+| Auto-fire on or off | F | |
 | Smart bomb | B or Shift | right button |
 | Pause | P or Esc | |
 | Mute | M | |

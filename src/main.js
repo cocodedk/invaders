@@ -52,6 +52,7 @@ document.addEventListener('visibilitychange', () => {
 function frame(dt, t) {
   const sc = app.scene;
   if (!sc || !DRAWS.has(app.screen)) return null;
+  sc.view.hud.autofire = input.autofire && input.playing(); // F's sign: live play only (not the watch, a pause or a card)
   runScene(sc, dt, t, STEPS.has(app.screen));
   if (sc.mode === 'watch' && app.screen === 'demo' && app.demo?.d) {
     stepDirector(app.demo.d, dt);

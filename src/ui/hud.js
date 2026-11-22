@@ -17,6 +17,7 @@ import { fmt } from './format.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { panel, text, label, shipIcon, bombIcon, stockRow } from './hud-kit.js';
 import { drawIcon } from './pickups-view.js';
+import { autofireSign } from './hud-autofire.js';
 
 const TOP = 16;
 const PH = HUD_BOTTOM - TOP; // panel height
@@ -27,13 +28,15 @@ const MAIN = TOP + 55; // big number row
 // keeps 8 px clear of each.
 const COMBO_MID = 64.5;
 const COMBO_SIZE = 36;
+const SCORE_W = 360; // the score panel's width (it starts at x 32)
 const BOMB_SLOTS = 3; // the bombs shown as slots; more are one icon and a count (lives: LIVES)
 
 let shown = { n: NaN, text: '' }; // the score as last formatted
-function score(ctx, world) {
+function score(ctx, world, look, hud) {
   if (world.score !== shown.n) shown = { n: world.score, text: fmt(world.score) };
-  panel(ctx, 32, TOP, 360, PH);
+  panel(ctx, 32, TOP, SCORE_W, PH);
   label(ctx, 'SCORE', 56, CAP);
+  if (hud.autofire) autofireSign(ctx, 32 + SCORE_W - 14, CAP, look.palette.accent); // F's switch, on the caption row's free end
   text(ctx, shown.text, 54, MAIN, 46, '#ffffff', 'left', 900);
 }
 
@@ -184,7 +187,7 @@ function stock(ctx, world, look, t) {
 
 export function drawHud(ctx, world, look, hud, t) {
   ctx.textBaseline = 'middle';
-  score(ctx, world);
+  score(ctx, world, look, hud);
   combo(ctx, world, t);
   if (world.boss) bossBar(ctx, world, look, hud);
   else if (world.course) course(ctx, world, look);
