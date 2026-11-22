@@ -3,7 +3,8 @@
 // cropped to a 2:3 poster round the boss (the field's middle when there is none). Kept for the session (no image files).
 // A bake comes in eight slices (the run-up, the world's alien sprites, its boss, worlds 15, 16 and 17's own sprites,
 // the view, the frame), one per idle period while the title or the lobby is up, so no single frame carries a whole poster
-// and nothing is baked while a level plays.
+// and nothing is baked while a level plays. A run-up of more than RUNUP_SLICE ticks (a course's: world 22's is 87 s of flight) is
+// itself cut into slices of that many ticks.
 //   warmPosters(allowed)   start baking in idle slices; allowed() says whether now is a menu
 //   prefer(worlds)         bake these worlds' posters next (the ones in view); the rest follow in order
 //   preferred() -> worlds  what prefer last said
@@ -59,6 +60,7 @@ const FRAME_H = 432;
 // craft, a turret and a crate inside the poster's crop (x 660-1260, y 0-900). Find it again after any change to Leg 1's data.
 const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 87.4];
 const LIT = 0.4; // s of effects before the frame (muzzle flashes, sparks); the run-up before has none
+export const RUNUP_SLICE = 600; // ticks of the run-up an idle period steps at most: 10 s of play, a few ms on a desktop and still a slice on a Pi
 const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
 const CROP_H = 900;
 const posters = new Map();
@@ -70,6 +72,22 @@ export function posterLevel(world, levels = LEVELS) {
   return ofWorld.find((l) => l.boss) ?? ofWorld.at(-1);
 }
 
+// The run-up: `secs` of the world flown by the autopilot, the effects (fx, drawn on rng) of the last LIT s kept. Every RUNUP_SLICE ticks it
+// hands the idle period back, so a long run-up (a course's) never fills a frame.
+export function* runUp(w, fx, rng, secs) {
+  const n = Math.round(secs / TICK);
+  const lit = n - Math.round(LIT / TICK);
+  for (let i = 0; i < n; i++) {
+    stepWorld(w, TICK, autopilot(w));
+    const events = w.events.splice(0);
+    if (i >= lit) {
+      applyEvents(fx, events, rng, w);
+      stepFx(fx, TICK);
+    }
+    if ((i + 1) % RUNUP_SLICE === 0 && i + 1 < n) yield; // not at the end: bake yields there itself
+  }
+}
+
 function* bake(world) {
   const level = posterLevel(world);
   const look = lookFor(level);
@@ -77,15 +95,7 @@ function* bake(world) {
   const w = createWorld(level, level.seed);
   const fx = createFx();
   const rng = fxRng(level.seed);
-  const n = Math.round(secs / TICK);
-  const lit = n - Math.round(LIT / TICK);
-  for (let i = 0; i < n; i++) {
-    stepWorld(w, TICK, autopilot(w));
-    const events = w.events.splice(0);
-    if (i < lit) continue;
-    applyEvents(fx, events, rng, w);
-    stepFx(fx, TICK);
-  }
+  yield* runUp(w, fx, rng, secs);
   yield;
   warmAliens(look);
   yield;

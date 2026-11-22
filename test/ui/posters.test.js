@@ -6,8 +6,12 @@ import { installCanvas } from './dom-kit.js';
 // bake must not throw (a throw in an idle slice would leave the baker stuck).
 installCanvas();
 globalThis.requestIdleCallback = (fn) => setImmediate(fn);
-const { warmPosters, posterFor, posterLevel, TAGLINES } = await import('../../src/ui/screens/posters.js');
+const { warmPosters, posterFor, posterLevel, runUp, RUNUP_SLICE, TAGLINES } = await import('../../src/ui/screens/posters.js');
 const { WORLDS, LEVELS } = await import('../../src/core/levels.js');
+const { createWorld } = await import('../../src/core/world.js');
+const { TICK } = await import('../../src/core/kinds.js');
+const { createFx } = await import('../../src/fx/fx.js');
+const { fxRng } = await import('../../src/ui/session.js');
 
 test('every world has its own tagline', () => {
   assert.equal(TAGLINES.length, WORLDS.length);
@@ -42,4 +46,32 @@ test('posterLevel is the world\'s boss level, else its last level', () => {
 test('every world of the game has its boss level for a poster, and a course world its one leg', () => {
   for (const w of WORLDS.filter((x) => x.boss)) assert.equal(posterLevel(w.id).id, LEVELS.find((l) => l.world === w.id && l.boss).id, `world ${w.id}`);
   for (const w of WORLDS.filter((x) => !x.boss)) assert.equal(posterLevel(w.id).id, LEVELS.find((l) => l.world === w.id && l.course).id, `world ${w.id}`);
+});
+
+// A poster whose run-up is long (a course's: tens of seconds of the autopilot's flight) must not step it all in one idle period: the
+// run-up hands the period back every RUNUP_SLICE ticks, and a short one (a boss fight's few seconds) keeps its single slice.
+const ticksPerSlice = (secs) => {
+  const level = posterLevel(WORLDS.find((x) => !x.boss).id);
+  const w = createWorld(level, level.seed);
+  const run = runUp(w, createFx(), fxRng(level.seed), secs);
+  const steps = [];
+  let from = w.tick;
+  while (!run.next().done) { // each hand-back ends a slice
+    steps.push(w.tick - from);
+    from = w.tick;
+  }
+  steps.push(w.tick - from); // what the run-up steps after its last hand-back
+  return steps;
+};
+
+test('a long run-up is stepped in slices of at most RUNUP_SLICE ticks, every tick of it', () => {
+  const ticks = 3.5 * RUNUP_SLICE;
+  const steps = ticksPerSlice(ticks * TICK);
+  assert.equal(steps.reduce((a, b) => a + b, 0), ticks);
+  assert.ok(steps.every((n) => n <= RUNUP_SLICE), `slices of ${steps} ticks`);
+  assert.ok(steps.length >= Math.ceil(ticks / RUNUP_SLICE), `only ${steps.length} slices`);
+});
+
+test('a run-up shorter than a slice stays one slice', () => {
+  assert.deepEqual(ticksPerSlice((RUNUP_SLICE / 2) * TICK), [RUNUP_SLICE / 2]);
 });
