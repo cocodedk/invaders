@@ -9,7 +9,9 @@
 // changed (a respawn, a snapshot). At most BAKES_PER_FRAME strips are baked or stamped a frame, those on screen first and the one ahead last (an
 // unbaked one is skipped: view.js has filled the parchment under it); only a view with nothing to show yet bakes the whole screen at once. Each strip's
 // last row is also stretched over the seam under the next strip's first, so that no seam shows when the view scales the canvas. The pool keeps
-// MAX_STRIPS strips, each two W x STRIP_SPAN canvases, and recycles them as the scroll moves.
+// MAX_STRIPS strips, each two W x STRIP_SPAN canvases, and recycles them as the scroll moves. The rock is cut out of both canvases of a strip (a transparent
+// hole, course-land-rock.js) so the live rock's tan, drawn under the strips, shows through, and no seed's colour is stamped into it; the sketch carries the
+// rock's contour lines.
 import { W, H, makeCanvas } from './sprites.js';
 import { SPAWN_Y } from '../core/course-kinds.js';
 import { STRIP_SPAN, paintStrip } from './course-land-art.js';

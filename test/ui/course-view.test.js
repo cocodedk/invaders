@@ -7,7 +7,7 @@ import { IDLE, TICK } from '../core/world-kit.js';
 // puts it, the marks the seeds have left, the things on the ground, the lantern last reached, all placed from the scroll. The levels, the
 // constants and the world are the game's own, so the distances here come from stepping the real Leg 1 and reading its data.
 const { createView, drawFrame } = await import('../../src/ui/view.js');
-const { drawCourse, buildCourseView, wallRows, WALL_STEP, CONTOURS, CONTOUR_GAP } = await import('../../src/ui/course-view.js');
+const { drawCourse, buildCourseView, wallRows, WALL_STEP } = await import('../../src/ui/course-view.js');
 const { lanternSpot, LANTERN_TOL } = await import('../../src/ui/course-objects.js');
 const { PILLAR_PAD, SHADOW_DX, SHADOW_DY } = await import('../../src/ui/course-sprites.js');
 const { createWorld, stepWorld } = await import('../../src/core/world.js');
@@ -17,7 +17,7 @@ const { bandAt, terrainHits } = await import('../../src/core/course-terrain.js')
 const { SPAWN_Y } = await import('../../src/core/course-kinds.js');
 const { RESPAWN_Y, RESPAWN_DELAY } = await import('../../src/core/course-check.js');
 const { SEED_R } = await import('../../src/core/course-seed.js');
-const { HEIGHT } = await import('../../src/core/kinds.js');
+const { HEIGHT, WIDTH } = await import('../../src/core/kinds.js');
 const { SHIP_R, LIVES, hitShip } = await import('../../src/core/ship.js');
 
 const level = levelById('w22-1');
@@ -28,6 +28,12 @@ const PATH_OPS = 'moveTo lineTo arc ellipse rect fillRect strokeRect roundRect'.
 const ops = (calls) => calls.filter(([k]) => PATH_OPS.includes(k)).length;
 const BUDGET = 400; // path operations a frame of the ground may take: a few hundred, the rock being the bulk of them
 const fresh = () => createWorld(level, level.seed);
+const [mouth] = data.walls.find(([at, left]) => at > 9000 && left > 0); // the gorge's mouth: the rock closes in on both sides from there, for a long way
+const inGorge = () => { // the screen's middle 600 px into it
+  const world = fresh();
+  world.course.dist = mouth + 600 - SPAWN_Y + HEIGHT / 2;
+  return world;
+};
 
 // Fly Leg 1 with a ship nothing can hurt until `done` says so.
 function fly(world, done) {
@@ -133,21 +139,6 @@ test('the open land is blits only, marks or none: the colour is in the strips (c
   assert.ok(calls.length > 0 && calls.every(([k]) => k === 'drawImage'), 'strips and nothing else');
 });
 
-test('the rock carries CONTOURS pencilled lines CONTOUR_GAP apart, through every keyframe near the screen, so each is the edge shifted into the rock', () => {
-  const [keyAt, keyLeft, keyRight] = data.walls.find(([at, left]) => at > 9000 && left > 0); // the gorge's mouth
-  const world = fresh();
-  for (const y of [HEIGHT / 2, -WALL_STEP - 2, HEIGHT + WALL_STEP + 2]) { // the keyframe on the screen, and just past each end of it, where wallRows leaves it out
-    world.course.dist = keyAt - SPAWN_Y + y;
-    const rows = wallRows(data, world.course.dist);
-    if (y !== HEIGHT / 2) assert.ok(!rows.some((r) => r.at === keyAt) && keyAt < rows[0].at && keyAt > rows.at(-1).at, 'a keyframe in the gap between the last row and the end');
-    const points = draws(world).calls.filter(([k]) => k === 'moveTo' || k === 'lineTo').map(([, x, py]) => [x, py].join());
-    for (let k = 1; k <= CONTOURS; k++) {
-      assert.ok(points.includes([keyLeft - k * CONTOUR_GAP, y].join()), `y ${y}, line ${k}, left`);
-      assert.ok(points.includes([keyRight + k * CONTOUR_GAP, y].join()), `y ${y}, line ${k}, right`);
-    }
-  }
-});
-
 test('a pillar is drawn exactly as big as it is, about its centre (its sprite and its box: wander-objects.test.js)', () => {
   const world = fresh();
   const { w, h } = spawn('pillar');
@@ -177,12 +168,16 @@ test('after a respawn the last lantern reached is drawn lit at the checkpoint fr
   assert.equal(draws(world).calls.filter(([k]) => k === 'translate').length, 0, 'before the first lantern there is none');
 });
 
-test('the ground costs a few hundred path operations a frame at most and no gradient, pattern or shadow blur, in the gorge, at the hold and with seeds in the air', () => {
-  const gorge = midLeg();
-  gorge.course.abilities.push('seed');
-  gorge.course.seeds.push({ x: gorge.ship.x, at: gorge.course.dist + SPAWN_Y - 400, t: 0.2 });
-  for (const y of [200, 400, 600, 800]) gorge.course.marks.push({ x: gorge.ship.x, at: gorge.course.dist + SPAWN_Y - y, r: SEED_R });
-  for (const world of [gorge, fly(fresh(), (w) => w.course.held)]) {
+test('the ground costs a few hundred path operations a frame at most and no gradient, pattern or shadow blur, in the open, in the gorge, at the hold and with seeds in the air', () => {
+  const sown = (world) => { // a seed in the air and marks down the screen
+    world.course.abilities.push('seed');
+    world.course.seeds.push({ x: world.ship.x, at: world.course.dist + SPAWN_Y - 400, t: 0.2 });
+    for (const y of [200, 400, 600, 800]) world.course.marks.push({ x: world.ship.x, at: world.course.dist + SPAWN_Y - y, r: SEED_R });
+    return world;
+  };
+  const narrow = sown(inGorge());
+  assert.ok(wallRows(data, narrow.course.dist).every((r) => r.left > 0 && r.right < WIDTH), 'rock on both sides, the whole way down');
+  for (const world of [sown(midLeg()), narrow, fly(fresh(), (w) => w.course.held)]) {
     const r = draws(world);
     assert.ok(ops(r.calls) <= BUDGET, `${ops(r.calls)} path operations`);
     assert.ok(!r.calls.some(([k]) => /^create/.test(k)), 'nothing built per frame');
@@ -191,5 +186,5 @@ test('the ground costs a few hundred path operations a frame at most and no grad
 });
 
 test('the view files keep the sprite rules', () => {
-  fileRules(assert, ['course-view.js', 'course-land.js', 'course-land-art.js', 'course-objects.js', 'course-sprites.js', 'wander-kit.js', 'view.js', 'pickup-kit.js', 'pickup-wander.js', 'pickup-skins.js']);
+  fileRules(assert, ['course-view.js', 'course-land.js', 'course-land-art.js', 'course-land-rock.js', 'course-objects.js', 'course-sprites.js', 'wander-kit.js', 'view.js', 'pickup-kit.js', 'pickup-wander.js', 'pickup-skins.js']);
 });

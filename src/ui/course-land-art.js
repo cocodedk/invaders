@@ -2,13 +2,15 @@
 // colour (course-land.js bakes the strips and stamps the colour through the marks). Everything is a function of `at`, the row of the course, and of
 // the seed, never of a clock or dice, so a strip bakes the same every time. The river is a function of `at`, so it runs on through every seam;
 // what is scattered (trees, fields, specks) lies whole inside its strip, rolled from the strip's own dice.
-//   paintStrip(g, painted, k, seed, course)   strip k, which covers the rows k * STRIP_SPAN to (k + 1) * STRIP_SPAN, its top row the highest row
+//   paintStrip(g, painted, k, seed, course)   strip k, which covers the rows k * STRIP_SPAN to (k + 1) * STRIP_SPAN, its top row the highest row; the
+//                                             rock is cut out of it last, with its contour lines on the sketch (course-land-rock.js)
 //   scatter(seed, k, course)                  its trees and fields, { x, y } in the strip: only in the band (course is the level's course data)
 //   riverAt(at) -> { x, w }                   the river's middle and half width on a row
 import { W, rgba, hash } from './sprites.js';
 import { MID_X } from '../core/kinds.js';
 import { bandAt } from '../core/course-terrain.js';
 import { PAL } from './wander-kit.js';
+import { paintRock } from './course-land-rock.js';
 
 export const STRIP_SPAN = 360; // px of `at` a strip covers
 export const SPECKS = 500; // flecks on a strip's parchment
@@ -141,7 +143,7 @@ function tree(g, t, painted) {
   g.stroke();
 }
 
-// One strip's art: the parchment (flecked) or the green, the fields, the river, the trees.
+// One strip's art: the parchment (flecked) or the green, the fields, the river, the trees, and last the rock cut out of it (course-land-rock.js).
 export function paintStrip(g, painted, k, seed, course) {
   g.fillStyle = painted ? PAL.paint : PAL.parchment;
   g.fillRect(0, 0, W, STRIP_SPAN);
@@ -156,4 +158,5 @@ export function paintStrip(g, painted, k, seed, course) {
   for (const f of fields) field(g, f, painted);
   river(g, k, painted);
   for (const t of trees) tree(g, t, painted);
+  paintRock(g, painted, k * STRIP_SPAN, (k + 1) * STRIP_SPAN, course);
 }

@@ -4,7 +4,7 @@
 export const WANDER_WORLD = 22; // the renderer picks the paper glider (ship-wander.js) and the warm shots (shots-wander.js) by it
 
 export const PAL = {
-  parchment: '#efe3c8', rock: '#e2d3ae', pencil: '#544a3e',
+  parchment: '#efe3c8', rock: '#e2c78f', pencil: '#544a3e', // the rock a warm tan, as the mockup's highland (violet still reads on it: wander-look.test.js)
   stone: '#8f8b85', stoneLight: '#a7a39c', stoneDark: '#4c4840',
   kite: '#c4c1bb', kiteShade: '#a19e98', kiteLine: '#5d5a55', tail: '#7d7a75',
   gold: '#e9b949', goldDeep: '#c8901f', brass: '#c99a3c', flame: '#ffe9a8', post: '#9a958c', teal: '#4fc3c0',
