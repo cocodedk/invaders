@@ -14,11 +14,12 @@ import { inView } from './course-kinds.js';
 // A turret is an enemy, so its timer runs in the slowed enemy time of the tick (bullet time slows it), and it draws no
 // rng: its shot is the aimed pattern, which does not. Ground targets are low: the ship flies over them and nothing
 // rams, and no ship shot or beam touches them (collide.js knows nothing of the ground). Only hurtGround hurts one, and
-// it is the ground weapon's and the bomb's to call (a later task). Stones, pillars and checkpoints have no hp and
+// it is the ground weapon's and the bomb's to call (course-seed.js). Stones, pillars and checkpoints have no hp and
 // are never hurt. A target that breaks (hp 0) stays on the list for the rest of the tick and course.js then drops it.
 
 export const TURRET_COOL = 2.5; // s between a turret's shots
 export const TURRET_PATTERN = 'aimed'; // what it fires, at the ship, at the speed of the world's bullets
+export const GROUND_R = 36; // px: how far a ground object reaches from its centre, for the seeds' bursts (course-seed.js)
 export const GROUND_SCORE = { turret: 300, crate: 200 }; // points for breaking one, before the combo; the kinds that can be hurt
 
 // A ground object of the course entry `e` (course.js hands it over on the tick its `at` comes up).

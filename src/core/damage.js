@@ -16,7 +16,7 @@ import { hurtWreck } from './twists-2.js';
 // Both hurt through one private hurt(world, t, dmg): the kill and the hit event; a boss part applies
 // its own rule (weak 100 %, armor 25 %, bare hull 0), a wreck just breaks.
 
-const BOMB_DAMAGE = 3;
+export const BOMB_DAMAGE = 3; // hp a bomb takes off everything on screen (a ground object too, course-seed.js)
 export const BURST_R = 160; // px: how far a shell's burst reaches
 
 // The bonus saucer is an alien in all but its list.

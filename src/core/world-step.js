@@ -87,7 +87,7 @@ export function stepPlay(world, dt, input) {
   stepBomb(world);
   stepBeam(world, dt, input);
   collide(world, dt, slow);
-  if (world.course) stepCourse(world, dt, slow);
+  if (world.course) stepCourse(world, dt, slow, input);
   applyTwist(world, dt);
   cull(world);
   stepWave(world, dt);
