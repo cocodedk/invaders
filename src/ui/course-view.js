@@ -3,11 +3,11 @@
 //   drawCourse(ctx, cv, world, t)   the ground under the field's craft, back to front: the parchment slid down by the scroll, the marks the
 //                                   seeds have left (the colour coming back to the land), the rock either side of the band, the things
 //                                   that stand on the ground (course-objects.js), the seeds in the air and the sight of the next one
-//   wallRows(courseData, dist) -> [{ y, left, right }]   the band at the rows the rock's edge is drawn through
+//   wallRows(courseData, dist) -> [{ y, left, right }]   the band at the rows the rock's edge is drawn through, top of the screen first
 // Everything is placed from `world.course.dist`, the scroll, and from the course's own data and lists, never from a clock, so one world
 // gives one picture (t only moves an eye). The screen row y is at = dist + SPAWN_Y - y of the course, which is what bandAt answers to
 // and what the collision asks (course-terrain.js), so the rock drawn is the rock that rams. Pi 4: no gradients per frame, no shadow
-// blur, about two hundred path operations at most (the rock is the bulk of them).
+// blur, a few hundred path operations at most (the rock is the bulk of them).
 import { W, H, makeCanvas, rgba, hash } from './sprites.js';
 import { TAU } from '../core/math.js';
 import { bandAt } from '../core/course-terrain.js';
@@ -16,13 +16,12 @@ import { SEED_REACH, SEED_FALL } from '../core/course-seed.js';
 import { drawObjects } from './course-objects.js';
 import { PAL } from './wander-kit.js';
 
-export const WALL_STEP = 32; // px of screen between the rows the rock's edge is drawn through (the band is straight between its keyframes)
+export const WALL_STEP = 32; // px of the course (of `at`) between the rows the rock's edge is drawn through, besides one row on every keyframe
 export const CONTOUR_GAP = 30; // px: how far inside the rock its pencilled contour runs
 export const SEED_DROP = 80; // px above the ground a seed starts its fall
 export const SIGHT_R = 30; // px: the dashed ring where the next seed would land
 const SPECKS = 1500;
 const TUFTS = 40;
-const ROWS = Math.ceil(H / WALL_STEP) + 2; // one row above the screen to one below
 const DASH = [6, 7];
 const SOLID = [];
 
@@ -52,14 +51,16 @@ export function buildCourseView(seed = 1) {
   return { tile: c };
 }
 
+// The rows are fixed to the course, not to the screen: a row at every multiple of WALL_STEP in `at` and one on each keyframe of the walls in
+// view, from one row above the screen to one below. The band is straight between two keyframes, so a polygon through them is the rock exactly,
+// and as the scroll carries the rows down they keep their corners (rows fixed to the screen would cut a corner by a different amount every frame).
 export function wallRows(courseData, dist) {
-  const rows = [];
-  for (let i = 0; i < ROWS; i++) {
-    const y = (i - 1) * WALL_STEP;
-    const { left, right } = bandAt(courseData, dist + SPAWN_Y - y);
-    rows.push({ y, left, right });
-  }
-  return rows;
+  const top = dist + SPAWN_Y + WALL_STEP; // the `at` of a row one step above the screen, and of one below:
+  const bottom = dist + SPAWN_Y - H - WALL_STEP;
+  const ats = new Set();
+  for (let at = Math.ceil(top / WALL_STEP) * WALL_STEP; at >= bottom - WALL_STEP; at -= WALL_STEP) ats.add(at);
+  for (const [at] of courseData.walls ?? []) if (at < top && at > bottom) ats.add(at);
+  return [...ats].sort((p, q) => q - p).map((at) => ({ y: dist + SPAWN_Y - at, ...bandAt(courseData, at) }));
 }
 
 // A line along the rock's edge, offset `inset` px into the rock, broken wherever it is off the screen.

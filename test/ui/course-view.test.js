@@ -18,7 +18,7 @@ const { SPAWN_Y } = await import('../../src/core/course-kinds.js');
 const { RESPAWN_Y, RESPAWN_DELAY } = await import('../../src/core/course-check.js');
 const { SEED_R } = await import('../../src/core/course-seed.js');
 const { HEIGHT } = await import('../../src/core/kinds.js');
-const { SHIP_R, hitShip } = await import('../../src/core/ship.js');
+const { SHIP_R, LIVES, hitShip } = await import('../../src/core/ship.js');
 
 const level = levelById('w22-1');
 const { course: data } = level;
@@ -79,31 +79,44 @@ test('a whole frame of Leg 1 draws at its start, in its middle, after a respawn 
   assert.equal(createView(canvas, levelById('w1-1'), false).ground, null, 'no other world gets one');
 });
 
-test('the rock is drawn through the rows bandAt gives, so a ship whose disc just reaches a drawn edge is hit and one a pixel clear of it is not', () => {
-  const keyframe = data.walls.find(([, left]) => left > 0);
+test('the rock is drawn through rows fixed to the course, one on every WALL_STEP of at and on every keyframe in view, so its corners hold still as the scroll carries them and it is the rock that rams', () => {
+  const bend = (i) => { // how sharply the left edge turns at keyframe i, in px a px
+    const slope = (a, b) => (data.walls[b][1] - data.walls[a][1]) / (data.walls[b][0] - data.walls[a][0]);
+    return Math.abs(slope(i, i + 1) - slope(i - 1, i));
+  };
+  const corners = data.walls.map((key, i) => ({ key, i })).slice(1, -1).filter(({ key }) => key[1] > 0 && key[0] % WALL_STEP !== 0); // off the grid: no row there by chance
+  const [keyAt, keyLeft, keyRight] = corners.sort((p, q) => bend(q.i) - bend(p.i))[0].key;
   const world = fresh();
-  world.course.dist = keyframe[0] - SPAWN_Y + HEIGHT / 2;
+  world.course.dist = keyAt - SPAWN_Y + HEIGHT / 2;
   const rows = wallRows(data, world.course.dist);
+  const atOf = (row) => world.course.dist + SPAWN_Y - row.y;
+  const near = (a, b) => Math.abs(a - b) < 1e-6;
   assert.ok(rows[0].y < 0 && rows.at(-1).y > HEIGHT, 'the rows run past both ends of the screen');
   rows.forEach((r, i) => {
-    if (i) assert.equal(r.y - rows[i - 1].y, WALL_STEP);
-    assert.deepEqual([r.left, r.right], Object.values(bandAt(data, world.course.dist + SPAWN_Y - r.y)));
+    if (i) assert.ok(r.y > rows[i - 1].y && r.y - rows[i - 1].y <= WALL_STEP + 1e-6, 'top to bottom, no gap wider than a step');
+    assert.ok(near(atOf(r), Math.round(atOf(r) / WALL_STEP) * WALL_STEP) || data.walls.some(([at]) => near(at, atOf(r))), `row ${r.y} is on the grid or on a keyframe`);
+    const band = bandAt(data, atOf(r));
+    assert.ok(near(r.left, band.left) && near(r.right, band.right));
   });
+  for (let d = world.course.dist - HEIGHT / 2; d < world.course.dist + HEIGHT / 2; d += 15.37) { // the keyframe's corner is a vertex all the way down the screen
+    const row = wallRows(data, d).find((r) => near(d + SPAWN_Y - r.y, keyAt));
+    assert.ok(row && near(row.left, keyLeft) && near(row.right, keyRight), `the corner at scroll ${d}`);
+  }
   const rammed = (x, y) => {
-    Object.assign(world.ship, { x, y, fromX: x, fromY: y, alive: true, invuln: 0, power: null, lives: 3 });
+    Object.assign(world.ship, { x, y, fromX: x, fromY: y, alive: true, invuln: 0, power: null, lives: LIVES });
     terrainHits(world);
     world.events.length = 0;
-    return world.ship.lives < 3;
+    return world.ship.lives < LIVES;
   };
-  let tried = 0;
-  for (const r of rows.filter((row) => row.y > 100 && row.y < 900 && row.left > 0)) {
-    assert.ok(rammed(r.left + SHIP_R - 1, r.y), `row ${r.y}: the disc is in the left rock`);
-    assert.ok(!rammed(r.left + SHIP_R + 1, r.y), `row ${r.y}: and a pixel clear of it`);
-    assert.ok(rammed(r.right - SHIP_R + 1, r.y), `row ${r.y}: the disc is in the right rock`);
-    assert.ok(!rammed(r.right - SHIP_R - 1, r.y), `row ${r.y}: and a pixel clear of it`);
-    tried++;
+  const probes = rows.flatMap((r, i) => (i ? [r, { y: (r.y + rows[i - 1].y) / 2, left: (r.left + rows[i - 1].left) / 2, right: (r.right + rows[i - 1].right) / 2 }] : [r]));
+  const seen = probes.filter((p) => p.y > 100 && p.y < 900 && p.left > 0);
+  for (const p of seen) { // on a row, and halfway between two rows, where only an exact polygon puts the edge where the collision does
+    assert.ok(rammed(p.left + SHIP_R - 1, p.y), `row ${p.y}: the disc is in the left rock`);
+    assert.ok(!rammed(p.left + SHIP_R + 1, p.y), `row ${p.y}: and a pixel clear of it`);
+    assert.ok(rammed(p.right - SHIP_R + 1, p.y), `row ${p.y}: the disc is in the right rock`);
+    assert.ok(!rammed(p.right - SHIP_R - 1, p.y), `row ${p.y}: and a pixel clear of it`);
   }
-  assert.ok(tried >= 5, `${tried} rows tried`);
+  assert.ok(seen.length >= 20, `${seen.length} places tried`);
   const { calls } = draws(world);
   const fill = calls.findIndex(([k]) => k === 'fill');
   const start = calls.findLastIndex(([k], i) => k === 'beginPath' && i < fill);
