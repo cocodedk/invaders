@@ -2,13 +2,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { recorder, tracker, fileRules } from './aliens-bath-kit.js';
 import { IDLE, TICK } from '../core/world-kit.js';
-import { readFileSync } from 'node:fs';
 
-// World 22's course as the view draws it (course-view.js, course-objects.js, view.js): the parchment in place of a sky, the rock where bandAt
+// World 22's course as the view draws it (course-view.js, course-land.js, course-objects.js, view.js): the land in place of a sky, the rock where bandAt
 // puts it, the marks the seeds have left, the things on the ground, the lantern last reached, all placed from the scroll. The levels, the
 // constants and the world are the game's own, so the distances here come from stepping the real Leg 1 and reading its data.
 const { createView, drawFrame } = await import('../../src/ui/view.js');
-const { drawCourse, buildCourseView, wallRows, WALL_STEP } = await import('../../src/ui/course-view.js');
+const { drawCourse, buildCourseView, wallRows, WALL_STEP, CONTOURS, CONTOUR_GAP } = await import('../../src/ui/course-view.js');
 const { lanternSpot, LANTERN_TOL } = await import('../../src/ui/course-objects.js');
 const { createWorld, stepWorld } = await import('../../src/core/world.js');
 const { levelById } = await import('../../src/core/levels.js');
@@ -60,13 +59,13 @@ const draws = (world, cv = buildCourseView(level.seed)) => {
   return r;
 };
 
-test('a whole frame of Leg 1 draws at its start, in its middle, after a respawn and at the hold, the parchment standing in for the sky', () => {
+test('a whole frame of Leg 1 draws at its start, in its middle, after a respawn and at the hold, the land standing in for the sky', () => {
   const T = tracker();
   const canvas = { width: 1920, height: 1080, clientWidth: 1920, clientHeight: 1080, getContext: () => T.ctx };
   const v = createView(canvas, level, false);
   assert.equal(v.sky, null, 'no sky is baked');
   assert.deepEqual(v.layers, [], 'and no layers');
-  assert.ok(v.ground.tile, 'the parchment is');
+  assert.ok(v.ground.land, 'the land is');
   const fx = createFx();
   const world = fresh();
   const frames = [() => world, () => fly(world, (w) => w.course.dist >= spawn('turret').at + 500), () => die(world), () => fly(world, (w) => w.course.held)];
@@ -74,7 +73,7 @@ test('a whole frame of Leg 1 draws at its start, in its middle, after a respawn 
     stage();
     T.calls.length = 0;
     drawFrame(v, world, fx, 1 + i);
-    assert.ok(T.calls.some((c) => c.img === v.ground.tile), `stage ${i}: the parchment is drawn`);
+    assert.ok([...v.ground.land.slots.values()].some((s) => T.calls.some((c) => c.img === s.sketch)), `stage ${i}: the land is drawn`);
   }
   assert.equal(createView(canvas, levelById('w1-1'), false).ground, null, 'no other world gets one');
 });
@@ -124,23 +123,27 @@ test('the rock is drawn through rows fixed to the course, one on every WALL_STEP
   assert.deepEqual(polygon.slice(1, -1), rows.map((r) => [r.left, r.y]), 'the left rock is filled out to those very points');
 });
 
-test("every mark that is on the screen is one arc of the burst's radius where the scroll has carried it, the rest are not drawn, and only world.course.marks is read", () => {
+test('the open land is blits only, marks or none: the colour is in the strips (course-land.js), so it costs the frame no path', () => {
   const world = fresh();
   world.course.dist = 100; // the open land: no rock to draw
   const atOf = (y) => world.course.dist + SPAWN_Y - y;
-  assert.equal(draws(world).calls.filter(([k]) => k === 'arc' || k === 'fill').length, 0, 'none, none drawn');
-  world.marks = [{ x: 400, at: atOf(300), r: SEED_R }]; // a mark where the course does not keep them
-  assert.equal(draws(world).calls.filter(([k]) => k === 'arc').length, 0);
-  world.course.marks = [
-    { x: 500, at: atOf(300), r: SEED_R }, { x: 900, at: atOf(700), r: SEED_R },
-    { x: 700, at: atOf(-2 * SEED_R), r: SEED_R }, { x: 800, at: atOf(HEIGHT + 2 * SEED_R), r: SEED_R },
-  ];
+  world.course.marks = [{ x: 500, at: atOf(300), r: SEED_R }, { x: 900, at: atOf(700), r: SEED_R }];
   const { calls } = draws(world);
-  assert.deepEqual(calls.filter(([k]) => k === 'arc').map(([, x, y, r]) => [x, y, r]), [[500, 300, SEED_R], [900, 700, SEED_R]]);
-  assert.equal(calls.filter(([k]) => k === 'fill').length, 1, 'one fill, so that overlaps do not stack');
-  for (const file of ['course-view.js', 'course-objects.js']) {
-    const src = readFileSync(new URL(`../../src/ui/${file}`, import.meta.url), 'utf8');
-    assert.ok((src.match(/\.marks\b/g) ?? []).every((m) => src.includes(`course${m}`)), `${file} reads marks from the course only`);
+  assert.ok(calls.length > 0 && calls.every(([k]) => k === 'drawImage'), 'strips and nothing else');
+});
+
+test('the rock carries CONTOURS pencilled lines CONTOUR_GAP apart, through every keyframe near the screen, so each is the edge shifted into the rock', () => {
+  const [keyAt, keyLeft, keyRight] = data.walls.find(([at, left]) => at > 9000 && left > 0); // the gorge's mouth
+  const world = fresh();
+  for (const y of [HEIGHT / 2, -WALL_STEP - 2, HEIGHT + WALL_STEP + 2]) { // the keyframe on the screen, and just past each end of it, where wallRows leaves it out
+    world.course.dist = keyAt - SPAWN_Y + y;
+    const rows = wallRows(data, world.course.dist);
+    if (y !== HEIGHT / 2) assert.ok(!rows.some((r) => r.at === keyAt) && keyAt < rows[0].at && keyAt > rows.at(-1).at, 'a keyframe in the gap between the last row and the end');
+    const points = draws(world).calls.filter(([k]) => k === 'moveTo' || k === 'lineTo').map(([, x, py]) => [x, py].join());
+    for (let k = 1; k <= CONTOURS; k++) {
+      assert.ok(points.includes([keyLeft - k * CONTOUR_GAP, y].join()), `y ${y}, line ${k}, left`);
+      assert.ok(points.includes([keyRight + k * CONTOUR_GAP, y].join()), `y ${y}, line ${k}, right`);
+    }
   }
 });
 
@@ -185,5 +188,5 @@ test('the ground costs a few hundred path operations a frame at most and no grad
 });
 
 test('the view files keep the sprite rules', () => {
-  fileRules(assert, ['course-view.js', 'course-objects.js', 'wander-kit.js', 'view.js', 'pickup-kit.js', 'pickup-wander.js', 'pickup-skins.js']);
+  fileRules(assert, ['course-view.js', 'course-land.js', 'course-land-art.js', 'course-objects.js', 'wander-kit.js', 'view.js', 'pickup-kit.js', 'pickup-wander.js', 'pickup-skins.js']);
 });

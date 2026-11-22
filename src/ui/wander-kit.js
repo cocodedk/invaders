@@ -7,5 +7,5 @@ export const PAL = {
   kite: '#c4c1bb', kiteShade: '#a19e98', kiteLine: '#5d5a55', tail: '#7d7a75',
   gold: '#e9b949', goldDeep: '#c8901f', brass: '#c99a3c', flame: '#ffe9a8', post: '#9a958c', teal: '#4fc3c0',
   violet: '#7a5cc4', violetRim: '#2e2250',
-  paint: '#a9cf74',
+  paint: '#a9cf74', river: '#3fa7a5', riverDeep: '#2b7c7a', field: '#d8c35a', fieldLine: '#826e1e', leaf: '#4f8f45', leafLight: '#bee68c', poppy: '#e0533a',
 };
