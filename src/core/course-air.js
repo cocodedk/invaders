@@ -37,6 +37,7 @@ const PATHS = {
   },
 };
 export const pathPos = (path, t, x0, aim = null) => PATHS[path](t, x0, aim);
+export const PATH_NAMES = Object.keys(PATHS); // the names a course entry's `path` may be (the data check reads them)
 
 // A craft of the course entry `e` (course.js hands it over on the tick its `at` comes up), where its path starts,
 // with the hp a wave alien of its role has (aliens.js roleHp).

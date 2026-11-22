@@ -27,7 +27,7 @@ import { SPAWN_Y } from './course-kinds.js';
 export const HOLD_Y = 300; // screen y the hold's anchor stands at when the scroll stops: well up the screen, in the ship's reach
 export const HOLD_FLIGHTS_MAX = 6; // air craft alive at most while a hold stands, the level's own and the hold's together
 
-const stopAt = (e) => e.at + HOLD_Y - SPAWN_Y; // the dist at which the hold entry `e` stops the scroll
+export const stopAt = (e) => e.at + HOLD_Y - SPAWN_Y; // the dist at which the hold entry `e` stops the scroll
 const gateStands = (course, id) => course.ground.some((g) => g.kind === 'gate' && g.holdId === id && g.hp > 0);
 const airborne = (world) => world.aliens.filter((a) => a.mode === 'path' && a.hp > 0).length;
 

@@ -49,6 +49,18 @@ const quiverParts = ({ shots }) => {
   return turned.length ? ['q', ...turned] : [];
 };
 
+// A course (world 22), when it is that world: how far it has scrolled and how many entries have come up, the hold's clock and the
+// death's beat (or '-'), how many abilities and burst marks there are, then each ground object's kind, place and hp, and each
+// seed's place and time. Air craft are in world.aliens, so they are hashed already.
+const courseParts = ({ course }) => {
+  if (!course) return [];
+  const { held, respawn, ground, seeds } = course;
+  return ['course', round(course.dist), course.next, held ? round(held.t) : '-', respawn === null ? '-' : round(respawn),
+    course.abilities.length, course.marks.length,
+    ground.length, ...ground.map((g) => `${g.kind},${round(g.x)},${round(g.y)},${g.hp}`),
+    seeds.length, ...seeds.map((s) => `${round(s.x)},${round(s.at)},${round(s.t)}`)];
+};
+
 export function stateHash(world) {
   const { ship, boss } = world;
   const parts = [
@@ -61,6 +73,7 @@ export function stateHash(world) {
     ...bodyParts(world), // world 19's bodies; none elsewhere, so nothing is added
     ...echoParts(world), // world 20's copy; no path elsewhere, so nothing is added
     ...quiverParts(world), // world 21's turned shots; none elsewhere, so nothing is added
+    ...courseParts(world), // world 22's course; none elsewhere, so nothing is added
     world.aliens.length, ...world.aliens.map((a) => `${a.id},${round(a.x)},${round(a.y)},${a.hp},${a.mode}`),
     world.shots.length, ...points(world.shots),
     world.bullets.length, ...points(world.bullets),

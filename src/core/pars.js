@@ -1,6 +1,9 @@
 // Each level's par time in seconds (R66): twice what the autopilot takes to clear it when it is never
 // hit, rounded up to 5 s. The round's speed multiplier is measured against it (scoring.js speedOf).
-// scripts/pars.mjs writes this table; test/core/pars.test.js checks that it is current.
+// scripts/pars.mjs writes this table; test/core/pars.test.js checks that it is current. A course level (world 22) has no entry:
+// the autopilot cannot fly one, so its par is computed from its data (parOf).
+import { HOLD_PAR } from './course-kinds.js';
+
 export const PARS = {
   'w1-1': 30, 'w1-2': 65, 'w1-3': 80, 'w1-4': 100, 'w1-5': 65,
   'w2-1': 40, 'w2-2': 40, 'w2-3': 60, 'w2-4': 50, 'w2-5': 100,
@@ -25,4 +28,8 @@ export const PARS = {
   'w21-1': 50, 'w21-2': 95, 'w21-3': 85, 'w21-4': 90, 'w21-5': 80,
 };
 export const DEFAULT_PAR = 60; // s, for a level with no entry (the tests' own levels)
-export const parOf = (level) => PARS[level.id] ?? DEFAULT_PAR;
+
+const ceilTo5 = (s) => Math.ceil(s / 5) * 5;
+// A course's par: the seconds its scroll takes plus HOLD_PAR for each hold, rounded up to 5 s.
+const courseParOf = ({ speed, length, spawns }) => ceilTo5(length / speed + HOLD_PAR * spawns.filter((e) => e.kind === 'hold').length);
+export const parOf = (level) => (level.course ? courseParOf(level.course) : PARS[level.id] ?? DEFAULT_PAR);
