@@ -21,7 +21,7 @@
 
 The repo's pre-commit hook runs the whole suite (`.githooks/pre-commit`), and `--no-verify` is never used. Adding world 22
 to `WORLDS`/`LEVELS` breaks the lobby, posters and every per-world table at once, so world 22 joins the game in one
-commit, after its core works. **Build order: 0, 2, 3, 4, 5, 6, 7, then 1 and 9 together as one commit, then 8, 10, 11, 12, 13.**
+commit, after its core works. **Build order: 0, 2, 3, 3b, 4, 5, 6, 7, then 1 and 9 together as one commit, then 8, 10, 11, 12, 13.**
 Tasks 2-7 build and test the course core on a test-only level from a new `test/core/course-kit.js`
 (`courseLevel(data)` returns `{id:'test-course', world:22, index:1, seed:1, d:0.5, twist:'journey', free:true,
 bunkers:false, course: data}` plus a small `KIT_COURSE` with each entry kind), which `createWorld` accepts as it accepts
@@ -98,6 +98,15 @@ the tests' other own levels (`DEFAULT_PAR` covers its par). Nothing in `LEVELS` 
 - [ ] Failing tests: no seed without the ability; with it, holding fire drops one seed per `SEED_COOLDOWN`; a seed bursts after `SEED_FALL` at `SEED_REACH` ahead and hurts a turret there; a mark is added; a bomb hurts ground objects on screen; a laser beam (`stepBeam`) never hurts ground objects; reaching a checkpoint with `grants:'seed'` adds the ability (wired in Task 5 — here test `course.abilities` directly).
 - [ ] Implement; tests pass; commit `feat(world-22): seeds, the ground weapon`.
 
+### Task 3b: Shots break incoming fire
+
+**Files:** Create `src/core/course-cut.js`; modify `src/core/patterns.js` (a `'heavy'` pattern: one aimed bullet, `r: HEAVY_R`, speed x `HEAVY_SPEED`; used by world 22 only), `src/core/world-step.js` (`if (world.course) cutBullets(world, dt, slow)` before `collide`); test `test/core/course-cut.test.js`.
+
+**Interfaces — Produces:** `BULLET_HP = {aimed:1, fan:1, ring:1, spiral:1, rain:1, homing:2, heavy:3}` (a pattern missing from it, such as `laser`, can't be shot), `CUT_DMG = 1` (every gun shot), `BEAM_CUT_DPS`, `CUT_SCORE`. `cutBullets(world, dt, slow)`: each live ship shot, swept over its move this tick, is spent on the first bullet it touches (reach `b.r + s.r`) if that comes before any air craft on its path; `b.hp ??= BULLET_HP[b.pattern]`; `b.hp -= CUT_DMG`; at 0 `b.life = 0`, `world.score += CUT_SCORE`, emit `'cut' {x, y, pattern}`, otherwise emit `'chip' {x, y, pattern, hp}`. While the laser power's beam is on, every shootable bullet in its column above the ship collects `BEAM_CUT_DPS * dt` in `b.burn` and loses whole points of hp. Turrets (Task 2) fire `'heavy'`.
+
+- [ ] Failing tests: an aimed bullet breaks on one shot and the shot is spent; a homing bullet needs two; a heavy shot three, with `'chip'` twice then `'cut'`; an enemy laser is untouched; the beam breaks a heavy shot after about `BULLET_HP.heavy / BEAM_CUT_DPS` s; a shot whose path meets a bullet before an air craft hits only the bullet; `worlds-unchanged` passes.
+- [ ] Implement; tests pass; commit `feat(world-22): shots break incoming fire`.
+
 ### Task 4: Walls and pillars ram
 
 **Files:** Create `src/core/course-terrain.js`; test `test/core/course-terrain.test.js`.
@@ -143,7 +152,7 @@ the tests' other own levels (`DEFAULT_PAR` covers its par). Nothing in `LEVELS` 
 
 ### Task 9: The game around a one-leg, bossless world (plain)
 
-**Files:** `src/ui/screens/lobby-card.js` (no "Featuring" when no boss), `src/ui/screens/posters.js` (`ofWorld.at(-1)` when no boss; `w.boss?.x ?? W/2`), `src/ui/screens/lobby.js` + `lobby-nav.js` (per-world reel counts, clamp; restore from 97f562d), `src/ui/flow.js:28` (`waves?.length`; a course never reaches Failed in Normal), `src/ui/hud.js` (course: `LEG 1` and lanterns lit n / m instead of WAVE), `src/ui/scenes.js` (backdrop already skips non-wave levels: keep, and adjust `backdrop.test.js`), the per-world tables (`fx/film.js TINTS`, `trailer/cards.js VOICES` with the story's lines, `trailer/draw.js TYPE`, `posters.js TAGLINES/AT`, `sound-styles-2.js` a `'road'` style, `sounds.js` + `fx/react.js` cases or `SILENT` for `checkpoint, ability, seedBurst, groundKill, holdBreak, respawn`, samples in `test/event-sample.js`), and every test listing 21 worlds (counts → `WORLDS.length`/22; lobby-keys' last row now six cards; trailer-cards' "every world has a boss" skips world 22).
+**Files:** `src/ui/screens/lobby-card.js` (no "Featuring" when no boss), `src/ui/screens/posters.js` (`ofWorld.at(-1)` when no boss; `w.boss?.x ?? W/2`), `src/ui/screens/lobby.js` + `lobby-nav.js` (per-world reel counts, clamp; restore from 97f562d), `src/ui/flow.js:28` (`waves?.length`; a course never reaches Failed in Normal), `src/ui/hud.js` (course: `LEG 1` and lanterns lit n / m instead of WAVE), `src/ui/scenes.js` (backdrop already skips non-wave levels: keep, and adjust `backdrop.test.js`), the per-world tables (`fx/film.js TINTS`, `trailer/cards.js VOICES` with the story's lines, `trailer/draw.js TYPE`, `posters.js TAGLINES/AT`, `sound-styles-2.js` a `'road'` style, `sounds.js` + `fx/react.js` cases or `SILENT` for `checkpoint, ability, seedBurst, groundKill, holdBreak, respawn, cut, chip`, samples in `test/event-sample.js`), and every test listing 21 worlds (counts → `WORLDS.length`/22; lobby-keys' last row now six cards; trailer-cards' "every world has a boss" skips world 22).
 
 - [ ] Failing tests first: lobby shows world 22's card with one reel "Leg 1" and arrow keys never throw; poster bakes from `w22-1`; HUD shows the leg, not WAVE; Failed card renders for a course; every new event has fx + sound (or SILENT).
 - [ ] Implement together with Task 1; `npm test` all green; one commit (see Task 1).

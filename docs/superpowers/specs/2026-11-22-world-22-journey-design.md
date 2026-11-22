@@ -162,6 +162,25 @@ ship (`SEED_REACH`), and bursts in a ring (`SEED_R`). The burst hurts the ground
 mark to `course.marks`. It needs no new button, since the fire button drops it, and it works with the instant
 pointer. It makes positioning the skill: put the sight on the target and keep flying.
 
+### Shooting down incoming fire
+
+The owner asked (2026-11-22): "my projectile must destroy the incoming projectile with one or more hits depending
+on what weapon I am shooting with and what type of incoming I am blasting." In world 22:
+
+- **Every enemy bullet has hit points by its type** (`BULLET_HP`): the small ones (aimed, fan, ring, spiral, rain)
+  take 1, a homing bullet takes 2, and the **heavy shot** takes 3. The heavy shot is a big, slow bullet, a new
+  pattern in the library that only world 22 uses; the standing stones fire it, so Leg 1 has all three. An enemy
+  laser beam can't be shot.
+- **Every weapon deals its own damage to bullets** (`CUT_DMG`). A gun shot deals 1: the base gun, rapid, each spread
+  pellet, homing shots and the side guns. The laser power's beam wears down every bullet in its column at
+  `BEAM_CUT_DPS`, so it chews through heavy shots. A bomb clears every bullet, as it does now. Seeds never touch
+  bullets, since they fall to the ground.
+- **A shot is spent on the first thing its path touches,** a bullet or an air craft. Breaking incoming fire costs
+  damage you could have dealt to the Hush, and that trade is the point.
+- **Feedback:** a bullet that is hit but not broken flashes and cracks (`'chip'`). A broken one bursts (`'cut'`) and
+  pays `CUT_SCORE` points, outside the combo.
+- It is scoped to world 22 (`world.course`), so worlds 1-21 are unchanged.
+
 ### Leg 1
 
 About two minutes in three stretches, split by two checkpoints, ending on a hold:
@@ -208,6 +227,8 @@ is not to make things easy; the first stretch is still the gentlest of the leg.
 - On a death (the last life lost), score, bombs and the ground's marks go back to the checkpoint, the power-up
   and the combo are lost, and the lives refill to the checkpoint's count, at least 3.
 - Only the ground weapon and bombs hurt ground targets. The gun flies over them.
+- Shooting down incoming fire: small bullets take 1 hit, homing 2, the new heavy shot 3. A gun shot deals 1 and is
+  spent, the laser beam wears bullets down over time, and enemy lasers can't be shot. World 22 only.
 - Walls and pillars hit through `hitShip` like everything else, so a shield or the blinking lets the ship skim
   them.
 - A respawn puts the ship at the checkpoint, and the pointer takes it from there. Checkpoints stand in quiet
