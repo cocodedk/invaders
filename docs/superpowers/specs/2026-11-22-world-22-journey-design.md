@@ -21,6 +21,9 @@ Decided by the owner in this conversation:
   as they are cleared, and the whole journey is **one run**: lives carry over from level to level instead of
   resetting to 3, and at 0 lives the run goes back to level 1 with no abilities (their pick "1").
 - **Length:** open-ended. The world grows a level at a time and never needs an ending.
+- **Hits (their pick "B", 2026-11-22):** a hit works as in every other world: it costs a life, the ship blinks,
+  and play goes on from where it is. Only when the last life is gone does the leg go back to the last
+  checkpoint, with the lives refilled. In Normal a leg can never be lost; only Hardcore makes failing cost.
 
 ## Goals
 
@@ -124,20 +127,21 @@ or `boss`, and the world carries a `course` state:
   open to the full width of the free zone along that whole stretch. A respawn therefore rebuilds the screen
   the player saw when they reached the checkpoint, with nothing on it but open land, so the ship is safe
   wherever the pointer stands.
-- **Every hit is a death** in world 22: an enemy bullet, a ram by an air craft, a wall or a pillar. All of them
-  go through the one existing `hitShip`, so the shield and the blinking protect against terrain exactly as
-  they do against everything else. A shielded ship may skim a wall for as long as its shield lasts. If the
-  shield or the blinking runs out while the ship is inside a wall, that is a hit.
-- **A death** costs a life. After a short beat (`RESPAWN_DELAY`), the leg rebuilds from the checkpoint.
-  Everything on screen goes. The spawns after the checkpoint's `dist` come back as they were. Score, bombs and
-  `course.marks` return to the checkpoint's values, and a life caught since the checkpoint is lost with it:
-  lives become the fewer of the current count and the checkpoint's, minus the one that died, and the
-  checkpoint keeps that new count. The power-up and the combo are lost. The ship is placed at the checkpoint's
-  x on `RESPAWN_Y`, with the usual 1.5 s of blinking invulnerability. There is no special rule for the
-  pointer (R68): a mouse player's ship goes where the pointer points on the next tick, as it always does. The
-  level's start counts as checkpoint 0 and obeys the quiet stretch rule.
-- **At 0 lives the level fails**, as in every world: the Blooper, then Retry from the start. This bends "every
-  death, the last checkpoint" for the last life only, so lives still mean something.
+- **A hit works as in every world:** an enemy bullet, a ram by an air craft, a wall or a pillar costs a life
+  and gives the usual 1.5 s of blinking, and play goes on from where it is. All of them go through the one
+  existing `hitShip`, so the shield and the blinking protect against terrain exactly as they do against
+  everything else. A shielded ship may skim a wall for as long as its shield lasts. If the shield or the
+  blinking runs out while the ship is inside a wall, that is another hit.
+- **A death is losing the last life.** After a short beat (`RESPAWN_DELAY`), the leg rebuilds from the
+  checkpoint. Everything on screen goes. The spawns after the checkpoint's `dist` come back as they were.
+  Score, bombs and `course.marks` return to the checkpoint's values. The power-up and the combo are lost.
+  Lives refill to the checkpoint's count, and never fewer than the start's 3 (`LIVES`). The ship is placed at
+  the checkpoint's x on `RESPAWN_Y`, blinking for the usual 1.5 s. There is no special rule for the pointer
+  (R68): a mouse player's ship goes where the pointer points on the next tick, as it always does. The level's
+  start counts as checkpoint 0 and obeys the quiet stretch rule.
+- **A course never fails in Normal.** `settle()` never fails a course level; there is no Blooper for one. Every
+  hit still counts in `world.hits`, so the stars and the tally show how cleanly it was flown. (Hardcore,
+  later, is where failing costs: lives carry over and 0 lives sends the run back to Leg 1.)
 - The respawn is part of the simulation, driven only by the run's inputs, so replays, trailers and the blooper
   stay exact. A trailer clip may show a death and the checkpoint it returns to.
 
@@ -198,12 +202,11 @@ is not to make things easy; the first stretch is still the gentlest of the leg.
 
 ## Calls I made (the owner may overrule any)
 
-- **At 0 lives the level fails** instead of going back to a checkpoint again.
 - **Hardcore waits for Leg 2**, since one leg can't be a journey. It will be built as decided.
 - A 22nd world in the grid, not a separate mode, the way world 18 began with one level.
 - Top-down, scrolling upward, so the gun still fires up.
-- On a death, score, bombs and the ground's marks go back to the checkpoint, and so does a life caught since.
-  The power-up and the combo are lost.
+- On a death (the last life lost), score, bombs and the ground's marks go back to the checkpoint, the power-up
+  and the combo are lost, and the lives refill to the checkpoint's count, at least 3.
 - Only the ground weapon and bombs hurt ground targets. The gun flies over them.
 - Walls and pillars hit through `hitShip` like everything else, so a shield or the blinking lets the ship skim
   them.
