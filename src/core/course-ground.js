@@ -11,6 +11,7 @@ import { inView } from './course-kinds.js';
 //   turret  + cool  s until its next shot; it counts down only while the turret is on screen (it starts full: the
 //           first shot comes TURRET_COOL s after the turret appears, and one that is not seen never fires)
 //   crate   + drop  the pickup it holds ('bomb' or 'life'), or null for the usual random drop (powerups.js dropPickup)
+//   pillar  + w, h  its box's size, its (x, y) being the centre; it rams the ship (course-terrain.js)
 // A turret is an enemy, so its timer runs in the slowed enemy time of the tick (bullet time slows it), and it draws no
 // rng: its shot is the heavy pattern, an aimed bullet, which does not. Ground targets are low: the ship flies over them
 // and nothing rams, and no ship shot or beam touches them (collide.js knows nothing of the ground). Only hurtGround hurts
@@ -27,6 +28,7 @@ export function spawnGround(world, e) {
   const g = { id: world.nextId++, kind: e.kind, at: e.at, x: e.x, y: 0, hp: e.hp ?? null };
   if (e.kind === 'turret') g.cool = TURRET_COOL;
   if (e.kind === 'crate') g.drop = e.drop ?? null;
+  if (e.kind === 'pillar') Object.assign(g, { w: e.w, h: e.h });
   world.course.ground.push(g);
 }
 

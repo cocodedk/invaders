@@ -3,6 +3,7 @@ import { prune } from './util.js';
 import { spawnAir, stepAir } from './course-air.js';
 import { spawnGround, stepGround } from './course-ground.js';
 import { stepSeeds } from './course-seed.js';
+import { terrainHits } from './course-terrain.js';
 import { SPAWN_Y, GROUND_MARGIN } from './course-kinds.js';
 
 // A course (world 22): a top-down scrolling level, a third kind beside wave levels and boss levels. The
@@ -26,10 +27,10 @@ export function createCourse(level) {
 // One tick of the course: scroll, move the air craft (course-air.js: they fly paths in seconds, not with the
 // scroll, and in `slow`, the enemy time of this tick: stepPlay's enemyDt, bullet time included; `dist` and the
 // ground keep real time, but the turrets on it fire in `slow`), let the entries whose `at` has come up spawn in array
-// order (an air craft becomes an alien, every other kind a ground object), put the ground where the scroll says, drop
-// the seeds and let the ones and the bomb that are due hurt it (`input` is the tick's, course-seed.js), let the turrets
-// fire (course-ground.js), and drop what has broken or sunk off the bottom. An air craft spawned this tick
-// stands at its start until the next one.
+// order (an air craft becomes an alien, every other kind a ground object), put the ground where the scroll says, let the
+// walls and the pillars ram the ship (course-terrain.js), drop the seeds and let the ones and the bomb that are due
+// hurt it (`input` is the tick's, course-seed.js), let the turrets fire (course-ground.js), and drop what has broken or
+// sunk off the bottom. An air craft spawned this tick stands at its start until the next one.
 export function stepCourse(world, dt, slow = dt, input = {}) {
   const { course } = world;
   const { speed, spawns } = world.level.course;
@@ -41,7 +42,9 @@ export function stepCourse(world, dt, slow = dt, input = {}) {
     else spawnGround(world, e);
   }
   for (const g of course.ground) g.y = SPAWN_Y + course.dist - g.at;
+  terrainHits(world);
   stepSeeds(world, dt, input);
   stepGround(world, slow);
-  prune(course.ground, (g) => g.hp !== 0 && g.y <= HEIGHT + GROUND_MARGIN); // hp 0 is broken; a stone has hp null
+  // hp 0 is broken, a stone has hp null; an object goes once its top edge is past the margin (h is a pillar's height)
+  prune(course.ground, (g) => g.hp !== 0 && g.y - (g.h ?? 0) / 2 <= HEIGHT + GROUND_MARGIN);
 }
