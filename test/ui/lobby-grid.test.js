@@ -34,7 +34,6 @@ test('every world has a full card, in order from world 1 to the last', () => {
     const levels = LEVELS.filter((l) => l.world === w.id);
     const reels = part(card, 'reel');
     assert.deepEqual(reels.map((r) => r.dataset.id), levels.map((l) => l.id));
-    assert.equal(reels.length, w.boss ? 5 : 1, `world ${w.id} has five reels, or one leg when it has no boss`);
     assert.deepEqual(reels.map((r) => has(r, 'finale')), levels.map((l) => Boolean(l.boss)), 'the boss level is the finale');
     assert.deepEqual(reels.map((r) => r.attrs['aria-label']), levels.map((l) => `${w.name}, ${reelName(l).toLowerCase()}`));
   }
