@@ -1,18 +1,22 @@
 // World 22, Wanderlight: the Hush's craft are grey kites, pencilled on the parchment like everything else in the land (colours:
-// wander-kit.js, looks/w22.js). Every kite is a diamond with its nose down at the ship and a tail trailing up behind it, split into a lit
-// half and a shaded half by its spine and cross-stick; the five roles differ in size, shape and one mark: the Kite (grunt), the narrow
-// Dart (diver) with a dark nose, the Watcher (gunner) with one open violet eye, the Plated (armored) with a second diamond and rivets
-// inside the first, and the Gift (carrier), gold, with a ribbon tail in the glider's gold and turquoise. All of it is baked once; the tail
-// wavers between the two frames, and the only light is the glint in the Watcher's eye and the Gift's sparkle. The kites bob a little.
+// wander-kit.js, looks/w22.js), the mockup's kite: a diamond split into a lit half and a shaded half by its spine and cross-stick, a thin
+// tail hanging from its foot and its shadow cast well off to one side, which is what shows that it flies. The five roles differ in size,
+// shape and one mark: the Kite (grunt), the narrow Dart (diver) with a dark nose, the Watcher (gunner) with one open violet eye, the
+// Plated (armored) with a second diamond and rivets inside the first, and the Gift (carrier), gold, with a ribbon tail in the glider's
+// gold and turquoise. All of it is baked once; the tail wavers between the two frames, and the only light is the glint in the Watcher's
+// eye and the Gift's sparkle. The kites bob a little. A tail hangs below the diamond, which is centred, so the canvas is SIZE, bigger than
+// the usual (bake.js SIZE), to hold the tail as well as the diamond.
 import { path, circle, ellipse, shade, rgba } from './kit.js';
 import { tidy } from './w16-kit.js';
 import { PAL } from '../wander-kit.js';
 
-const SIZE = 112; // px, a sprite canvas's edge: a kite and its tail stand in it
-const WAVER = 4; // px: how far the tail swings out of line, and the frame swings it the other way
+const SIZE = 160; // px, a sprite canvas's edge: a kite, its tail and its shadow stand in it
+const WAVER = 6; // px: how far the tail swings out of line, and the frame swings it the other way
+const SHADOW = [20, 24]; // px: how far the shadow lies right of its kite and below it, the mockup's
 
-const diamond = (w, h) => [[0, h], [w, 0], [0, -h], [-w, 0]]; // nose down
+const diamond = (w, h) => [[0, -h], [w, 0], [0, h], [-w, 0]];
 
+// The tail hangs from the diamond's foot, wavering between the two frames, the further down the wider; the Gift's is two strands.
 function tail(b, f, h, { knots, step, ribbon }) {
   const lines = ribbon ? [[PAL.gold, 5, 0], [PAL.teal, 3, 3]] : [[PAL.tail, 2, 0]];
   b.lineCap = 'round';
@@ -20,31 +24,31 @@ function tail(b, f, h, { knots, step, ribbon }) {
     b.strokeStyle = colour;
     b.lineWidth = width;
     b.beginPath();
-    b.moveTo(off, -h);
-    for (let i = 1; i <= knots; i++) b.lineTo(off + Math.sin(i * 0.9 + f * Math.PI) * WAVER * Math.min(1, i / 3), -h - i * step);
+    b.moveTo(off, h);
+    for (let i = 1; i <= knots; i++) b.lineTo(off + Math.sin(i * 0.9 + f * Math.PI) * WAVER * Math.min(1, i / 2), h + i * step);
     b.stroke();
   }
 }
 
-// The kite's body over its tail: a shadow on the ground, the diamond, its shaded right half, its pencil outline, spine and cross-stick.
+// The kite over its shadow and its tail: the diamond, its shaded right half, its pencil outline, spine and cross-stick.
 function body(b, f, c, K) {
-  const { w, h, line = 1.8 } = K;
-  tail(b, f, h, K);
-  path(b, diamond(w, h).map(([x, y]) => [x + 9, y + 12]));
+  const { w, h, line = 1.6 } = K;
+  path(b, diamond(w, h).map(([x, y]) => [x + SHADOW[0], y + SHADOW[1]]));
   b.fillStyle = 'rgba(40,40,50,0.16)';
   b.fill();
+  tail(b, f, h, K);
   path(b, diamond(w, h));
   b.fillStyle = c;
   b.fill();
-  path(b, [[0, h], [w, 0], [0, -h]]);
-  b.fillStyle = rgba(shade(c, -0.5), 0.45);
+  path(b, [[0, -h], [w, 0], [0, h]]);
+  b.fillStyle = shade(c, -0.18);
   b.fill();
   path(b, diamond(w, h));
   b.strokeStyle = PAL.kiteLine;
   b.lineWidth = line;
   b.lineJoin = 'round';
   b.stroke();
-  b.lineWidth = 1.4;
+  b.lineWidth = 1.6;
   b.beginPath();
   b.moveTo(0, -h);
   b.lineTo(0, h);
@@ -93,7 +97,7 @@ function platesMark(b, l, { w, h }) { // the Plated's inner diamond and two rive
 }
 
 function noseMark(b, l, { w, h }) { // the Dart's dark nose
-  path(b, [[0, h], [w * 0.5, h * 0.45], [-w * 0.5, h * 0.45]]);
+  path(b, [[0, -h], [w * 0.5, -h * 0.45], [-w * 0.5, -h * 0.45]]);
   b.fillStyle = PAL.kiteLine;
   b.fill();
 }
@@ -111,9 +115,9 @@ export default {
   sync: false,
   bob: 3,
   halo: 0, // grey kites do not glow (the Gift's pulse, which aliens/index.js always draws, is its own)
-  grunt: kite({ w: 22, h: 28, knots: 6, step: 4 }),
-  diver: kite({ w: 14, h: 36, knots: 3, step: 4 }, noseMark),
-  gunner: kite({ w: 24, h: 28, knots: 6, step: 4 }, eyeMark),
-  armored: kite({ w: 28, h: 30, knots: 5, step: 4, line: 3.2 }, platesMark),
-  carrier: kite({ w: 30, h: 34, knots: 7, step: 3, ribbon: true }, sparkleMark),
+  grunt: kite({ w: 22, h: 30, knots: 5, step: 8 }),
+  diver: kite({ w: 14, h: 36, knots: 3, step: 8 }, noseMark),
+  gunner: kite({ w: 24, h: 28, knots: 5, step: 8 }, eyeMark),
+  armored: kite({ w: 28, h: 30, knots: 4, step: 8, line: 3.2 }, platesMark),
+  carrier: kite({ w: 30, h: 34, knots: 6, step: 7, ribbon: true }, sparkleMark),
 };

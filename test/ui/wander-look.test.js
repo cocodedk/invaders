@@ -66,6 +66,17 @@ test('every kite paints a body on both frames, inside its sprite, the tail waver
   assert.equal(new Set(drawn).size, ROLES.length);
 });
 
+test("every kite hangs its tail below its diamond and casts its shadow to the right, as the mockup's do, and no other world's kite is one of these", () => {
+  const HANG = 20; // px: how much further down than up a kite reaches (the tail and the shadow), and how much further right than left (the shadow)
+  for (const role of ROLES) {
+    const b = tracker();
+    A[role](b.ctx, tracker().ctx, 0, look.palette.alien[role]);
+    assert.ok(b.bounds.y1 >= -b.bounds.y0 + HANG, `${role}: reaches ${Math.round(b.bounds.y1)} down and ${Math.round(-b.bounds.y0)} up`);
+    assert.ok(b.bounds.x1 >= -b.bounds.x0 + HANG, `${role}: reaches ${Math.round(b.bounds.x1)} right and ${Math.round(-b.bounds.x0)} left`);
+    for (const n of [20, 21]) assert.notEqual(A[role], art(LOOKS.find((l) => l.world === n))[role], `${role} is not world ${n}'s`);
+  }
+});
+
 test('the pickup rim is the parchment band: its own frame, inside the 60 px sprite for every colour a power wears', () => {
   assert.equal(typeof FRAMES[22], 'function');
   for (const n of [21, 20, 19]) assert.ok(FRAMES[22] !== FRAMES[n], `not world ${n}'s`);

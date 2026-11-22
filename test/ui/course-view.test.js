@@ -9,6 +9,7 @@ import { IDLE, TICK } from '../core/world-kit.js';
 const { createView, drawFrame } = await import('../../src/ui/view.js');
 const { drawCourse, buildCourseView, wallRows, WALL_STEP, CONTOURS, CONTOUR_GAP } = await import('../../src/ui/course-view.js');
 const { lanternSpot, LANTERN_TOL } = await import('../../src/ui/course-objects.js');
+const { PILLAR_PAD, SHADOW_DX, SHADOW_DY } = await import('../../src/ui/course-sprites.js');
 const { createWorld, stepWorld } = await import('../../src/core/world.js');
 const { levelById } = await import('../../src/core/levels.js');
 const { createFx } = await import('../../src/fx/fx.js');
@@ -147,13 +148,15 @@ test('the rock carries CONTOURS pencilled lines CONTOUR_GAP apart, through every
   }
 });
 
-test('a pillar is drawn exactly as big as it is, about its centre', () => {
+test('a pillar is drawn exactly as big as it is, about its centre (its sprite and its box: wander-objects.test.js)', () => {
   const world = fresh();
   const { w, h } = spawn('pillar');
   world.course.ground = [{ id: 1, kind: 'pillar', at: 0, x: 700, y: 500, hp: null, w, h }];
   const { calls } = draws(world);
   assert.deepEqual(calls.find(([k]) => k === 'translate').slice(1), [700, 500]);
-  assert.ok(calls.some(([k, ...a]) => k === 'strokeRect' && a.join() === [-w / 2, -h / 2, w, h].join()), 'its outline is the box that rams');
+  const [, sprite, dx, dy] = calls.find(([k, img]) => k === 'drawImage' && img.width === w + 2 * PILLAR_PAD + SHADOW_DX); // the land's strips are drawn too
+  assert.equal(sprite.height, h + 2 * PILLAR_PAD + SHADOW_DY);
+  assert.deepEqual([dx + PILLAR_PAD, dy + PILLAR_PAD], [-w / 2, -h / 2], 'its box in the sprite lands on the box that rams');
 });
 
 test('after a respawn the last lantern reached is drawn lit at the checkpoint from course.check, and a lantern still on the list is drawn once', () => {
@@ -188,5 +191,5 @@ test('the ground costs a few hundred path operations a frame at most and no grad
 });
 
 test('the view files keep the sprite rules', () => {
-  fileRules(assert, ['course-view.js', 'course-land.js', 'course-land-art.js', 'course-objects.js', 'wander-kit.js', 'view.js', 'pickup-kit.js', 'pickup-wander.js', 'pickup-skins.js']);
+  fileRules(assert, ['course-view.js', 'course-land.js', 'course-land-art.js', 'course-objects.js', 'course-sprites.js', 'wander-kit.js', 'view.js', 'pickup-kit.js', 'pickup-wander.js', 'pickup-skins.js']);
 });
