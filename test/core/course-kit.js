@@ -75,8 +75,9 @@ export const breakAll = (world) => gates(world).forEach((g) => hurtGround(world,
 
 // A course that breaks no data rule (course-fair-kit.js unfair says so), for the fairness and the clear tests: open land that
 // narrows into a gorge with a pillar in it and opens again, a checkpoint that grants the ground weapon, then turrets, a crate,
-// a narrowing and, where the leg ends, a hold of two gates. Where things stand is derived from the quiet stretches the rules
-// ask for, so the data follows the constants (RESPAWN_SAFE, RESPAWN_Y).
+// a narrowing and, where the leg ends, a hold of two gates. The entries around the start and the checkpoint stand where the
+// quiet stretches the rules ask for end, so they follow RESPAWN_SAFE and RESPAWN_Y; the gorge, the pillar and the slopes are
+// fair for today's BAND_MIN (a gap of 430 px or more) and WALL_SLOPE_MAX (edges moving at most 0.8 px a px).
 export const FAIR_SPEED = 200; // px/s
 const FIRST = FAIR_SPEED * RESPAWN_SAFE + 100; // the first entry: past the quiet stretch of the start
 export const FAIR_CP_AT = FIRST + 2700; // the checkpoint

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { WIDTH } from '../../src/core/kinds.js';
 import { FREE_ZONE } from '../../src/core/ship.js';
-import { SPAWN_Y, WALL_SLOPE_MAX, RESPAWN_SAFE } from '../../src/core/course-kinds.js';
+import { SPAWN_Y, WALL_SLOPE_MAX, RESPAWN_SAFE, BAND_MIN } from '../../src/core/course-kinds.js';
 import { SEED_REACH } from '../../src/core/course-seed.js';
 import { HOLD_Y, stopAt } from '../../src/core/course-hold.js';
 import { unfair } from './course-fair-kit.js';
@@ -21,6 +21,9 @@ const changed = (mutate) => {
 };
 const first = (data, kind) => data.spawns.find((e) => e.kind === kind);
 const holdOf = (data) => first(data, 'hold');
+// Keyframe `i` of the walls: how far each edge moves into it, and the px an edge would have to move to be too steep for the run of scroll.
+const moves = (d, i) => [Math.abs(d.walls[i][1] - d.walls[i - 1][1]), Math.abs(d.walls[i][2] - d.walls[i - 1][2])];
+const tooFar = (d, i) => WALL_SLOPE_MAX * (d.walls[i][0] - d.walls[i - 1][0]) + 1;
 const put = (data, e) => data.spawns.splice(data.spawns.findLastIndex((s) => s.at <= e.at) + 1, 0, e); // in order of `at`
 
 test('the fair course breaks no rule, and holds every kind of entry', () => {
@@ -47,9 +50,13 @@ const BROKEN = [
   ['pillar', 'a pillar with no height', (d) => { first(d, 'pillar').h = 0; }],
   ['pillar', 'a pillar that would show its foot as it comes up', (d) => { first(d, 'pillar').h = -2 * SPAWN_Y + 1; }],
   ['walls', 'two keyframes at the same place', (d) => { d.walls[3][0] = d.walls[2][0]; }],
-  ['slope', 'both edges moving about 4 px a px', (d) => { d.walls[2][0] = d.walls[1][0] + 400; }],
-  ['slope', 'only the right edge too steep', (d) => { d.walls[6][2] = 1300; }],
-  ['band', 'a pillar that leaves 150 px and 250 px on either side', (d) => { first(d, 'pillar').w = 700; }],
+  ['slope', 'both edges too steep (the gorge coming sooner)', (d) => { d.walls[2][0] = d.walls[1][0] + Math.ceil(Math.min(...moves(d, 2)) / WALL_SLOPE_MAX) - 1; }],
+  ['slope', 'only the left edge too steep', (d) => { d.walls[6][1] = d.walls[5][1] + tooFar(d, 6); }],
+  ['slope', 'only the right edge too steep', (d) => { d.walls[6][2] = d.walls[5][2] - tooFar(d, 6); }],
+  ['band', 'a pillar that leaves under BAND_MIN on either side', (d) => { // the wider side, in the gorge, just short of it
+    const p = first(d, 'pillar');
+    p.w = 2 * (Math.max(p.x - d.walls[2][1], d.walls[2][2] - p.x) - BAND_MIN) + 2;
+  }],
   ['buried', 'a turret in the left wall', (d) => { first(d, 'turret').x = 100; }],
   ['buried', 'a crate in the right wall', (d) => { first(d, 'crate').x = WIDTH - 100; }],
   ['buried', 'a pillar with its left face in the wall', (d) => { first(d, 'pillar').x = 420; }],
@@ -60,6 +67,10 @@ const BROKEN = [
   ['open', 'the start not open to the width', (d) => { d.walls[0][2] = WIDTH - 100; }],
   ['length', 'a leg that ends on its hold but runs past its stop', (d) => { d.length += 100; }],
   ['length', 'a leg that clears before its hold stops the scroll', (d) => { d.length -= 100; }],
+  ['length', 'a leg that clears before a hold with course after it stops the scroll', (d) => {
+    put(d, { kind: 'stone', at: holdOf(d).at + 50, x: WIDTH / 2 });
+    d.length = stopAt(holdOf(d)) - 100;
+  }],
   ['period', 'a hold with no period', (d) => { holdOf(d).period = 0; }],
   ['gate', 'a gate above its hold\'s anchor', (d) => { holdOf(d).targets[0].dy = -1; }],
   ['gate', 'a gate further down the course than the hold reaches', (d) => { holdOf(d).targets[1].dy = HOLD_Y + 1; }],
@@ -81,6 +92,14 @@ test('the edges of the rules: what is allowed', () => {
     put(d, air({ at: FAIR_SPEED * RESPAWN_SAFE + 1 })); // past the start's stretch, and before the first entry
   };
   assert.deepEqual(unfair(courseLevel(changed(edges))), []);
+  const limits = (d) => { // the most each of these may be: a pillar as tall as it may be, a gate on either end of its range, a gap of BAND_MIN
+    const p = first(d, 'pillar');
+    p.h = -2 * SPAWN_Y;
+    holdOf(d).targets[0].dy = 0;
+    holdOf(d).targets[1].dy = HOLD_Y;
+    p.w = 2 * (Math.max(p.x - d.walls[2][1], d.walls[2][2] - p.x) - BAND_MIN);
+  };
+  assert.deepEqual(unfair(courseLevel(changed(limits))), []);
   const past = (d) => { // a hold with more course after it ends at the course's length, which is past its stop
     put(d, { kind: 'stone', at: holdOf(d).at + 50, x: WIDTH / 2 });
     d.length += 500;
