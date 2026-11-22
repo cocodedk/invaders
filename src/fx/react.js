@@ -12,8 +12,9 @@ import { BREATH } from './react-breath.js';
 import { STORM } from './react-storm.js';
 import { BATH } from './react-bath.js';
 import { ISLE } from './react-isle.js';
+import { GROUND } from './react-ground.js';
 
-const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP, ...GLASS, ...BREATH, ...STORM, ...BATH, ...ISLE }; // DEEP wraps fire, hit, kill and absorb, GLASS wraps fire again, power and the wreck's three; BREATH adds two events of its own (world 17's breath and its wiped bullets), wrapping nothing; STORM wraps ARMADA's sideShot and broadside (world 18 borrows the broadside) and adds backfire; BATH wraps DEEP's kill and FIGHT's explode (world 19 tells them as a puff and a foam) and adds world 19's six batting events; ISLE adds world 21's arrowTurn
+const HANDLERS = { ...FIGHT, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP, ...GLASS, ...BREATH, ...STORM, ...BATH, ...ISLE, ...GROUND }; // DEEP wraps fire, hit, kill and absorb, GLASS wraps fire again, power and the wreck's three; BREATH adds two events of its own (world 17's breath and its wiped bullets), wrapping nothing; STORM wraps ARMADA's sideShot and broadside (world 18 borrows the broadside) and adds backfire; BATH wraps DEEP's kill and FIGHT's explode (world 19 tells them as a puff and a foam) and adds world 19's six batting events; ISLE adds world 21's arrowTurn; GROUND adds world 22's groundKill and groundHit (a broken thing on the ground blasts, a struck one chips), wrapping nothing
 
 // Every event type fx reacts to.
 export const REACTS = Object.keys(HANDLERS);

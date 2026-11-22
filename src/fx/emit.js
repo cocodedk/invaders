@@ -43,14 +43,15 @@ export function smoke(fx, rng, x, y, k, spread, size) {
   }
 }
 
-// k solid shards that tumble out and fall.
-export function debris(fx, rng, x, y, k, colors, speed) {
+// k solid shards that tumble out and fall. `size` is the [smallest, biggest] radius a shard may have.
+export const DEBRIS_SIZE = [2, 5];
+export function debris(fx, rng, x, y, k, colors, speed, size = DEBRIS_SIZE) {
   for (let i = 0, m = count(fx, k); i < m; i++) {
     const a = rng() * TAU;
     const v = between(rng, speed * 0.3, speed);
     addParticle(fx, {
       x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - speed * 0.2, life: between(rng, 0.7, 1.4),
-      size: between(rng, 2, 5), grow: -1, color: pick(rng, colors), kind: 'debris',
+      size: between(rng, size[0], size[1]), grow: -1, color: pick(rng, colors), kind: 'debris',
       gravity: 260, drag: 0.5,
     });
   }
