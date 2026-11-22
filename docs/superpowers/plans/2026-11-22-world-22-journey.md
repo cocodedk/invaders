@@ -17,6 +17,16 @@
 - [ ] Run `~/.claude-shared/skills/jev-decisions/scripts/plan-gate.sh` on each task below as its own slice (copy the task's section to a file). A task scoring under 0.8 simplicity gets cut and re-run. `UNSURE` → judge it yourself and say so.
 - [ ] Execution: subagent-driven, a Sonnet-class worker per task, a fresh reviewer per task; integrate and verify each yourself (the owner's roles rule).
 
+## Order: every commit is green
+
+The repo's pre-commit hook runs the whole suite (`.githooks/pre-commit`), and `--no-verify` is never used. Adding world 22
+to `WORLDS`/`LEVELS` breaks the lobby, posters and every per-world table at once, so world 22 joins the game in one
+commit, after its core works. **Build order: 0, 2, 3, 4, 5, 6, 7, then 1 and 9 together as one commit, then 8, 10, 11, 12, 13.**
+Tasks 2-7 build and test the course core on a test-only level from a new `test/core/course-kit.js`
+(`courseLevel(data)` returns `{id:'test-course', world:22, index:1, seed:1, d:0.5, twist:'journey', free:true,
+bunkers:false, course: data}` plus a small `KIT_COURSE` with each entry kind), which `createWorld` accepts as it accepts
+the tests' other own levels (`DEFAULT_PAR` covers its par). Nothing in `LEVELS` changes until Task 1+9.
+
 ## Global Constraints
 
 - Everything in `CLAUDE.md` "Global constraints": no deps/bundler/network; every code file < 200 lines; `src/core` and `src/fx` never touch window/document/canvas/Math.random/Date.now; arrays only for anything iterated at runtime; World 1920x1080, y down, `TICK = 1/60`; inputs `dx, dy, fire, bomb, target`; 60 fps on a Pi 4 (no per-frame shadowBlur, ≤ 600 particles, ≤ 400 enemy bullets); English; Conventional Commits.
@@ -61,7 +71,7 @@
 
 - [ ] Write failing tests: `WORLDS.length === 22`, world 22 named/free/twist `'journey'`, boss undefined; `LEVELS.length === 106`; `levelById('w22-1').course` exists with no `waves`/`boss`; `reelName(levelById('w22-1')) === 'Leg 1'`; the wave/boss rules in `levels.test.js` skip course levels; `difficulty(22,1)` in [0, 1]; course spawns sorted by `at`; JSON round trip holds; the seed is distinct from every other level's.
 - [ ] Implement with a **placeholder** Leg 1 course (enough entries of each kind for later tests: 3 stretches, 2 checkpoints, the first granting `'seed'`, one hold at the end). Real tuning comes in Task 8.
-- [ ] `npm test` passes except tests Task 9 owns (lobby/poster/look counts): mark none skipped — instead run `node --test test/core` here and leave UI tests to Task 9. Commit `feat(world-22): the course level kind and world 22's data`.
+- [ ] Done together with Task 9 (see Order): one commit, `npm test` green, `feat(world-22): world 22 joins the game with its first leg`.
 
 ### Task 2: The scroll, spawns, air craft and ground objects
 
@@ -120,8 +130,8 @@
 **Files:** Modify `src/core/state-hash.js` (a `courseParts(world)` helper, `[]` when absent), `src/core/pars.js` (`parOf`: course → `ceilTo5(length/speed + holds*HOLD_PAR)`), `scripts/pars.mjs` and `scripts/ratings.mjs` (skip course levels/worlds; keep world 22's hand-set rating `7.0` in `RATINGS`); `test/core/pars.test.js` (course levels exempt from the table); create `test/core/course-fair.test.js`, `test/core/course-clear.test.js`.
 
 - [ ] `courseParts`: dist, next, held t, respawn, abilities length, marks length, each ground object (kind, x, y, hp), seeds (x, at, t). Test: stepping a `structuredClone` from the same inputs matches the original's hash (Review Focus 5); worlds 1-21 hashes unchanged.
-- [ ] Fairness test over `w22-1`'s data: band never narrower than `BAND_MIN` at any `at` (step 1 px); no ground target or pillar inside a wall; every checkpoint and the start: no entry with `at` in `(cp.at, cp.at + RESPAWN_Y - SPAWN_Y + speed*RESPAWN_SAFE]` and the band spans the full free zone there; every gate target inside the band.
-- [ ] Clear test: an invulnerable ship (`invuln` kept high each tick), fire held, steering `target` at the nearest hurtable ground object ahead inside the band, else band centre, at `RESPAWN_Y`; `w22-1` reaches `cleared` within `par * 3` seconds.
+- [ ] Fairness test over the kit's course (and, from Task 8, over `w22-1`'s data): band never narrower than `BAND_MIN` at any `at` (step 1 px); no ground target or pillar inside a wall; every checkpoint and the start: no entry with `at` in `(cp.at, cp.at + RESPAWN_Y - SPAWN_Y + speed*RESPAWN_SAFE]` and the band spans the full free zone there; every gate target inside the band.
+- [ ] Clear test (the kit's course now; `w22-1` from Task 8): an invulnerable ship (`invuln` kept high each tick), fire held, steering `target` at the nearest hurtable ground object ahead inside the band, else band centre, at `RESPAWN_Y`; the level reaches `cleared` within `parOf(level) * 3` seconds.
 - [ ] Commit `test(world-22): fairness, a clear, hashing and par`.
 
 ### Task 8: Leg 1's real course (the story's three stretches)
@@ -136,7 +146,7 @@
 **Files:** `src/ui/screens/lobby-card.js` (no "Featuring" when no boss), `src/ui/screens/posters.js` (`ofWorld.at(-1)` when no boss; `w.boss?.x ?? W/2`), `src/ui/screens/lobby.js` + `lobby-nav.js` (per-world reel counts, clamp; restore from 97f562d), `src/ui/flow.js:28` (`waves?.length`; Failed shows checkpoints reached), `src/ui/hud.js` (course: `LEG 1` and lanterns lit n / m instead of WAVE), `src/ui/scenes.js` (backdrop already skips non-wave levels: keep, and adjust `backdrop.test.js`), the per-world tables (`fx/film.js TINTS`, `trailer/cards.js VOICES` with the story's lines, `trailer/draw.js TYPE`, `posters.js TAGLINES/AT`, `sound-styles-2.js` a `'road'` style, `sounds.js` + `fx/react.js` cases or `SILENT` for `checkpoint, ability, seedBurst, groundKill, holdBreak, respawn`, samples in `test/event-sample.js`), and every test listing 21 worlds (counts → `WORLDS.length`/22; lobby-keys' last row now six cards; trailer-cards' "every world has a boss" skips world 22).
 
 - [ ] Failing tests first: lobby shows world 22's card with one reel "Leg 1" and arrow keys never throw; poster bakes from `w22-1`; HUD shows the leg, not WAVE; Failed card renders for a course; every new event has fx + sound (or SILENT).
-- [ ] Implement; `npm test` all green. Commit `feat(world-22): the lobby, HUD, trailer and sounds know a course`.
+- [ ] Implement together with Task 1; `npm test` all green; one commit (see Task 1).
 
 ### Task 10: A plain, flyable view
 
