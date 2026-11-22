@@ -6,7 +6,7 @@
 //        narrow waves (3 cols), which keeps the power-ups worth having. `speed` multiplies the
 //        formation's pace and stacks with scaled(d).formationSpeed.
 //   lv(seed, waves, bunkers)  one level. `lv(seed)` alone is the world's boss level.
-const ROLE = { g: 'grunt', d: 'diver', u: 'gunner', a: 'armored', c: 'carrier' };
+export const ROLE = { g: 'grunt', d: 'diver', u: 'gunner', a: 'armored', c: 'carrier' };
 
 export const w = (formation, cols, roles, pattern, speed) =>
   ({ formation, rows: roles.length, cols, roles: [...roles].map((c) => ROLE[c]), pattern, speed });
