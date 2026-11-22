@@ -1,6 +1,6 @@
 // A world's card in the lobby: its poster (the boss fight the game rendered, the kicker, the name, the
-// tagline, the boss billed), a strip with the world's difficulty, and its five reels. Every world gets the
-// same card; a free-flight world only adds a small flag in the foot of its poster.
+// tagline, the boss billed unless the world has none), a strip with the world's difficulty, and its reels (five, or
+// one for a one-leg world). Every world gets the same card; a free-flight world only adds a small flag in the foot of its poster.
 //   cardOf(world, best, start) -> { el, art, reels, world, pick }
 // A reel shows the level's number (the medal mark pinned to it when the level holds its medal), its
 // best stars and best score. The poster develops in once posters.js has baked it (the screen's update).
@@ -65,7 +65,7 @@ export function cardOf(world, best, start) {
     h('div', 'poster-type',
       h('h3', `poster-name${isLong(world.name) ? ' long' : ''}`, world.name),
       h('p', 'poster-tag', TAGLINES[world.id - 1]),
-      h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
+      world.boss && h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
   if (world.free) art.append(h('span', 'poster-flag', 'Free flight'));
   const reels = LEVELS.filter((l) => l.world === world.id).map((l) => reel(l, best, start));
   const el = h('article', 'poster', art, rating(RATINGS[world.id - 1]), h('div', 'reels', ...reels));

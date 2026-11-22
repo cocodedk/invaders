@@ -1,6 +1,6 @@
-// The lobby's posters, drawn by the game itself: each world's boss level is run a few seconds with the autopilot
-// and one frame of it is rendered (sky, parallax, boss, ship, effects; no HUD), then cropped to a 2:3 poster round
-// the boss. Kept for the session (no image files).
+// The lobby's posters, drawn by the game itself: each world's boss level (a world without a boss: its last level) is run
+// a few seconds with the autopilot and one frame of it is rendered (sky, parallax, boss, ship, effects; no HUD), then
+// cropped to a 2:3 poster round the boss (the field's middle when there is none). Kept for the session (no image files).
 // A bake comes in eight slices (the run-up, the world's alien sprites, its boss, worlds 15, 16 and 17's own sprites,
 // the view, the frame), one per idle period while the title or the lobby is up, so no single frame carries a whole poster
 // and nothing is baked while a level plays.
@@ -8,6 +8,7 @@
 //   prefer(worlds)         bake these worlds' posters next (the ones in view); the rest follow in order
 //   preferred() -> worlds  what prefer last said
 //   posterFor(world) -> canvas | null      TAGLINES[world - 1]: each world's line      reelName(level)
+//   posterLevel(world, levels = LEVELS) -> level   the level a world's poster is taken from
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
 import { autopilot } from '../../core/autopilot.js';
@@ -60,8 +61,13 @@ const posters = new Map();
 
 export const posterFor = (world) => posters.get(world) ?? null;
 
+export function posterLevel(world, levels = LEVELS) {
+  const ofWorld = levels.filter((l) => l.world === world);
+  return ofWorld.find((l) => l.boss) ?? ofWorld.at(-1);
+}
+
 function* bake(world) {
-  const level = LEVELS.find((l) => l.world === world && l.boss);
+  const level = posterLevel(world);
   const look = lookFor(level);
   const secs = AT[world - 1];
   const w = createWorld(level, level.seed);
@@ -79,7 +85,7 @@ function* bake(world) {
   yield;
   warmAliens(look);
   yield;
-  bossArt(look, level.boss); // drawn whole: none of the fight's damage art (warmBoss)
+  if (level.boss) bossArt(look, level.boss); // drawn whole: none of the fight's damage art (warmBoss)
   yield;
   warmDeep(look); // Lantern Deep's caustics, maelstrom and sway are heavy to bake: not in the frame's slice
   yield;
@@ -93,7 +99,7 @@ function* bake(world) {
   yield;
   drawFrame(view, w, fx, secs);
   const { s: k, ox, oy } = view.fit;
-  const x0 = clamp(w.boss.x - CROP_W / 2, 0, W - CROP_W);
+  const x0 = clamp((w.boss?.x ?? W / 2) - CROP_W / 2, 0, W - CROP_W);
   const out = makeCanvas(CROP_W * k, CROP_H * k);
   out.getContext('2d').drawImage(frame, ox + x0 * k, oy, CROP_W * k, CROP_H * k, 0, 0, out.width, out.height);
   out.className = 'poster-canvas';

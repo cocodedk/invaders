@@ -25,7 +25,7 @@ const FAIL_WAIT = 1.6; // s after the last life
 function progress(world) {
   const b = world.boss;
   if (b) return `${worldName(world.level)}'s boss held at ${Math.ceil((100 * b.hp) / b.maxHp)} %`;
-  return `Wave ${world.wave} of ${world.level.waves.length}`;
+  return `Wave ${world.wave} of ${world.level.waves?.length ?? 0}`;
 }
 
 export function createFlow(r, stage) {
