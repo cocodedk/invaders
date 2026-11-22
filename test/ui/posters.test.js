@@ -15,6 +15,7 @@ test('every world has its own tagline', () => {
   for (const line of TAGLINES) assert.ok(line.length > 0 && line.length < 60, line);
   assert.equal(TAGLINES[17], 'Make their fire follow you.');
   assert.equal(TAGLINES[18], 'Bath time. Bring a bat.');
+  assert.equal(TAGLINES.at(-1), 'Colour follows the light.');
 });
 
 test('every world is baked into a poster, each from its boss level', async () => {
@@ -38,6 +39,7 @@ test('posterLevel is the world\'s boss level, else its last level', () => {
   assert.equal(posterLevel(8, LIST), undefined, 'a world with no levels has none');
 });
 
-test('every world of the game has its boss level for a poster', () => {
-  for (const w of WORLDS) assert.equal(posterLevel(w.id).id, LEVELS.find((l) => l.world === w.id && l.boss).id, `world ${w.id}`);
+test('every world of the game has its boss level for a poster, and a course world its one leg', () => {
+  for (const w of WORLDS.filter((x) => x.boss)) assert.equal(posterLevel(w.id).id, LEVELS.find((l) => l.world === w.id && l.boss).id, `world ${w.id}`);
+  for (const w of WORLDS.filter((x) => !x.boss)) assert.equal(posterLevel(w.id).id, LEVELS.find((l) => l.world === w.id && l.course).id, `world ${w.id}`);
 });

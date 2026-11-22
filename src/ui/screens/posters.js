@@ -48,12 +48,14 @@ export const TAGLINES = [
   'Bath time. Bring a bat.',
   'Every shot goes to print twice.',
   'Every arrow comes home.',
+  'Colour follows the light.',
 ];
 
 const FRAME_W = 768;
 const FRAME_H = 432;
-// s into each boss fight: in place, mid-attack
-const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6];
+// s into each boss fight: in place, mid-attack; a course (world 22) has no boss, so it is s into the flight, the autopilot flying
+// it: a stretch with a turret, a crate and craft in sight
+const AT = [3.6, 3.4, 3.6, 3.4, 3.4, 3.4, 3.4, 3.8, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 3.6, 8];
 const LIT = 0.4; // s of effects before the frame (muzzle flashes, sparks); the run-up before has none
 const CROP_W = 600; // the crop, in world px: a 2:3 window over the top of the field, centred on the boss
 const CROP_H = 900;

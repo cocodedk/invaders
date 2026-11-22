@@ -90,7 +90,8 @@ function write(scores, hand) {
 // x ${SEEDS} seeds per level, the way boss levels have to be measured: their seeds share an opening), as
 // 1 + 9 x (d + fail) / 2, to one decimal. The lagged autopilot walks to where it decided to be at HAND (hand.js,
 // ${hand} px/s since R68), so the scores are relative to that model of a hand and move with it. Written by
-// scripts/ratings.mjs; run it again when a world is added or retuned, as pars are.
+// scripts/ratings.mjs; run it again when a world is added or retuned, as pars are. A course world (22) is not measured, the autopilot
+// cannot fly one: its score is set by hand here, and the script keeps it.
 export const RATINGS = [${scores.join(', ')}];
 `);
 }

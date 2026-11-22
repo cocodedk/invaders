@@ -1,11 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { WORLDS, LEVELS, DEMO_LEVEL, FREE_FROM, levelById } from '../../src/core/levels.js';
+import { WORLDS, LEVELS, DEMO_LEVEL, FREE_FROM, levelById, reelName } from '../../src/core/levels.js';
 import { difficulty } from '../../src/core/difficulty.js';
 import { ROLES, FORMATIONS, PATTERNS, TWISTS, BOSSES } from '../../src/core/kinds.js';
 
-const waveLevels = LEVELS.filter((l) => l.index < 5);
-const bossLevels = LEVELS.filter((l) => l.index === 5);
+// A course level (world 22) has neither waves nor a boss: it is a third kind beside the wave levels and the boss levels.
+const courseLevels = LEVELS.filter((l) => l.course);
+const waveLevels = LEVELS.filter((l) => !l.course && l.index < 5);
+const bossLevels = LEVELS.filter((l) => !l.course && l.index === 5);
+const REELS = 5; // the levels in a world of waves and a boss
+const waveWorlds = WORLDS.filter((w) => w.boss);
 const aliens = (w) => w.rows * w.cols;
 
 function assertWaveValid(w, at) {
@@ -19,25 +23,39 @@ function assertWaveValid(w, at) {
   assert.ok(aliens(w) <= 40, `${at} has ${aliens(w)} aliens`);
 }
 
-test('WORLDS has the 21 worlds with names, twists and bosses in the spec order; every world from 18 on flies free', () => {
-  assert.deepEqual(WORLDS.map((w) => w.id), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]);
+test('WORLDS has the worlds with names, twists and bosses in the spec order; every world from 18 on flies free', () => {
+  assert.deepEqual(WORLDS.map((w) => w.id), WORLDS.map((_, i) => i + 1));
   assert.deepEqual(WORLDS.map((w) => w.name), ['Arcade Origin', 'Neon Rain', 'Twin Suns',
     'Ronin Moon', 'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
-    'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky', 'Rubber Regatta', 'Midnight Press', 'Golden Isle']);
+    'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky', 'Rubber Regatta', 'Midnight Press', 'Golden Isle', 'Wanderlight']);
   assert.deepEqual(WORLDS.map((w) => w.twist), TWISTS);
-  assert.deepEqual(WORLDS.map((w) => w.boss), BOSSES);
+  assert.deepEqual(waveWorlds.map((w) => w.boss), BOSSES); // every world has its boss, but the last: a course has none
+  assert.deepEqual(WORLDS.at(-1), { id: WORLDS.length, name: 'Wanderlight', twist: 'journey', boss: undefined, free: true });
   assert.equal(FREE_FROM, 18);
   for (const w of WORLDS) assert.equal(w.free, w.id >= FREE_FROM, `world ${w.id} free`);
 });
 
-test('there are 105 levels, in order, with unique ids that match world and index: five a world', () => {
-  assert.equal(LEVELS.length, 105);
-  assert.equal(new Set(LEVELS.map((l) => l.id)).size, 105);
-  LEVELS.forEach((l, i) => {
-    assert.equal(l.world, Math.floor(i / 5) + 1);
-    assert.equal(l.index, (i % 5) + 1);
-    assert.equal(l.id, `w${l.world}-${l.index}`);
-  });
+test('the levels run in order with unique ids that match world and index: five a world, but a course world has one leg', () => {
+  assert.equal(LEVELS.length, waveWorlds.length * REELS + courseLevels.length);
+  assert.equal(new Set(LEVELS.map((l) => l.id)).size, LEVELS.length);
+  let at = 0;
+  for (const world of WORLDS) {
+    const mine = LEVELS.filter((l) => l.world === world.id);
+    assert.equal(mine.length, world.boss ? REELS : 1, `world ${world.id}`);
+    mine.forEach((l, i) => {
+      assert.equal(LEVELS[at++], l, 'in world order');
+      assert.equal(l.index, i + 1);
+      assert.equal(l.id, `w${l.world}-${l.index}`);
+    });
+  }
+  assert.equal(at, LEVELS.length);
+});
+
+test('every level has waves, a boss or a course, and only one of them', () => {
+  for (const l of LEVELS) assert.equal(['waves', 'boss', 'course'].filter((k) => k in l).length, 1, l.id);
+  assert.deepEqual(courseLevels.map((l) => l.world), [WORLDS.length], 'the course world is the last, and has one level');
+  assert.equal(levelById('w22-1').course, courseLevels[0].course);
+  for (const l of courseLevels) assert.equal(reelName(l), `Leg ${l.index}`);
 });
 
 test('every level has an integer seed (all distinct), its difficulty and its world twist', () => {
@@ -64,7 +82,7 @@ test('wave levels have 3 to 5 waves and at least one carrier', () => {
 });
 
 test('boss levels name their world boss and have no waves or bunkers', () => {
-  assert.equal(bossLevels.length, 21);
+  assert.equal(bossLevels.length, BOSSES.length);
   for (const l of bossLevels) {
     assert.equal(l.boss, BOSSES[l.world - 1], l.id);
     assert.ok(!('waves' in l), `${l.id} has waves`);
@@ -73,7 +91,7 @@ test('boss levels name their world boss and have no waves or bunkers', () => {
 });
 
 test('each world uses at least 4 different formations across its wave levels', () => {
-  for (let world = 1; world <= WORLDS.length; world++) {
+  for (const { id: world } of waveWorlds) {
     const used = new Set(waveLevels.filter((l) => l.world === world)
       .flatMap((l) => l.waves.map((w) => w.formation)));
     assert.ok(used.size >= 4, `world ${world} uses only ${[...used]}`);
@@ -108,6 +126,6 @@ test('DEMO_LEVEL is a gentle world 1 level: a 6x3 grunt grid, then a sway with o
 
 test('levelById finds every level and returns undefined for an unknown id', () => {
   for (const l of LEVELS) assert.equal(levelById(l.id), l);
-  assert.equal(levelById('w22-1'), undefined);
+  assert.equal(levelById(`w${WORLDS.length + 1}-1`), undefined);
   assert.equal(levelById(''), undefined);
 });

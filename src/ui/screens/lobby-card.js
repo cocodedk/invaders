@@ -50,9 +50,13 @@ function rating(score) {
 }
 
 // A name with a word of more than LONG letters gets the smaller size (.poster-name.long), or the word would run
-// past the poster's edge and be cut off: "Cathedral" at the full size is wider than the poster.
+// past the poster's edge and be cut off: "Cathedral" at the full size is wider than the poster. A word of more than LONGER
+// gets a smaller one still (.longer, on top of .long): "Wanderlight" is wider than the poster at the long size.
 export const LONG = 8;
-export const isLong = (name) => name.split(' ').some((w) => w.length > LONG);
+export const LONGER = 10;
+const longest = (name) => Math.max(...name.split(' ').map((w) => w.length));
+export const isLong = (name) => longest(name) > LONG;
+export const isLonger = (name) => longest(name) > LONGER;
 
 export function cardOf(world, best, start) {
   const look = lookFor({ world: world.id });
@@ -63,7 +67,7 @@ export function cardOf(world, best, start) {
   art.append(
     h('div', 'poster-head', h('span', 'poster-world', `World ${world.id}`)),
     h('div', 'poster-type',
-      h('h3', `poster-name${isLong(world.name) ? ' long' : ''}`, world.name),
+      h('h3', `poster-name${isLong(world.name) ? ' long' : ''}${isLonger(world.name) ? ' longer' : ''}`, world.name),
       h('p', 'poster-tag', TAGLINES[world.id - 1]),
       world.boss && h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
   if (world.free) art.append(h('span', 'poster-flag', 'Free flight'));

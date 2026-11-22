@@ -144,6 +144,11 @@ export const VOICES = [
     ['{kills}', 'FELL BEFORE THE GOLDEN GATES.'],
     ['{near} IN THE GOLD.', '{time} OF THE LAST DUSK.'],
   ],
+  [ // Wanderlight: a small light wakes over a land drawn in pencil, and colour follows it down the road
+    ['A LIGHT WAKES.', 'THE LAND IS STILL A SKETCH.'],
+    ['{kills}', 'LEFT IN COLOUR.'],
+    ['{near} ALONG THE WAY.', '{time} OF DAWN.', 'THE ROAD GOES ON.'],
+  ],
 ];
 
 // "THE MOTHERSHIP", "THE SINGULARITY": a noun phrase, so it reads in every world's {kills} slot.

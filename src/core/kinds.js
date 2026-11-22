@@ -48,7 +48,9 @@ export const powersFor = (level) => DROPS[level.world] ?? POWERS;
 // World 20's echo is a twist of its own (R72): a carbon copy flies the ship's path late and fires when the ship
 // fired (echo.js). Its boss is the editor. World 21's quiver is a twist of its own (R73): a ship shot that reaches the top
 // of the field turns once and flies back to where the ship stood on that tick (quiver.js). Its boss is crowns, the Ten-Crowned King.
-export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath', 'free', 'bonk', 'echo', 'quiver'];
+// World 22's journey is a twist of its own: its one level is a course that scrolls past the ship (course.js), which has no wave, no boss
+// and no entry in BOSSES (so WORLDS[21].boss is undefined).
+export const TWISTS = ['bunkers', 'darkness', 'gusts', 'shuriken', 'acid', 'glitch', 'reassemble', 'gravity', 'gusts', 'darkness', 'shuriken', 'glitch', 'broadside', 'fireworks', 'gravity', 'reassemble', 'breath', 'free', 'bonk', 'echo', 'quiver', 'journey'];
 export const BOSSES = ['mothership', 'pyramid', 'fortress', 'shogun', 'queen', 'agent', 'titan', 'singularity', 'behemoth', 'count', 'wyrm', 'grimoire', 'galleon', 'carousel', 'angler', 'moth', 'craving', 'ray', 'duck', 'editor', 'crowns'];
 
 // The playfield: a fixed 1920x1080 frame, y down. Its top is the HUD band, whose panels end at

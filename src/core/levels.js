@@ -6,24 +6,26 @@ import { SIDE2, STORM } from './levels-4.js';
 import { REGATTA } from './levels-5.js';
 import { PRESS } from './levels-6.js';
 import { ISLE } from './levels-7.js';
+import { JOURNEY } from './levels-8.js';
 
 // Level data, plain and serialisable. Each level, in order, is
 //   { id: 'w<world>-<index>', world, index, seed, d, twist, bunkers,
 //     waves: [{ formation, rows, cols, roles: [role per row], pattern, speed }] }
 // for index 1-4, and the same without `waves` but with `boss` for index 5. `seed` is the fixed seed
-// of the level's world rng, `d` its difficulty (difficulty.js), `twist` its world's rule.
+// of the level's world rng, `d` its difficulty (difficulty.js), `twist` its world's rule. World 22's one level has
+// `course` (levels-8.js) in place of `waves` and `boss`.
 // The wave shorthand `w` and its role letters are explained in levels-2.js.
 
 const NAMES = ['Arcade Origin', 'Neon Rain', 'Twin Suns', 'Ronin Moon',
   'Hive', 'Code Rain', 'Iron Dawn', 'Event Horizon', 'Tidal Siege', 'Hollow Night', 'Aurora Kingdom',
-  'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky', 'Rubber Regatta', 'Midnight Press', 'Golden Isle'];
+  'Starlit Archive', 'Sunset Armada', 'Ember Carnival', 'Lantern Deep', 'Glass Cathedral', 'Ash to Air', 'Anvil Sky', 'Rubber Regatta', 'Midnight Press', 'Golden Isle', 'Wanderlight'];
 export const FREE_FROM = 18; // R67: every world from this one on flies free (ship.js zoneOf, collide.js); 1-17 keep the bottom strip
 
 export const WORLDS = NAMES.map((name, i) => ({ id: i + 1, name, twist: TWISTS[i], boss: BOSSES[i], free: i + 1 >= FREE_FROM }));
 
-// A level's world name, and its place in the world: 'Reel 3', or the boss level's 'Finale'.
+// A level's world name, and its place in the world: 'Reel 3', the boss level's 'Finale', or a course's 'Leg 1'.
 export const worldName = (level) => WORLDS[level.world - 1]?.name ?? '';
-export const reelName = (level) => (level.boss ? 'Finale' : `Reel ${level.index}`);
+export const reelName = (level) => (level.course ? `Leg ${level.index}` : level.boss ? 'Finale' : `Reel ${level.index}`);
 
 const EARLY = [
   // 1 Arcade Origin: the classic march with plain shots, then fans and rings. Bunkers throughout.
@@ -140,17 +142,18 @@ const EARLY = [
   ],
 ];
 
-// One level from its spec. A spec without waves is the world's boss level.
-function level(world, index, { seed, bunkers, waves }) {
+// One level from its spec. A spec with a course is a leg of world 22 (no waves, no boss); a spec without waves is the world's boss level.
+function level(world, index, { seed, bunkers, waves, course }) {
   const home = WORLDS[world - 1];
   const base = {
     id: `w${world}-${index}`, world, index, seed, d: difficulty(world, index), twist: home.twist, bunkers,
     ...(home.free && { free: true }),
   };
+  if (course) return { ...base, course };
   return waves ? { ...base, waves } : { ...base, boss: home.boss };
 }
 
-export const LEVELS = [...EARLY, ...LATE, ...SIDE, ...SIDE2, ...STORM, ...REGATTA, ...PRESS, ...ISLE].flatMap((specs, wi) =>
+export const LEVELS = [...EARLY, ...LATE, ...SIDE, ...SIDE2, ...STORM, ...REGATTA, ...PRESS, ...ISLE, ...JOURNEY].flatMap((specs, wi) =>
   specs.map((spec, ii) => level(wi + 1, ii + 1, spec)));
 
 // World 1 at d = 0 for "Watch, then try": a 6x3 grunt grid, then one swaying trio around a carrier.

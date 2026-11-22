@@ -8,7 +8,7 @@ import { installDom, all, textOf, has, openLobby } from './lobby-kit.js';
 // Row lengths and the card's parts are read from the built DOM, never from numbers of worlds.
 installDom();
 const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
-const { SEGMENTS, LONG, isLong } = await import('../../src/ui/screens/lobby-card.js');
+const { SEGMENTS, LONG, LONGER, isLong, isLonger } = await import('../../src/ui/screens/lobby-card.js');
 const { PER_ROW } = await import('../../src/ui/screens/lobby-nav.js');
 const { WORLDS, LEVELS, reelName } = await import('../../src/core/levels.js');
 const { bossDef } = await import('../../src/core/bosses-data.js');
@@ -28,12 +28,15 @@ test('every world has a full card, in order from world 1 to the last', () => {
     assert.equal(textOf(part(card, 'poster-world')[0]), `World ${w.id}`);
     assert.equal(textOf(part(card, 'poster-name')[0]), w.name);
     assert.equal(textOf(part(card, 'poster-tag')[0]), TAGLINES[w.id - 1]);
-    assert.equal(textOf(part(card, 'poster-bill')[0]), `Featuring ${bossDef(w.boss).name}`);
+    const bill = part(card, 'poster-bill');
+    if (w.boss) assert.equal(textOf(bill[0]), `Featuring ${bossDef(w.boss).name}`);
+    else assert.equal(bill.length, 0, `world ${w.id} has no boss to bill`);
+    const levels = LEVELS.filter((l) => l.world === w.id);
     const reels = part(card, 'reel');
-    assert.deepEqual(reels.map((r) => r.dataset.id), LEVELS.filter((l) => l.world === w.id).map((l) => l.id));
-    assert.equal(reels.length, 5, `world ${w.id} has five reels`);
-    assert.deepEqual(reels.map((r) => has(r, 'finale')), [false, false, false, false, true], 'the boss level is the finale');
-    assert.deepEqual(reels.map((r) => r.attrs['aria-label']), LEVELS.filter((l) => l.world === w.id).map((l) => `${w.name}, ${reelName(l).toLowerCase()}`));
+    assert.deepEqual(reels.map((r) => r.dataset.id), levels.map((l) => l.id));
+    assert.equal(reels.length, w.boss ? 5 : 1, `world ${w.id} has five reels, or one leg when it has no boss`);
+    assert.deepEqual(reels.map((r) => has(r, 'finale')), levels.map((l) => Boolean(l.boss)), 'the boss level is the finale');
+    assert.deepEqual(reels.map((r) => r.attrs['aria-label']), levels.map((l) => `${w.name}, ${reelName(l).toLowerCase()}`));
   }
 });
 
@@ -113,16 +116,19 @@ test('the score is a strip between the poster and the reels, and the poster head
   }
 });
 
-test('a name with a word of more than LONG letters is set smaller (.long), or the word is cut off at the poster edge', () => {
+test('a name with a word of more than LONG letters is set smaller (.long), and one of more than LONGER smaller still (.longer), or the word is cut off at the poster edge', () => {
   const { cards } = lobby();
   for (const [i, card] of cards.entries()) {
     const w = WORLDS[i];
     const name = all(card).find((e) => has(e, 'poster-name'));
     assert.equal(has(name, 'long'), isLong(w.name), `${w.name}: ${isLong(w.name) ? 'a long word' : 'short words'}`);
+    assert.equal(has(name, 'longer'), isLonger(w.name), `${w.name}: ${isLonger(w.name) ? 'a longer word' : 'not longer'}`);
   }
   const word = (n) => 'x'.repeat(n);
   assert.ok(isLong(`Glass ${word(LONG + 1)}`) && !isLong(`${word(LONG)} ${word(LONG)}`) && !isLong('Ash to Air'), 'one word over LONG is enough, LONG itself is not');
+  assert.ok(isLonger(`Glass ${word(LONGER + 1)}`) && !isLonger(word(LONGER)) && isLong(word(LONGER)), 'one word over LONGER is enough, LONGER itself is not, and it is still long');
   assert.ok(WORLDS.some((w) => isLong(w.name)), 'world 16 is one');
+  assert.ok(WORLDS.some((w) => isLonger(w.name)), 'world 22 is one');
 });
 
 test("a shelf says how many cards it holds (--filled), so the rail ends at the last one", () => {

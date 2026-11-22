@@ -119,7 +119,7 @@ test('on a boss level the stat card names the boss that fell, in every world', (
   assert.deepEqual(cardsFor(18, { ...ZERO, boss: 'ray' })[1], ['THE SQUALL RAY', "FELL TO THE STORM'S OWN FIRE."]);
   assert.deepEqual(cardsFor(19, { ...ZERO, boss: 'duck' })[1], ['THE DOWAGER DUCK', 'KNOCKED SILLY.']);
   const withBoss = WORLDS.filter((w) => w.boss);
-  assert.equal(withBoss.length, WORLDS.length, 'every world has its boss, world 19 included');
+  assert.deepEqual(WORLDS.filter((w) => !w.boss).map((w) => w.id), [levelById('w22-1').world], 'every world has its boss, world 19 included, but the course world');
   for (const w of withBoss) {
     for (const stats of ALL) {
       const lines = cardsFor(w.id, { ...stats, boss: w.boss }).flat();
