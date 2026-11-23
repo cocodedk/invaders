@@ -20,7 +20,7 @@ import { emit } from './util.js';
 // A course has no boss for now (the design leaves it for later; a boss would need its parts weighed against a bullet here too), so
 // a shot is only ever weighed against air craft. Seeds and the ground never touch a bullet.
 
-export const BULLET_HP = { aimed: 1, fan: 1, ring: 1, spiral: 1, rain: 1, homing: 2, heavy: 3 };
+export const BULLET_HP = { aimed: 1, fan: 1, ring: 1, spiral: 1, rain: 1, curtain: 1, homing: 2, heavy: 3 };
 export const CUT_DMG = 1; // hp a gun shot takes off a bullet
 export const BEAM_CUT_DPS = 6; // hp a second the laser beam takes off every bullet in its column
 export const CUT_SCORE = 10; // points for breaking a bullet, the combo untouched

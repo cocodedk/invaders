@@ -1,14 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { FREE_ZONE } from '../../src/core/ship.js';
-import { WIDTH, HUD_BOTTOM } from '../../src/core/kinds.js';
+import { WIDTH, MID_X, HUD_BOTTOM } from '../../src/core/kinds.js';
 import { SPAWN_Y, WALL_SLOPE_MAX, RESPAWN_SAFE, BAND_MIN } from '../../src/core/course-kinds.js';
 import { GROUND_R } from '../../src/core/course-ground.js';
 import { SEED_REACH } from '../../src/core/course-seed.js';
 import { HOLD_Y, GATE_DY_MAX, stopAt } from '../../src/core/course-hold.js';
 import { bandAt } from '../../src/core/course-terrain.js';
+import { CURTAIN_W } from '../../src/core/patterns.js';
 import { unfair } from './course-fair-kit.js';
-import { courseLevel, air, col, FAIR_COURSE, FAIR_SPEED, FAIR_CP_AT, FAIR_QUIET_END } from './course-kit.js';
+import { curtains, CURTAIN } from './course-fair-wood.js';
+import { courseLevel, air, col, checkpoint, hold, FAIR_COURSE, FAIR_SPEED, FAIR_CP_AT, FAIR_QUIET_END } from './course-kit.js';
 
 // The data check (course-fair-kit.js unfair) on a course made to satisfy every rule, and on that course with one rule broken
 // at a time. A leg's own data (Task 8) runs the same check.
@@ -26,6 +28,11 @@ const holdOf = (data) => first(data, 'hold');
 // Keyframe `i` of the walls: how far each edge moves into it, and the px an edge would have to move to be too steep for the run of scroll.
 const moves = (d, i) => [Math.abs(d.walls[i][1] - d.walls[i - 1][1]), Math.abs(d.walls[i][2] - d.walls[i - 1][2])];
 const tooFar = (d, i) => WALL_SLOPE_MAX * (d.walls[i][0] - d.walls[i - 1][0]) + 1;
+// A Smudge (a craft that hangs and drops curtains) at the middle, and the gorge narrowed round the middle until a curtain leaves BAND_MIN less than
+// it asks for on either side. It comes up in the gorge, between the stone and the pillar.
+const smudge = (o = {}) => air({ role: 'u', path: 'hang', pattern: CURTAIN, x: col(0.5), ...o });
+const tight = [col(0.5) - CURTAIN_W / 2 - BAND_MIN + 1, col(0.5) + CURTAIN_W / 2 + BAND_MIN - 1]; // the left and right edges
+const narrowed = (d) => { for (const i of [2, 3]) [d.walls[i][1], d.walls[i][2]] = tight; };
 const put = (data, e) => data.spawns.splice(data.spawns.findLastIndex((s) => s.at <= e.at) + 1, 0, e); // in order of `at`
 
 test('the fair course breaks no rule, and holds every kind of entry', () => {
@@ -45,6 +52,8 @@ const BROKEN = [
   ['pattern', 'a hold flight firing the turrets\' shot', (d) => { holdOf(d).flights[0].pattern = 'heavy'; }],
   ['cross', 'a crossing that starts on the screen', (d) => { d.spawns.find((e) => e.path === 'cross').x = col(0.5); }],
   ['cross', 'a hold flight that starts on the edge itself', (d) => { holdOf(d).flights[1].x = WIDTH; }],
+  ['curtain', 'a Smudge before the line that leaves under BAND_MIN beside its curtain', (d) => { narrowed(d); put(d, smudge({ at: d.walls[2][0] + 100 })); }],
+  ['curtain', 'a curtain fired by a craft that does not hang', (d) => { first(d, 'air').pattern = CURTAIN; }],
   ['hp', 'a turret with no hp', (d) => { first(d, 'turret').hp = 0; }],
   ['hp', 'a crate with negative hp', (d) => { first(d, 'crate').hp = -1; }],
   ['hp', 'a gate with no hp', (d) => { holdOf(d).targets[1].hp = 0; }],
@@ -124,4 +133,30 @@ test('a gate anywhere in [0, GATE_DY_MAX] of its hold is within the seeds\' sigh
   }
   assert.ok(GATE_DY_MAX < HOLD_Y, 'tighter than the screen alone asks');
   assert.equal(SPAWN_Y + stopAt(e) - (e.at + GATE_DY_MAX + 1) - GROUND_R < HUD_BOTTOM, true, 'and a px higher is behind it');
+});
+
+// The curtain rule on its own (course-fair-wood.js curtains), on a course whose walls leave a curtain too little room.
+const tightLevel = (spawns, o = {}) => courseLevel({ speed: FAIR_SPEED, length: 9000, starts: [], walls: [[0, ...tight]], spawns, ...o });
+const lantern = (at, grants) => checkpoint(at, MID_X, grants);
+
+test('a Smudge is excused by the line only once it is held: from the start, or from a lantern that grants it before the Smudge comes up', () => {
+  const alone = [smudge({ at: 1000 })];
+  assert.equal(curtains(tightLevel(alone)).length, 1);
+  assert.deepEqual(curtains(tightLevel(alone, { starts: ['line'] })), []);
+  assert.equal(curtains(tightLevel([...alone, lantern(1500, 'line')])).length, 1, 'a lantern after it does not excuse it');
+  assert.deepEqual(curtains(tightLevel([lantern(500, 'line'), ...alone])), []);
+  assert.equal(curtains(tightLevel([lantern(500, 'seed'), ...alone])).length, 1, 'a lantern that grants something else does not');
+});
+
+test('a Smudge in a hold\'s flights is held to the curtain rule too, from the row the scroll stops at', () => {
+  const flights = [{ t: 1, role: 'u', path: 'hang', x: col(0.5), pattern: CURTAIN }];
+  assert.equal(curtains(tightLevel([hold({ flights })])).length, 1);
+  assert.deepEqual(curtains(tightLevel([hold({ flights })], { starts: ['line'] })), []);
+});
+
+test('a Smudge with room for the curtain and BAND_MIN beside it breaks no rule, and BAND_MIN exactly is enough', () => {
+  const roomy = (d) => put(d, smudge({ at: FAIR_QUIET_END + 150 }));
+  assert.deepEqual(unfair(courseLevel(changed(roomy))), []);
+  const edge = [[0, tight[0] - 1, tight[1] + 1]]; // exactly BAND_MIN either side of the curtain
+  assert.deepEqual(curtains(tightLevel([smudge({ at: 1000 })], { walls: edge })), []);
 });

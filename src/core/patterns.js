@@ -19,6 +19,11 @@ export const BULLET_R = 8; // px: the plain enemy bullet's radius (aimed, fan, r
 export const HEAVY_R = 16; // px: big next to the small bullets, so it reads as heavy
 export const HEAVY_SPEED = 0.5; // x the pattern speed: slow
 export const HEAVY_LIFE = 10; // s: slow, so long a life that it can cross the whole screen
+export const CURTAIN_W = 480; // px: the width of the Smudge's curtain (world 22), outermost bullet centre to outermost
+export const CURTAIN_GAP = 20; // px between two bullet centres: under SHIP_R + BULLET_R, so one bullet cut is no way through and two side by side are
+export const CURTAIN_N = Math.floor(CURTAIN_W / CURTAIN_GAP) + 1; // bullets in a curtain
+export const CURTAIN_SPEED = 0.5; // x the pattern speed: slow
+export const CURTAIN_LIFE = 9; // s: slow, so long a life that it can cross the whole screen from where it hangs
 
 function shot(pattern, from, angle, speed, r, life) {
   return { pattern, x: from.x, y: from.y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, r, life };
@@ -81,6 +86,14 @@ const EMIT = {
   // The heavy shot (world 22 only: a course's turrets fire it, and it takes several hits to break, course-cut.js): one aimed
   // bullet, big and slow. It needs no rng.
   heavy: (from, target, p) => [shot('heavy', from, angleTo(from, target), p.speed * HEAVY_SPEED, HEAVY_R, HEAVY_LIFE)],
+
+  // The Smudge's curtain (world 22 only, course-air.js hang): a straight row of CURTAIN_N small slow bullets, CURTAIN_GAP apart and centred on the
+  // emitter, all falling straight down. Small shots like the plain ones (one hit point, course-cut.js), so the gun can shoot a hole in one, and
+  // one line stroke covers one (CURTAIN_W is at most LINE_INK). It needs no rng and does not aim.
+  curtain: (from, target, p) =>
+    each(CURTAIN_N, (i) => ({
+      pattern: 'curtain', x: from.x + (i - (CURTAIN_N - 1) / 2) * CURTAIN_GAP, y: from.y, vx: 0, vy: p.speed * CURTAIN_SPEED, r: BULLET_R, life: CURTAIN_LIFE,
+    })),
 
   // One big slow star: 0.6x speed, radius 18, so long a life that it can cross the whole screen.
   shuriken: (from, target, p) => [shot('shuriken', from, angleTo(from, target), p.speed * 0.6, 18, 10)],

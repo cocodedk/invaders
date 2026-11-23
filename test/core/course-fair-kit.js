@@ -1,4 +1,4 @@
-import { WIDTH, HEIGHT, PATTERNS } from '../../src/core/kinds.js';
+import { WIDTH, HEIGHT } from '../../src/core/kinds.js';
 import { ROLE } from '../../src/core/levels-2.js';
 import { PATH_NAMES } from '../../src/core/course-air.js';
 import { startCheck, RESPAWN_Y } from '../../src/core/course-check.js';
@@ -6,6 +6,7 @@ import { GATE_DY_MAX, stopAt } from '../../src/core/course-hold.js';
 import { GROUND_R } from '../../src/core/course-ground.js';
 import { bandAt } from '../../src/core/course-terrain.js';
 import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN } from '../../src/core/course-kinds.js';
+import { curtains, AIR_PATTERNS } from './course-fair-wood.js';
 
 // The data rules of a course (world 22), as one pure check. unfair(level) walks the level's `course` and returns what breaks them,
 // each as 'rule: what', so [] is a fair course. A level's data (a leg of the journey) runs it; the tests prove it on a course made
@@ -13,6 +14,7 @@ import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN } from '../../
 //   sorted   the spawns are in order of `at`
 //   role, path, pattern, cross   an air craft (an air entry, a hold's flight) has a role letter, a path and a pattern that exist;
 //            a crossing starts beyond a side edge
+//   curtain  a Smudge's curtain can be flown round before the line is held (course-fair-wood.js, which also names the patterns an air entry may fire)
 //   hp       a turret, a crate and a gate have hp above 0
 //   pillar   it has a width and a height, and its height is at most -2 * SPAWN_Y, so it comes up whole above the screen (R19)
 //   walls    the keyframes are in order of `at`; slope: no edge moves faster than WALL_SLOPE_MAX px a px of scroll (R21)
@@ -49,7 +51,7 @@ const crafts = ({ spawns }) => spawns.flatMap((e, i) => {
 const craft = (course) => crafts(course).flatMap(([c, name]) => [
   ...need(Object.hasOwn(ROLE, c.role), 'role', `${name} is '${c.role}'`),
   ...need(PATH_NAMES.includes(c.path), 'path', `${name} is '${c.path}'`),
-  ...need(PATTERNS.includes(c.pattern), 'pattern', `${name} is '${c.pattern}'`),
+  ...need(AIR_PATTERNS.includes(c.pattern), 'pattern', `${name} is '${c.pattern}'`),
   ...need(c.path !== 'cross' || c.x < 0 || c.x > WIDTH, 'cross', `${name} starts at x ${c.x}, on the screen`),
 ]);
 
@@ -144,5 +146,5 @@ function holds(course) {
 
 export function unfair(level) {
   const c = level.course;
-  return [...sorted(c), ...craft(c), ...hp(c), ...pillar(c), ...walls(c), ...band(c), ...buried(c), ...quiet(level), ...ending(c), ...holds(c)];
+  return [...sorted(c), ...craft(c), ...hp(c), ...pillar(c), ...walls(c), ...band(c), ...buried(c), ...quiet(level), ...ending(c), ...holds(c), ...curtains(level)];
 }
