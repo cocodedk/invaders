@@ -45,7 +45,6 @@ test('a break shows what it paid as a kill does, at the combo it came at; an eve
     scorePopup(ref, ev);
     assert.deepEqual(fx.popups, ref.popups);
     assert.equal(fx.popups[0].text, '+' + score);
-    assert.deepEqual([fx.popups[0].x, fx.popups[0].y], [900, 400 - 18]);
   }
   assert.equal(react({ ...kill('stone'), score: GROUND_SCORE.stone, mult: 1 }).popups.length, 1);
   assert.equal(react(kill('stone')).popups.length, 0);

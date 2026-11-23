@@ -4,16 +4,15 @@ import { TICK } from '../../src/core/kinds.js';
 import { BULLET_HP, CUT_DMG, BEAM_CUT_DPS, CUT_SCORE } from '../../src/core/course-cut.js';
 import { TURRET_PATTERN } from '../../src/core/course-ground.js';
 import { BEAM_W } from '../../src/core/weapons.js';
-import { LASER_WARN, LASER_BEAM } from '../../src/core/patterns.js';
+import { LASER_WARN, LASER_BEAM, LASER_R, BULLET_R } from '../../src/core/patterns.js';
 import { bolt, SHOT_SPEED, SHIP_R } from '../../src/core/ship.js';
 import { enemyDt } from '../../src/core/twists-2.js';
 import { step, shotAt, drain, ofType, FIRE } from './world-kit.js';
 import { flight, air } from './course-kit.js';
 
-// Shots break incoming fire in a course (world 22). A bullet stands still at BULLET (r 8, 6 s of life) until a test says
+// Shots break incoming fire in a course (world 22). A bullet stands still at BULLET (r BULLET_R, 6 s of life) until a test says
 // otherwise, the ship cannot be hurt, the enemy is quiet, and a shot put on a bullet crosses it in one tick.
 const BULLET = { x: 600, y: 400 };
-const BULLET_R = 8;
 const hitsTo = (pattern) => Math.ceil(BULLET_HP[pattern] / CUT_DMG);
 
 function cutWorld(spawns = []) {
@@ -127,7 +126,7 @@ test('two shots in one tick cannot both spend themselves on one bullet that the 
 
 test('an enemy laser cannot be shot: the shot flies through, the beam stands', () => {
   const world = cutWorld();
-  const beam = { pattern: 'laser', x: BULLET.x, y: BULLET.y, vx: 0, vy: 1, r: 9, life: LASER_WARN + LASER_BEAM, warn: 0 };
+  const beam = { pattern: 'laser', x: BULLET.x, y: BULLET.y, vx: 0, vy: 1, r: LASER_R, life: LASER_WARN + LASER_BEAM, warn: 0 };
   world.bullets.push(beam);
   shotAt(world, beam);
   step(world);
@@ -183,7 +182,7 @@ test('the beam leaves alone what is outside its column, below the muzzle, or an 
     put(world, 'heavy', x + reach + 1, BULLET.y),
     put(world, 'heavy', x - reach - 1, BULLET.y),
     put(world, 'heavy', x, y + BULLET_R + SHIP_R + 20), // below the muzzle, clear of the ship
-    { pattern: 'laser', x, y: BULLET.y, vx: 0, vy: 1, r: 9, life: 10, warn: 0 },
+    { pattern: 'laser', x, y: BULLET.y, vx: 0, vy: 1, r: LASER_R, life: 10, warn: 0 },
   ];
   world.bullets.push(clear.at(-1));
   const edge = put(world, 'heavy', x - reach + 1, BULLET.y - 200);

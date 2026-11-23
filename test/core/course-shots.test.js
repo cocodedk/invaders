@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { TICK, MID_X } from '../../src/core/kinds.js';
-import { MUZZLE } from '../../src/core/ship.js';
+import { MUZZLE, SHOT_SPEED, TRIDENT_R, bolt } from '../../src/core/ship.js';
 import { BEAM_DPS } from '../../src/core/weapons.js';
 import { SPAWN_Y, BREAK_SECS, hpFor } from '../../src/core/course-kinds.js';
 import { GROUND_HP, GROUND_SCORE, GROUND_R } from '../../src/core/course-ground.js';
@@ -15,7 +15,7 @@ const ROW = 400; // where the ground objects stand
 const BIG = 99; // hp that no test wears down
 const LASER = { kind: 'laser', left: Infinity };
 const stand = (kind, x, y = ROW, o = {}) => ({ kind, at: SPAWN_Y - y, x, ...o });
-const shot = (x, y, o = {}) => ({ pattern: 'shot', x, y, vx: 0, vy: -1400, r: 5, life: 1, dmg: 1, ...o });
+const shot = (x, y, o = {}) => ({ ...bolt(x, y, 0, -SHOT_SPEED), life: 1, ...o });
 
 // A quiet course world with `spawns` on the ground, one play tick taken to put them there.
 function arena(spawns, power = null) {
@@ -86,7 +86,7 @@ test('a round object is hit from GROUND_R and the shot\'s radius; a shot a pixel
 test('a shot that crosses an object in one move hits it: the path counts, not where the shot ends', () => {
   const world = arena([stand('stone', MID_X)]);
   const g = world.course.ground[0];
-  world.shots.push(shot(g.x, g.y + 5 * GROUND_R, { vy: -1400 * 20 }));
+  world.shots.push(shot(g.x, g.y + 5 * GROUND_R, { vy: -SHOT_SPEED * 20 }));
   step(world);
   assert.equal(g.hp, GROUND_HP.stone - 1);
 });
@@ -94,7 +94,7 @@ test('a shot that crosses an object in one move hits it: the path counts, not wh
 test('a shot is spent on the nearest of two objects in its path, the one behind is not touched', () => {
   const world = arena([stand('stone', MID_X, ROW - 200), stand('turret', MID_X, ROW, { hp: 9 })]);
   const [far, near] = world.course.ground;
-  world.shots.push(shot(MID_X, ROW + 700, { vy: -1400 * 40 }));
+  world.shots.push(shot(MID_X, ROW + 700, { vy: -SHOT_SPEED * 40 }));
   step(world);
   assert.deepEqual([near.hp, far.hp], [8, GROUND_HP.stone]);
 });
@@ -149,10 +149,10 @@ test('a broken pillar no longer rams: the shot that breaks it saves the ship tha
 test('a trident bolt hurts every object its path crossed, once, and flies on', () => {
   const world = arena([stand('stone', MID_X, ROW, { hp: 9 }), stand('turret', MID_X, ROW - 150, { hp: 9 })]);
   const [a, b] = world.course.ground;
-  world.shots.push(shot(MID_X, ROW + 700, { vy: -1400 * 40, r: 7, dmg: 2, trident: true, pierced: [] }));
+  world.shots.push(shot(MID_X, ROW + 700, { vy: -SHOT_SPEED * 40, r: TRIDENT_R, dmg: 2, trident: true, pierced: [] }));
   step(world);
   assert.deepEqual([a.hp, b.hp, world.shots.length], [7, 7, 1]);
-  Object.assign(world.shots[0], { y: ROW + 10, vy: -1400 });
+  Object.assign(world.shots[0], { y: ROW + 10, vy: -SHOT_SPEED });
   step(world);
   assert.equal(a.hp, 7, 'the bolt has hurt it already');
 });
