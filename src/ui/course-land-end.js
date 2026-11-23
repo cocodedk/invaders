@@ -1,5 +1,6 @@
-// Where the land of a course (world 22) runs out. The valley stays whole through its last hold, the gate, and ends a margin past the hold's highest
-// target (END_MARGIN, a seed's burst radius, so a seed that bursts on that target colours a whole circle): from that row up the land is blank
+// Where the land of a course (world 22) runs out. The valley stays whole through its last hold, the gate: up to the top of the screen at the stop
+// (HOLD_Y above the anchor) and a margin past the hold's highest target (END_MARGIN, a seed's burst radius, so a seed that bursts on that target
+// colours a whole circle), whichever is further (a gate may stand no higher than GATE_DY_MAX, so today it is the screen's top): from that row up the land is blank
 // parchment with a few faint construction lines and one pencil line leading on, the design's "The end", that the map is still being drawn and the road
 // goes on. The row comes from the hold entry itself, the course's last, so a later leg's land ends where its own last hold is; a course with no hold
 // has land to its length. The leg runs on END_RUN px of scroll past the hold's stop (course-kinds.js; a leg's length is the stop plus it), so once the
@@ -13,9 +14,10 @@
 import { W, rgba } from './sprites.js';
 import { MID_X } from '../core/kinds.js';
 import { SEED_R } from '../core/course-seed.js';
+import { HOLD_Y } from '../core/course-hold.js';
 import { PAL } from './wander-kit.js';
 
-export const END_MARGIN = SEED_R; // rows the land runs on past the hold's highest target
+export const END_MARGIN = SEED_R; // rows the land runs on past the hold's highest target, if the screen's top at the stop is not further
 export const GUIDE_GAP = 180; // rows between two guide lines (and the one down the middle): the paper's ruling, faint
 export const GUIDE_INK = 0.16;
 export const GUIDE_WIDTH = 1.2;
@@ -25,7 +27,7 @@ export const LINE_STEP = 6; // rows between the points the line is drawn through
 
 export function landEnd(course) {
   const hold = course.spawns.findLast((e) => e.kind === 'hold');
-  return hold ? hold.at + Math.max(...hold.targets.map((t) => t.dy)) + END_MARGIN : course.length;
+  return hold ? hold.at + Math.max(HOLD_Y, ...hold.targets.map((t) => t.dy + END_MARGIN)) : course.length;
 }
 
 export function paintRunout(g, lo, hi, end, lineX) {

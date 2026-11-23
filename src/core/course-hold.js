@@ -1,7 +1,7 @@
-import { EPS } from './kinds.js';
+import { EPS, HUD_BOTTOM } from './kinds.js';
 import { emit } from './util.js';
 import { spawnAir } from './course-air.js';
-import { spawnGround } from './course-ground.js';
+import { spawnGround, GROUND_R } from './course-ground.js';
 import { SPAWN_Y } from './course-kinds.js';
 
 // The end hold (world 22): the scroll stops until every gate of the hold is broken. A hold is a spawn entry
@@ -22,7 +22,7 @@ import { SPAWN_Y } from './course-kinds.js';
 // calls once the turrets have fired that tick, takes every enemy bullet and every air craft away with no kill, no score and no drop, so the
 // run-out past the last gate is safe.
 // The data rules (a check on the level's data should hold them): `period` > 0; a gate must be where the ship can hurt it
-// when the scroll stops, on the screen and in the band (`dy` in [0, HOLD_Y]); a hold's entry comes up beyond the screen a
+// when the scroll stops, on the screen, clear of the HUD's panels and in the band (`dy` in [0, GATE_DY_MAX]), and a hold has a gate at all; a hold's entry comes up beyond the screen a
 // checkpoint saw (course-check.js), so a respawn spawns it again whole; and a level's length is at least where its last hold
 // stops the scroll (a shorter one clears before the hold is reached), and exactly that plus END_RUN when the level ends on the hold: the
 // scroll goes on END_RUN px after the hold breaks, and the level clears there (a length that is the stop itself clears on the tick the hold
@@ -30,6 +30,7 @@ import { SPAWN_Y } from './course-kinds.js';
 
 export const HOLD_Y = 300; // screen y the hold's anchor stands at when the scroll stops: well up the screen, in the ship's reach
 export const HOLD_FLIGHTS_MAX = 6; // air craft alive at most while a hold stands, the level's own and the hold's together
+export const GATE_DY_MAX = HOLD_Y - HUD_BOTTOM - GROUND_R; // px up the course a gate may stand from the anchor: the highest, at the stop, has its top edge on the HUD's line (the panels end at HUD_BOTTOM), never behind it
 
 export const stopAt = (e) => e.at + HOLD_Y - SPAWN_Y; // the dist at which the hold entry `e` stops the scroll
 const gateStands = (course, id) => course.ground.some((g) => g.kind === 'gate' && g.holdId === id && g.hp > 0);

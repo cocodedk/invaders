@@ -1,10 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { WIDTH } from '../../src/core/kinds.js';
 import { FREE_ZONE } from '../../src/core/ship.js';
+import { WIDTH, HUD_BOTTOM } from '../../src/core/kinds.js';
 import { SPAWN_Y, WALL_SLOPE_MAX, RESPAWN_SAFE, BAND_MIN } from '../../src/core/course-kinds.js';
+import { GROUND_R } from '../../src/core/course-ground.js';
 import { SEED_REACH } from '../../src/core/course-seed.js';
-import { HOLD_Y, stopAt } from '../../src/core/course-hold.js';
+import { HOLD_Y, GATE_DY_MAX, stopAt } from '../../src/core/course-hold.js';
+import { bandAt } from '../../src/core/course-terrain.js';
 import { unfair } from './course-fair-kit.js';
 import { courseLevel, air, col, FAIR_COURSE, FAIR_SPEED, FAIR_CP_AT, FAIR_QUIET_END } from './course-kit.js';
 
@@ -59,6 +61,8 @@ const BROKEN = [
   }],
   ['buried', 'a turret in the left wall', (d) => { first(d, 'turret').x = 100; }],
   ['buried', 'a crate in the right wall', (d) => { first(d, 'crate').x = WIDTH - 100; }],
+  ['buried', 'a stone in the left wall', (d) => { first(d, 'stone').x = 100; }],
+  ['buried', 'a stone whose edge is in the wall, though its centre is not', (d) => { first(d, 'stone').x = bandAt(d, first(d, 'stone').at).left + GROUND_R - 1; }],
   ['buried', 'a pillar with its left face in the wall', (d) => { first(d, 'pillar').x = 420; }],
   ['quiet', 'an entry just after the checkpoint', (d) => put(d, air({ at: FAIR_CP_AT + 50 }))],
   ['quiet', 'an entry on the last px of the checkpoint\'s stretch', (d) => put(d, air({ at: FAIR_QUIET_END }))],
@@ -76,6 +80,8 @@ const BROKEN = [
   ['period', 'a hold with no period', (d) => { holdOf(d).period = 0; }],
   ['gate', 'a gate above its hold\'s anchor', (d) => { holdOf(d).targets[0].dy = -1; }],
   ['gate', 'a gate further down the course than the hold reaches', (d) => { holdOf(d).targets[1].dy = HOLD_Y + 1; }],
+  ['gate', 'a gate whose top edge is behind the HUD when the scroll stops', (d) => { holdOf(d).targets[1].dy = GATE_DY_MAX + 1; }],
+  ['target', 'a hold with no gate', (d) => { holdOf(d).targets = []; }],
   ['reach', 'a gate in the wall', (d) => { holdOf(d).targets[0].x = 100; }],
 ];
 
@@ -98,7 +104,7 @@ test('the edges of the rules: what is allowed', () => {
     const p = first(d, 'pillar');
     p.h = -2 * SPAWN_Y;
     holdOf(d).targets[0].dy = 0;
-    holdOf(d).targets[1].dy = HOLD_Y;
+    holdOf(d).targets[1].dy = GATE_DY_MAX;
     p.w = 2 * (Math.max(p.x - d.walls[2][1], d.walls[2][2] - p.x) - BAND_MIN);
   };
   assert.deepEqual(unfair(courseLevel(changed(limits))), []);
@@ -109,10 +115,13 @@ test('the edges of the rules: what is allowed', () => {
   assert.deepEqual(unfair(courseLevel(changed(past))), []);
 });
 
-test('a gate anywhere in [0, HOLD_Y] of its hold is within the seeds\' sight when the scroll stops', () => {
+test('a gate anywhere in [0, GATE_DY_MAX] of its hold is within the seeds\' sight, and clear of the HUD, when the scroll stops', () => {
   const e = holdOf(FAIR_COURSE);
-  for (const dy of [0, HOLD_Y]) {
+  for (const dy of [0, GATE_DY_MAX]) {
     const y = SPAWN_Y + stopAt(e) - (e.at + dy); // where its gate stands on the screen
-    assert.ok(y >= 0 && y + SEED_REACH <= FREE_ZONE.y1, `dy ${dy}: a ship at ${y + SEED_REACH} puts a seed on it`);
+    assert.ok(y - GROUND_R >= HUD_BOTTOM, `dy ${dy}: its top edge at ${y - GROUND_R} is behind the HUD`);
+    assert.ok(y + SEED_REACH <= FREE_ZONE.y1, `dy ${dy}: a ship at ${y + SEED_REACH} puts a seed on it`);
   }
+  assert.ok(GATE_DY_MAX < HOLD_Y, 'tighter than the screen alone asks');
+  assert.equal(SPAWN_Y + stopAt(e) - (e.at + GATE_DY_MAX + 1) - GROUND_R < HUD_BOTTOM, true, 'and a px higher is behind it');
 });

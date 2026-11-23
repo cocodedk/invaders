@@ -5,7 +5,7 @@ import { sink } from './dom-kit.js';
 import { rgba } from '../../src/ui/sprites.js';
 import { SPECKS } from '../../src/ui/course-land-art.js';
 import { landEnd, END_MARGIN, GUIDE_INK, LINE_INK, LINE_STEP } from '../../src/ui/course-land-end.js';
-import { stopAt } from '../../src/core/course-hold.js';
+import { stopAt, HOLD_Y, GATE_DY_MAX } from '../../src/core/course-hold.js';
 import { END_RUN } from '../../src/core/course-kinds.js';
 import { PAL } from '../../src/ui/wander-kit.js';
 
@@ -46,7 +46,8 @@ test('the land stays whole through the gate, and the blank beyond it comes on th
   assert.equal(HOLD.kind, 'hold');
   assert.equal(END_MARGIN, SEED_R, 'a seed that bursts on the top target colours a whole circle');
   for (const t of HOLD.targets) assert.ok(HOLD.at + t.dy + SEED_R <= END, `gate at dy ${t.dy}: a seed bursting on it lands wholly on the land`);
-  assert.ok(HOLD.targets.some((t) => HOLD.at + t.dy + END_MARGIN === END), 'and the land ends that margin past the highest of them, no further');
+  assert.ok(GATE_DY_MAX + END_MARGIN <= HOLD_Y, 'a gate that may stand no higher than that has its margin on the screen at the stop: the screen\'s top is what ends the land');
+  assert.equal(END, HOLD.at + HOLD_Y, 'and the land ends there, no further');
   assert.ok(stopAt(HOLD) + SPAWN_Y <= END, 'no blank on the screen while the hold stands');
   assert.equal(data.length, stopAt(HOLD) + END_RUN, 'the leg runs on past the stop');
   assert.ok(data.length + SPAWN_Y > END, 'blank on the screen as the leg clears');
@@ -54,7 +55,8 @@ test('the land stays whole through the gate, and the blank beyond it comes on th
 
 test('the land ends past the last hold of the course, or, with no hold, at its length', () => {
   const hold = (at, ...dys) => ({ kind: 'hold', at, targets: dys.map((dy) => ({ dy })) });
-  assert.equal(landEnd({ length: 9000, spawns: [hold(100, 10), hold(300, 5, 50, 20)] }), 300 + 50 + END_MARGIN, 'the last hold, its highest target');
+  assert.equal(landEnd({ length: 9000, spawns: [hold(100, 10), hold(300, 5, 50, 20)] }), 300 + HOLD_Y, 'the last hold, the top of the screen at its stop');
+  assert.equal(landEnd({ length: 9000, spawns: [hold(100, 10), hold(300, 5, HOLD_Y, 20)] }), 300 + HOLD_Y + END_MARGIN, 'or the margin past its highest target, if that is further');
   assert.equal(landEnd({ length: 9000, spawns: [{ kind: 'stone', at: 5000 }] }), 9000);
 });
 

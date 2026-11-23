@@ -2,7 +2,7 @@ import { WIDTH, HEIGHT, PATTERNS } from '../../src/core/kinds.js';
 import { ROLE } from '../../src/core/levels-2.js';
 import { PATH_NAMES } from '../../src/core/course-air.js';
 import { startCheck, RESPAWN_Y } from '../../src/core/course-check.js';
-import { HOLD_Y, stopAt } from '../../src/core/course-hold.js';
+import { GATE_DY_MAX, stopAt } from '../../src/core/course-hold.js';
 import { GROUND_R } from '../../src/core/course-ground.js';
 import { bandAt } from '../../src/core/course-terrain.js';
 import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN } from '../../src/core/course-kinds.js';
@@ -17,13 +17,14 @@ import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN } from '../../
 //   pillar   it has a width and a height, and its height is at most -2 * SPAWN_Y, so it comes up whole above the screen (R19)
 //   walls    the keyframes are in order of `at`; slope: no edge moves faster than WALL_SLOPE_MAX px a px of scroll (R21)
 //   band     at every row the widest gap the walls and the pillars leave is at least BAND_MIN
-//   buried   no turret, crate, checkpoint or pillar stands in rock (a ground object counts from its edge, GROUND_R)
+//   buried   no turret, crate, stone, checkpoint or pillar stands in rock (a ground object counts from its edge, GROUND_R)
 //   quiet    nothing comes up in the stretch of the start and of every checkpoint: from the row the ship is put on to the top of the
 //            screen the checkpoint was reached on, and RESPAWN_SAFE s of scroll more; open: the walls leave the whole width open
 //            along it (R20)
 //   length   the course is at least as long as every hold's stop, and exactly that plus END_RUN when the last entry is a hold: the leg ends on it,
 //            runs on END_RUN px of scroll past its stop once the gates have fallen, and clears there
-//   period, gate, reach   a hold's period is above 0, its gates are in [0, HOLD_Y] (on the screen when the scroll stops) and in the band
+//   period, target, gate, reach   a hold's period is above 0, it has a gate, its gates are in [0, GATE_DY_MAX] (on the screen when the scroll stops, and
+//            clear of the HUD's panels: a gate's top edge at the stop is at HUD_BOTTOM or below) and in the band
 
 const need = (ok, rule, what) => (ok ? [] : [`${rule}: ${what}`]);
 const rowsOf = (lo, hi) => { // the integer rows from lo up to hi, and hi itself
@@ -91,7 +92,7 @@ function band(course) {
   return need(row === undefined, 'band', `under ${BAND_MIN} px open at ${row}`);
 }
 
-const GROUND_KINDS = ['turret', 'crate', 'checkpoint']; // the ground objects with a place of their own (a gate is checked with its hold)
+const GROUND_KINDS = ['turret', 'crate', 'stone', 'checkpoint']; // the ground objects with a place of their own (a gate is checked with its hold)
 function buried(course) {
   const ground = course.spawns
     .filter((e) => GROUND_KINDS.includes(e.kind))
@@ -133,8 +134,9 @@ function ending({ length, spawns }) {
 function holds(course) {
   return course.spawns.flatMap((e, i) => (e.kind !== 'hold' ? [] : [
     ...need(e.period > 0, 'period', `hold #${i} has period ${e.period}`),
+    ...need(e.targets.length > 0, 'target', `hold #${i} has no gate`), // no gate to break: it never stops the scroll, and the land's end (landEnd) has no highest target
     ...e.targets.flatMap((t, j) => [
-      ...need(t.dy >= 0 && t.dy <= HOLD_Y, 'gate', `hold #${i} gate ${j} has dy ${t.dy}, outside [0, ${HOLD_Y}]`),
+      ...need(t.dy >= 0 && t.dy <= GATE_DY_MAX, 'gate', `hold #${i} gate ${j} has dy ${t.dy}, outside [0, ${GATE_DY_MAX}]`),
       ...need(inside(course, e.at + t.dy, t.x, GROUND_R), 'reach', `hold #${i} gate ${j} at x ${t.x} is not inside the band`),
     ]),
   ]));

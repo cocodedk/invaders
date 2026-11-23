@@ -6,7 +6,7 @@
 // break none of the rules of test/core/course-fair-kit.js, which levels-8.test.js runs on every leg.
 import { WIDTH as W, MID_X } from './kinds.js';
 import { hpFor, END_RUN } from './course-kinds.js';
-import { stopAt } from './course-hold.js';
+import { stopAt, GATE_DY_MAX } from './course-hold.js';
 
 export const course = (seed, data) => ({ seed, bunkers: false, course: data });
 
@@ -28,6 +28,7 @@ const RIGHT = W + 60;
 const LANTERN_1 = 5200;
 const LANTERN_2 = 12200;
 const GATE_HP = hpFor('gate'); // the hold's gates all stand as long under steady fire
+const CAP = GATE_DY_MAX; // the highest gate of the dolmen, its middle eye: as high up as a gate may stand, its top edge just below the HUD at the stop
 const GATE_AT = 20620; // where the hold's anchor comes up; the scroll stops 380 px on (course-hold.js stopAt), and goes on END_RUN px more once the gate has fallen
 
 const WALLS = [
@@ -47,7 +48,7 @@ const STRETCH_1 = [
   air(1900, 'g', 'cross', RIGHT, 'fan'), air(2000, 'g', 'swoop', 480, 'aimed'),
   stone(2150, 160), stone(2150, 1760),
   air(2400, 'g', 'swoop', 1440, 'fan'), air(2650, 'g', 'swoop', 640, 'aimed'),
-  stone(2800, 160), stone(2800, 1760),
+  stone(2800, 220), stone(2800, 1700), // the band is 180 to 1740 here, and a stone counts from its edge
   air(2900, 'd', 'cross', LEFT, 'aimed'), air(3200, 'g', 'swoop', 1280, 'fan'),
   stone(3400, 380), stone(3400, 1540),
   air(3500, 'g', 'cross', RIGHT, 'aimed'), air(3800, 'u', 'swoop', 700, 'aimed'),
@@ -88,8 +89,8 @@ const STRETCH_3 = [
   {
     kind: 'hold', at: GATE_AT, period: 5,
     targets: [
-      { x: 800, dy: 180, hp: GATE_HP }, { x: 960, dy: 200, hp: GATE_HP }, { x: 1120, dy: 180, hp: GATE_HP }, // the capstone's eyes
-      { x: 560, dy: 40, hp: GATE_HP }, { x: 1360, dy: 40, hp: GATE_HP }, // the uprights
+      { x: 800, dy: CAP - 20, hp: GATE_HP }, { x: 960, dy: CAP, hp: GATE_HP }, { x: 1120, dy: CAP - 20, hp: GATE_HP }, // the capstone's eyes
+      { x: 560, dy: CAP - 160, hp: GATE_HP }, { x: 1360, dy: CAP - 160, hp: GATE_HP }, // the uprights
     ],
     flights: [
       { t: 1, role: 'g', path: 'swoop', x: 500, pattern: 'aimed' }, { t: 2, role: 'g', path: 'swoop', x: 1420, pattern: 'fan' },
