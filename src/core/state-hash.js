@@ -51,14 +51,18 @@ const quiverParts = ({ shots }) => {
 
 // A course (world 22), when it is that world: how far it has scrolled and how many entries have come up, the hold's clock and the
 // death's beat (or '-'), how many abilities and burst marks there are, then each ground object's kind, place and hp, and each
-// seed's place and time. Air craft are in world.aliens, so they are hashed already.
+// seed's place and time, then the line (world 22 from Leg 2, once the ship has drawn any, else nothing is added). Air craft are in
+// world.aliens, so they are hashed already.
+const lineParts = ({ line, pen }) => (line.length > 0
+  ? ['line', line.length, ...line.map((s) => `${round(s.x1)},${round(s.y1)},${round(s.x2)},${round(s.y2)},${round(s.t)}`), pen ? `${round(pen.x)},${round(pen.y)}` : '-']
+  : []);
 const courseParts = ({ course }) => {
   if (!course) return [];
   const { held, respawn, ground, seeds } = course;
   return ['course', round(course.dist), course.next, held ? round(held.t) : '-', respawn === null ? '-' : round(respawn),
     course.abilities.length, course.marks.length,
     ground.length, ...ground.map((g) => `${g.kind},${round(g.x)},${round(g.y)},${g.hp}`),
-    seeds.length, ...seeds.map((s) => `${round(s.x)},${round(s.at)},${round(s.t)}`)];
+    seeds.length, ...seeds.map((s) => `${round(s.x)},${round(s.at)},${round(s.t)}`), ...lineParts(course)];
 };
 
 export function stateHash(world) {

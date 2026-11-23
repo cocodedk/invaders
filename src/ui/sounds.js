@@ -123,6 +123,7 @@ export function eventSounds(events, world, play) {
       case 'ability': play('ability', { x: world.ship?.x }); break;
       case 'seedBurst': play('seedBurst', at(e)); break;
       case 'chip': play('chip', at(e)); break;
+      case 'lineStop': play('chip', at(e)); break; // a stand-in for the pencil scratch, which comes with the leg's sounds
       case 'respawn': play('respawn', at(e)); break;
       case 'holdBreak': play('holdBreak'); break;
       default: break; // SILENT

@@ -11,8 +11,8 @@ import { lastHoldBroken } from './course-hold.js';
 //   marks        how many bursts course.marks held; x where the checkpoint stands, which is where the ship respawns
 // The level's start is checkpoint 0 (startCheck). A hit that leaves a life is ordinary (hitShip); a death is the last
 // life lost. After RESPAWN_DELAY s the leg rebuilds from the record: the screen is cleared (a ground object, an air craft,
-// a bullet, a shot, a pickup, a seed), dist and next go back, so every entry after the checkpoint spawns again as it was
-// (a hold too, whole: one standing is let go, course.held null), the score, the bombs, the abilities and the marks go back,
+// a bullet, a shot, a pickup, a seed, a stroke of the line and its pen), dist and next go back, so every entry after the checkpoint
+// spawns again as it was (a hold too, whole: one standing is let go, course.held null), the score, the bombs, the abilities and the marks go back,
 // the power-up, the reserve and the combo are lost, and the ship stands at the checkpoint's x on RESPAWN_Y, blinking, with
 // its lives refilled to the record's, never fewer than LIVES. Nothing earned since the checkpoint survives a death, so dying
 // never pays. course.lit counts the checkpoints reached and a respawn keeps it: the last one stays lit. The respawn draws no
@@ -53,9 +53,9 @@ function respawn(world) {
   const { course, ship } = world;
   const c = course.check;
   if (ship.power) emit(world, 'power', { kind: ship.power.kind, on: false }); // cut short, not run out: it says so, as tickPower does (the reserve is lost without a word, as a displaced one is)
-  for (const list of [world.aliens, world.bullets, world.shots, world.pickups, course.ground, course.seeds]) list.length = 0;
+  for (const list of [world.aliens, world.bullets, world.shots, world.pickups, course.ground, course.seeds, course.line]) list.length = 0;
   course.marks.length = c.marks;
-  Object.assign(course, { dist: c.dist, next: c.next, abilities: [...c.abilities], respawn: null, held: null });
+  Object.assign(course, { dist: c.dist, next: c.next, abilities: [...c.abilities], respawn: null, held: null, pen: null });
   restoreScore(world, c.score);
   Object.assign(ship, {
     alive: true, x: c.x, y: RESPAWN_Y, fromX: c.x, fromY: RESPAWN_Y, vx: 0, vy: 0, pointed: false,
