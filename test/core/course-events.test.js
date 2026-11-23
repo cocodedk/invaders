@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { MAX_BULLETS } from '../../src/core/aliens.js';
 import { hitShip } from '../../src/core/ship.js';
 import { TURRET_COOL, TURRET_PATTERN, GROUND_SCORE, hurtGround } from '../../src/core/course-ground.js';
-import { RESPAWN_DELAY } from '../../src/core/course-check.js';
+import { RESPAWN_DELAY, RESPAWN_Y } from '../../src/core/course-check.js';
 import { step, drain, ofType, bulletAt, pickupAt, TICK } from './world-kit.js';
-import { air, flight, checkpoint, until, FAST, HOLD_AT, hold, kite, gate, gates, standing, breakAll } from './course-kit.js';
+import { air, flight, checkpoint, until, FAST, HOLD_AT, HOLD_PERIOD, hold, kite, gate, gates, standing, breakAll } from './course-kit.js';
 
 // What world 22's sounds and effects need of the core: a hold that falls before the scroll stops at it still breaks, a break washes the sky
 // clean, a turret's shot is said, a power cut short by a respawn says it ended, and a ground break says what it paid.
@@ -76,7 +76,8 @@ test('the tick a standing hold breaks, its flood washes away every enemy bullet 
   assert.deepEqual(events.filter((e) => ['kill', 'explode', 'hit'].includes(e.type)), []);
   assert.equal(world.score, score);
   assert.deepEqual([world.nextId, world.pickups.length, world.shots.length], [id, pickups, shots]);
-  step(world, 60);
+  world.course.ground = world.course.ground.filter((g) => g.kind !== 'turret'); // it would fire again after its cooldown: this is about the craft
+  step(world, Math.ceil((2 * HOLD_PERIOD) / TICK));
   assert.deepEqual([world.bullets.length, world.aliens.length], [0, 0], 'no later craft: the hold is the last the sky is fed from');
 });
 
@@ -136,6 +137,15 @@ const downAndUp = (world) => {
   return drain(world);
 };
 const powerEnds = (events) => ofType(events, 'power').filter((e) => !e.on).map((e) => e.kind);
+
+test('a checkpoint says where its lantern stands, x and y: the effect lights it there', () => {
+  const world = flight([checkpoint(0, 700, 'seed')], { speed: FAST });
+  assert.ok(until(world, () => world.course.lit > 0));
+  const [e] = ofType(world.events, 'checkpoint');
+  const lantern = world.course.ground.find((g) => g.kind === 'checkpoint');
+  assert.deepEqual([e.x, e.y], [lantern.x, lantern.y]);
+  assert.ok(e.y >= RESPAWN_Y && Number.isFinite(e.y), 'at the respawn line');
+});
 
 test('a power still running when the respawn cuts it short says it ended, before the respawn; the reserve, which waits, says nothing', () => {
   const world = leg();

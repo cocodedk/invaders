@@ -8,6 +8,8 @@ import { createFx } from '../../src/fx/fx.js';
 import { MAX_PARTICLES } from '../../src/fx/particles.js';
 import { applyEvent } from '../../src/fx/react.js';
 import { scorePopup } from '../../src/fx/react-fight.js';
+import { GROUND_SCORE } from '../../src/core/course-ground.js';
+import { COMBO_MAX } from '../../src/core/scoring.js';
 import {
   BIG_CHIP_SIZE, BIG_CHIPS, BIG_GROUND, BIG_PUFFS, BIG_SHAKE, CHIP_SIZE, CHIPS, GROUND_GREYS, HIT_CHIPS,
 } from '../../src/fx/react-ground.js';
@@ -35,7 +37,8 @@ test('a broken ground thing blasts: a flash and a ring where it stood, smoke, an
 });
 
 test('a break shows what it paid as a kill does, at the combo it came at; an event with no score shows none', () => {
-  for (const [mult, score] of [[1, 500], [3, 1500], [8, 4000]]) {
+  for (const mult of [1, 3, COMBO_MAX]) {
+    const score = GROUND_SCORE.gate * mult;
     const ev = { ...kill('gate'), score, mult };
     const fx = react(ev);
     const ref = createFx();
@@ -44,9 +47,10 @@ test('a break shows what it paid as a kill does, at the combo it came at; an eve
     assert.equal(fx.popups[0].text, '+' + score);
     assert.deepEqual([fx.popups[0].x, fx.popups[0].y], [900, 400 - 18]);
   }
-  assert.equal(react({ ...kill('stone'), score: 50, mult: 1 }).popups.length, 1);
+  assert.equal(react({ ...kill('stone'), score: GROUND_SCORE.stone, mult: 1 }).popups.length, 1);
   assert.equal(react(kill('stone')).popups.length, 0);
-  assert.ok(react({ ...kill('gate'), score: 4000, mult: 8 }).popups[0].scale > react({ ...kill('gate'), score: 500, mult: 1 }).popups[0].scale, 'bigger with the combo');
+  const popup = (mult) => react({ ...kill('gate'), score: GROUND_SCORE.gate * mult, mult }).popups[0];
+  assert.ok(popup(COMBO_MAX).scale > popup(1).scale, 'bigger with the combo');
 });
 
 test('the greys are the stone the course draws (wander-kit.js)', () => {
