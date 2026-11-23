@@ -9,7 +9,7 @@ import { SEED_DMG, SEED_FALL } from '../../src/core/course-seed.js';
 import { step, drain, ofType, shotAt, gunTicks, at, FIRE } from './world-kit.js';
 import { unfair } from './course-fair-kit.js';
 import { closingHedges } from './course-fair-wood.js';
-import { flight, launched, courseLevel, thorn, hedge, THORN_W, THORN_H, FAIR_COURSE, FAIR_HEDGE_AT } from './course-kit.js';
+import { flight, launched, courseLevel, thorn, hedge, OPEN_HEDGE, THORN_W, THORN_H, FAIR_COURSE, FAIR_HEDGE_AT } from './course-kit.js';
 
 // Thorn hedges (world 22, Leg 2), the core: a thorn piece is a ground object that is a box, as a pillar is. It rams the ship while it stands,
 // and the gun, the beam and a seed's burst break it. (The data rules a hedge answers to are the fair kit's: course-fair.test.js, and the
@@ -134,7 +134,6 @@ test('steady fire breaks a piece in about BREAK_SECS.thorn', () => {
 
 // The fair kit's hedge rules (course-fair-wood.js; the rows that break each rule alone are course-fair.test.js's). A hedge is the thorn pieces
 // that share an `at`: one with a way round (a gap of BAND_MIN) is counted like a pillar, one with none closes the band and must be shot through.
-const OPEN = { to: 1500 }; // a hedge that stops short of the right wall: 400-odd px of way round
 const TOUGH = Math.floor(FREE_ZONE.y0 / FAIR_COURSE.speed / SHOT_SECS) + 1; // hp whose break takes longer than the scroll gives, at the fair course's speed
 const fairWith = (entries) => {
   const data = structuredClone(FAIR_COURSE);
@@ -143,7 +142,7 @@ const fairWith = (entries) => {
 };
 
 test('a hedge with a way round breaks no rule and is no shoot-through hedge; one that closes the band breaks none while it can be shot through in time', () => {
-  const open = fairWith(hedge(FAIR_HEDGE_AT, OPEN));
+  const open = fairWith(hedge(FAIR_HEDGE_AT, OPEN_HEDGE));
   assert.deepEqual(unfair(courseLevel(open)), []);
   assert.deepEqual(closingHedges(open), []);
   const closing = hedge(FAIR_HEDGE_AT);
@@ -167,9 +166,9 @@ test('a hedge closing the band is shot through in time up to a scroll of FREE_ZO
 });
 
 test('a hedge whose pieces sit on two rows is two hedges: each leaves a way round, so together they close the band as a band violation, not a shoot-through', () => {
-  const half = hedge(FAIR_HEDGE_AT, { to: 1000 });
-  const rest = hedge(FAIR_HEDGE_AT + 1, { from: 1000 });
-  const data = fairWith([...half, ...rest]);
+  const all = hedge(FAIR_HEDGE_AT); // the hedge that closes the band, every other piece moved a row down: each row's pieces leave a way round between them
+  const rows = all.map((p, i) => (i % 2 === 0 ? p : { ...p, at: p.at + 1 }));
+  const data = fairWith(rows);
   assert.deepEqual(closingHedges(data), []);
   assert.deepEqual([...new Set(unfair(courseLevel(data)).map((v) => v.split(':')[0]))], ['band']);
 });

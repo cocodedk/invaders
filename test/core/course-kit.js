@@ -36,6 +36,15 @@ export function hedge(at, { from = 0, to = WIDTH, w = THORN_W, gap = BAND_MIN - 
   return pieces;
 }
 
+// A hedge with a way round: it stops short of the right wall, its last piece ending more than BAND_MIN from it. `pillarInWay` is a pillar that fills
+// that way round from BAND_MIN - 1 past the hedge's last piece to the wall, so the two together leave under BAND_MIN where each alone leaves BAND_MIN or more.
+export const OPEN_HEDGE = { to: WIDTH - BAND_MIN - THORN_W };
+export function pillarInWay(pieces, h = 140) {
+  const last = pieces.at(-1);
+  const left = last.x + last.w / 2 + BAND_MIN - 1;
+  return { kind: 'pillar', at: last.at, x: (left + WIDTH) / 2, w: WIDTH - left, h };
+}
+
 // A scroll speed, px/s, that brings an entry to the respawn line in few ticks (a tick scrolls FAST * TICK px).
 export const FAST = 600;
 

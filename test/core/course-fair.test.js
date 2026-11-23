@@ -10,7 +10,7 @@ import { bandAt } from '../../src/core/course-terrain.js';
 import { CURTAIN_W } from '../../src/core/patterns.js';
 import { unfair } from './course-fair-kit.js';
 import { curtains, CURTAIN } from './course-fair-wood.js';
-import { courseLevel, air, col, checkpoint, hold, thorn, hedge, THORN_W, FAIR_COURSE, FAIR_SPEED, FAIR_CP_AT, FAIR_QUIET_END, FAIR_HEDGE_AT } from './course-kit.js';
+import { courseLevel, air, col, checkpoint, hold, thorn, hedge, pillarInWay, OPEN_HEDGE, THORN_W, FAIR_COURSE, FAIR_SPEED, FAIR_CP_AT, FAIR_QUIET_END, FAIR_HEDGE_AT } from './course-kit.js';
 
 // The data check (course-fair-kit.js unfair) on a course made to satisfy every rule, and on that course with one rule broken
 // at a time. A leg's own data (Task 8) runs the same check.
@@ -79,9 +79,10 @@ const BROKEN = [
   ['thorn', 'a thorn piece narrower than 2 * SHIP_R + THORN_SLACK', (d) => put(d, thorn(FAIR_HEDGE_AT, 300, { w: THORN_W - 1 }))],
   ['thorn', 'a thorn piece with no height', (d) => put(d, thorn(FAIR_HEDGE_AT, 300, { h: 0 }))],
   ['thorn', 'a thorn piece that would show its foot as it comes up', (d) => put(d, thorn(FAIR_HEDGE_AT, 300, { h: -2 * SPAWN_Y + 1 }))],
-  ['band', 'a pillar in the gap a hedge leaves, which leaves under BAND_MIN beside it', (d) => {
-    putAll(d, hedge(FAIR_HEDGE_AT, { to: 1500 }));
-    put(d, { kind: 'pillar', at: FAIR_HEDGE_AT, x: 1688, w: 140, h: 140 });
+  ['band', 'a pillar in the way round a hedge leaves, which leaves under BAND_MIN beside it', (d) => {
+    const open = hedge(FAIR_HEDGE_AT, OPEN_HEDGE);
+    putAll(d, open);
+    put(d, pillarInWay(open));
   }],
   ['shoot', 'a hedge across the band whose pieces take longer to break than it takes to scroll to the free zone', (d) => putAll(d, hedge(FAIR_HEDGE_AT, { hp: TOUGH }))],
   ['quiet', 'an entry just after the checkpoint', (d) => put(d, air({ at: FAIR_CP_AT + 50 }))],
