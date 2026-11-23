@@ -35,7 +35,7 @@ export function reachCheckpoints(world) {
     if (g.kind !== 'checkpoint' || g.reached || g.y < RESPAWN_Y) continue;
     g.reached = true;
     course.lit += 1;
-    emit(world, 'checkpoint', { index: course.lit, x: g.x, grants: g.grants });
+    emit(world, 'checkpoint', { index: course.lit, x: g.x, y: g.y, grants: g.grants });
     if (g.grants && !course.abilities.includes(g.grants)) {
       course.abilities.push(g.grants);
       emit(world, 'ability', { kind: g.grants });
@@ -51,6 +51,7 @@ export function reachCheckpoints(world) {
 function respawn(world) {
   const { course, ship } = world;
   const c = course.check;
+  if (ship.power) emit(world, 'power', { kind: ship.power.kind, on: false }); // cut short, not run out: it says so, as tickPower does (the reserve is lost without a word, as a displaced one is)
   for (const list of [world.aliens, world.bullets, world.shots, world.pickups, course.ground, course.seeds]) list.length = 0;
   course.marks.length = c.marks;
   Object.assign(course, { dist: c.dist, next: c.next, abilities: [...c.abilities], respawn: null, held: null });

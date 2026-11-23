@@ -15,7 +15,7 @@ import { inView, hpFor } from './course-kinds.js';
 //   checkpoint + grants, reached  the ability it grants ('seed' or null), and whether the ship has reached it (course-check.js)
 //   gate    + holdId  the hold it belongs to, the index of its entry in the level's spawns (course-hold.js); it has hp and breaks like a turret
 // A turret is an enemy, so its timer runs in the slowed enemy time of the tick (bullet time slows it), and it draws no
-// rng: its shot is the heavy pattern, an aimed bullet, which does not. Ground targets are low: the ship flies over them
+// rng: its shot is the heavy pattern, an aimed bullet, which does not. It says 'fire' { side: 'enemy', id, role: 'turret', x, y, pattern } as an alien does. Ground targets are low: the ship flies over them
 // and nothing but a pillar rams. Every kind that stands is shootable (the owner, 2026-11-22: "every kind of target and enemy structure
 // and anything related to an enemy" - the stones asleep, the pillars, the turrets, the crates, the gates): the ship's shots and its
 // beam hurt them (course-shots.js), as the seeds' bursts and the bomb do (course-seed.js), and all four come through hurtGround.
@@ -49,12 +49,13 @@ export function stepGround(world, dt) {
     g.cool += TURRET_COOL;
     if (world.bullets.length >= MAX_BULLETS) continue;
     addBullets(world, emitPattern(TURRET_PATTERN, g, world.ship, { speed: world.scale.bulletSpeed }, world.rng));
+    emit(world, 'fire', { side: 'enemy', id: g.id, role: 'turret', x: g.x, y: g.y, pattern: TURRET_PATTERN }); // as an alien's shot says it (aliens.js fire)
   }
 }
 
 // `dmg` hp off a ground target. One that stands says 'groundHit' { kind, x, y }. At 0 it breaks: its points go on the score with
-// the combo's rules (every kill within the window raises the multiplier, scoring.js), 'groundKill' says so, and a crate drops what
-// it holds. Anything that has no hp to lose (a checkpoint) or has broken already ignores the call.
+// the combo's rules (every kill within the window raises the multiplier, scoring.js), 'groundKill' { kind, x, y, score, mult } says so (the points
+// it paid and the multiplier they came at, as a 'kill' does), and a crate drops what it holds. Anything that has no hp to lose (a checkpoint) or has broken already ignores the call.
 export function hurtGround(world, g, dmg) {
   if (!Object.hasOwn(GROUND_SCORE, g.kind) || !(g.hp > 0)) return;
   g.hp = Math.max(0, g.hp - dmg);
@@ -62,8 +63,8 @@ export function hurtGround(world, g, dmg) {
     emit(world, 'groundHit', { kind: g.kind, x: g.x, y: g.y });
     return;
   }
-  awardPoints(world, GROUND_SCORE[g.kind]);
-  emit(world, 'groundKill', { kind: g.kind, x: g.x, y: g.y });
+  const score = awardPoints(world, GROUND_SCORE[g.kind]);
+  emit(world, 'groundKill', { kind: g.kind, x: g.x, y: g.y, score, mult: world.combo.mult }); // as a kill says them: the pop-up and the sound read them
   if (g.kind !== 'crate') return;
   if (g.drop) world.pickups.push(makePickup(g.drop, g.x, g.y));
   else dropPickup(world, g);

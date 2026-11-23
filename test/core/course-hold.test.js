@@ -119,26 +119,28 @@ test('a seed burst and a bomb hurt gates like any ground target, and a bomb brea
   assert.equal(ofType(world.events, 'holdBreak').length, 1);
 });
 
-test('gates all broken before the scroll comes to the hold, even the tick before: it never stops it and never says holdBreak', () => {
+test('gates all broken before the scroll comes to the hold, even the tick before: it never stops it, and says holdBreak on the tick the last fell', () => {
   const e = hold({ targets: [gate(600)] });
   const world = flight([e], { speed: FAST });
   assert.ok(until(world, () => gates(world).length > 0));
   assert.ok(until(world, () => world.course.dist + FAST * TICK >= stopOf(e)), 'the next tick brings the scroll to the stop');
   hurtGround(world, gates(world)[0], GATE_HP);
+  drain(world);
   step(world);
   assert.ok(world.course.dist >= stopOf(e));
+  assert.deepEqual(ofType(world.events, 'holdBreak').map((v) => v.holdId), [0]);
   const { dist } = world.course;
   step(world, WAIT);
   assert.equal(world.course.held, null);
   assert.ok(world.course.dist > dist);
-  assert.equal(ofType(world.events, 'holdBreak').length, 0);
+  assert.equal(ofType(world.events, 'holdBreak').length, 1, 'said once');
 });
 
 test('on the tick a hold breaks no flight comes', () => {
   const world = standing([hold({ flights: [kite(0)], period: SHORT })]);
   assert.ok(until(world, () => world.course.held.t + TICK + EPS >= SHORT), 'the next tick is the one a flight is due on');
-  const before = world.aliens.length;
+  const before = world.nextId; // an air craft takes the next id as it spawns
   breakAll(world);
   step(world);
-  assert.deepEqual([world.course.held, world.aliens.length], [null, before]);
+  assert.deepEqual([world.course.held, world.nextId], [null, before]);
 });

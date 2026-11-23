@@ -4,12 +4,12 @@
 // and a hit is an alien's hit flash (FIGHT.hit on a plate) with a few chips. On the pale parchment the additive flash is a white blob that
 // hides the thing for a moment and the ring is a pale yellow band, so it is the solid chips and the smoke that stay and carry the break. A pillar
 // and a gate are the big ones (BIG_GROUND): more and bigger chips, a cloud of smoke and a harder shake. A kind we do not know
-// counts as a small one. Plain shapes, no score pop-up (the event carries no score). Every count goes through emit.js, so fx.density thins
+// counts as a small one. Plain shapes, and the points it paid rise over it as a kill's do (scorePopup). Every count goes through emit.js, so fx.density thins
 // them. A hit is a handful of particles, so even the heaviest volley landing on one thing leaves most of the pool free (react-ground.test.js).
 // Pure: randomness comes from `rng`, `world` is not read.
 import { addShake } from './camera.js';
 import { debris, smoke } from './emit.js';
-import { FIGHT } from './react-fight.js';
+import { FIGHT, scorePopup } from './react-fight.js';
 
 // The stone the course draws (ui/wander-kit.js PAL.stone, stoneDark, stoneLight; react-ground.test.js keeps the two alike).
 export const GROUND_GREYS = ['#8f8b85', '#4c4840', '#a7a39c'];
@@ -33,6 +33,7 @@ const isBig = (kind) => BIG_GROUND.includes(kind);
 function groundKill(fx, ev, rng) {
   const big = isBig(ev.kind);
   FIGHT.explode(fx, { x: ev.x, y: ev.y, size: 1 }, rng);
+  if (ev.score) scorePopup(fx, ev); // what it paid, at the combo it came at: the points an alien's kill shows (the event carries both)
   if (!big) {
     debris(fx, rng, ev.x, ev.y, CHIPS, GROUND_GREYS, CHIP_SPEED, CHIP_SIZE);
     return;

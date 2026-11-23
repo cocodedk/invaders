@@ -16,8 +16,11 @@ import { SPAWN_Y } from './course-kinds.js';
 // all the state it takes), as the air craft its role, path, x and pattern name (course-air.js), while fewer than
 // HOLD_FLIGHTS_MAX are alive. A flight that comes when the sky is full is lost, not kept for later. When no gate of the
 // hold is left (the ship's shots and beam, the ground weapon and the bomb hurt them like any target, course-ground.js) the hold breaks: 'holdBreak',
-// `held` is null and the scroll goes on. A hold whose gates are all broken before the scroll reaches it never stops it and
-// says nothing: nothing is left to hold the ship.
+// `held` is null and the scroll goes on. A hold whose gates are all broken before the scroll reaches it never stops the scroll, but it
+// breaks all the same: 'holdBreak' on the tick its last gate falls (a gate at hp 0 is still on course.ground when stepHold runs, course.js
+// dropping it at the end of the tick). A break floods the valley with colour (the fx), which washes the sky clean: washAway, which course.js
+// calls once the turrets have fired that tick, takes every enemy bullet and every air craft away with no kill, no score and no drop, so the
+// run-out past the last gate is safe.
 // The data rules (a check on the level's data should hold them): `period` > 0; a gate must be where the ship can hurt it
 // when the scroll stops, on the screen and in the band (`dy` in [0, HOLD_Y]); a hold's entry comes up beyond the screen a
 // checkpoint saw (course-check.js), so a respawn spawns it again whole; and a level's length is at least where its last hold
@@ -30,6 +33,24 @@ export const HOLD_FLIGHTS_MAX = 6; // air craft alive at most while a hold stand
 
 export const stopAt = (e) => e.at + HOLD_Y - SPAWN_Y; // the dist at which the hold entry `e` stops the scroll
 const gateStands = (course, id) => course.ground.some((g) => g.kind === 'gate' && g.holdId === id && g.hp > 0);
+// A hold none of whose gates stands, with a gate of it lying broken on the list, and that the scroll has not stopped at: it fell early.
+function fellEarly(world) {
+  const { course } = world;
+  const ids = [];
+  for (const g of course.ground) {
+    if (g.kind !== 'gate' || g.hp !== 0 || g.holdId === course.held?.holdId || ids.includes(g.holdId)) continue;
+    if (!gateStands(course, g.holdId)) ids.push(g.holdId);
+  }
+  for (const holdId of ids) emit(world, 'holdBreak', { holdId });
+  return ids.length > 0;
+}
+
+// The flood of a break washes the sky clean: the enemy bullets and the air craft that are left, silently (no score, no kill, no drop).
+export function washAway(world) {
+  world.bullets.length = 0;
+  world.aliens.length = 0;
+}
+
 const airborne = (world) => world.aliens.filter((a) => a.mode === 'path' && a.hp > 0).length;
 
 // How often the flight `f` has come by `t` s into the hold: at its own t, then every `period`, EPS early at most.
@@ -40,12 +61,13 @@ export function spawnHold(world, e, id) {
   for (const t of e.targets) spawnGround(world, { kind: 'gate', at: e.at + t.dy, x: t.x, hp: t.hp, holdId: id });
 }
 
-// One tick of a hold, `slow` being the enemy time of the tick: the scroll that has come to a hold with a gate left stops
+// One tick of a hold, `slow` being the enemy time of the tick (it answers whether a hold broke, early or standing, for washAway): the scroll that has come to a hold with a gate left stops
 // there; then the clock runs, the hold breaks when its last gate has, and the flights that have come up spawn (an
 // air craft spawned this tick stands at its start until the next one). course.js calls this after the seeds, so the
 // tick a seed or a bomb breaks the last gate is the tick the hold breaks.
 export function stepHold(world, slow) {
   const { course } = world;
+  const early = fellEarly(world);
   let before = -Infinity; // the clock a tick ago: before the stop no flight has come
   if (course.held) {
     before = course.held.t;
@@ -53,18 +75,19 @@ export function stepHold(world, slow) {
   } else {
     const { spawns } = world.level.course;
     const g = course.ground.find((o) => o.kind === 'gate' && o.hp > 0 && course.dist >= stopAt(spawns[o.holdId]));
-    if (!g) return;
+    if (!g) return early;
     course.held = { holdId: g.holdId, t: 0 };
   }
   const { held } = course;
   if (!gateStands(course, held.holdId)) {
     emit(world, 'holdBreak', { holdId: held.holdId });
     course.held = null;
-    return;
+    return true;
   }
   const { flights, period } = world.level.course.spawns[held.holdId];
   for (const f of flights) {
     const n = comings(f, held.t, period) - comings(f, before, period); // a period of 0 or less gives Infinity or NaN: the cap ends it
     for (let i = 0; i < n && airborne(world) < HOLD_FLIGHTS_MAX; i++) spawnAir(world, f);
   }
+  return early;
 }

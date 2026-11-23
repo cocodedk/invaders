@@ -2,7 +2,7 @@ import { HEIGHT } from './kinds.js';
 import { prune } from './util.js';
 import { spawnAir, stepAir } from './course-air.js';
 import { spawnGround, stepGround } from './course-ground.js';
-import { spawnHold, stepHold } from './course-hold.js';
+import { spawnHold, stepHold, washAway } from './course-hold.js';
 import { stepSeeds } from './course-seed.js';
 import { startCheck, reachCheckpoints, stepRespawn } from './course-check.js';
 import { terrainHits } from './course-terrain.js';
@@ -40,7 +40,7 @@ export function createCourse(level) {
 // ground where the scroll says, reach the checkpoints that have come down to the respawn line (course-check.js), let the
 // walls and the pillars ram the ship (course-terrain.js), drop the seeds and let the ones and the bomb that are due hurt
 // it (`input` is the tick's, course-seed.js), stop at a hold, run its clock and break it (course-hold.js), let the turrets
-// fire (course-ground.js), drop what has broken or sunk off the bottom, and last start or run down the beat after a death
+// fire (course-ground.js), wash the sky clean if a hold broke (course-hold.js washAway), drop what has broken or sunk off the bottom, and last start or run down the beat after a death
 // (course-check.js). While that beat runs nothing scrolls, so no entry comes up. An air craft spawned this tick stands at
 // its start until the next one. The ship's shots and beam have hurt the ground before this (course-shots.js, called by
 // stepPlay between collide and here), so what they broke is dropped in the same tick.
@@ -60,8 +60,9 @@ export function stepCourse(world, dt, slow = dt, input = {}) {
   reachCheckpoints(world);
   terrainHits(world);
   stepSeeds(world, dt, input);
-  stepHold(world, slow);
+  const broke = stepHold(world, slow);
   stepGround(world, slow);
+  if (broke) washAway(world); // after the turrets: a shot they fire on the tick of the break is washed away too
   // hp 0 is broken, a lantern has hp null; an object goes once its top edge is past the margin (h is a pillar's height)
   prune(course.ground, (g) => g.hp !== 0 && g.y - (g.h ?? 0) / 2 <= HEIGHT + GROUND_MARGIN);
   stepRespawn(world, dt);

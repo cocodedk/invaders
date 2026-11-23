@@ -2,7 +2,7 @@
 // big blasts, the world twists, Sunset Armada's two rules, Ember Carnival's burst, Lantern Deep's pearls and
 // trident, Glass Cathedral's mirror twin, Ash to Air's breath and the Craving, Anvil Sky's arc guns and backfire (over
 // Sunset Armada's patches for the same events), Rubber Regatta's squeaking kills and batting (its kill over the fight's), Golden Isle's chime where an arrow turns,
-// the stingers and menus, and the trailer's film sounds.
+// Wanderlight's lantern chimes, pops, cracks and flood (its cut over the world twists' where the style is the road's), the stingers and menus, and the trailer's film sounds.
 import { FIGHT } from './sfx-fight.js';
 import { POWER } from './sfx-power.js';
 import { BOSS } from './sfx-boss.js';
@@ -15,7 +15,8 @@ import { BREATH } from './sfx-breath.js';
 import { STORM } from './sfx-storm.js';
 import { BATH } from './sfx-bath.js';
 import { ISLE } from './sfx-isle.js';
+import { ROAD } from './sfx-road.js';
 import { UI } from './sfx-ui.js';
 import { FILM } from './sfx-film.js';
 
-export const SFX = { ...FIGHT, ...POWER, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP, ...GLASS, ...BREATH, ...STORM, ...BATH, ...ISLE, ...UI, ...FILM };
+export const SFX = { ...FIGHT, ...POWER, ...BOSS, ...WORLD, ...ARMADA, ...CARNIVAL, ...DEEP, ...GLASS, ...BREATH, ...STORM, ...BATH, ...ISLE, ...ROAD, ...UI, ...FILM };

@@ -4,8 +4,8 @@ import { eventSounds, SILENT } from '../../src/ui/sounds.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { BIG_GROUND } from '../../src/fx/react-ground.js';
 
-// The events as the core emits them: a kind and a place only (course-ground.js hurtGround).
-const kill = (kind, x = 700) => ({ type: 'groundKill', kind, x, y: 300 });
+// The events as the core emits them (course-ground.js hurtGround): a break says its kind, its place, what it paid and the multiplier it came at.
+const kill = (kind, x = 700, mult = 1) => ({ type: 'groundKill', kind, x, y: 300, score: 100, mult });
 const hit = (kind, x = 700) => ({ type: 'groundHit', kind, x, y: 300 });
 const KINDS = ['stone', 'turret', 'crate', 'pillar', 'gate'];
 
@@ -16,14 +16,18 @@ function sounds(events, world = { boss: null }) {
 }
 
 test('a broken ground thing sounds as an alien kill, where it stood, with the combo it raised', () => {
-  assert.deepEqual(sounds([kill('stone', 300)], { boss: null, combo: { mult: 3, timer: 1 } }),
-    [{ name: 'kill', role: 'grunt', mult: 3, x: 300 }]);
-  assert.deepEqual(sounds([kill('gate', 1500)], { boss: null, combo: { mult: 1, timer: 1 } }),
-    [{ name: 'kill', role: 'armored', mult: 1, x: 1500 }]);
+  assert.deepEqual(sounds([kill('stone', 300, 3)]), [{ name: 'kill', role: 'grunt', mult: 3, x: 300 }]);
+  assert.deepEqual(sounds([kill('gate', 1500, 1)]), [{ name: 'kill', role: 'armored', mult: 1, x: 1500 }]);
 });
 
-test('a world with no combo (a bare one, as the sound tests pass) sounds the kill at x1', () => {
-  assert.equal(sounds([kill('crate')])[0].mult, 1);
+test('two breaks on one tick each sound at the combo they raised, whatever the world holds by then', () => {
+  const world = { boss: null, combo: { mult: 8, timer: 1 } };
+  assert.deepEqual(sounds([kill('stone', 300, 1), kill('turret', 500, 2)], world).map((s) => s.mult), [1, 2]);
+});
+
+test('an event with no multiplier sounds the kill at x1', () => {
+  const { mult, ...bare } = kill('crate');
+  assert.equal(sounds([bare])[0].mult, 1);
 });
 
 test('a pillar and a gate sound heavier (an armored alien) than a stone, a turret and a crate (a grunt)', () => {

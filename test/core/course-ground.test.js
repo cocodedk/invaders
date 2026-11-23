@@ -122,7 +122,7 @@ test('hurtGround takes hp off a turret; at 0 it scores, says so, and the broken 
   hurtGround(world, g, 99);
   assert.equal(g.hp, 0, 'hp stops at 0');
   assert.equal(world.score, GROUND_SCORE.turret);
-  assert.deepEqual(drain(world), [{ type: 'groundKill', tick: world.tick, kind: 'turret', x: g.x, y: g.y }]);
+  assert.deepEqual(drain(world), [{ type: 'groundKill', tick: world.tick, kind: 'turret', x: g.x, y: g.y, score: GROUND_SCORE.turret, mult: 1 }]);
   hurtGround(world, g, 1);
   assert.deepEqual([world.score, world.events.length], [GROUND_SCORE.turret, 0], 'a broken one is not broken twice');
   step(world, 2 * gunTicks(TURRET_COOL));
