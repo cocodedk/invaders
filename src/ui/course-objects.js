@@ -13,10 +13,19 @@ import {
   stoneSprite, turretSprite, gateSprite, crateSprite, pillarSprite, lanternSprite, pupilSprite,
 } from './course-sprites.js';
 
-export const OFFSCREEN = 80; // px beyond the screen an object is still drawn (its half height counts too)
+export const OFFSCREEN = 80; // px beyond the screen an object is still drawn (its half height counts too; a lit lantern by its glow)
 export const LANTERN_TOL = 24; // px: a reached lantern on the list this near the check's place is that lantern
 export const PUPIL_RATE = 6; // rad/s: how fast an awake eye's pupil breathes (the mockup's)
 export const GLOW = { r: 120, swell: 6, rate: 7, alpha: 0.5, y: -40 }; // a lit lantern's glow in the mockup's px: radius, swell, rad/s, strength, height over the foot
+const GLOW_REACH = (GLOW.r + GLOW.swell) * LANTERN_SCALE; // px the glow reaches from its centre at its biggest
+const GLOW_UP = GLOW_REACH + GLOW.y * LANTERN_SCALE; // rows above the screen's top a lit lantern's foot may stand and its glow (centred above the foot) still reach in
+const GLOW_DOWN = GLOW_REACH - GLOW.y * LANTERN_SCALE; // and below the screen's bottom
+
+// Is the thing whose centre (a lantern's foot) stands at y worth drawing? `half` is half its height (a pillar's). A lit lantern's glow reaches
+// further than anything else here, so it is drawn while any of its glow is on the screen: it never pops in or out.
+function inSight(y, half = 0, lit = false) {
+  return y >= -(lit ? Math.max(OFFSCREEN, GLOW_UP) : OFFSCREEN) - half && y <= H + (lit ? Math.max(OFFSCREEN, GLOW_DOWN) : OFFSCREEN) + half;
+}
 
 // Where the last lantern reached stands now, from the record the course keeps of it (the checkpoint 0, the start, is no lantern).
 export function lanternSpot(course) {
@@ -56,14 +65,14 @@ export function drawObjects(ctx, world, t) {
   const holdId = course.held?.holdId;
   for (const g of course.ground) {
     const draw = DRAW[g.kind];
-    if (!draw || g.y < -OFFSCREEN - (g.h ?? 0) / 2 || g.y > H + OFFSCREEN + (g.h ?? 0) / 2) continue;
+    if (!draw || !inSight(g.y, (g.h ?? 0) / 2, g.kind === 'checkpoint' && g.reached)) continue;
     ctx.save();
     ctx.translate(g.x, g.y);
     draw(ctx, g, t, holdId);
     ctx.restore();
   }
   const spot = lanternSpot(course);
-  if (!spot || spot.y < -OFFSCREEN || spot.y > H + OFFSCREEN) return;
+  if (!spot || !inSight(spot.y, 0, true)) return;
   const listed = course.ground.some((g) => g.kind === 'checkpoint' && g.reached && Math.abs(g.x - spot.x) < LANTERN_TOL && Math.abs(g.y - spot.y) < LANTERN_TOL);
   if (listed) return;
   ctx.save();
