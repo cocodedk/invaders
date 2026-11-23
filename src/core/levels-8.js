@@ -5,7 +5,8 @@
 // px of scroll: an entry comes up above the screen when the scroll reaches it, and a second of scroll is `speed` px. A leg's data must
 // break none of the rules of test/core/course-fair-kit.js, which levels-8.test.js runs on every leg.
 import { WIDTH as W, MID_X } from './kinds.js';
-import { hpFor } from './course-kinds.js';
+import { hpFor, END_RUN } from './course-kinds.js';
+import { stopAt } from './course-hold.js';
 
 export const course = (seed, data) => ({ seed, bunkers: false, course: data });
 
@@ -27,7 +28,7 @@ const RIGHT = W + 60;
 const LANTERN_1 = 5200;
 const LANTERN_2 = 12200;
 const GATE_HP = hpFor('gate'); // the hold's gates all stand as long under steady fire
-const GATE_AT = 20620; // where the hold's anchor comes up; the scroll stops 380 px on (course-hold.js stopAt), which is the leg's length
+const GATE_AT = 20620; // where the hold's anchor comes up; the scroll stops 380 px on (course-hold.js stopAt), and goes on END_RUN px more once the gate has fallen
 
 const WALLS = [
   [0, 0, W], [1900, 0, W], [3200, 260, 1660], [3900, 260, 1660], [4900, 0, W], // open land, then a gentle narrowing, then open
@@ -99,7 +100,7 @@ const STRETCH_3 = [
 
 const LEG_1 = {
   speed: 200,
-  length: 21000, // where the hold stops the scroll (course-hold.js stopAt): the leg ends on it
+  length: stopAt(STRETCH_3.at(-1)) + END_RUN, // the hold is the last entry: the scroll stops at it, and once it has fallen runs on END_RUN px into the blank land and clears
   starts: [],
   walls: WALLS,
   spawns: [...STRETCH_1, ...STRETCH_2, ...STRETCH_3],

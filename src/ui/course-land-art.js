@@ -42,26 +42,27 @@ const dice = (seed, k) => {
 };
 
 // Is a thing `half` px wide (and `reach` px up and down) at x on the row `at` inside the band and off the river, `gap` px to spare, and before the land's end?
-const clear = (course, x, at, half, reach, gap) =>
+const clear = (course, end, x, at, half, reach, gap) =>
   [at - reach, at, at + reach].every((a) => {
     const { left, right } = bandAt(course, a);
     const rv = riverAt(a);
-    return a < landEnd(course) && x - half - gap > left && x + half + gap < right && Math.abs(x - rv.x) > rv.w + half + gap;
+    return a < end && x - half - gap > left && x + half + gap < right && Math.abs(x - rv.x) > rv.w + half + gap;
   });
 
 // The trees and fields of strip k, { x, y } in the strip (y down from its top, so the course row is (k + 1) * STRIP_SPAN - y).
 export function scatter(seed, k, course) {
   const r = dice(seed, k);
   const hi = (k + 1) * STRIP_SPAN;
+  const end = landEnd(course);
   const fields = [];
   const trees = [];
   for (let i = 0; i < FIELD_TRIES; i++) {
     const f = { w: FIELD.w + r() * FIELD.wVar, h: FIELD.h + r() * FIELD.hVar, x: r() * W, y: FIELD_MARGIN + r() * (STRIP_SPAN - 2 * FIELD_MARGIN), a: (r() - 0.5) * FIELD.tilt };
-    if (clear(course, f.x, hi - f.y, f.w / 2, FIELD_MARGIN, 20)) fields.push(f);
+    if (clear(course, end, f.x, hi - f.y, f.w / 2, FIELD_MARGIN, 20)) fields.push(f);
   }
   for (let i = 0; i < TREE_TRIES; i++) {
     const t = { x: r() * W, y: TREE_MARGIN + r() * (STRIP_SPAN - 2 * TREE_MARGIN), s: TREE_R + r() * TREE_VAR, wob: Array.from({ length: 14 }, r), pop: Array.from({ length: 11 }, r) };
-    if (clear(course, t.x, hi - t.y, 0, 0, 36)) trees.push(t);
+    if (clear(course, end, t.x, hi - t.y, 0, 0, 36)) trees.push(t);
   }
   return { trees, fields };
 }
@@ -90,7 +91,6 @@ function field(g, f, painted) {
 function river(g, k, painted, end) {
   const lo = k * STRIP_SPAN;
   const hi = lo + STRIP_SPAN;
-  if (lo - RIVER_STEP >= end) return;
   const pts = [];
   for (let at = lo - RIVER_STEP; at <= hi + RIVER_STEP; at += RIVER_STEP) {
     const row = Math.min(at, end);

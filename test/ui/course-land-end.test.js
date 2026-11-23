@@ -1,15 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { paintStrip, scatter, riverAt, STRIP_SPAN, FIELD_MARGIN, SPAWN_Y, WIDTH, level, data } from './course-land-kit.js';
+import { paintStrip, scatter, riverAt, STRIP_SPAN, FIELD_MARGIN, SPAWN_Y, SEED_R, WIDTH, level, data } from './course-land-kit.js';
 import { sink } from './dom-kit.js';
 import { rgba } from '../../src/ui/sprites.js';
 import { SPECKS } from '../../src/ui/course-land-art.js';
-import { landEnd, GUIDE_INK, LINE_INK, LINE_STEP } from '../../src/ui/course-land-end.js';
-import { HOLD_Y } from '../../src/core/course-hold.js';
+import { landEnd, END_MARGIN, GUIDE_INK, LINE_INK, LINE_STEP } from '../../src/ui/course-land-end.js';
+import { stopAt } from '../../src/core/course-hold.js';
+import { END_RUN } from '../../src/core/course-kinds.js';
 import { PAL } from '../../src/ui/wander-kit.js';
 
-// Where World 22's land runs out (course-land-end.js): at the leg's last gate, whose row is the highest the ship can fly to at the stop, past it
-// blank parchment with the pencil line leading on. Every strip is a function of its index, the seed and the level's data alone.
+// Where World 22's land runs out (course-land-end.js): a margin past the top target of the leg's last hold, so the land is whole through the gate,
+// and past it blank parchment with the pencil line leading on, which the leg runs on into once the gate has fallen (END_RUN). Every strip is a
+// function of its index, the seed and the level's data alone.
+const HOLD = data.spawns.at(-1);
 const END = landEnd(data);
 const KEND = Math.floor(END / STRIP_SPAN); // the strip the land ends in
 const hiOf = (k) => (k + 1) * STRIP_SPAN;
@@ -39,13 +42,20 @@ const lineOf = (calls) => {
   return calls.slice(start + 1, end).map((c) => c.a);
 };
 
-test('the land ends on the row of the leg\'s last hold, and the blank beyond it is on the screen as the leg clears', () => {
-  const hold = data.spawns.at(-1);
-  assert.equal(hold.kind, 'hold');
-  assert.equal(END, hold.at, 'the last row of the land is the hold\'s anchor, the gate\'s feet');
-  const topAtStop = data.length + SPAWN_Y; // the highest row on the screen once the hold has stopped the scroll
-  assert.equal(topAtStop - END, HOLD_Y, 'from the anchor up to the top of the screen');
-  assert.ok(topAtStop > END);
+test('the land stays whole through the gate, and the blank beyond it comes on the screen as the leg runs on past the hold', () => {
+  assert.equal(HOLD.kind, 'hold');
+  assert.equal(END_MARGIN, SEED_R, 'a seed that bursts on the top target colours a whole circle');
+  for (const t of HOLD.targets) assert.ok(HOLD.at + t.dy + SEED_R <= END, `gate at dy ${t.dy}: a seed bursting on it lands wholly on the land`);
+  assert.ok(HOLD.targets.some((t) => HOLD.at + t.dy + END_MARGIN === END), 'and the land ends that margin past the highest of them, no further');
+  assert.ok(stopAt(HOLD) + SPAWN_Y <= END, 'no blank on the screen while the hold stands');
+  assert.equal(data.length, stopAt(HOLD) + END_RUN, 'the leg runs on past the stop');
+  assert.ok(data.length + SPAWN_Y > END, 'blank on the screen as the leg clears');
+});
+
+test('the land ends past the last hold of the course, or, with no hold, at its length', () => {
+  const hold = (at, ...dys) => ({ kind: 'hold', at, targets: dys.map((dy) => ({ dy })) });
+  assert.equal(landEnd({ length: 9000, spawns: [hold(100, 10), hold(300, 5, 50, 20)] }), 300 + 50 + END_MARGIN, 'the last hold, its highest target');
+  assert.equal(landEnd({ length: 9000, spawns: [{ kind: 'stone', at: 5000 }] }), 9000);
 });
 
 test('no tree or field stands past the end, and the land before it keeps its own', () => {
@@ -87,7 +97,8 @@ test('past the end the strip is blank parchment, baked in colour as in pencil: n
       assert.ok(calls.some((c) => c.op === 'fillRect' && c.fill === PAL.parchment && c.a[2] === WIDTH && c.a[3] === STRIP_SPAN), 'parchment over the whole strip');
     }
   }
-  const [land, blank] = [paint(true, KEND), paint(true, KEND).findIndex((c) => c.op === 'fillRect' && c.fill === PAL.parchment)];
+  const land = paint(true, KEND);
+  const blank = land.findIndex((c) => c.op === 'fillRect' && c.fill === PAL.parchment);
   const green = land.findIndex((c) => c.op === 'fillRect' && c.fill === PAL.paint);
   assert.ok(green >= 0 && blank > green, 'the strip the land ends in is green, then its top (the rows past the end) is parchment again');
   assert.deepEqual(land[blank].a, [0, 0, WIDTH, hiOf(KEND) - END]);

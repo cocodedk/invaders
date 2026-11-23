@@ -21,8 +21,9 @@ import { SPAWN_Y } from './course-kinds.js';
 // The data rules (a check on the level's data should hold them): `period` > 0; a gate must be where the ship can hurt it
 // when the scroll stops, on the screen and in the band (`dy` in [0, HOLD_Y]); a hold's entry comes up beyond the screen a
 // checkpoint saw (course-check.js), so a respawn spawns it again whole; and a level's length is at least where its last hold
-// stops the scroll (a shorter one clears before the hold is reached), and exactly that when the level ends on the hold, which
-// then clears on the tick the hold breaks.
+// stops the scroll (a shorter one clears before the hold is reached), and exactly that plus END_RUN when the level ends on the hold: the
+// scroll goes on END_RUN px after the hold breaks, and the level clears there (a length that is the stop itself clears on the tick the hold
+// breaks, which the engine does but a leg's data does not ask for).
 
 export const HOLD_Y = 300; // screen y the hold's anchor stands at when the scroll stops: well up the screen, in the ship's reach
 export const HOLD_FLIGHTS_MAX = 6; // air craft alive at most while a hold stands, the level's own and the hold's together

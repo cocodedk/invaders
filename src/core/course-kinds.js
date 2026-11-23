@@ -14,6 +14,7 @@ export const BAND_MIN = 300; // px: the widest free gap between the walls and th
 export const RESPAWN_SAFE = 2; // s of scroll after a checkpoint is reached in which nothing spawns (the blinking is INVULN, 1.5 s, and ends inside it)
 export const WALL_SLOPE_MAX = 1; // px a wall edge may move per px of scroll: the walls are tested at the ship's centre row, so a steeper edge hides rock from its disc (R21)
 export const HOLD_PAR = 20; // s a hold adds to its leg's par: the time to break its gates (pars.js parOf)
+export const END_RUN = 600; // px of scroll a leg that ends on its hold runs on past the hold's stop, about 3 s at Leg 1's 200 px/s: the scroll goes on once the gates have fallen, the ship flies into the blank land past them, and the leg clears at the end of it (a leg's length is the stop plus this)
 
 // How long steady fire from the base gun takes to break each kind of ground object, s (the owner's first pass, 2026-11-22: the shots
 // break everything on the ground now, and with auto-fire on a gate of 6-8 hp fell in about a second). A shot takes 1 hp, so a kind's

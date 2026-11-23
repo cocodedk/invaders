@@ -111,7 +111,9 @@ or `boss`, and the world carries a `course` state:
     still, a hold brings its own air craft: a list of flights timed in seconds since the stop, repeated until
     the hold breaks (capped at `HOLD_FLIGHTS_MAX` air craft alive). A respawn before a hold rebuilds it whole,
     timer included. Leg 1 ends on a hold.
-- **The end.** A course is cleared when `dist` reaches its length with no hold standing. The clear, the tally
+- **The end.** A course is cleared when `dist` reaches its length with no hold standing. A leg that ends on a hold runs on `END_RUN` px of
+  scroll (about 3 s) past the hold's stop: once the gates fall the scroll goes on, the ship flies into the blank land beyond the gate, and the
+  leg clears at its length (R43). The land stays whole through the gate and runs out a margin past the hold's highest target. The clear, the tally
   and the medal follow the existing rules. The par is computed, not measured (see Measuring).
 - **What the ground weapon has done is core state.** Every burst is kept in `course.marks` as plain data
   in course coordinates (x, at, r). The view draws the ground's change from that array, so a respawn, a
@@ -193,7 +195,7 @@ About two minutes in three stretches, split by two checkpoints, ending on a hold
    gorge. A bridge carries a pair of turrets. Checkpoint 2.
 3. **The end hold.** Faster air craft and dives, turrets on both sides. Then the hold: the scroll stops, and its
    targets (higher hp) must be broken, by the gun or the ground weapon, while its own air craft swarm. When the hold breaks,
-   the leg is cleared.
+   the scroll goes on `END_RUN` px into the blank land, and the leg is cleared.
 
 Spawn positions, counts, speeds and hit points are the builder's, tuned by playing it. The owner's standing word
 is not to make things easy; the first stretch is still the gentlest of the leg.

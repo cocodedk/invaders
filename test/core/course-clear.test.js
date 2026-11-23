@@ -1,8 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { INTRO } from '../../src/core/kinds.js';
+import { INTRO, TICK } from '../../src/core/kinds.js';
+import { createWorld, stepWorld } from '../../src/core/world.js';
 import { parOf } from '../../src/core/pars.js';
-import { flyCourse, CLEAR_PARS } from './course-clear-kit.js';
+import { END_RUN } from '../../src/core/course-kinds.js';
+import { flyCourse, steer, CLEAR_PARS } from './course-clear-kit.js';
 import { courseLevel, FAIR_COURSE } from './course-kit.js';
 import { unfair } from './course-fair-kit.js';
 
@@ -27,4 +29,20 @@ test('a gate that neither a seed nor a shot can reach stalls the scroll: the fli
   const { world } = flyCourse(courseLevel(data));
   assert.equal(world.state, 'play');
   assert.notEqual(world.course.held, null, 'the hold stands on');
+});
+
+test('once the gates have fallen the scroll goes on END_RUN px into the blank land, and the leg clears there, not as the hold breaks', () => {
+  const world = createWorld(level);
+  let broke = null; // the scroll's place on the tick the hold broke
+  for (let i = 0; i < (CLEAR_PARS * parOf(level)) / TICK && world.state !== 'cleared'; i++) {
+    world.ship.invuln = Infinity;
+    stepWorld(world, TICK, steer(world));
+    if (broke === null && world.events.some((e) => e.type === 'holdBreak')) broke = world.course.dist;
+    world.events.length = 0;
+  }
+  const tick = level.course.speed * TICK; // a tick of scroll: where the scroll stops and clears is within one of the line
+  assert.equal(world.state, 'cleared');
+  assert.notEqual(broke, null, 'the hold broke');
+  assert.equal(world.course.held, null, 'no hold stands at the clear');
+  assert.ok(Math.abs(world.course.dist - broke - END_RUN) <= 2 * tick, `the scroll went on ${world.course.dist - broke} px, END_RUN is ${END_RUN}`);
 });

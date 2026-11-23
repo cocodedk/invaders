@@ -487,7 +487,7 @@ quoted lines, so the repo can be public.
     everything earned since lost, so a course never fails in Normal. The ground weapon is the **seed** (granted at a lantern, dropped as the fire button
     fires, bursting in colour into `course.marks`); the ship's shots break incoming bullets by their type (`BULLET_HP`) and hurt every standing ground
     thing but the lanterns and the rock (the owner, 2026-11-22: "every kind of target and enemy structure and anything related to an enemy"). World 22
-    is a free-flight world. Leg 1, Dawn Valley, ends on the Grey Gate; its par is computed from its data, the autopilot never picks it, and Hardcore waits
+    is a free-flight world. Leg 1, Dawn Valley, ends on the Grey Gate and a short run (`END_RUN`) past it into the blank land; its par is computed from its data, the autopilot never picks it, and Hardcore waits
     for Leg 2. The look is the owner's simple mockup (2026-11-22: "the journey is more important to me right now than the glitter"): pencil on
     parchment, colour coming back where seeds burst, the enemy the Hush (grey kites, standing stones). The story is three lines a leg, approved word for
     word: "A LIGHT WAKES." as Leg 1 opens, "YOUR COLOUR." as the seed is gained, and the trailer's last card, "THE ROAD GOES ON."; past the Gate the land

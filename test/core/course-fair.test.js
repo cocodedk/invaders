@@ -65,7 +65,9 @@ const BROKEN = [
   ['quiet', 'an entry in the start\'s stretch', (d) => put(d, air({ at: 0 }))],
   ['open', 'the walls closing in at the end of the checkpoint\'s stretch', (d) => { d.walls[5][1] = 100; }],
   ['open', 'the start not open to the width', (d) => { d.walls[0][2] = WIDTH - 100; }],
-  ['length', 'a leg that ends on its hold but runs past its stop', (d) => { d.length += 100; }],
+  ['length', 'a leg that ends on its hold but runs past its run-out', (d) => { d.length += 100; }],
+  ['length', 'a leg that ends on its hold with no run-out (it clears the tick the hold breaks)', (d) => { d.length = stopAt(holdOf(d)); }],
+  ['length', 'a leg that ends on its hold with a run-out one px short', (d) => { d.length -= 1; }],
   ['length', 'a leg that clears before its hold stops the scroll', (d) => { d.length -= 100; }],
   ['length', 'a leg that clears before a hold with course after it stops the scroll', (d) => {
     put(d, { kind: 'stone', at: holdOf(d).at + 50, x: WIDTH / 2 });

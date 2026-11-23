@@ -1,7 +1,7 @@
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { WIDTH, HEIGHT, MID_X } from '../../src/core/kinds.js';
 import { AIR_MARGIN } from '../../src/core/course-air.js';
-import { SPAWN_Y, RESPAWN_SAFE } from '../../src/core/course-kinds.js';
+import { SPAWN_Y, RESPAWN_SAFE, END_RUN } from '../../src/core/course-kinds.js';
 import { RESPAWN_Y } from '../../src/core/course-check.js';
 import { BOMB_DAMAGE } from '../../src/core/damage.js';
 import { hurtGround } from '../../src/core/course-ground.js';
@@ -88,7 +88,7 @@ const FAIR_HOLD = hold({
   flights: [kite(2), kite(4, { role: 'd', path: 'cross', x: OFF_RIGHT, pattern: 'fan' })],
 });
 export const FAIR_COURSE = {
-  speed: FAIR_SPEED, length: stopOf(FAIR_HOLD), starts: [],
+  speed: FAIR_SPEED, length: stopOf(FAIR_HOLD) + END_RUN, starts: [],
   walls: [
     [0, 0, WIDTH], [FIRST + 300, 0, WIDTH], [FIRST + 900, 400, 1500], [FIRST + 1700, 400, 1500], [FIRST + 2300, 0, WIDTH],
     [FAIR_QUIET_END, 0, WIDTH], [FAIR_QUIET_END + 400, 300, 1600],

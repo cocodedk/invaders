@@ -5,7 +5,7 @@ import { startCheck, RESPAWN_Y } from '../../src/core/course-check.js';
 import { HOLD_Y, stopAt } from '../../src/core/course-hold.js';
 import { GROUND_R } from '../../src/core/course-ground.js';
 import { bandAt } from '../../src/core/course-terrain.js';
-import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX } from '../../src/core/course-kinds.js';
+import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN } from '../../src/core/course-kinds.js';
 
 // The data rules of a course (world 22), as one pure check. unfair(level) walks the level's `course` and returns what breaks them,
 // each as 'rule: what', so [] is a fair course. A level's data (a leg of the journey) runs it; the tests prove it on a course made
@@ -21,7 +21,8 @@ import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX } from '../../src/core/
 //   quiet    nothing comes up in the stretch of the start and of every checkpoint: from the row the ship is put on to the top of the
 //            screen the checkpoint was reached on, and RESPAWN_SAFE s of scroll more; open: the walls leave the whole width open
 //            along it (R20)
-//   length   the course is at least as long as every hold's stop, and exactly that when the last entry is a hold: the leg ends on it
+//   length   the course is at least as long as every hold's stop, and exactly that plus END_RUN when the last entry is a hold: the leg ends on it,
+//            runs on END_RUN px of scroll past its stop once the gates have fallen, and clears there
 //   period, gate, reach   a hold's period is above 0, its gates are in [0, HOLD_Y] (on the screen when the scroll stops) and in the band
 
 const need = (ok, rule, what) => (ok ? [] : [`${rule}: ${what}`]);
@@ -124,7 +125,7 @@ function ending({ length, spawns }) {
     const stop = stopAt(e);
     return [
       ...need(length >= stop, 'length', `${length} clears before hold #${i} stops the scroll at ${stop}`),
-      ...need(i < spawns.length - 1 || length === stop, 'length', `the leg ends on hold #${i}, so its length is its stop ${stop}, not ${length}`),
+      ...need(i < spawns.length - 1 || length === stop + END_RUN, 'length', `the leg ends on hold #${i}, so its length is its stop ${stop} plus the run-out ${END_RUN}, not ${length}`),
     ];
   });
 }
