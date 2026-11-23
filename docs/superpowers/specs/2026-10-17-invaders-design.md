@@ -5,7 +5,8 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 ## Goal
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
-as beautiful as Barrage (`../artillery`): 19 cinematic worlds × 5 levels = 95 levels, free 2D
+as beautiful as Barrage (`../artillery`): 22 cinematic worlds (21 × 5 levels, and world 22, which
+grows a leg at a time: 106 levels so far), free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -476,6 +477,23 @@ quoted lines, so the repo can be public.
     lotus petals firing arrows of light, the backdrop a monsoon dusk over a warm sea, the city's stepped towers on its
     mountain and a causeway of blank floating stones; a palm-leaf page low on the right carries a quiet maker's mark
     (`MARK`). World 21 runs a notch above world 20 by d, level for level, because every shot gets a second pass.
+  - **World 22, Wanderlight: the journey (R74).** The owner asked (2026-11-22) for a world that changes the game "from defending to
+    traversing a plane", has no end ("finishing it is not the goal, the journey is the goal") and is "a journey to self discovery". The whole design is
+    `2026-11-22-world-22-journey-design.md`; this is its summary. World 22 is a 22nd world in the grid, as world 18 began with one level, and its levels
+    (ids `w22-1`, `w22-2`, ... added one at a time; `levels-8.js`) are **courses**, a third kind of level beside wave levels and boss levels: no waves,
+    no boss, a `world.course` (`course*.js`) that scrolls the land under the ship in screen space, with air craft on paths, ground things (turrets that
+    fire the new heavy shot, crates that hold pickups, pillars, dormant stones), walls that narrow the flyable band, lantern checkpoints, and **holds**,
+    where the scroll stops until the gates break. A hit works as in every world; the last life lost sends the leg back to its last lantern, with
+    everything earned since lost, so a course never fails in Normal. The ground weapon is the **seed** (granted at a lantern, dropped as the fire button
+    fires, bursting in colour into `course.marks`); the ship's shots break incoming bullets by their type (`BULLET_HP`) and hurt every standing ground
+    thing but the lanterns and the rock (the owner, 2026-11-22: "every kind of target and enemy structure and anything related to an enemy"). World 22
+    is a free-flight world. Leg 1, Dawn Valley, ends on the Grey Gate; its par is computed from its data, the autopilot never picks it, and Hardcore waits
+    for Leg 2. The look is the owner's simple mockup (2026-11-22: "the journey is more important to me right now than the glitter"): pencil on
+    parchment, colour coming back where seeds burst, the enemy the Hush (grey kites, standing stones). The story is three lines a leg, approved word for
+    word: "A LIGHT WAKES." as Leg 1 opens, "YOUR COLOUR." as the seed is gained, and the trailer's last card, "THE ROAD GOES ON."; past the Gate the land
+    runs out into blank parchment with one pencil line leading on. R74 also adds **F**, a switch for auto-fire (the owner's touchpad stops steering while a
+    key is down, so Space could not steer and fire together): it fires as if Space were held, in every world, until pressed again. Worlds 1-21 replay
+    unchanged (replay version 11).
 - **Slow motion:** 0.3× for 0.8 s when the last alien of a wave dies, and on the boss's death.
 
 ## Worlds
@@ -506,6 +524,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 19 | Rubber Regatta | a sunlit bathhouse at toy scale, the first comic world: bath toys invade over mountains of foam | a glazed green tiled bathroom wall steamed to cream and butter light at the waterline: brass dolphin taps as tall as towers pouring waterfalls, a shelf skyline of bottles and a loofah, crests of foam | the bonk: nothing shot dies, it is knocked silly and hops as a dizzy toy that the ship can bat into the others and into the boss (new, ruling R71); free flight as in every world from 18 on | the Dowager Duck: a colossal rubber duck in a frilly polka-dot shower cap, striped armbands and a huge orange bill |
 | 20 | Midnight Press | a printing hall at night, the presses running past midnight | type cases, rollers and drying sheets under green-shaded lamps, ink everywhere | the echo: a carbon copy of the ship flies its path a beat late and fires when it fired (new, ruling R72); free flight as in every world from 18 on | the Night Editor: a colossal ink octopus in a green eyeshade, a red pencil in each arm |
 | 21 | Golden Isle | the last battle at dusk before an island city of gold, inspired by the war that ends the Ramayana | a monsoon dusk lit gold and crimson over a warm sea, the gilded city with its stepped towers on a three-peaked mountain, a causeway of floating stones, brass lamps and marigold petals | the returning arrow: every ship shot that reaches the top turns back to where the ship stood (new, ruling R73); free flight as in every world from 18 on | the Ten-Crowned King: a colossal ten-headed king on a flying throne, twenty arms with swords, maces, bows, axes and spears, heads that grow back |
+| 22 | Wanderlight | a small light wakes in a paper glider over a land drawn in pencil, and colour follows it down a road that never ends: the first scrolling world | pencil on parchment, seen from above: a river valley at sunrise, rock highlands, standing stones, grey kites, a paper-and-brass glider with a lantern flame; colour floods in where the seeds burst | the course: a top-down scroll with a ground weapon (seeds that bloom), lantern checkpoints, holds, and shots that break incoming fire (new, ruling R74); free flight as in every world from 18 on | none yet: Leg 1 ends on the Grey Gate, a dolmen as tall as a house |
 
 ## Look and effects
 
@@ -593,7 +612,7 @@ level while captions explain moving, firing, power-ups, bombs and stars; then it
 controls on the same level. The autopilot (pure, in core) moves under the nearest alien, dodges
 bullets within a danger cone, and bombs when boxed in, all at the speed of a hand (R68); it also drives the title backdrop.
 
-**Controls:** arrows/WASD move · Space fires (hold for auto-fire) · B or Shift bombs · P/Esc
+**Controls:** arrows/WASD move · Space fires (hold for auto-fire) · F keeps the gun firing with no key held, and a second press stops it · B or Shift bombs · P/Esc
 pauses · M mutes · Enter confirms. Mouse: the ship goes to the pointer at once, in every world (R68), left
 button fires, right button bombs.
 

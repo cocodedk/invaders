@@ -6,11 +6,14 @@
 //                                             rock is cut out of it last, with its contour lines on the sketch (course-land-rock.js)
 //   scatter(seed, k, course)                  its trees and fields, { x, y } in the strip: only in the band (course is the level's course data)
 //   riverAt(at) -> { x, w }                   the river's middle and half width on a row
+// The land ends where course-land-end.js says: past that row a strip is blank parchment (flecked as the rest, in colour as in pencil, so a seed's
+// colour changes nothing there) with the guide lines and the pencil line that leads on from the river's middle; no tree, field or river lies past it.
 import { W, rgba, hash } from './sprites.js';
 import { MID_X } from '../core/kinds.js';
 import { bandAt } from '../core/course-terrain.js';
 import { PAL } from './wander-kit.js';
 import { paintRock } from './course-land-rock.js';
+import { landEnd, paintRunout } from './course-land-end.js';
 
 export const STRIP_SPAN = 360; // px of `at` a strip covers
 export const SPECKS = 500; // flecks on a strip's parchment
@@ -26,6 +29,7 @@ const FIELD = { w: 130, wVar: 45, h: 80, hVar: 25, tilt: 0.5 }; // px, and the t
 const RIVER = { sway: 132, wave: 252, width: 41, swell: 10, swellWave: 108 };
 const RIVER_STEP = 6;
 const RIPPLE_STEP = 11;
+const RIPPLE_RISE = 8; // px a ripple's stroke rises
 
 const pencil = (a) => rgba(PAL.pencil, a);
 export const riverAt = (at) => ({ x: MID_X + RIVER.sway * Math.sin(at / RIVER.wave + 0.5), w: RIVER.width + RIVER.swell * Math.sin(at / RIVER.swellWave) });
@@ -37,12 +41,12 @@ const dice = (seed, k) => {
   return () => hash(base + 31 * i++);
 };
 
-// Is a thing `half` px wide (and `reach` px up and down) at x on the row `at` inside the band and off the river, `gap` px to spare?
+// Is a thing `half` px wide (and `reach` px up and down) at x on the row `at` inside the band and off the river, `gap` px to spare, and before the land's end?
 const clear = (course, x, at, half, reach, gap) =>
   [at - reach, at, at + reach].every((a) => {
     const { left, right } = bandAt(course, a);
     const rv = riverAt(a);
-    return x - half - gap > left && x + half + gap < right && Math.abs(x - rv.x) > rv.w + half + gap;
+    return a < landEnd(course) && x - half - gap > left && x + half + gap < right && Math.abs(x - rv.x) > rv.w + half + gap;
   });
 
 // The trees and fields of strip k, { x, y } in the strip (y down from its top, so the course row is (k + 1) * STRIP_SPAN - y).
@@ -82,12 +86,17 @@ function field(g, f, painted) {
   g.restore();
 }
 
-// The river through strip k, drawn from one step past each end so that no bank breaks and no fill closes inside the strip.
-function river(g, k, painted) {
+// The river through strip k, drawn from one step past each end so that no bank breaks and no fill closes inside the strip, and stopping on the row `end`.
+function river(g, k, painted, end) {
   const lo = k * STRIP_SPAN;
   const hi = lo + STRIP_SPAN;
+  if (lo - RIVER_STEP >= end) return;
   const pts = [];
-  for (let at = lo - RIVER_STEP; at <= hi + RIVER_STEP; at += RIVER_STEP) pts.push({ ...riverAt(at), y: hi - at });
+  for (let at = lo - RIVER_STEP; at <= hi + RIVER_STEP; at += RIVER_STEP) {
+    const row = Math.min(at, end);
+    pts.push({ ...riverAt(row), y: hi - row });
+    if (row === end) break;
+  }
   if (painted) {
     g.beginPath();
     for (const p of pts) g.lineTo(p.x - p.w, p.y);
@@ -106,10 +115,10 @@ function river(g, k, painted) {
   g.strokeStyle = painted ? 'rgba(220,250,245,0.5)' : pencil(0.3);
   g.lineWidth = 1.2;
   g.beginPath();
-  for (let at = Math.ceil((lo - 12) / RIPPLE_STEP) * RIPPLE_STEP; at <= hi + 12; at += RIPPLE_STEP) {
+  for (let at = Math.ceil((lo - 12) / RIPPLE_STEP) * RIPPLE_STEP; at <= Math.min(hi + 12, end - RIPPLE_RISE); at += RIPPLE_STEP) {
     const { x, w } = riverAt(at);
     g.moveTo(x - w * 0.6, hi - at);
-    g.lineTo(x - w * 0.1, hi - at - 8);
+    g.lineTo(x - w * 0.1, hi - at - RIPPLE_RISE);
   }
   g.stroke();
 }
@@ -143,20 +152,38 @@ function tree(g, t, painted) {
   g.stroke();
 }
 
-// One strip's art: the parchment (flecked) or the green, the fields, the river, the trees, and last the rock cut out of it (course-land-rock.js).
-export function paintStrip(g, painted, k, seed, course) {
-  g.fillStyle = painted ? PAL.paint : PAL.parchment;
-  g.fillRect(0, 0, W, STRIP_SPAN);
-  if (!painted) {
-    const r = dice(seed + 1, k);
-    for (let i = 0; i < SPECKS; i++) {
-      g.fillStyle = rgba('#786446', 0.02 + r() * 0.08);
-      g.fillRect(r() * (W - 2), r() * (STRIP_SPAN - 2), 2, 2);
-    }
+// Flecks on the parchment of the top h rows of a strip: SPECKS to a whole strip, as many to the row for part of one.
+function flecks(g, r, h) {
+  for (let i = 0; i < Math.round(SPECKS * h / STRIP_SPAN); i++) {
+    g.fillStyle = rgba('#786446', 0.02 + r() * 0.08);
+    g.fillRect(r() * (W - 2), r() * (h - 2), 2, 2);
   }
-  const { trees, fields } = scatter(seed, k, course);
-  for (const f of fields) field(g, f, painted);
-  river(g, k, painted);
-  for (const t of trees) tree(g, t, painted);
-  paintRock(g, painted, k * STRIP_SPAN, (k + 1) * STRIP_SPAN, course);
+}
+
+const riverX = (at) => riverAt(at).x; // the pencil line past the land's end is the river's middle, run on
+
+// One strip's art: the parchment (flecked) or the green, the fields, the river, the trees; the blank past the land's end over the top of them (the same
+// flecked parchment, the guide lines and the line, in both bakes, so that a seed's colour stamped there changes nothing); and last the rock cut out of it
+// (course-land-rock.js).
+export function paintStrip(g, painted, k, seed, course) {
+  const lo = k * STRIP_SPAN;
+  const hi = lo + STRIP_SPAN;
+  const end = landEnd(course);
+  const blank = Math.max(0, Math.min(STRIP_SPAN, hi - end)); // rows of the strip's top that lie past the end
+  if (blank < STRIP_SPAN) {
+    g.fillStyle = painted ? PAL.paint : PAL.parchment;
+    g.fillRect(0, 0, W, STRIP_SPAN);
+    if (!painted) flecks(g, dice(seed + 1, k), STRIP_SPAN);
+    const { trees, fields } = scatter(seed, k, course);
+    for (const f of fields) field(g, f, painted);
+    river(g, k, painted, end);
+    for (const t of trees) tree(g, t, painted);
+  }
+  if (blank > 0) {
+    g.fillStyle = PAL.parchment;
+    g.fillRect(0, 0, W, blank);
+    flecks(g, dice(seed + 2, k), blank);
+    paintRunout(g, lo, hi, end, riverX);
+  }
+  paintRock(g, painted, lo, hi, course);
 }

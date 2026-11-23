@@ -13,8 +13,8 @@ import { TICK, react } from './fx-kit.js';
 import { sampleEvent } from '../event-sample.js';
 
 // Events the core emits that fx deliberately leaves to the screens.
-// seedBurst, chip, checkpoint, ability, respawn, holdBreak: world 22: sounds and effects come in Task 12
-const SILENT = ['failed', 'seedBurst', 'chip', 'checkpoint', 'ability', 'respawn', 'holdBreak'];
+// seedBurst, chip, checkpoint, respawn, holdBreak: world 22: sounds and effects come in Task 12 (its 'ability' already has its caption: react-story.js)
+const SILENT = ['failed', 'seedBurst', 'chip', 'checkpoint', 'respawn', 'holdBreak'];
 
 test('every event type the core emits has a reaction, or is listed as silent here', () => {
   const dir = fileURLToPath(new URL('../../src/core/', import.meta.url));
