@@ -16,7 +16,8 @@ import { SPAWN_Y, GROUND_MARGIN } from './course-kinds.js';
 //           its `starts` and a checkpoint can grant more
 //   seeds   the seeds in the air, { x, at, t }; seedCool is the s until the next may drop
 //   marks   where seeds have burst, { x, at, r }; the view paints the ground's change from them
-//   respawn s left of the beat after the last life was lost, or null; the scroll stands still through it (course-check.js)
+//   respawn s left of the beat after the last life was lost, or null; the scroll stands still through it, and there is none once the leg's
+//           last hold has broken (course-check.js)
 //   held    the hold the scroll has stopped at, { holdId, t } (t the s since the stop), or null (course-hold.js)
 //   check   the record of the last checkpoint reached, checkpoint 0 being the start, and lit how many have been reached
 //           (course-check.js)

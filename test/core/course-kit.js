@@ -69,6 +69,10 @@ export function standing(spawns, opts = {}) {
   if (!until(world, () => world.course.held)) throw new Error('no hold stood');
   return world;
 }
+// A leg's shape (the fair rules' `length`): its hold is the last entry and the scroll runs END_RUN px past the hold's stop, where the leg clears.
+// `legStanding` is a world of that shape stepped until its hold stands; `legLength` is the length of a leg that ends on the hold entry `e`.
+export const legLength = (e) => stopOf(e) + END_RUN;
+export const legStanding = (spawns, opts = {}) => standing(spawns, { ...opts, length: legLength(spawns.at(-1)) });
 export const WAIT = 30; // ticks the hold tests stand and watch
 export const alive = (world) => world.aliens.filter((a) => a.hp > 0).length;
 export const breakAll = (world) => gates(world).forEach((g) => hurtGround(world, g, g.hp));
@@ -88,7 +92,7 @@ const FAIR_HOLD = hold({
   flights: [kite(2), kite(4, { role: 'd', path: 'cross', x: OFF_RIGHT, pattern: 'fan' })],
 });
 export const FAIR_COURSE = {
-  speed: FAIR_SPEED, length: stopOf(FAIR_HOLD) + END_RUN, starts: [],
+  speed: FAIR_SPEED, length: legLength(FAIR_HOLD), starts: [],
   walls: [
     [0, 0, WIDTH], [FIRST + 300, 0, WIDTH], [FIRST + 900, 400, 1500], [FIRST + 1700, 400, 1500], [FIRST + 2300, 0, WIDTH],
     [FAIR_QUIET_END, 0, WIDTH], [FAIR_QUIET_END + 400, 300, 1600],

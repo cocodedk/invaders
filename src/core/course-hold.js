@@ -56,6 +56,14 @@ const airborne = (world) => world.aliens.filter((a) => a.mode === 'path' && a.hp
 // How often the flight `f` has come by `t` s into the hold: at its own t, then every `period`, EPS early at most.
 const comings = (f, t, period) => (t + EPS < f.t ? 0 : Math.floor((t + EPS - f.t) / period) + 1);
 
+// Has the leg's last hold broken? Its entry has come up (a respawn that takes the leg back before it says no) and no gate of it stands. From
+// then on the leg only runs out its END_RUN px of scroll and clears at its length, so a death can no longer send it back: the clear wins
+// (course-check.js stepRespawn). A pure function of the world, so a snapshot and a replay say the same.
+export function lastHoldBroken(world) {
+  const id = world.level.course.spawns.findLastIndex((e) => e.kind === 'hold');
+  return id >= 0 && world.course.next > id && !gateStands(world.course, id);
+}
+
 // The gates of the hold entry `e`, the `id`-th of the level's spawns (course.js hands it over on the tick its `at` comes up).
 export function spawnHold(world, e, id) {
   for (const t of e.targets) spawnGround(world, { kind: 'gate', at: e.at + t.dy, x: t.x, hp: t.hp, holdId: id });

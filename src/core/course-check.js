@@ -2,6 +2,7 @@ import { EPS, MID_X } from './kinds.js';
 import { LIVES, INVULN, createShip } from './ship.js';
 import { restoreScore } from './scoring.js';
 import { emit } from './util.js';
+import { lastHoldBroken } from './course-hold.js';
 
 // Checkpoints and death in a course (world 22). A checkpoint is a ground object (course-ground.js); the tick its y
 // reaches RESPAWN_Y it is reached: the course keeps a small record of that moment, course.check, never a copy of the world:
@@ -15,7 +16,7 @@ import { emit } from './util.js';
 // the power-up, the reserve and the combo are lost, and the ship stands at the checkpoint's x on RESPAWN_Y, blinking, with
 // its lives refilled to the record's, never fewer than LIVES. Nothing earned since the checkpoint survives a death, so dying
 // never pays. course.lit counts the checkpoints reached and a respawn keeps it: the last one stays lit. The respawn draws no
-// rng and reads no input.
+// rng and reads no input. A death after the leg's last hold has broken is no respawn at all (stepRespawn): the leg runs out and clears.
 
 export const RESPAWN_DELAY = 1.2; // s from the last life lost to the leg rebuilding (the wreck's beat)
 export const RESPAWN_Y = 900; // screen y of the respawn line: a checkpoint is reached there, and the ship is placed there
@@ -64,11 +65,19 @@ function respawn(world) {
 }
 
 // The last life lost starts the beat (course.respawn counts it down, and course.js does not scroll while it runs);
-// when it is up the leg rebuilds. The tick of the death is not part of the beat.
+// when it is up the leg rebuilds. The tick of the death is not part of the beat. Once the leg's last hold has broken (course-hold.js
+// lastHoldBroken) there is no beat, and one that runs is cancelled: the leg clears at its length (the run-out, with the ship down or alive),
+// so a death on the tick of the break, during a beat the break ends, or in the run-out rewinds nothing. The clear wins, as the last
+// alien's death wins over the last life lost (world-step.js won).
 export function stepRespawn(world, dt) {
   const { course } = world;
+  if (course.respawn === null && world.ship.alive) return;
+  if (lastHoldBroken(world)) {
+    course.respawn = null;
+    return;
+  }
   if (course.respawn === null) {
-    if (!world.ship.alive) course.respawn = RESPAWN_DELAY;
+    course.respawn = RESPAWN_DELAY;
     return;
   }
   course.respawn -= dt;
