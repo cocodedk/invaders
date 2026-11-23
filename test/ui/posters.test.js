@@ -32,21 +32,25 @@ test('every world is baked into a poster, each from its boss level', async () =>
   assert.equal(posterFor(99), null);
 });
 
-// A poster is taken from its world's boss level, or, in a world without one (a one-leg course), from its last level.
-const lv = (id, world, boss) => ({ id, world, boss });
-const LIST = [lv('a1', 3), lv('a2', 3), lv('a3', 3, 'boss'), lv('b1', 4), lv('b2', 4), lv('c1', 5, 'boss'), lv('c2', 5)];
+// A poster is taken from its world's boss level; in a course world (no boss, a leg after leg) from its first leg, the one the poster's
+// checked moment (AT) was found on; in any other world from its last level.
+const lv = (id, world, boss, course) => ({ id, world, boss, course });
+const LIST = [lv('a1', 3), lv('a2', 3), lv('a3', 3, 'boss'), lv('b1', 4), lv('b2', 4), lv('c1', 5, 'boss'), lv('c2', 5), lv('d1', 6, null, {}), lv('d2', 6, null, {})];
 
-test('posterLevel is the world\'s boss level, else its last level', () => {
+test('posterLevel is the world\'s boss level, else its first leg if a course, else its last level', () => {
   assert.equal(posterLevel(3, LIST).id, 'a3', 'the boss level, wherever it stands in the list');
   assert.equal(posterLevel(5, LIST).id, 'c1', 'the boss level even when it is not the last');
   assert.equal(posterLevel(4, LIST).id, 'b2', 'a world without a boss level: its last');
+  assert.equal(posterLevel(6, LIST).id, 'd1', 'a course world: its first leg, not its last');
   assert.equal(posterLevel(9, [lv('z1', 9)]).id, 'z1', 'a one-level world: that level');
+  assert.equal(posterLevel(9, [lv('z1', 9, null, {})]).id, 'z1', 'a one-leg course: that leg');
   assert.equal(posterLevel(8, LIST), undefined, 'a world with no levels has none');
 });
 
-test('every world of the game has its boss level for a poster, and a course world its one leg', () => {
+test('every world of the game has its boss level for a poster, and a course world its first leg', () => {
   for (const w of WORLDS.filter((x) => x.boss)) assert.equal(posterLevel(w.id).id, LEVELS.find((l) => l.world === w.id && l.boss).id, `world ${w.id}`);
-  for (const w of WORLDS.filter((x) => !x.boss)) assert.equal(posterLevel(w.id).id, LEVELS.find((l) => l.world === w.id && l.course).id, `world ${w.id}`);
+  for (const w of WORLDS.filter((x) => !x.boss)) assert.equal(posterLevel(w.id).id, LEVELS.find((l) => l.world === w.id && l.course).id, `world ${w.id}`); // find: the first
+  assert.equal(posterLevel(WORLDS.length).id, 'w22-1', "world 22's poster stays on Leg 1");
 });
 
 // A poster whose run-up is long (a course's: tens of seconds of the autopilot's flight) must not step it all in one idle period: the

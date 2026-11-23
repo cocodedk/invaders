@@ -10,21 +10,19 @@ import { parOf } from '../../src/core/pars.js';
 import { unfair } from './course-fair-kit.js';
 import { flyCourse, CLEAR_PARS } from './course-clear-kit.js';
 
-// World 22's level data and rows, proven on their own: the world has one level, a course (no waves, no boss), and its first leg obeys
-// the data rules, can be cleared, and has the shape of the design's Leg 1 (two lanterns, the first granting the seed, and an end hold).
-// The data is read from levels-8.js through LEVELS, never from a test kit.
+// World 22's level data and rows, proven on their own: its levels are courses (no waves, no boss), and Leg 1, its first, obeys the
+// data rules, can be cleared, and has the shape of the design's Leg 1 (two lanterns, the first granting the seed, and an end hold).
+// The data is read from levels-8.js through LEVELS, never from a test kit. Later legs are proven in their own tests.
 const WORLD = WORLDS.length; // the course world is the last
 const [[spec]] = JOURNEY;
 const leg = levelById('w22-1');
 const kinds = (kind) => leg.course.spawns.filter((e) => e.kind === kind);
 
-test('levels-8.js holds the one leg of world 22: a course with no waves and no bunkers', () => {
-  assert.equal(JOURNEY.length, 1);
-  assert.equal(JOURNEY[0].length, 1);
+test('levels-8.js opens world 22 with Leg 1: a course with no waves and no bunkers, the first level of its world', () => {
   assert.ok(spec.course);
   assert.equal(spec.waves, undefined);
   assert.equal(spec.bunkers, false);
-  assert.equal(leg, LEVELS.at(-1), 'the last level of the game');
+  assert.equal(leg, LEVELS.find((l) => l.world === WORLD), 'the world\'s first level');
 });
 
 test('the leg is world 22\'s level: a course with neither waves nor a boss, free flight, named Leg 1', () => {

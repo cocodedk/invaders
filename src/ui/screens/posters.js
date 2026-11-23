@@ -1,5 +1,5 @@
-// The lobby's posters, drawn by the game itself: each world's boss level (a world without a boss: its last level) is run
-// a few seconds with the autopilot and one frame of it is rendered (sky, parallax, boss, ship, effects; no HUD), then
+// The lobby's posters, drawn by the game itself: each world's boss level (a course world: its first leg, a world with neither: its
+// last level) is run a few seconds with the autopilot and one frame of it is rendered (sky, parallax, boss, ship, effects; no HUD), then
 // cropped to a 2:3 poster round the boss (the field's middle when there is none). Kept for the session (no image files).
 // A bake comes in eight slices (the run-up, the world's alien sprites, its boss, worlds 15, 16 and 17's own sprites,
 // the view, the frame), one per idle period while the title or the lobby is up, so no single frame carries a whole poster
@@ -9,7 +9,7 @@
 //   prefer(worlds)         bake these worlds' posters next (the ones in view); the rest follow in order
 //   preferred() -> worlds  what prefer last said
 //   posterFor(world) -> canvas | null      TAGLINES[world - 1]: each world's line      reelName(level)
-//   posterLevel(world, levels = LEVELS) -> level   the level a world's poster is taken from
+//   posterLevel(world, levels = LEVELS) -> level   the level a world's poster is taken from (a course world's first leg, whatever follows)
 import { LEVELS, WORLDS } from '../../core/levels.js';
 import { createWorld, stepWorld } from '../../core/world.js';
 import { autopilot } from '../../core/autopilot.js';
@@ -71,7 +71,7 @@ export const posterFor = (world) => posters.get(world) ?? null;
 
 export function posterLevel(world, levels = LEVELS) {
   const ofWorld = levels.filter((l) => l.world === world);
-  return ofWorld.find((l) => l.boss) ?? ofWorld.at(-1);
+  return ofWorld.find((l) => l.boss) ?? (ofWorld[0]?.course ? ofWorld[0] : ofWorld.at(-1)); // a course's poster stays on Leg 1, where AT was found
 }
 
 // The run-up: `secs` of the world flown by the autopilot, the effects (fx, drawn on rng) of the last LIT s kept. Every RUNUP_SLICE ticks it
