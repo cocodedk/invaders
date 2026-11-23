@@ -1,27 +1,11 @@
-// Level data for world 22 (Wanderlight): a world of one level, which is a course (course.js) in place of waves or a boss.
-// `course(seed, data)` is a level spec like `lv` in levels-2.js, and `data` is { speed, length, starts, walls, spawns }: the scroll's
-// speed in px/s and length in px, the abilities the leg begins with, the wall keyframes ([at, left, right]) and the entries, in order of
-// `at` (what each kind takes is in course-air.js, course-ground.js, course-hold.js and course-check.js). `at` is a row of the course in
-// px of scroll: an entry comes up above the screen when the scroll reaches it, and a second of scroll is `speed` px. A leg's data must
-// break none of the rules of test/core/course-fair-kit.js, which levels-8.test.js runs on every leg.
-import { WIDTH as W, MID_X } from './kinds.js';
+// Level data for world 22 (Wanderlight): its levels are courses (course.js) in place of waves or a boss, one a leg of the journey: Leg 1 here, Dawn
+// Valley, and Leg 2 in levels-8-wood.js. The shorthand both use is in levels-8-kit.js, where `course(seed, data)` and the shape of a leg's `data` are
+// described. A leg's data must break none of the rules of test/core/course-fair-kit.js, which levels-8.test.js and levels-8-wood.test.js run on it.
+import { WIDTH as W } from './kinds.js';
 import { hpFor, END_RUN } from './course-kinds.js';
 import { stopAt, GATE_DY_MAX } from './course-hold.js';
-
-export const course = (seed, data) => ({ seed, bunkers: false, course: data });
-
-// The shorthand, one entry a call. An air craft takes its role letter (g grunt, d diver, u gunner, a armored, c carrier: a carrier fires
-// nothing and always drops a power-up), its path, the x it starts at and the pattern it fires; a crate holds 'bomb', 'life' or, with
-// none, the usual random drop; a lantern is a checkpoint, and grants an ability or nothing.
-const air = (at, role, path, x, pattern) => ({ kind: 'air', at, role, path, x, pattern });
-// A turret's hp, and a gate's below, come from course-kinds.js hpFor: the seconds of steady fire BREAK_SECS names, in shots.
-const turret = (at, x) => ({ kind: 'turret', at, x, hp: hpFor('turret') });
-const crate = (at, x, hp, drop = null) => ({ kind: 'crate', at, x, hp, drop });
-const stone = (at, x) => ({ kind: 'stone', at, x });
-const pillar = (at, x, w, h) => ({ kind: 'pillar', at, x, w, h });
-const lantern = (at, grants = null) => ({ kind: 'checkpoint', at, x: MID_X, grants });
-const LEFT = -60; // where a crossing starts: beyond the edge it comes from
-const RIGHT = W + 60;
+import { course, air, turret, crate, stone, pillar, lantern, LEFT, RIGHT } from './levels-8-kit.js';
+import { WOOD } from './levels-8-wood.js';
 
 // Leg 1, Dawn Valley: about two minutes of scroll in three stretches, split by two lanterns (checkpoints), ending on the Grey Gate.
 // Each lantern leaves its quiet stretch behind it: nothing comes up for a while, and the walls stand open to the whole width.
@@ -107,4 +91,4 @@ const LEG_1 = {
   spawns: [...STRETCH_1, ...STRETCH_2, ...STRETCH_3],
 };
 
-export const JOURNEY = [[course(220519, LEG_1)]];
+export const JOURNEY = [[course(220519, LEG_1), WOOD]];

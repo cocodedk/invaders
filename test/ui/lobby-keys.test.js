@@ -3,15 +3,16 @@ import assert from 'node:assert/strict';
 import { installDom, openLobby } from './lobby-kit.js';
 
 // Level Select's keys on the DOM stand-in: arrows over the uniform grid (eight worlds to a row), the goal column that
-// lets up and down undo each other across the short last row (six cards: worlds 17 to 22, the last with one reel), down from the last row
+// lets up and down undo each other across the short last row (six cards: worlds 17 to 22, the last with a reel a leg), down from the last row
 // reaching the bar, Esc and the click.
 // (The scroll the keys cause is lobby-scroll.test.js, the pointer lobby-pointer.test.js.)
 installDom();
 const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
-const { WORLDS } = await import('../../src/core/levels.js');
+const { WORLDS, LEVELS } = await import('../../src/core/levels.js');
 const { PER_ROW } = await import('../../src/ui/screens/lobby-nav.js');
 
 const lobby = (focusId) => openLobby(lobbyScreen, focusId);
+const LAST_LEG = `w${WORLDS.length}-${LEVELS.filter((l) => l.world === WORLDS.length).length}`; // the last reel of the last world, which holds a reel a leg
 
 test('left and right move along the row, keeping the reel, and wrap inside it, the short last row too', () => {
   const { reels, key, at } = lobby();
@@ -42,7 +43,7 @@ test('left and right move along the row, keeping the reel, and wrap inside it, t
   assert.equal(at(), 'w21-1');
   reels['w21-4'].focus();
   key('ArrowRight');
-  assert.equal(at(), 'w22-1', 'world 22 holds one reel: a key that would carry on to a later one takes its last');
+  assert.equal(at(), LAST_LEG, 'world 22 holds fewer reels than five: a key that would carry on to a later one takes its last');
 });
 
 test('down walks the reels of a world and on into the first reel of the same column in the row below', () => {
@@ -63,7 +64,7 @@ test('down walks the reels of a world and on into the first reel of the same col
 
 test('down from a reel of the short last row also reaches the bar, from each of its cards', () => {
   const { reels, key, at, backBtn } = lobby();
-  for (const id of ['w17-5', 'w18-5', 'w19-5', 'w22-1']) {
+  for (const id of ['w17-5', 'w18-5', 'w19-5', LAST_LEG]) {
     reels[id].focus();
     key('KeyS');
     assert.equal(at(), backBtn, id);
@@ -86,7 +87,7 @@ test('up runs back into the last reel of the row above, at the same column or on
   assert.equal(at(), 'w11-5');
   reels['w22-1'].focus();
   key('ArrowUp');
-  assert.equal(at(), 'w14-5', 'a world of one reel: up leaves at once, into the last reel above');
+  assert.equal(at(), 'w14-5', 'the first reel of a world with fewer than five: up leaves at once, into the last reel above');
   reels['w1-1'].focus();
   key('ArrowUp');
   assert.equal(at(), 'w1-1', 'above the first row: stays');
