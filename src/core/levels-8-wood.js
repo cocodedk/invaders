@@ -64,7 +64,8 @@ const STRETCH_3 = [
   ...hedge(18000, 90, 150, [500, 1060]), // a way round on the right (the band is 500 to 1420 here)
   air(18200, 'a', 'swoop', 640, 'homing'), air(18400, 'u', 'cross', RIGHT, 'ring'), smudge(18700, 1180), air(18900, 'd', 'dive', 900, 'aimed'),
   crate(19100, 960, 2, 'bomb'), air(19300, 'g', 'dive', 700, 'aimed'), air(19400, 'g', 'dive', 1220, 'aimed'),
-  smudge(19800, 840), smudge(20075, 1180), // a pair in the narrows: the second leaves 320 px on the left of its curtain, where the hedge at 21000 has its way round air(20300, 'a', 'swoop', 1300, 'homing'),
+  // a pair in the narrows: the second leaves 320 px on the left of its curtain, where the hedge at 21000 has its way round
+  smudge(19800, 840), smudge(20075, 1180), air(20300, 'a', 'swoop', 1300, 'homing'),
   turret(20500, 700), turret(20500, 1240), air(20700, 'u', 'cross', LEFT, 'homing'),
   ...hedge(21000, 90, 150, [980, 1340]), // a way round on the left (the band is 620 to 1340 here)
   air(21200, 'd', 'dive', 800, 'aimed'), air(21300, 'd', 'dive', 1120, 'aimed'), air(21600, 'g', 'swoop', 600, 'fan'),
