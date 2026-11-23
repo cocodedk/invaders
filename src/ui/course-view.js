@@ -3,7 +3,8 @@
 //   drawCourse(ctx, cv, world, t)   the ground under the field's craft, back to front: the rock's tan either side of the band, the land slid down
 //                                   by the scroll over it (pencil on parchment, the colour the seeds have brought back stamped into it, the rock
 //                                   cut out of it with its contour lines pencilled in the hole: course-land-rock.js), the rock's pencilled edge,
-//                                   the things that stand on the ground (course-objects.js), the seeds in the air and the sight of the next one
+//                                   the things that stand on the ground (course-objects.js), the ship's line hanging over them
+//                                   (course-line-view.js), the seeds in the air and the sight of the next one
 //   wallRows(courseData, dist) -> [{ at, y, left, right }]   the band at the rows the rock's edge is drawn through, top of the screen first
 // Everything is placed from `world.course.dist`, the scroll, and from the course's own data and lists, never from a clock, so one world
 // gives one picture (t only moves an eye). The screen row y is at = dist + SPAWN_Y - y of the course, which is what bandAt answers to
@@ -15,6 +16,7 @@ import { bandAt } from '../core/course-terrain.js';
 import { SPAWN_Y } from '../core/course-kinds.js';
 import { SEED_REACH, SEED_FALL } from '../core/course-seed.js';
 import { drawObjects } from './course-objects.js';
+import { drawCourseLine } from './course-line-view.js';
 import { createLand, drawLand } from './course-land.js';
 import { PAL } from './wander-kit.js';
 
@@ -117,6 +119,7 @@ export function drawCourse(ctx, cv, world, t) {
   drawLand(ctx, cv.land, world);
   for (const side of SIDES) rockEdge(ctx, rows, side);
   drawObjects(ctx, world, t);
+  drawCourseLine(ctx, course);
   seeds(ctx, course);
   sight(ctx, world);
 }

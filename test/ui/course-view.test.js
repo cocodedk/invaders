@@ -186,5 +186,5 @@ test('the ground costs a few hundred path operations a frame at most and no grad
 });
 
 test('the view files keep the sprite rules', () => {
-  fileRules(assert, ['course-view.js', 'course-land.js', 'course-land-art.js', 'course-land-rock.js', 'course-objects.js', 'course-sprites.js', 'wander-kit.js', 'view.js', 'pickup-kit.js', 'pickup-wander.js', 'pickup-skins.js']);
+  fileRules(assert, ['course-view.js', 'course-line-view.js', 'course-land.js', 'course-land-art.js', 'course-land-rock.js', 'course-objects.js', 'course-sprites.js', 'wander-kit.js', 'view.js', 'pickup-kit.js', 'pickup-wander.js', 'pickup-skins.js']);
 });
