@@ -1,8 +1,9 @@
 # Invaders — working notes
 
-A single-player cinematic arcade shooter for the browser and the Pi games menu: 21 cinematic worlds
-x 5 levels, free 2D flight, formations, bosses, power-ups, and a movie trailer cut from your own
-run. The design is `docs/superpowers/specs/2026-10-17-invaders-design.md` and the build plan is
+A single-player cinematic arcade shooter for the browser and the Pi games menu: 22 cinematic worlds
+(21 x 5 levels, and world 22, Wanderlight, which grows a leg at a time: 106 levels so far), free 2D flight,
+formations, bosses, power-ups, and a movie trailer cut from your own run. The design is
+`docs/superpowers/specs/2026-10-17-invaders-design.md` and the build plan is
 `docs/superpowers/plans/2026-10-17-invaders.md`; the spec is the authority. Barrage
 (`../artillery`) is the reference game with the same architecture: copy and adapt from it, never
 import across repos.
@@ -18,8 +19,8 @@ import across repos.
 
 | Path | Contents | DOM? |
 |---|---|---|
-| `src/core/` | rng, ship, aliens, formations, bullet patterns, bunkers, power-ups, bombs, scoring, bosses (data + phase logic), twists, free-flight collisions (`free.js`), levels data, world, autopilot, replay (record/encode/re-sim), highlight picker. Pure, stepped by `dt`, randomness passed in. | no |
-| `src/fx/` | particles, shockwaves, flashes, shake, pop-ups, slow-mo, film look state. Pure. | no |
+| `src/core/` | rng, ship, aliens, formations, bullet patterns, bunkers, power-ups, bombs, scoring, bosses (data + phase logic), twists, free-flight collisions (`free.js`), levels data, world, autopilot, replay (record/encode/re-sim), highlight picker, world 22's course (`course*.js`: scroll, ground, air craft, seeds, checkpoints, holds). Pure, stepped by `dt`, randomness passed in. | no |
+| `src/fx/` | particles, shockwaves, flashes, shake, pop-ups, slow-mo, film look state, world 22's story captions (`react-story.js`). Pure. | no |
 | `src/ui/` | canvas drawing per world (sky, parallax, aliens, boss, bunkers), ship, bullets, HUD, screens, trailer/cinema player, input, audio, storage, quality scaler. | yes |
 | `src/main.js` | boot, fixed-step loop, screen routing. | yes |
 | `test/` | `node:test` mirroring `src/core` and `src/fx`. | no |
@@ -35,7 +36,8 @@ import across repos.
   object-key order of data that changes at runtime (arrays only), so replays stay exact.
 - World is 1920x1080, y down. Logic steps at fixed `TICK = 1/60` s. Player zone y in [620, 1040],
   x in [40, 1880] (from world 18 on the ship flies free, y in [150, 1040]: `FREE_ZONE`); the keys move the
-  ship at up to 720 px/s, the pointer moves it at once, in every world, and the collisions sweep its path (R68).
+  ship at up to 720 px/s, the pointer moves it at once, in every world, and the collisions sweep its path (R68). F switches auto-fire on and off
+  (`AUTOFIRE_KEY`): while on, the gun fires as if Space were held, across levels, until pressed again.
 - Inputs are quantized before they reach the core: `dx, dy` in {-1, 0, 1}, `target` integer px or
   null, `fire`/`bomb` booleans.
 - `localStorage` wrapped in try/catch; the game works without it. Keys prefixed `invaders.`.
@@ -53,8 +55,14 @@ import across repos.
 
 ## Level data
 
-`src/core/levels.js`, `levels-2.js`, `levels-3.js`, `levels-4.js`, `levels-5.js`, `levels-6.js` and `levels-7.js` hold the 105 levels in a shorthand:
+`src/core/levels.js`, `levels-2.js`, `levels-3.js`, `levels-4.js`, `levels-5.js`, `levels-6.js` and `levels-7.js` hold levels 1 to 105 in a shorthand:
 `w(formation, cols, 'roles', pattern, speed)` is one wave, `roles` being one letter per row (g grunt,
 d diver, u gunner, a armored, c carrier). A carrier row holds `cols` carriers, so carrier waves stay
 narrow. `test/core/levels.test.js` enforces the data rules (3-5 waves, at most 40 aliens a wave, a
 carrier on every wave level, four formations a world).
+
+World 22 (Wanderlight) has no waves and no boss: `levels-8.js` holds its levels, which are courses (`course(seed, data)`, a top-down scroll; the data
+rules are `test/core/course-fair-kit.js`'s), 106 levels in all with the 105 above. It grows a leg at a time (Leg 1, Dawn Valley, so far), each leg
+one place, one new obstacle, one new kind of Hush and one ability the light finds in itself; the design is
+`docs/superpowers/specs/2026-11-22-world-22-journey-design.md` (ruling R74). Its story words (the captions in `src/fx/react-story.js`, the trailer's last
+card) are the owner's, approved word for word: change them only when he does.

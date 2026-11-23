@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PATTERNS } from '../../src/core/kinds.js';
 import { createRng } from '../../src/core/rng.js';
-import { emitPattern } from '../../src/core/patterns.js';
+import { emitPattern, HEAVY_R, HEAVY_SPEED, HEAVY_LIFE } from '../../src/core/patterns.js';
 import { FROM, TARGET, AIM, P, heading, speedOf, wrap, emit } from './pattern-kit.js';
 
 test('emitPattern knows every pattern in PATTERNS and tags bullets with their pattern', () => {
@@ -77,6 +77,18 @@ test('shuriken is aimed, 0.6x speed, radius 18', () => {
   assert.ok(Math.abs(speedOf(b) - 0.6 * 400) < 1e-9);
   assert.ok(Math.abs(wrap(heading(b) - AIM)) < 1e-12);
   assert.ok(b.life > 5, 'slow, so it lives long enough to cross the screen');
+});
+
+test('heavy (world 22) is one big slow aimed bullet that lives long enough to cross the screen, and needs no randomness', () => {
+  const rng = createRng(3);
+  const [b, ...more] = emitPattern('heavy', FROM, TARGET, P, rng);
+  assert.equal(more.length, 0);
+  assert.deepEqual([b.pattern, b.x, b.y, b.r, b.life], ['heavy', FROM.x, FROM.y, HEAVY_R, HEAVY_LIFE]);
+  assert.ok(Math.abs(speedOf(b) - HEAVY_SPEED * P.speed) < 1e-9);
+  assert.ok(Math.abs(wrap(heading(b) - AIM)) < 1e-12);
+  assert.ok(HEAVY_R > 8 && HEAVY_SPEED < 1, 'bigger than the small bullets, slower than them');
+  assert.equal(rng.s, createRng(3).s);
+  assert.ok(b.life > 5, 'long enough to cross the screen');
 });
 
 test('patterns are deterministic per rng seed, and the seed matters where it is used', () => {

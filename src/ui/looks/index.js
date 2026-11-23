@@ -15,6 +15,7 @@
 //             a smog and a clean twin of the sky and every layer and crossfades them
 //   dark      how dark the darkness twist makes the world (screen-view.js; default 0.66)
 //   star      'steel' (default) | 'ice': what the shuriken twist's throwing star is made of (bullet-sprites.js)
+//   ground    true: a course world's (world 22, course-view.js): the view draws the course ground in place of the sky and layers
 //   tint      { shade, glow }: the frame's wash in bullet time and the slow power, default Code Rain's green (screen-view.js)
 import w1 from './w1.js';
 import w2 from './w2.js';
@@ -37,7 +38,8 @@ import w18 from './w18.js';
 import w19 from './w19.js';
 import w20 from './w20.js';
 import w21 from './w21.js';
+import w22 from './w22.js';
 
-export const LOOKS = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w17, w18, w19, w20, w21].map((look, i) => ({ world: i + 1, ...look }));
+export const LOOKS = [w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15, w16, w17, w18, w19, w20, w21, w22].map((look, i) => ({ world: i + 1, ...look }));
 
 export const lookFor = (level) => LOOKS[(level.world ?? 1) - 1] ?? LOOKS[0];

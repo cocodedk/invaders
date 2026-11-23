@@ -1,6 +1,6 @@
 // A world's card in the lobby: its poster (the boss fight the game rendered, the kicker, the name, the
-// tagline, the boss billed), a strip with the world's difficulty, and its five reels. Every world gets the
-// same card; a free-flight world only adds a small flag in the foot of its poster.
+// tagline, the boss billed unless the world has none), a strip with the world's difficulty, and its reels (five, or
+// one for a one-leg world). Every world gets the same card; a free-flight world only adds a small flag in the foot of its poster.
 //   cardOf(world, best, start) -> { el, art, reels, world, pick }
 // A reel shows the level's number (the medal mark pinned to it when the level holds its medal), its
 // best stars and best score. The poster develops in once posters.js has baked it (the screen's update).
@@ -50,9 +50,13 @@ function rating(score) {
 }
 
 // A name with a word of more than LONG letters gets the smaller size (.poster-name.long), or the word would run
-// past the poster's edge and be cut off: "Cathedral" at the full size is wider than the poster.
+// past the poster's edge and be cut off: "Cathedral" at the full size is wider than the poster. A word of more than LONGER
+// gets a smaller one still (.longer, on top of .long): "Wanderlight" is wider than the poster at the long size.
 export const LONG = 8;
-export const isLong = (name) => name.split(' ').some((w) => w.length > LONG);
+export const LONGER = 10;
+const longest = (name) => Math.max(...name.split(' ').map((w) => w.length));
+export const isLong = (name) => longest(name) > LONG;
+export const isLonger = (name) => longest(name) > LONGER;
 
 export function cardOf(world, best, start) {
   const look = lookFor({ world: world.id });
@@ -63,9 +67,9 @@ export function cardOf(world, best, start) {
   art.append(
     h('div', 'poster-head', h('span', 'poster-world', `World ${world.id}`)),
     h('div', 'poster-type',
-      h('h3', `poster-name${isLong(world.name) ? ' long' : ''}`, world.name),
+      h('h3', `poster-name${isLong(world.name) ? ' long' : ''}${isLonger(world.name) ? ' longer' : ''}`, world.name),
       h('p', 'poster-tag', TAGLINES[world.id - 1]),
-      h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
+      world.boss && h('p', 'poster-bill', 'Featuring ', h('b', null, bossDef(world.boss).name))));
   if (world.free) art.append(h('span', 'poster-flag', 'Free flight'));
   const reels = LEVELS.filter((l) => l.world === world.id).map((l) => reel(l, best, start));
   const el = h('article', 'poster', art, rating(RATINGS[world.id - 1]), h('div', 'reels', ...reels));

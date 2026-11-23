@@ -71,6 +71,7 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
     h('span', 'hint', h('span', null, '← → world · ↑ ↓ reel'), h('span', null, 'Enter play · Esc back'))));
 
   const grid = cols.map((c) => c.reels);
+  const heights = grid.map((reels) => reels.length); // a world need not hold five reels (a one-leg course holds one)
   const at = new Map(grid.flatMap((reels, w) => reels.map((r, i) => [r, [w, i]]))); // reel element -> [world, reel]
   const first = grid.flat().find((r) => r.dataset.id === focusId) ?? grid[0][0];
   let lastReel = first; // up from the bar lands here
@@ -139,7 +140,7 @@ export function lobbyScreen({ best, start, back, reset, focusId = 'w1-1' }) {
         lastReel = active;
         const [w] = at.get(active);
         if (w !== landed) goal = w % PER_ROW; // its column in its row
-        const to = step(at.get(active), move, rows, grid[0].length, goal);
+        const to = step(at.get(active), move, rows, heights, goal);
         if (to) {
           landed = to[0];
           if (move[0]) goal = landed % PER_ROW; // left and right choose the column

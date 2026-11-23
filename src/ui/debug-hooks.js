@@ -67,7 +67,7 @@ export function installDebug(r) {
       w.aliens.length = 0;
       w.wrecks.length = 0;
       w.gap = null;
-      w.wave = w.level.waves.length;
+      w.wave = w.level.waves?.length ?? 0; // a course has no waves: its clear is the scroll's end, not this hook's to fake
     }),
     fail: () => touch((w) => { w.ship.lives = 0; }),
     drive(mode = 'auto') {

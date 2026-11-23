@@ -19,8 +19,7 @@ const { kitFor } = await import('../../src/ui/sound-data.js');
 const look = LOOKS[ISLE_WORLD - 1];
 const AMBIENT_TRIES = 20;
 
-test("LOOKS has twenty-one entries, the twenty-first is world 21's look, and lookFor gives it to a level of world 21", () => {
-  assert.equal(LOOKS.length, ISLE_WORLD);
+test("the twenty-first look is world 21's, and lookFor gives it to a level of world 21", () => {
   assert.deepEqual(look, { world: ISLE_WORLD, ...w21 });
   assert.equal(lookFor({ world: ISLE_WORLD }), look);
 });

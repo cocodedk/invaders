@@ -1,8 +1,8 @@
 // Heads-up display in the 1920 x 1080 frame, sized like Barrage's to read from across a room:
-// score and combo (top left; the meter pulses at x4 and burns at x8), the wave counter or the boss's
-// health bar (top centre), lives and bombs (top right; three slots each, past three one icon and ×n) and
-// the power-up's timer ring beside them, with the power waiting in the reserve (R53) as a smaller ring
-// and its seconds to the ring's left.
+// score and combo (top left; the meter pulses at x4 and burns at x8), the wave counter, the boss's health bar or,
+// in a course (world 22), the leg and the lanterns lit (top centre), lives and bombs (top right; three slots each,
+// past three one icon and ×n) and the power-up's timer ring beside them, with the power waiting in the reserve (R53)
+// as a smaller ring and its seconds to the ring's left.
 // Every panel sits in the band y 16..HUD_BOTTOM (96), above the formation's top row.
 // hud = the view's HUD state { lag } (the boss bar's trailing damage).
 import { W, rgba, shade, glow } from './sprites.js';
@@ -17,6 +17,7 @@ import { fmt } from './format.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { panel, text, label, shipIcon, bombIcon, stockRow } from './hud-kit.js';
 import { drawIcon } from './pickups-view.js';
+import { autofireSign } from './hud-autofire.js';
 
 const TOP = 16;
 const PH = HUD_BOTTOM - TOP; // panel height
@@ -27,13 +28,15 @@ const MAIN = TOP + 55; // big number row
 // keeps 8 px clear of each.
 const COMBO_MID = 64.5;
 const COMBO_SIZE = 36;
+const SCORE_W = 360; // the score panel's width (it starts at x 32)
 const BOMB_SLOTS = 3; // the bombs shown as slots; more are one icon and a count (lives: LIVES)
 
 let shown = { n: NaN, text: '' }; // the score as last formatted
-function score(ctx, world) {
+function score(ctx, world, look, hud) {
   if (world.score !== shown.n) shown = { n: world.score, text: fmt(world.score) };
-  panel(ctx, 32, TOP, 360, PH);
+  panel(ctx, 32, TOP, SCORE_W, PH);
   label(ctx, 'SCORE', 56, CAP);
+  if (hud.autofire) autofireSign(ctx, 32 + SCORE_W - 14, CAP, look.palette.accent); // F's switch, on the caption row's free end
   text(ctx, shown.text, 54, MAIN, 46, '#ffffff', 'left', 900);
 }
 
@@ -73,6 +76,26 @@ function wave(ctx, world, look) {
   panel(ctx, W / 2 - 150, TOP, 300, PH);
   label(ctx, name.toUpperCase(), W / 2, CAP, 'center', look.palette.accent);
   text(ctx, `WAVE ${Math.max(1, world.wave)} / ${total}`, W / 2, MAIN, 32, '#ffffff', 'center', 900);
+}
+
+// A course has neither waves nor a boss: the leg it is (the level's number), and the lanterns lit of the ones it holds
+// (course.lit of the checkpoints in its spawns), a small lantern before the count, dim until the first is lit.
+function course(ctx, world, look) {
+  const { level } = world;
+  let total = 0;
+  for (const e of level.course.spawns) if (e.kind === 'checkpoint') total++;
+  const lit = world.course.lit;
+  const x = W / 2 + 20;
+  panel(ctx, W / 2 - 150, TOP, 300, PH);
+  label(ctx, worldName(level).toUpperCase(), W / 2, CAP, 'center', look.palette.accent);
+  text(ctx, `LEG ${level.index}`, W / 2 - 128, MAIN, 32, '#ffffff', 'left', 900);
+  ctx.fillStyle = lit ? look.palette.accent : 'rgba(255,255,255,0.2)';
+  ctx.beginPath();
+  ctx.ellipse(x, MAIN, 9, 12, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillRect(x - 4, MAIN - 17, 8, 3); // the cap
+  ctx.fillRect(x - 4, MAIN + 14, 8, 3); // and the foot
+  text(ctx, `${lit} / ${total}`, W / 2 + 128, MAIN, 32, '#ffffff', 'right', 900);
 }
 
 function bossBar(ctx, world, look, hud) {
@@ -164,9 +187,10 @@ function stock(ctx, world, look, t) {
 
 export function drawHud(ctx, world, look, hud, t) {
   ctx.textBaseline = 'middle';
-  score(ctx, world);
+  score(ctx, world, look, hud);
   combo(ctx, world, t);
   if (world.boss) bossBar(ctx, world, look, hud);
+  else if (world.course) course(ctx, world, look);
   else wave(ctx, world, look);
   stock(ctx, world, look, t);
 }

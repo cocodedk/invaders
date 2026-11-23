@@ -7,12 +7,14 @@
 //     field are drawn higher (the trailer frames the ship above its letterbox bar; 0 in play)
 //   drawFrame(view, world, fx, t, film?)   t: seconds, any monotonic clock (animation only)
 // The canvas is sized to its CSS box; the 1920 x 1080 world is letterboxed into it, and the backing
-// store never exceeds 1:1 with the world (Pi 4 fill rate). No camera: only fx shake moves the field.
+// store never exceeds 1:1 with the world (Pi 4 fill rate). No camera: only fx shake moves the field. A course world (look.ground, world 22)
+// has view.ground in place of view.sky and view.layers, and its course draws where the layers would (course-view.js).
 import { W, H } from './sprites.js';
 import { clamp } from '../core/math.js';
 import { lookFor } from './looks/index.js';
 import { buildSky } from './sky.js';
 import { buildLayers, drawLayers } from './parallax.js';
+import { buildCourseView, drawCourse } from './course-view.js';
 import { drawAmbient } from './ambient.js';
 import { drawFlourishes } from './flourish.js';
 import { drawBunkers } from './bunkers-view.js';
@@ -60,9 +62,10 @@ export function createView(canvas, level, warm = true) {
   const heal = look.heal ? createHeal() : null; // world 17: the healing city, a smog and a clean twin of the sky and layers (heal.js)
   const skies = heal && healSkies(look, level); // the smog sky and the clean one, baked once per look (heal-view.js)
   if (heal) heal.sky = skies.clean;
+  const ground = look.ground && level.course ? buildCourseView(level.seed) : null; // world 22: the course's parchment, in place of the sky and layers (course-view.js)
   return {
     canvas, ctx: canvas.getContext('2d'), level, look,
-    sky: skies ? skies.smog : buildSky(look, level), layers: heal ? buildHealLayers(look, level.seed ?? 1, heal) : buildLayers(look, level.seed ?? 1), heal,
+    sky: ground ? null : skies ? skies.smog : buildSky(look, level), layers: ground ? [] : heal ? buildHealLayers(look, level.seed ?? 1, heal) : buildLayers(look, level.seed ?? 1), heal, ground,
     quality: createQuality(), cache: {}, hud: { lag: null }, showHud: true,
     lastT: null, drift: 0, fit: { w: 0, h: 0, dpr: 0, s: 1, ox: 0, oy: 0 }, lift: 0,
   };
@@ -100,7 +103,8 @@ function field(ctx, v, world, fx, t, env, amb) {
   const q = v.quality.level;
   ctx.save();
   ctx.translate(fx.shakeX, fx.shakeY);
-  drawLayers(ctx, v.layers, world.ship.x, t, q, (i, x0, top) => {
+  if (v.ground && world.course) drawCourse(ctx, v.ground, world, t); // world 22: the course's parchment, rock and things on the ground, scrolled by the course (course-view.js)
+  else drawLayers(ctx, v.layers, world.ship.x, t, q, (i, x0, top) => {
     if (i === 0) {
       drawFlourishes(ctx, env, 'far', x0, top);
       drawAmbient(ctx, look, 'mid', amb);
@@ -146,7 +150,10 @@ export function drawFrame(v, world, fx, t = 0, film = null) {
   const env = { v, world, fx, t, quality: v.quality.level };
   const amb = { t, drift: v.drift, wind: world.wind || 0, world, heal: healOf(v) };
   ctx.translate(0, -v.lift);
-  if (v.heal) drawHealSky(ctx, v.sky, v.heal);
+  if (v.ground) { // a course world has no sky: the parchment's colour fills what the shake may uncover (the sky's top stop is it)
+    ctx.fillStyle = v.look.sky[0][1];
+    ctx.fillRect(0, 0, W, H);
+  } else if (v.heal) drawHealSky(ctx, v.sky, v.heal);
   else ctx.drawImage(v.sky, 0, 0);
   drawAmbient(ctx, v.look, 'sky', amb);
   drawFlourishes(ctx, env, 'sky');

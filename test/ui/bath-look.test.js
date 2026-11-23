@@ -36,7 +36,6 @@ const stop = (at) => look.sky.find(([p]) => p === at)[1];
 const flat = (o) => (typeof o === 'string' ? [o] : Object.values(o).flatMap(flat));
 
 test('world 19 is registered as Rubber Regatta and its five levels, the boss level among them, get this look', () => {
-  assert.equal(LOOKS.length, 21);
   assert.equal(LOOKS[18], look);
   assert.equal(look.world, 19);
   assert.equal(WORLDS[18].name, 'Rubber Regatta');

@@ -14,7 +14,11 @@ export { stepBullet, laserSegment, laserHits, LASER_WARN, LASER_BEAM } from './p
 const LIFE = 6; // s; long enough to cross the screen at the slowest speed, short enough to be culled
 const HOMING_TURN = Math.PI / 3; // 60 degrees a second
 const HOMING_LIFE = 4;
-const LASER_R = 9; // half of the 18 px beam
+export const LASER_R = 9; // half of the 18 px beam
+export const BULLET_R = 8; // px: the plain enemy bullet's radius (aimed, fan, ring, spiral)
+export const HEAVY_R = 16; // px: big next to the small bullets, so it reads as heavy
+export const HEAVY_SPEED = 0.5; // x the pattern speed: slow
+export const HEAVY_LIFE = 10; // s: slow, so long a life that it can cross the whole screen
 
 function shot(pattern, from, angle, speed, r, life) {
   return { pattern, x: from.x, y: from.y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, r, life };
@@ -24,21 +28,21 @@ const countOf = (p, fallback) => Math.max(1, Math.floor(p.count ?? fallback));
 const each = (n, make) => Array.from({ length: n }, (_, i) => make(i));
 
 const EMIT = {
-  aimed: (from, target, p) => [shot('aimed', from, angleTo(from, target), p.speed, 8, LIFE)],
+  aimed: (from, target, p) => [shot('aimed', from, angleTo(from, target), p.speed, BULLET_R, LIFE)],
 
   // count bullets across `spread` radians, centred on the aim; one bullet is just an aimed shot.
   fan: (from, target, p) => {
     const n = countOf(p, 5);
     const spread = p.spread ?? 0.8;
     const aim = angleTo(from, target);
-    return each(n, (i) => shot('fan', from, n > 1 ? aim + (i / (n - 1) - 0.5) * spread : aim, p.speed, 8, LIFE));
+    return each(n, (i) => shot('fan', from, n > 1 ? aim + (i / (n - 1) - 0.5) * spread : aim, p.speed, BULLET_R, LIFE));
   },
 
   // count bullets evenly round the circle, the whole ring turned by a random fraction of one gap.
   ring: (from, target, p, rng) => {
     const n = countOf(p, 12);
     const base = rand(rng) * (TAU / n);
-    return each(n, (i) => shot('ring', from, base + (i * TAU) / n, p.speed, 8, LIFE));
+    return each(n, (i) => shot('ring', from, base + (i * TAU) / n, p.speed, BULLET_R, LIFE));
   },
 
   // One burst whose angle and speed both climb along the list, so it winds outward like a pinwheel.
@@ -46,7 +50,7 @@ const EMIT = {
     const n = countOf(p, 14);
     const base = rand(rng) * TAU;
     return each(n, (i) =>
-      shot('spiral', from, base + (i * TAU) / n, p.speed * (0.55 + (0.45 * i) / Math.max(n - 1, 1)), 8, LIFE));
+      shot('spiral', from, base + (i * TAU) / n, p.speed * (0.55 + (0.45 * i) / Math.max(n - 1, 1)), BULLET_R, LIFE));
   },
 
   // Straight down from a scatter of x around the emitter, each at a slightly different speed.
@@ -73,6 +77,10 @@ const EMIT = {
     b.turn = HOMING_TURN;
     return [b];
   },
+
+  // The heavy shot (world 22 only: a course's turrets fire it, and it takes several hits to break, course-cut.js): one aimed
+  // bullet, big and slow. It needs no rng.
+  heavy: (from, target, p) => [shot('heavy', from, angleTo(from, target), p.speed * HEAVY_SPEED, HEAVY_R, HEAVY_LIFE)],
 
   // One big slow star: 0.6x speed, radius 18, so long a life that it can cross the whole screen.
   shuriken: (from, target, p) => [shot('shuriken', from, angleTo(from, target), p.speed * 0.6, 18, 10)],

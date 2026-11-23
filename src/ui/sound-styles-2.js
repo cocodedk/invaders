@@ -44,4 +44,18 @@ export const STYLES_2 = {
         [32, 4], [35, 5], [38, 7], [40, 6], [42, 7], [44, 5], [48, 4], [51, 2], [54, 1], [56, 0]]),
       drum: 'D.GNJ..NJ.G.D.NG' + 'D.GNJ..NJ.G.D.E.' + 'D.NNI.N.I.NNN.N.' + 'N.NNJ.GNR...D.G.' },
   },
+  // 4/4 at 124 bpm, four bars of sixteenth-note steps to a pass: a quiet journey at dawn through a grey valley that colour comes back to,
+  // in D major, hopeful and light (the owner found world 20's slow loop gloomy and world 17's racing one annoying). A plucked lead (an FM
+  // tone on a whole ratio, struck at once and dying away like a string) climbs the chord in dotted steps, with rests, and lands home,
+  // ringing through a dotted-eighth echo; a warm pad swells in on every second bar. Under them a stomp-and-clap bounce played dry, past the echo
+  // (music-road.js): a soft kick with the bass on one and three, a hand clap on two and four, the bass pushing on after two and four, and
+  // a second kick on the "and of three" in bars two and four. Not four on the floor, which is world 17's.
+  road: {
+    mood: 'road', wave: 'triangle', cut: 4800, wet: 0.34, pitch: 1.04,
+    music: { vol: 0.833, drone: { wave: 'sine', oct: 2, cut: 420, fifth: true, gain: 0.008 },
+      lead: { wave: 'sine', oct: 4, cut: 5600, len: 4, gain: 0.17, fm: { ratio: 3, index: 1.5 } },
+      div: 4, seq: tune(64, [[0, 0], [3, 2], [6, 4], [8, 5], [10, 4], [12, 2], [16, 4], [19, 7], [22, 5], [24, 4], [28, 2],
+        [32, 2], [35, 4], [38, 7], [40, 5], [42, 4], [48, 5], [51, 4], [54, 2], [56, 0]]),
+      drum: 'MY..V.e.M...V.e.' + 'M...V.e.M.M.V.e.' + 'MY..V.e.M...V.e.' + 'M...V.e.M.M.V.e.' },
+  },
 };

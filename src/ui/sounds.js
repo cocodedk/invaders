@@ -20,8 +20,16 @@
 // whether it struck the boss), a `bank` off a wall, a `strike`, a `plop` out at the bottom and a `fizzle`; at most TWIST_VOICES of
 // them a tick and one of each kind (audio.js thins each further with a GAP). Its knock-outs are kills, which squeak there.
 // World 21's returning arrow chimes where it turns (`arrowTurn`, at its x: sfx-isle.js pitches it by x).
+// World 22's ground things sound as aliens do, through `kill` and `hit`, so audio.js thins them with the same gaps under auto-fire: a break
+// (`groundKill`) is a kill at the combo it raised (the event says it: mult), a strike that leaves it standing (`groundHit`)
+// a hit. A pillar and a gate, the big ones, sound as an armored alien, the rest as a grunt. The rest of its events have sounds of their own
+// (sfx-road.js): a lantern chime at a `checkpoint`, a glow at an `ability` (at the ship, the event has no x), a pop at a `seedBurst`, a crack
+// at a struck bullet (`chip`) and at a broken one (`cut`, which the road's style cracks), a swell at a `respawn`, a flood and a chord at a
+// `holdBreak`; and a kite shot down (a `kill` in this world: the ground's breaks are `groundKill`s) flutters, a paper rustle over the kill's stab.
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X, WIDTH } from '../core/kinds.js';
+import { BIG_GROUND } from '../fx/react-ground.js';
+import { WANDER_WORLD } from './wander-kit.js';
 
 export const SILENT = {
   failed: 'the failed screen plays the stinger',
@@ -29,6 +37,7 @@ export const SILENT = {
 };
 
 const at = (e) => ({ x: e.x });
+const groundRole = (kind) => (BIG_GROUND.includes(kind) ? 'armored' : 'grunt');
 export const TWIST_VOICES = 4; // world 19's batting sounds a tick, at most
 const TWIST = new Set(['whack', 'bonk', 'bank', 'strike', 'plop', 'fizzle']);
 // The pickups swept up at the clear (R51) all land on one tick: each chimes this long after the last,
@@ -59,7 +68,10 @@ export function eventSounds(events, world, play) {
         if (e.role === 'boss') play('bossHit', { weak: e.weak, dmg: e.dmg, x: e.x });
         else play('hit', { role: e.role, x: e.x });
         break;
-      case 'kill': play('kill', { role: e.role, mult: e.mult, x: e.x }); break;
+      case 'kill':
+        play('kill', { role: e.role, mult: e.mult, x: e.x });
+        if (world.level?.world === WANDER_WORLD) play('flutter', at(e)); // a kite is paper
+        break;
       case 'explode':
         if (e.size >= 3) play('blast', at(e));
         else if (dying !== null) play('boom', { size: e.size, k: 1 - dying / CHAIN, x: e.x });
@@ -105,6 +117,14 @@ export function eventSounds(events, world, play) {
       case 'plop': play('plop', at(e)); break;
       case 'fizzle': play('fizzle', at(e)); break;
       case 'arrowTurn': play('arrowTurn', at(e)); break;
+      case 'groundKill': play('kill', { role: groundRole(e.kind), mult: e.mult ?? 1, x: e.x }); break;
+      case 'groundHit': play('hit', { role: groundRole(e.kind), x: e.x }); break;
+      case 'checkpoint': play('checkpoint', at(e)); break;
+      case 'ability': play('ability', { x: world.ship?.x }); break;
+      case 'seedBurst': play('seedBurst', at(e)); break;
+      case 'chip': play('chip', at(e)); break;
+      case 'respawn': play('respawn', at(e)); break;
+      case 'holdBreak': play('holdBreak'); break;
       default: break; // SILENT
     }
   }

@@ -16,6 +16,8 @@ import { drawInk } from './shots-press.js';
 import { PRESS_WORLD } from './press-kit.js';
 import { drawArrows } from './shots-isle.js';
 import { ISLE_WORLD } from './isle-kit.js';
+import { drawBolts } from './shots-wander.js';
+import { WANDER_WORLD } from './wander-kit.js';
 
 function warning(ctx, b, s, color, t) {
   const k = 1 - b.warn / LASER_WARN;
@@ -88,13 +90,15 @@ export function drawBeam(ctx, world, look, t) {
 // Ship shots: a soft coloured streak, a white core, a glow at the head; world 13's side shots are balls, and
 // world 15's trident shots three-pronged bolts (shots-deep.js), world 16's mirror twin's shots slim bolts of
 // glass (shots-glass.js), and world 18 borrows world 13's broadside and draws its shots as crackling arcs (shots-storm.js). World 19's plain
-// shots are corks (shots-bath.js), world 20's ink strokes, the carbon copy's in blue (shots-press.js), world 21's golden arrows (shots-isle.js).
+// shots are corks (shots-bath.js), world 20's ink strokes, the carbon copy's in blue (shots-press.js), world 21's golden arrows (shots-isle.js),
+// world 22's warm white bolts (shots-wander.js).
 export function drawShots(ctx, world, look, t = 0) {
   const shots = world.shots;
   if (!shots.length) return;
   if (look.world === BATH_WORLD) drawCorks(ctx, shots, t);
   else if (look.world === PRESS_WORLD) drawInk(ctx, shots);
   else if (look.world === ISLE_WORLD) drawArrows(ctx, shots);
+  else if (look.world === WANDER_WORLD) drawBolts(ctx, shots);
   else streaks(ctx, shots, look);
   if (world.level?.world === STORM_WORLD) drawArcBolts(ctx, shots, t, look); // world 18 re-skins the broadside's shots as arcs (shots-storm.js)
   else drawBalls(ctx, shots, t);

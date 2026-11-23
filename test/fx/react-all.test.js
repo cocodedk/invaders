@@ -65,6 +65,8 @@ test('a storm of events cannot pass 600 particles', () => {
   for (let i = 0; i < 200; i++) {
     applyEvent(fx, { type: 'explode', x: 100 + i * 5, y: 300, size: 3 }, rng);
     applyEvent(fx, { type: 'kill', role: 'carrier', x: 300, y: 200, score: 250, mult: 1, scored: true }, rng);
+    applyEvent(fx, { type: 'groundKill', kind: i % 2 ? 'gate' : 'stone', x: 500, y: 300 }, rng);
+    applyEvent(fx, { type: 'groundHit', kind: 'turret', x: 700, y: 300 }, rng);
   }
   assert.equal(fx.particles.length, MAX_PARTICLES);
 });

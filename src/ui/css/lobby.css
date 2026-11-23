@@ -1,12 +1,13 @@
 /* The level select as a cinema lobby: a page that scrolls (the marquee with chasing bulbs, the star total and
    the rank, then the worlds' posters in lightboxes, each over its five reels, its showtimes, with stars and best
-   score), and a bar fixed to the bottom of the screen with Back and Reset scores.
+   score; a one-leg course world has its one reel), and a bar fixed to the bottom of the screen with Back and Reset scores.
    Every world has the same card, --card wide, --cols to a row (lobby-nav.js PER_ROW, set by lobby.js) on --gap, in
    world order, a row --row-w wide; a partly filled last row leaves its columns empty on the right (its rail ends at
    its last card), so a new world needs no layout change.
    The grid is 8 x 10.6 + 7 x 0.8 = 90.4 rem of the screen's 96 (always 96 x 54 rem at 16:9, base.css), the card
    about 29.8 rem tall (poster 15.9, the difficulty strip 1.05, five reels 11.7, two gaps of 0.6), so a row and a half show at once and
-   the rest is a scroll away. */
+   the rest is a scroll away. A world of one reel (world 22) has the same poster and strip over its single reel: a shorter card,
+   top-aligned in its cell, with nothing to lay out differently. */
 .cinema { gap: 1rem; padding: 1.6rem 2rem 1.4rem; }
 .lobby .sub, .cinema .sub { font-size: 1.3rem; }
 .lobby {
@@ -62,6 +63,7 @@
 .poster-name { margin: 0; font: 900 16.5cqw/0.95 var(--display); font-stretch: condensed; letter-spacing: 0.04em;
   text-transform: uppercase; color: #fff; text-shadow: 0 0 1.2rem var(--accent), 0 0.15rem 0.4rem #000; }
 .poster-name.long { font-size: 13.5cqw; } /* a word of nine letters or more ("Cathedral") is wider than the poster at the full size */
+.poster-name.longer { font-size: 11.5cqw; } /* and a word of eleven or more ("Wanderlight") wider still */
 .poster-tag { margin: 4.2cqw 0 3.6cqw; font-size: 7.6cqw; font-weight: 700; font-style: italic; line-height: 1.25;
   color: rgba(255, 255, 255, 0.86); }
 .poster-bill { margin: 0; padding-top: 3.6cqw; border-top: 0.06rem solid rgba(255, 255, 255, 0.25); font-size: 6.6cqw;

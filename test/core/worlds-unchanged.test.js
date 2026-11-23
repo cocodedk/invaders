@@ -141,6 +141,24 @@ for (const [id, expected] of Object.entries(BEFORE_WORLD_19)) {
   });
 }
 
+// World 22 (Wanderlight, a scrolling course world) changes the core for its own levels alone, behind its levels'
+// `course` data: none of it may touch any other world, world 21 included. These are the first level of worlds 19 and 20
+// and three levels of world 21 (two wave levels and its boss level), taken on commit a8a5501, the last before world 22,
+// and held to the same rule as the fingerprints above.
+const BEFORE_WORLD_22 = {
+  'w19-1': {fold: -857940278, end: '1303:202700:01945a331d285721', pickup: 13, power: 12, kill: 91, shipHit: 0, fire: 155},
+  'w20-1': {fold: 717559189, end: '1726:201910:fabe09132731a0fc', pickup: 7, power: 6, kill: 97, shipHit: 0, fire: 133},
+  'w21-1': {fold: -1999398443, end: '2307:199880:39921dc81bdd7e21', pickup: 9, power: 6, kill: 105, shipHit: 0, fire: 251},
+  'w21-3': {fold: -1435062828, end: '2514:308300:b507d63ddd284144', pickup: 8, power: 10, kill: 123, shipHit: 1, fire: 526},
+  'w21-5': {fold: 2127485136, end: '2173:68300:461bf5684b254929', pickup: 6, power: 6, kill: 13, shipHit: 0, fire: 280},
+};
+
+for (const [id, expected] of Object.entries(BEFORE_WORLD_22)) {
+  test(`${id} plays out exactly as it did before world 22`, () => {
+    assert.deepEqual(fingerprint(id), expected);
+  });
+}
+
 test('the replay version is 11 (R70), and the six powers stay the six', () => {
   assert.equal(makeRun('w1-1', 1, [], { score: 0, stars: 0 }).v, 11);
   assert.deepEqual(POWERS, ['spread', 'laser', 'rapid', 'shield', 'homing', 'slow']);

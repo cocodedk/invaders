@@ -1,7 +1,8 @@
-// Per-world pickup skins (look.world 1..21). A pickup must still read as "catch me" in every world, so the capsule keeps its dark middle, coloured rim, pulse and turning dashes (pickups-view.js); a world changes the rim's shape and redraws some icons. FRAMES[world](g, color): the rim,
-// centred, inside a 60 x 60 sprite (baked). ICONS[world][kind](g, color) replaces drawIcon's default for that kind (~30 px), also drawn by the HUD every frame, so plain paths only (pickup-icons.js 1-4, pickup-icons-2.js 5-8, pickup-wheel.js 13, pickup-deep.js 15, pickup-glass.js 16, pickup-storm.js 18; pickup-leaf.js 17, pickup-bath.js 19, pickup-press.js 20 and pickup-isle.js 21 are frames only).
+// Per-world pickup skins (look.world 1..22). A pickup must still read as "catch me" in every world, so the capsule keeps its dark middle, coloured rim, pulse and turning dashes (pickups-view.js); a world changes the rim's shape and redraws some icons. FRAMES[world](g, color): the rim,
+// centred, inside a 60 x 60 sprite (baked). ICONS[world][kind](g, color) replaces drawIcon's default for that kind (~30 px), also drawn by the HUD every frame, so plain paths only (pickup-icons.js 1-4, pickup-icons-2.js 5-8, pickup-wheel.js 13, pickup-deep.js 15, pickup-glass.js 16, pickup-storm.js 18; pickup-leaf.js 17, pickup-bath.js 19, pickup-press.js 20, pickup-isle.js 21 and pickup-wander.js 22 are frames only; pickup-kit.js has the helpers they share).
 import { INK, rgba, shade, lin } from './sprites.js';
 import { TAU } from '../core/math.js';
+import { disc, ring, poly } from './pickup-kit.js';
 import { ICONS1 } from './pickup-icons.js';
 import { ICONS2 } from './pickup-icons-2.js';
 import { frost } from './pickup-frost.js';
@@ -15,24 +16,8 @@ import { tesla, ICONS18 } from './pickup-storm.js';
 import { suds } from './pickup-bath.js';
 import { type } from './pickup-press.js';
 import { lotus } from './pickup-isle.js';
-export const disc = (g, r) => {
-  g.fillStyle = 'rgba(8,10,20,0.88)';
-  g.beginPath();
-  g.arc(0, 0, r, 0, TAU);
-  g.fill();
-};
-export const ring = (g, r, color, w) => {
-  g.lineWidth = w;
-  g.strokeStyle = color;
-  g.beginPath();
-  g.arc(0, 0, r, 0, TAU);
-  g.stroke();
-};
-const poly = (g, n, r, rot = 0) => {
-  g.beginPath();
-  for (let i = 0; i < n; i++) g.lineTo(Math.cos(rot + (i * TAU) / n) * r, Math.sin(rot + (i * TAU) / n) * r);
-  g.closePath();
-};
+import { paper } from './pickup-wander.js';
+export { disc, ring }; // pickups-view.js takes them from here
 export const FRAMES = {
   1(g, color) { // a ring of phosphor pixels
     for (let i = -7; i <= 7; i++) {
@@ -194,5 +179,6 @@ export const FRAMES = {
   19: suds, // a ring of soap bubbles, their rims catching the power's colour (pickup-bath.js)
   20: type, // a band of paper marked like a printer's rule, with four vermilion registration marks (pickup-press.js)
   21: lotus, // a lotus of gold petals tipped in vermilion round a band of gold leaf (pickup-isle.js)
+  22: paper, // a pencilled band of parchment (pickup-wander.js)
 };
 export const ICONS = { ...ICONS1, ...ICONS2, 13: ICONS13, 15: ICONS15, 16: ICONS16, 18: ICONS18 };

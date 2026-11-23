@@ -6,6 +6,9 @@ import { enemyDt } from './twists-2.js';
 import { stepPickups, sweepPickups, tickPower } from './powerups.js';
 import { stepBeam, stepBomb } from './weapons.js';
 import { collide } from './collide.js';
+import { stepCourse } from './course.js';
+import { cutBullets } from './course-cut.js';
+import { gunVsGround } from './course-shots.js';
 import { stepBullet } from './patterns.js';
 import { tickCombo, awardClear, stars } from './scoring.js';
 import { emit, prune } from './util.js';
@@ -13,8 +16,9 @@ import { WIDTH, HEIGHT } from './kinds.js';
 
 // One tick of play, in the order that decides ties:
 //   combo -> projectiles move -> ship moves and shoots -> aliens and the boss move, dive, shoot ->
-//   power-ups, bomb and beam -> collisions -> the world's twist -> the dead are pruned -> wave flow
-//   -> win or lose.
+//   power-ups, bomb and beam -> the shots and the beam break incoming bullets (world 22 only) -> collisions -> the shots and the
+//   beam hurt the ground (world 22 only) -> a course's scroll, ground and air craft (world 22 only) -> the world's twist -> the
+//   dead are pruned -> wave flow -> win or lose.
 // New projectiles stay where they were fired until the next tick. Projectiles move before anything
 // is fired and collisions run after every kill and hit is possible, so a shot in flight still kills
 // the last alien on the tick the ship loses its last life, and settle() then favours the player.
@@ -52,22 +56,26 @@ function stepWave(world, dt) {
   }
 }
 
-// The last wave gone, or the boss's destruction chain over.
+// The last wave gone, or the boss's destruction chain over, or a course scrolled to its length with no hold standing (course-hold.js).
+// A course asks nothing of its respawn: once its last hold has broken no death starts or keeps a beat (course-check.js stepRespawn), so the
+// scroll runs on to the length and the clear wins, as a shot in flight still kills the last alien on the tick the last life is lost.
 function won(world) {
   const { waves } = world.level;
+  if (world.course) return world.course.dist >= world.level.course.length && world.course.held === null;
   if (world.boss) return world.boss.dying === 0;
   return Boolean(waves) && world.wave >= waves.length && world.gap === null && empty(world);
 }
 
 // Cleared beats failed: the last wave gone is a clear even if the ship died that same tick. A clear
 // first sweeps up the pickups still falling (their sweep events, then `cleared` with every point in).
+// A course (world 22) never fails: its last life lost sends it back to its checkpoint (course-check.js).
 function settle(world) {
   if (won(world)) {
     sweepPickups(world);
     const { bonus, medal } = awardClear(world); // the whole tally stays on world.tally
     world.state = 'cleared';
     emit(world, 'cleared', { score: world.score, bonus, stars: stars(world), medal });
-  } else if (world.ship.lives <= 0) {
+  } else if (!world.course && world.ship.lives <= 0) {
     world.state = 'failed';
     emit(world, 'failed');
   }
@@ -85,7 +93,12 @@ export function stepPlay(world, dt, input) {
   stepPickups(world, dt);
   stepBomb(world);
   stepBeam(world, dt, input);
+  if (world.course) cutBullets(world, dt, slow);
   collide(world, dt, slow);
+  if (world.course) {
+    gunVsGround(world, dt); // after collide: an air craft takes a shot before the ground does
+    stepCourse(world, dt, slow, input);
+  }
   applyTwist(world, dt);
   cull(world);
   stepWave(world, dt);

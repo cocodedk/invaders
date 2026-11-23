@@ -4,9 +4,10 @@
 // wingmen and side guns are drawn with it (ship-armada.js), world 15's pearls (ship-deep.js) and world 16's mirror
 // twin (ship-glass.js); world 18's side guns are coil emitters (ship-storm.js); world 19's ship is a wooden toy seaplane with a turning
 // propeller in place of the hull and its flames (ship-bath.js); world 20's is a folded paper dart with an inked nib, and its carbon copy
-// (the echo) the same dart traced in blue (ship-press.js); world 21's is a golden sky chariot (ship-isle.js).
+// (the echo) the same dart traced in blue (ship-press.js); world 21's is a golden sky chariot (ship-isle.js); world 22's a paper glider with a
+// ribbon (ship-wander.js).
 // Stateless: everything comes from the ship's position, velocity and t.
-import { INK, rgba, glow, star, addGlow } from './sprites.js';
+import { INK, rgba, glow, soft, star, addGlow } from './sprites.js';
 import { clamp, TAU } from '../core/math.js';
 import { SHIP_SPEED } from '../core/ship.js';
 import { drawEscorts, drawGunPorts } from './ship-armada.js';
@@ -20,6 +21,8 @@ import { drawDart, drawCopy } from './ship-press.js';
 import { PRESS_WORLD } from './press-kit.js';
 import { drawChariot } from './ship-isle.js';
 import { ISLE_WORLD } from './isle-kit.js';
+import { drawGlider } from './ship-wander.js';
+import { WANDER_WORLD } from './wander-kit.js';
 
 // `alpha` is the ship's own (0.3 while it blinks), so the flames blink with it.
 function flames(ctx, s, accent, t, alpha) {
@@ -99,16 +102,21 @@ function hull(ctx, bank, accent) {
   return [wing(-1), wing(1)];
 }
 
-function shield(ctx, s, color, t, left) {
+// `pale` is a light ground (world 22's parchment), where light added to it would vanish: the bubble is a wash and a ring laid over it instead.
+function shield(ctx, s, color, t, left, pale) {
   const fade = left < 2 && Math.floor(t * 10) % 2 ? 0.45 : 1;
-  addGlow(ctx, glow(color), s.x, s.y, 74, 0.38 * fade);
-  ctx.globalCompositeOperation = 'lighter';
-  ctx.strokeStyle = rgba(color, 0.7 * fade);
+  if (pale) {
+    ctx.globalAlpha = 0.3 * fade;
+    ctx.drawImage(soft(color), s.x - 74, s.y - 74, 148, 148);
+    ctx.globalAlpha = 1;
+  } else addGlow(ctx, glow(color), s.x, s.y, 74, 0.38 * fade);
+  ctx.globalCompositeOperation = pale ? 'source-over' : 'lighter';
+  ctx.strokeStyle = rgba(color, (pale ? 0.9 : 0.7) * fade);
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   ctx.arc(s.x, s.y, 50, 0, TAU);
   ctx.stroke();
-  ctx.strokeStyle = rgba('#ffffff', 0.55 * fade);
+  ctx.strokeStyle = rgba('#ffffff', (pale ? 0.9 : 0.55) * fade);
   ctx.lineWidth = 3;
   for (let i = 0; i < 6; i++) {
     const a = t * 1.6 + (i * Math.PI) / 3;
@@ -131,7 +139,8 @@ export function drawShip(ctx, world, look, t) {
   const toy = look.world === BATH_WORLD;
   const dart = look.world === PRESS_WORLD;
   const chariot = look.world === ISLE_WORLD;
-  if (!toy && !dart && !chariot) flames(ctx, s, accent, t, alpha);
+  const glider = look.world === WANDER_WORLD;
+  if (!toy && !dart && !chariot && !glider) flames(ctx, s, accent, t, alpha);
   drawEscorts(ctx, s, look, t, alpha);
   drawPearls(ctx, s, look, t, alpha);
   drawTwin(ctx, s, look, t, alpha);
@@ -141,12 +150,14 @@ export function drawShip(ctx, world, look, t) {
   ctx.translate(s.x, s.y);
   ctx.rotate(bank * 0.1);
   ctx.scale(1 - 0.14 * Math.abs(bank), 1);
-  const [wl, wr] = toy ? drawToyPlane(ctx, bank, accent, t) : dart ? drawDart(ctx, bank, accent) : chariot ? drawChariot(ctx, bank) : hull(ctx, bank, accent);
+  const [wl, wr] = toy ? drawToyPlane(ctx, bank, accent, t) : dart ? drawDart(ctx, bank, accent) : chariot ? drawChariot(ctx, bank) : glider ? drawGlider(ctx, t, alpha) : hull(ctx, bank, accent);
   if (s.broadside > 0) (look.world === STORM_WORLD ? drawCoilPorts(ctx, s, t, look) : drawGunPorts(ctx, s, t)); // brass ports in world 13, coil emitters in world 18
   ctx.restore();
-  const tip = 0.6 + 0.4 * Math.sin(t * 6);
-  addGlow(ctx, star(accent), s.x - 38 * wl, s.y + 22, 10, tip * alpha);
-  addGlow(ctx, star(accent), s.x + 38 * wr, s.y + 22, 10, tip * alpha);
+  if (!glider) { // a paper glider has no wing lights
+    const tip = 0.6 + 0.4 * Math.sin(t * 6);
+    addGlow(ctx, star(accent), s.x - 38 * wl, s.y + 22, 10, tip * alpha);
+    addGlow(ctx, star(accent), s.x + 38 * wr, s.y + 22, 10, tip * alpha);
+  }
   ctx.globalAlpha = 1;
-  if (s.power?.kind === 'shield') shield(ctx, s, look.power.shield, t, s.power.left);
+  if (s.power?.kind === 'shield') shield(ctx, s, look.power.shield, t, s.power.left, glider);
 }

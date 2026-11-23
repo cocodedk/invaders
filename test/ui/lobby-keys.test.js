@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import { installDom, openLobby } from './lobby-kit.js';
 
 // Level Select's keys on the DOM stand-in: arrows over the uniform grid (eight worlds to a row), the goal column that
-// lets up and down undo each other across the short last row (five cards: worlds 17 to 21), down from the last row
+// lets up and down undo each other across the short last row (six cards: worlds 17 to 22, the last with one reel), down from the last row
 // reaching the bar, Esc and the click.
 // (The scroll the keys cause is lobby-scroll.test.js, the pointer lobby-pointer.test.js.)
 installDom();
 const { lobbyScreen } = await import('../../src/ui/screens/lobby.js');
+const { WORLDS } = await import('../../src/core/levels.js');
+const { PER_ROW } = await import('../../src/ui/screens/lobby-nav.js');
 
 const lobby = (focusId) => openLobby(lobbyScreen, focusId);
 
@@ -31,11 +33,16 @@ test('left and right move along the row, keeping the reel, and wrap inside it, t
   key('ArrowRight');
   assert.equal(at(), 'w21-1', 'world 20 to world 21');
   key('ArrowRight');
-  assert.equal(at(), 'w17-1', 'the five-card row wraps on itself');
+  assert.equal(at(), 'w22-1', 'world 21 to world 22');
+  key('ArrowRight');
+  assert.equal(at(), 'w17-1', 'the six-card row wraps on itself');
   key('ArrowLeft');
-  assert.equal(at(), 'w21-1', 'and back the other way round');
+  assert.equal(at(), 'w22-1', 'and back the other way round');
   key('ArrowLeft');
-  assert.equal(at(), 'w20-1');
+  assert.equal(at(), 'w21-1');
+  reels['w21-4'].focus();
+  key('ArrowRight');
+  assert.equal(at(), 'w22-1', 'world 22 holds one reel: a key that would carry on to a later one takes its last');
 });
 
 test('down walks the reels of a world and on into the first reel of the same column in the row below', () => {
@@ -56,7 +63,7 @@ test('down walks the reels of a world and on into the first reel of the same col
 
 test('down from a reel of the short last row also reaches the bar, from each of its cards', () => {
   const { reels, key, at, backBtn } = lobby();
-  for (const id of ['w17-5', 'w18-5', 'w19-5']) {
+  for (const id of ['w17-5', 'w18-5', 'w19-5', 'w22-1']) {
     reels[id].focus();
     key('KeyS');
     assert.equal(at(), backBtn, id);
@@ -77,6 +84,9 @@ test('up runs back into the last reel of the row above, at the same column or on
   reels['w19-1'].focus();
   key('ArrowUp');
   assert.equal(at(), 'w11-5');
+  reels['w22-1'].focus();
+  key('ArrowUp');
+  assert.equal(at(), 'w14-5', 'a world of one reel: up leaves at once, into the last reel above');
   reels['w1-1'].focus();
   key('ArrowUp');
   assert.equal(at(), 'w1-1', 'above the first row: stays');
@@ -112,8 +122,8 @@ test('up undoes down across the short last row: the column last chosen is rememb
   const { reels, key, at } = lobby();
   for (const w of [9, 10, 11, 12, 13, 14, 15, 16]) { // the eight columns of row two
     reels[`w${w}-5`].focus();
-    key('ArrowDown'); // into the five-card last row: the card its column reaches, clamped to the last
-    assert.equal(at(), ['w17-1', 'w18-1', 'w19-1', 'w20-1'][w - 9] ?? 'w21-1', `down from world ${w}`);
+    key('ArrowDown'); // into the six-card last row: the card its column reaches, clamped to the last
+    assert.equal(at(), `w${Math.min(w + PER_ROW, WORLDS.length)}-1`, `down from world ${w}`);
     key('ArrowUp');
     assert.equal(at(), `w${w}-5`, `and up again, back to world ${w}`);
   }
@@ -121,21 +131,21 @@ test('up undoes down across the short last row: the column last chosen is rememb
 
 test('the goal column follows left and right, and a focus the keys did not make (the pointer, Tab) starts a new one', () => {
   const { reels, key, at, move } = lobby();
-  reels['w14-5'].focus();
-  key('ArrowDown'); // w21-1, the last card of a row of five, the goal still column six
-  key('ArrowLeft'); // w20-1: left chose column four
+  reels['w15-5'].focus();
+  key('ArrowDown'); // w22-1, the last card of a row of six, the goal still column seven
+  key('ArrowLeft'); // w21-1: left chose column five
   key('ArrowUp');
-  assert.equal(at(), 'w12-5');
-  key('ArrowDown'); // column four reaches its card itself, no clamp
-  assert.equal(at(), 'w20-1');
-  key('ArrowUp', 'ArrowRight', 'ArrowRight', 'ArrowRight', 'ArrowDown'); // world 15, column seven: the last row has five, so world 21
+  assert.equal(at(), 'w13-5');
+  key('ArrowDown'); // column five reaches its card itself, no clamp
   assert.equal(at(), 'w21-1');
+  key('ArrowUp', 'ArrowRight', 'ArrowRight', 'ArrowDown'); // world 15, column seven: the last row has six, so world 22
+  assert.equal(at(), 'w22-1');
   key('ArrowUp');
   assert.equal(at(), 'w15-5', 'back to column seven');
   reels['w16-5'].focus(); // Tab, or any focus that was not the keys'
   key('ArrowDown', 'ArrowUp');
   assert.equal(at(), 'w16-5', 'a new goal: column eight');
-  key('ArrowDown'); // w21-1 again, the goal still column eight
+  key('ArrowDown'); // w22-1 again, the goal still column eight
   move(reels['w18-1']); // the pointer over world 18 chooses its column instead
   key('ArrowUp');
   assert.equal(at(), 'w10-5');

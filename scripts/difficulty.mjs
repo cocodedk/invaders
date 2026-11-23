@@ -102,7 +102,7 @@ function checks(rows) {
 }
 
 const opts = options(process.argv.slice(2));
-const levels = LEVELS.filter((l) => !opts.only || opts.only.includes(l.id));
+const levels = LEVELS.filter((l) => !l.course && (!opts.only || opts.only.includes(l.id))); // the autopilot cannot fly a course (world 22)
 const seedsOf = (level) => Array.from({ length: opts.seeds }, (_, k) => (level.seed + k * 7919) >>> 0);
 const jobs = levels.flatMap((l) => VARIANTS.flatMap((_, v) => seedsOf(l).map((seed) => ({ id: l.id, v, seed }))));
 const results = await runAll(jobs);

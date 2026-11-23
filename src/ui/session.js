@@ -16,6 +16,7 @@ import { finished } from '../core/util.js';
 import { makeRng } from '../core/rng.js';
 import { createFx, stepFx } from '../fx/fx.js';
 import { applyEvents } from '../fx/react.js';
+import { openLeg } from '../fx/react-story.js';
 
 const FX_SALT = 0x5eed;
 
@@ -23,8 +24,10 @@ const FX_SALT = 0x5eed;
 export const fxRng = (seed) => makeRng((seed ^ FX_SALT) >>> 0);
 
 export function createSession(level, seed = level.seed, { record = true } = {}) {
+  const fx = createFx();
+  openLeg(fx, level); // a course leg's opening line (react-story.js), up from the first frame
   return {
-    level, seed, world: createWorld(level, seed), fx: createFx(), fxRng: fxRng(seed),
+    level, seed, world: createWorld(level, seed), fx, fxRng: fxRng(seed),
     acc: 0, record, inputs: [], events: [],
     tainted: false, // a ?debug hook changed the world: the inputs no longer replay to it
     over: 0, // real seconds since the level finished (results wait for the slow motion)

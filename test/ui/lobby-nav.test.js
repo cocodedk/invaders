@@ -123,3 +123,67 @@ test('a nineteenth and a twenty-fifth world are the next slots of a row, and the
   assert.deepEqual(go([16, 4], 'ArrowDown', rows25), [24, 0]);
   assert.equal(go([24, 4], 'ArrowDown', rows25), null);
 });
+
+// A world may hold fewer reels than the five its neighbours do (a one-leg world is one reel): `reels` is then an
+// array of counts by world, and no key may land on a reel that is not there. A shorter column takes the key's reel
+// as its last, and up and down run on through it without a stop.
+const counts = (n, short) => Array.from({ length: n }, (_, i) => (short.includes(i) ? 1 : 5));
+const goCounted = (at, key, rows, reels, goal) => step(at, MOVE[key], rows, reels, goal);
+
+test('a one-reel column is entered at its only reel and passed through, in a row of any length', () => {
+  const rows = rowsOf(3);
+  const reels = [5, 5, 1];
+  assert.deepEqual(goCounted([1, 4], 'ArrowRight', rows, reels), [2, 0], 'right from reel 5 lands on the only reel');
+  assert.deepEqual(goCounted([0, 3], 'ArrowLeft', rows, reels), [2, 0], 'and left, wrapping');
+  assert.deepEqual(goCounted([2, 0], 'ArrowRight', rows, reels), [0, 0], 'out of it the reel stays 1');
+  assert.deepEqual(goCounted([2, 0], 'ArrowLeft', rows, reels), [1, 0]);
+  assert.equal(goCounted([2, 0], 'ArrowDown', rows, reels), null, "down from the last row's one reel leaves for the bar");
+  assert.deepEqual(goCounted([2, 0], 'ArrowUp', rows, reels), [2, 0], 'up from the first row stays put');
+});
+
+test('down into a one-reel column lands on its only reel, and up out of it on the last reel above', () => {
+  const rows = rowsOf(PER_ROW + 2);
+  const [a, b] = rows[1]; // the last row holds two worlds, the second with one reel
+  const reels = counts(PER_ROW + 2, [b]);
+  assert.deepEqual(goCounted([0, 4], 'ArrowDown', rows, reels), [a, 0]);
+  assert.deepEqual(goCounted([1, 4], 'ArrowDown', rows, reels), [b, 0], 'its only reel, never reel 5');
+  assert.deepEqual(goCounted([PER_ROW - 1, 4], 'ArrowDown', rows, reels), [b, 0], 'a short last row clamps the column');
+  assert.deepEqual(goCounted([b, 0], 'ArrowUp', rows, reels), [1, 4], 'up from it lands on the last reel of a five-reel column');
+  assert.deepEqual(goCounted([b, 0], 'ArrowUp', rows, reels, 5), [5, 4], 'at the goal column the pilot last chose');
+  assert.equal(goCounted([b, 0], 'ArrowDown', rows, reels), null);
+  const top = counts(PER_ROW + 2, [1]); // and a one-reel world in the first row
+  assert.deepEqual(goCounted([1, 0], 'ArrowDown', rows, top), [b, 0], 'down from it goes straight on to the row below');
+  assert.deepEqual(goCounted([b, 0], 'ArrowUp', rows, top), [1, 0], 'and up lands on its last (only) reel');
+  assert.deepEqual(goCounted([1, 0], 'ArrowUp', rows, top), [1, 0], 'the first row stays put');
+});
+
+test('with a one-reel world anywhere in a grid of any size every reel is reachable and every key lands on one that exists', () => {
+  for (let n = 1; n <= 40; n++) {
+    for (const short of [[n - 1], [0], [n >> 1], [0, n - 1]]) {
+      const rows = rowsOf(n);
+      const reels = counts(n, short);
+      const seen = new Set(['0,0']);
+      const queue = [[0, 0]];
+      while (queue.length) {
+        const at = queue.pop();
+        for (const key of arrows) {
+          const to = goCounted(at, key, rows, reels);
+          if (!to) continue;
+          assert.ok(to[1] >= 0 && to[1] < reels[to[0]], `${n} worlds, ${short}: ${at} ${key} -> ${to}`);
+          if (!seen.has(to.join())) {
+            seen.add(to.join());
+            queue.push(to);
+          }
+        }
+      }
+      assert.equal(seen.size, reels.reduce((a, b) => a + b, 0), `${n} worlds, one-reel ${short}`);
+    }
+  }
+});
+
+test('a plain number still means every column holds that many reels', () => {
+  const rows = rowsOf(3);
+  assert.deepEqual(step([1, 3], MOVE.ArrowDown, rows, 5), [1, 4]);
+  assert.deepEqual(step([0, 4], MOVE.ArrowRight, rows, 5), [1, 4]);
+  assert.deepEqual(step([PER_ROW - 1, 4], MOVE.ArrowDown, rowsOf(PER_ROW + 1), 5), [PER_ROW, 0], 'and into the row below');
+});

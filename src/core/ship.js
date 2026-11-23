@@ -158,17 +158,17 @@ function moveShip(s, dt, input, z) {
 
 // Count the timers down, move, and shoot while fire is held (the laser power has a beam instead,
 // weapons.js, but an open broadside still fires its side guns at the base rate beside the beam). The
-// ship moves during the intro too, but only shoots in play. bombPressed is true on
-// the one tick the bomb key goes down, intro included, so a key held since before play is not a
-// fresh press.
+// ship moves during the intro too, but only shoots in play; one that is down (a course's beat before its respawn)
+// does neither. bombPressed is true on the one tick the bomb key goes down, intro included, so a key held since
+// before play, or through that beat, is not a fresh press.
 export function stepShip(world, dt, input) {
   const s = world.ship;
   s.cooldown = Math.max(0, s.cooldown - dt);
   s.invuln = Math.max(0, s.invuln - dt);
   s.bombPressed = Boolean(input.bomb) && !s.bombHeld;
   s.bombHeld = Boolean(input.bomb);
-  moveShip(s, dt, input, zoneOf(world.level));
-  if (world.state !== 'play' || !input.fire || s.cooldown > EPS) return;
+  if (s.alive) moveShip(s, dt, input, zoneOf(world.level));
+  if (!s.alive || world.state !== 'play' || !input.fire || s.cooldown > EPS) return;
   if (s.power?.kind !== 'laser') shoot(world);
   else if (s.broadside > 0) {
     s.cooldown = COOLDOWN;
