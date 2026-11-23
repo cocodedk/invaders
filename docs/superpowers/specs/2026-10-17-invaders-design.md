@@ -6,7 +6,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
 as beautiful as Barrage (`../artillery`): 22 cinematic worlds (21 × 5 levels, and world 22, which
-grows a leg at a time: 106 levels so far), free 2D
+grows a leg at a time: 107 levels so far), free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 
@@ -490,7 +490,7 @@ quoted lines, so the repo can be public.
     is a free-flight world. Leg 1, Dawn Valley, ends on the Grey Gate and a short run (`END_RUN`) past it into the blank land; its par is computed from its data, the autopilot never picks it, and Hardcore waits
     for Leg 2. The look is the owner's simple mockup (2026-11-22: "the journey is more important to me right now than the glitter"): pencil on
     parchment, colour coming back where seeds burst, the enemy the Hush (grey kites, standing stones). The story is three lines a leg, approved word for
-    word: "A LIGHT WAKES." as Leg 1 opens, "YOUR COLOUR." as the seed is gained, and the trailer's last card, "THE ROAD GOES ON."; past the Gate the land
+    word: "A LIGHT WAKES." as Leg 1 opens, "YOUR COLOUR." as the seed is gained, "THE WOOD REMEMBERS." as Leg 2 opens and "YOUR LINE." as the line is gained, and the trailer's last card, "THE ROAD GOES ON."; past the Gate the land
     runs out into blank parchment with one pencil line leading on. R74 also adds **F**, a switch for auto-fire (the owner's touchpad stops steering while a
     key is down, so Space could not steer and fire together): it fires as if Space were held, in every world, until pressed again. Worlds 1-21 replay
     unchanged (replay version 11).
@@ -524,7 +524,7 @@ bunker style + power-up skins + music mood + **one twist** (a small rule only th
 | 19 | Rubber Regatta | a sunlit bathhouse at toy scale, the first comic world: bath toys invade over mountains of foam | a glazed green tiled bathroom wall steamed to cream and butter light at the waterline: brass dolphin taps as tall as towers pouring waterfalls, a shelf skyline of bottles and a loofah, crests of foam | the bonk: nothing shot dies, it is knocked silly and hops as a dizzy toy that the ship can bat into the others and into the boss (new, ruling R71); free flight as in every world from 18 on | the Dowager Duck: a colossal rubber duck in a frilly polka-dot shower cap, striped armbands and a huge orange bill |
 | 20 | Midnight Press | a printing hall at night, the presses running past midnight | type cases, rollers and drying sheets under green-shaded lamps, ink everywhere | the echo: a carbon copy of the ship flies its path a beat late and fires when it fired (new, ruling R72); free flight as in every world from 18 on | the Night Editor: a colossal ink octopus in a green eyeshade, a red pencil in each arm |
 | 21 | Golden Isle | the last battle at dusk before an island city of gold, inspired by the war that ends the Ramayana | a monsoon dusk lit gold and crimson over a warm sea, the gilded city with its stepped towers on a three-peaked mountain, a causeway of floating stones, brass lamps and marigold petals | the returning arrow: every ship shot that reaches the top turns back to where the ship stood (new, ruling R73); free flight as in every world from 18 on | the Ten-Crowned King: a colossal ten-headed king on a flying throne, twenty arms with swords, maces, bows, axes and spears, heads that grow back |
-| 22 | Wanderlight | a small light wakes in a paper glider over a land drawn in pencil, and colour follows it down a road that never ends: the first scrolling world | pencil on parchment, seen from above: a river valley at sunrise, rock highlands, standing stones, grey kites, a paper-and-brass glider with a lantern flame; colour floods in where the seeds burst | the course: a top-down scroll with a ground weapon (seeds that bloom), lantern checkpoints, holds, and shots that break incoming fire (new, ruling R74); free flight as in every world from 18 on | none yet: Leg 1 ends on the Grey Gate, a dolmen as tall as a house |
+| 22 | Wanderlight | a small light wakes in a paper glider over a land drawn in pencil, and colour follows it down a road that never ends: the first scrolling world | pencil on parchment, seen from above: a river valley at sunrise, rock highlands, standing stones, grey kites, a paper-and-brass glider with a lantern flame; colour floods in where the seeds burst | the course: a top-down scroll with a ground weapon (seeds that bloom), lantern checkpoints, holds, and shots that break incoming fire (new, ruling R74); free flight as in every world from 18 on | none yet: Leg 1 ends on the Grey Gate, a dolmen as tall as a house; Leg 2 ends on the Grey Thicket |
 
 ## Look and effects
 

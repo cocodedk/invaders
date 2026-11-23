@@ -1,7 +1,7 @@
 # Invaders — working notes
 
 A single-player cinematic arcade shooter for the browser and the Pi games menu: 22 cinematic worlds
-(21 x 5 levels, and world 22, Wanderlight, which grows a leg at a time: 106 levels so far), free 2D flight,
+(21 x 5 levels, and world 22, Wanderlight, which grows a leg at a time: 107 levels so far), free 2D flight,
 formations, bosses, power-ups, and a movie trailer cut from your own run. The design is
 `docs/superpowers/specs/2026-10-17-invaders-design.md` and the build plan is
 `docs/superpowers/plans/2026-10-17-invaders.md`; the spec is the authority. Barrage
@@ -61,8 +61,8 @@ d diver, u gunner, a armored, c carrier). A carrier row holds `cols` carriers, s
 narrow. `test/core/levels.test.js` enforces the data rules (3-5 waves, at most 40 aliens a wave, a
 carrier on every wave level, four formations a world).
 
-World 22 (Wanderlight) has no waves and no boss: `levels-8.js` holds its levels, which are courses (`course(seed, data)`, a top-down scroll; the data
-rules are `test/core/course-fair-kit.js`'s), 106 levels in all with the 105 above. It grows a leg at a time (Leg 1, Dawn Valley, so far), each leg
+World 22 (Wanderlight) has no waves and no boss: `levels-8.js` holds its levels (Leg 2's data in `levels-8-wood.js`, the shorthand both use in `levels-8-kit.js`), which are courses (`course(seed, data)`, a top-down scroll; the data
+rules are `test/core/course-fair-kit.js`'s), 107 levels in all with the 105 above. It grows a leg at a time (Leg 1, Dawn Valley, and Leg 2, the Pencil Wood, so far), each leg
 one place, one new obstacle, one new kind of Hush and one ability the light finds in itself; the design is
 `docs/superpowers/specs/2026-11-22-world-22-journey-design.md` (ruling R74). Its story words (the captions in `src/fx/react-story.js`, the trailer's last
 card) are the owner's, approved word for word: change them only when he does.

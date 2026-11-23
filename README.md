@@ -1,7 +1,7 @@
 # Invaders
 
 A cinematic arcade shooter for the browser. Fly anywhere in the lower half of the screen, shoot down
-alien formations and beat a boss at the end of every world but the last: 22 worlds and 106 levels, each world with
+alien formations and beat a boss at the end of every world but the last: 22 worlds and 107 levels, each world with
 its own look, music and twist. Spread shot, laser, rapid fire, shield, homing shots,
 slow time, smart bombs and extra lives along the way (a second power-up waits in reserve while the
 first runs), and combos for the score. Sunset Armada, the thirteenth world, brings its own: wingmen, two
@@ -31,7 +31,7 @@ a colossal ten-headed king on a flying throne whose heads grow back until the ve
 Wanderlight, the twenty-second, changes the game: a small light in a paper glider flies up a land that is only a pencil sketch, and the
 ground scrolls under it. The ground weapon is a seed, dropped as you fire, that bursts into colour and breaks what stands on the ground;
 your shots break the enemy's bullets in the air; a lantern is a checkpoint, and the last life lost sends you back to the last one lit.
-It has one leg so far, Dawn Valley, which ends on the Grey Gate, and it grows a leg at a time: the road goes on.
+It has two legs so far, Dawn Valley, which ends on the Grey Gate, and the Pencil Wood, which ends on the Grey Thicket, and it grows a leg at a time: the road goes on.
 
 Clear a level and the game cuts a movie trailer from your own run, title cards and all. The Cinema
 on the title screen keeps your best run of every level. Lose one and you get the blooper instead.
