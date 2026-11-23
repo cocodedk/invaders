@@ -1,6 +1,6 @@
 # World 22, the journey (design)
 
-Status: draft for the owner's approval, 2026-11-22. It becomes ruling **R74** when it lands in the main spec
+Status: built (Leg 1, Dawn Valley, on the branch world-22-journey, not merged yet), 2026-11-23. It is ruling **R74** in the main spec
 (`docs/superpowers/specs/2026-10-17-invaders-design.md`), which stays the authority for everything not said here.
 The world and its story are in the last two sections.
 
@@ -105,15 +105,18 @@ or `boss`, and the world carries a `course` state:
     pillars and the dormant stones alike; only the lanterns and the valley's rock are no enemy's, and shots fly over those.
   - **Obstacles:** tall terrain that rams (a hit, see Death). **Walls** narrow and widen the flyable band (its
     left and right edges given as keyframes by distance). **Pillars** are columns standing inside the band. They
-    can't be destroyed.
+    ram, and the shots wear one down like any other ground object (a broken pillar no longer rams).
   - **Checkpoints** (below).
   - **Holds:** the scroll stops at a hold until every target in its group is destroyed. Because `dist` stands
     still, a hold brings its own air craft: a list of flights timed in seconds since the stop, repeated until
     the hold breaks (capped at `HOLD_FLIGHTS_MAX` air craft alive). A respawn before a hold rebuilds it whole,
-    timer included. Leg 1 ends on a hold.
+    timer included. Leg 1 ends on a hold. A gate stands clear of the HUD at the stop: its top edge is at `HUD_BOTTOM` or lower
+    (`dy` at most `GATE_DY_MAX`).
 - **The end.** A course is cleared when `dist` reaches its length with no hold standing. A leg that ends on a hold runs on `END_RUN` px of
   scroll (about 3 s) past the hold's stop: once the gates fall the scroll goes on, the ship flies into the blank land beyond the gate, and the
-  leg clears at its length (R43). The land stays whole through the gate and runs out a margin past the hold's highest target. The clear, the tally
+  leg clears at its length (R43). A death after the leg's last hold has broken rewinds nothing: no beat starts or goes on, the scroll runs on with the ship down and
+  the leg clears at its length (the clear wins, as the last alien's death wins over the last life lost). The land stays whole through the gate,
+  up to the top of the screen at the stop and a margin past the hold's highest target, whichever is further. The clear, the tally
   and the medal follow the existing rules. The par is computed, not measured (see Measuring).
 - **What the ground weapon has done is core state.** Every burst is kept in `course.marks` as plain data
   in course coordinates (x, at, r). The view draws the ground's change from that array, so a respawn, a
