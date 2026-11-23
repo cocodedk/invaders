@@ -1,6 +1,6 @@
 # World 22, the journey (design)
 
-Status: built (Leg 1, Dawn Valley, on the branch world-22-journey, not merged yet), 2026-11-23. It is ruling **R74** in the main spec
+Status: built (Leg 1, Dawn Valley), 2026-11-23. It is ruling **R74** in the main spec
 (`docs/superpowers/specs/2026-10-17-invaders-design.md`), which stays the authority for everything not said here.
 The world and its story are in the last two sections.
 

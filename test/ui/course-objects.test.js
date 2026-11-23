@@ -6,10 +6,10 @@ import { recorder } from './aliens-bath-kit.js';
 // edge: a glow reaches further than the post (course-objects.js inSight).
 const { drawObjects, GLOW, OFFSCREEN } = await import('../../src/ui/course-objects.js');
 const { RESPAWN_Y } = await import('../../src/core/course-check.js');
-const { HEIGHT } = await import('../../src/core/kinds.js');
+const { HEIGHT, MID_X } = await import('../../src/core/kinds.js');
 
 // All drawObjects reads of a course whose last lantern reached has its foot on row y (drawn from course.check, as after a respawn).
-const lanternAt = (y) => ({ course: { ground: [], held: null, lit: 1, check: { x: 960, dist: 0 }, dist: y - RESPAWN_Y } });
+const lanternAt = (y) => ({ course: { ground: [], held: null, lit: 1, check: { x: MID_X, dist: 0 }, dist: y - RESPAWN_Y } });
 const BIGGEST = Math.PI / 2 / GLOW.rate; // the time the glow has swelled to its biggest
 const frame = (y) => {
   const r = recorder();
