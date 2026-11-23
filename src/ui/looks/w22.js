@@ -25,6 +25,6 @@ export default {
   bullet: 'orb',
   bunker: { fill: PAL.stone, light: PAL.stoneLight, dark: PAL.stoneDark, edge: PAL.pencil, skin: 'rubble' }, // the legs have none
   power: { spread: '#e0a21f', laser: '#2f9fb0', rapid: '#d9602f', shield: '#4a6fc4', homing: '#9a5cc4', slow: '#7a8a9a', bomb: '#c4303a', life: '#4f9a3a' },
-  music: { mood: 'road', root: 'D', scale: 'major', bpm: 104 }, // a placeholder style (sound-styles-2.js) until the world's own music
+  music: { mood: 'road', root: 'D', scale: 'major', bpm: 124 }, // D major at a dance tempo: a plucked lead and a pad over a stomp and clap (music-road.js)
   tint: { shade: 'rgba(122,92,196,0.14)', glow: 'rgba(233,185,73,0.05)' }, // the frame in bullet time and the slow power: violet and gold
 };

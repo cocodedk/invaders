@@ -26,7 +26,8 @@
 //     K a kick on the beat, C the kick under a clap, O an open hat with the bass plucking the chord's root under it,
 //     H a heavy kick with the chord's root plucked under it, A an anvil struck on the backbeat, T a low thunder tom, P an open pad, B a soft kick with the bass, W a woodblock, S a light clap, L a kalimba,
 //     the tabla on the root: N na, I tin, G ge, E ke, D dha, J dhin, R a tirakita run, X a stamp of a kick with the bass, U the bass's fifth under a typewriter key, Z a press's slam, Q a typewriter key, F the margin bell and the carriage's return,
-//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js (K C O in music-breath.js, H A T P in music-anvil.js, B W S L in music-bath.js, N I G E D J R in music-isle.js, X U Z Q F in music-press.js).
+//     M a soft kick with the bass, V a hand clap, e the bass alone on an off-beat, Y a pad swelling in,
+//     . rest), bars: how many bars before the seq shifts. Their patches are in music-drums.js (K C O in music-breath.js, H A T P in music-anvil.js, B W S L in music-bath.js, N I G E D J R in music-isle.js, X U Z Q F in music-press.js, M V e Y in music-road.js).
 import { STYLES_2, tune } from './sound-styles-2.js'; // the styles after Anvil Sky's
 import { SCALES } from './sound-scales.js';
 
