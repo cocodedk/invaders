@@ -1,7 +1,8 @@
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { WIDTH, HEIGHT, MID_X } from '../../src/core/kinds.js';
+import { SHIP_R } from '../../src/core/ship.js';
 import { AIR_MARGIN } from '../../src/core/course-air.js';
-import { SPAWN_Y, RESPAWN_SAFE, END_RUN } from '../../src/core/course-kinds.js';
+import { SPAWN_Y, RESPAWN_SAFE, END_RUN, BAND_MIN, THORN_SLACK } from '../../src/core/course-kinds.js';
 import { RESPAWN_Y } from '../../src/core/course-check.js';
 import { BOMB_DAMAGE } from '../../src/core/damage.js';
 import { hurtGround } from '../../src/core/course-ground.js';
@@ -22,6 +23,18 @@ export const onScreen = (a) => a.x >= 0 && a.x <= WIDTH && a.y >= 0 && a.y <= HE
 
 // An air entry that comes up on the first play tick (at 0, unless given), over the shorthand's defaults.
 export const air = (o = {}) => ({ kind: 'air', at: 0, role: 'g', path: 'swoop', x: col(0.4), pattern: 'aimed', ...o });
+
+// A thorn piece (world 22, Leg 2): as narrow as the data rule lets it be unless `o` says otherwise. A hedge is a row of them at one `at`.
+export const THORN_W = 2 * SHIP_R + THORN_SLACK;
+export const THORN_H = 60;
+export const thorn = (at, x, o = {}) => ({ kind: 'thorn', at, x, w: THORN_W, h: THORN_H, ...o });
+// The pieces of a hedge at `at` from x = `from` to x = `to`, `w` wide with `gap` px between them, the first against `from`. The defaults leave
+// no gap of BAND_MIN anywhere across an open band, so the hedge closes it; `to` short of the right wall leaves a way round, past the last piece.
+export function hedge(at, { from = 0, to = WIDTH, w = THORN_W, gap = BAND_MIN - 1, ...o } = {}) {
+  const pieces = [];
+  for (let left = from; left < to; left += w + gap) pieces.push(thorn(at, left + w / 2, { w, ...o }));
+  return pieces;
+}
 
 // A scroll speed, px/s, that brings an entry to the respawn line in few ticks (a tick scrolls FAST * TICK px).
 export const FAST = 600;
@@ -91,6 +104,7 @@ const FAIR_HOLD = hold({
   at: AFTER + 700, targets: [{ x: 600, dy: 0, hp: 6 }, { x: 1200, dy: 60, hp: 6 }], period: 5,
   flights: [kite(2), kite(4, { role: 'd', path: 'cross', x: OFF_RIGHT, pattern: 'fan' })],
 });
+export const FAIR_HEDGE_AT = FIRST + 200; // a row in the open land before the gorge, where a hedge fits (a hedge's rows stay clear of the walls there)
 export const FAIR_COURSE = {
   speed: FAIR_SPEED, length: legLength(FAIR_HOLD), starts: [],
   walls: [

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { FREE_ZONE } from '../../src/core/ship.js';
 import { WIDTH, MID_X, HUD_BOTTOM } from '../../src/core/kinds.js';
-import { SPAWN_Y, WALL_SLOPE_MAX, RESPAWN_SAFE, BAND_MIN } from '../../src/core/course-kinds.js';
+import { SPAWN_Y, WALL_SLOPE_MAX, RESPAWN_SAFE, BAND_MIN, SHOT_SECS } from '../../src/core/course-kinds.js';
 import { GROUND_R } from '../../src/core/course-ground.js';
 import { SEED_REACH } from '../../src/core/course-seed.js';
 import { HOLD_Y, GATE_DY_MAX, stopAt } from '../../src/core/course-hold.js';
@@ -10,7 +10,7 @@ import { bandAt } from '../../src/core/course-terrain.js';
 import { CURTAIN_W } from '../../src/core/patterns.js';
 import { unfair } from './course-fair-kit.js';
 import { curtains, CURTAIN } from './course-fair-wood.js';
-import { courseLevel, air, col, checkpoint, hold, FAIR_COURSE, FAIR_SPEED, FAIR_CP_AT, FAIR_QUIET_END } from './course-kit.js';
+import { courseLevel, air, col, checkpoint, hold, thorn, hedge, THORN_W, FAIR_COURSE, FAIR_SPEED, FAIR_CP_AT, FAIR_QUIET_END, FAIR_HEDGE_AT } from './course-kit.js';
 
 // The data check (course-fair-kit.js unfair) on a course made to satisfy every rule, and on that course with one rule broken
 // at a time. A leg's own data (Task 8) runs the same check.
@@ -34,6 +34,8 @@ const smudge = (o = {}) => air({ role: 'u', path: 'hang', pattern: CURTAIN, x: c
 const tight = [col(0.5) - CURTAIN_W / 2 - BAND_MIN + 1, col(0.5) + CURTAIN_W / 2 + BAND_MIN - 1]; // the left and right edges
 const narrowed = (d) => { for (const i of [2, 3]) [d.walls[i][1], d.walls[i][2]] = tight; };
 const put = (data, e) => data.spawns.splice(data.spawns.findLastIndex((s) => s.at <= e.at) + 1, 0, e); // in order of `at`
+const putAll = (data, entries) => entries.forEach((e) => put(data, e));
+const TOUGH = Math.floor(FREE_ZONE.y0 / FAIR_SPEED / SHOT_SECS) + 1; // the hp of a piece that takes longer to break than its hedge takes to scroll to the free zone
 
 test('the fair course breaks no rule, and holds every kind of entry', () => {
   assert.deepEqual(unfair(courseLevel(FAIR_COURSE)), []);
@@ -73,6 +75,15 @@ const BROKEN = [
   ['buried', 'a stone in the left wall', (d) => { first(d, 'stone').x = 100; }],
   ['buried', 'a stone whose edge is in the wall, though its centre is not', (d) => { first(d, 'stone').x = bandAt(d, first(d, 'stone').at).left + GROUND_R - 1; }],
   ['buried', 'a pillar with its left face in the wall', (d) => { first(d, 'pillar').x = 420; }],
+  ['buried', 'a thorn piece in the left wall', (d) => put(d, thorn(d.walls[2][0] + 100, 100))],
+  ['thorn', 'a thorn piece narrower than 2 * SHIP_R + THORN_SLACK', (d) => put(d, thorn(FAIR_HEDGE_AT, 300, { w: THORN_W - 1 }))],
+  ['thorn', 'a thorn piece with no height', (d) => put(d, thorn(FAIR_HEDGE_AT, 300, { h: 0 }))],
+  ['thorn', 'a thorn piece that would show its foot as it comes up', (d) => put(d, thorn(FAIR_HEDGE_AT, 300, { h: -2 * SPAWN_Y + 1 }))],
+  ['band', 'a pillar in the gap a hedge leaves, which leaves under BAND_MIN beside it', (d) => {
+    putAll(d, hedge(FAIR_HEDGE_AT, { to: 1500 }));
+    put(d, { kind: 'pillar', at: FAIR_HEDGE_AT, x: 1688, w: 140, h: 140 });
+  }],
+  ['shoot', 'a hedge across the band whose pieces take longer to break than it takes to scroll to the free zone', (d) => putAll(d, hedge(FAIR_HEDGE_AT, { hp: TOUGH }))],
   ['quiet', 'an entry just after the checkpoint', (d) => put(d, air({ at: FAIR_CP_AT + 50 }))],
   ['quiet', 'an entry on the last px of the checkpoint\'s stretch', (d) => put(d, air({ at: FAIR_QUIET_END }))],
   ['quiet', 'an entry in the start\'s stretch', (d) => put(d, air({ at: 0 }))],

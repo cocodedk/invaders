@@ -52,6 +52,7 @@ const DRAW = {
   turret: (ctx, g, t) => { blit(ctx, turretSprite()); pupil(ctx, t); },
   crate: (ctx) => blit(ctx, crateSprite()),
   pillar: (ctx, { w, h }) => ctx.drawImage(pillarSprite(w, h), -PILLAR_PAD - w / 2, -PILLAR_PAD - h / 2),
+  thorn: (ctx, g) => DRAW.pillar(ctx, g), // a placeholder until the bramble has its own look (Leg 2's drawing task): a thorn piece is drawn as a pillar of its w x h
   gate: (ctx, g, t, holdId) => { // awake while the hold stands
     const awake = g.holdId === holdId;
     blit(ctx, gateSprite(awake));

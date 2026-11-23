@@ -1,12 +1,13 @@
 import { WIDTH } from './kinds.js';
 import { SHIP_R, hitShip, fromOf } from './ship.js';
 import { segBoxDist2, lerp } from './math.js';
-import { SPAWN_Y } from './course-kinds.js';
+import { SPAWN_Y, BOXES } from './course-kinds.js';
 
-// The terrain of a course (world 22): the walls that narrow and widen the flyable band, and the pillars that stand in
-// it. Both ram: a ship that touches one loses a life through hitShip ('wall', 'pillar'), so the shield and the blinking
-// protect as against anything else: a shielded ship skims the rock (hitShip sounds a shield hit on every tick it does),
-// and a ship whose blinking ends inside it is hit on that tick. At most one hit a tick, the wall's or else the pillar's.
+// The terrain of a course (world 22): the walls that narrow and widen the flyable band, and the boxes that stand in
+// it (BOXES: the pillars and the thorn pieces of a hedge). Both ram: a ship that touches one loses a life through hitShip ('wall', and the
+// box's kind, 'pillar' or 'thorn'), so the shield and the blinking protect as against anything else: a shielded ship skims the rock
+// (hitShip sounds a shield hit on every tick it does), and a ship whose blinking ends inside it is hit on that tick. At most one
+// hit a tick, the wall's or else a box's (the first on the ground list that the ship's path touched).
 // The ship is tested along the path it moved this tick, from fromOf to where it is (R68: the pointer moves it at once).
 
 export const WALL_SAMPLES = 24; // points along that path, both ends included, whose place on the band the wall test looks at
@@ -44,18 +45,22 @@ function hitsWall(world) {
   return false;
 }
 
-// A pillar is a ground object { kind: 'pillar', x, y, w, h, hp } whose (x, y) is the centre of its box. It rams while it has hp: one the
-// ship's shots have broken this tick (course-shots.js runs before) no longer does.
-function hitsPillar(world) {
+// A box is a ground object { kind, x, y, w, h, hp } (kind in BOXES) whose (x, y) is the centre of its box. It rams while it has hp: one the
+// ship's shots have broken this tick (course-shots.js runs before) no longer does. The box the ship's path touched, or undefined.
+function rammedBox(world) {
   const s = world.ship;
   const { x, y } = fromOf(s);
-  const touches = (g) => g.kind === 'pillar' && g.hp > 0 && segBoxDist2(x, y, s.x, s.y, g.x, g.y, g.w, g.h) <= SHIP_R * SHIP_R;
-  return world.course.ground.some(touches);
+  const touches = (g) => BOXES.includes(g.kind) && g.hp > 0 && segBoxDist2(x, y, s.x, s.y, g.x, g.y, g.w, g.h) <= SHIP_R * SHIP_R;
+  return world.course.ground.find(touches);
 }
 
 // The tick's terrain hits (stepCourse calls it once the ground is where the scroll puts it).
 export function terrainHits(world) {
   if (!world.ship.alive) return;
-  if (hitsWall(world)) hitShip(world, 'wall');
-  else if (hitsPillar(world)) hitShip(world, 'pillar');
+  if (hitsWall(world)) {
+    hitShip(world, 'wall');
+    return;
+  }
+  const box = rammedBox(world);
+  if (box) hitShip(world, box.kind);
 }

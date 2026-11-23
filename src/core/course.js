@@ -23,7 +23,7 @@ import { SPAWN_Y, GROUND_MARGIN } from './course-kinds.js';
 //   held    the hold the scroll has stopped at, { holdId, t } (t the s since the stop), or null (course-hold.js)
 //   check   the record of the last checkpoint reached, checkpoint 0 being the start, and lit how many have been reached
 //           (course-check.js)
-//   ground  the objects on the ground now, each { id, kind, at, x, y, hp } (a turret, a crate, a pillar, a checkpoint and a
+//   ground  the objects on the ground now, each { id, kind, at, x, y, hp } (a turret, a crate, a pillar or thorn piece, a checkpoint and a
 //           gate hold a little more, course-ground.js); y is never stored as a speed, it is derived from the scroll (y = SPAWN_Y + dist - at),
 //           so whatever stops `dist` stops the ground too
 // The level's own data (`level.course`: speed, length, starts, walls, spawns) is read from the level, never copied.
@@ -41,7 +41,7 @@ export function createCourse(level) {
 // included; `dist` and the ground keep real time, but the turrets on it fire in `slow`), let the entries whose `at` has
 // come up spawn in array order (an air craft becomes an alien, a hold its gates, every other kind a ground object), put the
 // ground where the scroll says, reach the checkpoints that have come down to the respawn line (course-check.js), let the
-// walls and the pillars ram the ship (course-terrain.js), drop the seeds and let the ones and the bomb that are due hurt
+// walls and the boxes (pillars, thorn pieces) ram the ship (course-terrain.js), drop the seeds and let the ones and the bomb that are due hurt
 // it (`input` is the tick's, course-seed.js), stop at a hold, run its clock and break it (course-hold.js), let the turrets
 // fire (course-ground.js), wash the sky clean if a hold broke (course-hold.js washAway), drop what has broken or sunk off the bottom, and last start or run down the beat after a death
 // (course-check.js). While that beat runs nothing scrolls, so no entry comes up. An air craft spawned this tick stands at
@@ -66,7 +66,7 @@ export function stepCourse(world, dt, slow = dt, input = {}) {
   const broke = stepHold(world, slow);
   stepGround(world, slow);
   if (broke) washAway(world); // after the turrets: a shot they fire on the tick of the break is washed away too
-  // hp 0 is broken, a lantern has hp null; an object goes once its top edge is past the margin (h is a pillar's height)
+  // hp 0 is broken, a lantern has hp null; an object goes once its top edge is past the margin (h is a box's height)
   prune(course.ground, (g) => g.hp !== 0 && g.y - (g.h ?? 0) / 2 <= HEIGHT + GROUND_MARGIN);
   stepRespawn(world, dt);
 }

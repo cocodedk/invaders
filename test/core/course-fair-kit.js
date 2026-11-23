@@ -1,12 +1,13 @@
-import { WIDTH, HEIGHT } from '../../src/core/kinds.js';
+import { WIDTH } from '../../src/core/kinds.js';
 import { ROLE } from '../../src/core/levels-2.js';
 import { PATH_NAMES } from '../../src/core/course-air.js';
 import { startCheck, RESPAWN_Y } from '../../src/core/course-check.js';
 import { GATE_DY_MAX, stopAt } from '../../src/core/course-hold.js';
 import { GROUND_R } from '../../src/core/course-ground.js';
 import { bandAt } from '../../src/core/course-terrain.js';
-import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN } from '../../src/core/course-kinds.js';
-import { curtains, AIR_PATTERNS } from './course-fair-wood.js';
+import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN, BOXES } from '../../src/core/course-kinds.js';
+import { curtains, hedges, openThorns, AIR_PATTERNS } from './course-fair-wood.js';
+import { rowsOf, courseRows, blocksOf, widestGap } from './course-fair-rows.js';
 
 // The data rules of a course (world 22), as one pure check. unfair(level) walks the level's `course` and returns what breaks them,
 // each as 'rule: what', so [] is a fair course. A level's data (a leg of the journey) runs it; the tests prove it on a course made
@@ -15,11 +16,13 @@ import { curtains, AIR_PATTERNS } from './course-fair-wood.js';
 //   role, path, pattern, cross   an air craft (an air entry, a hold's flight) has a role letter, a path and a pattern that exist;
 //            a crossing starts beyond a side edge
 //   curtain  a Smudge's curtain can be flown round before the line is held (course-fair-wood.js, which also names the patterns an air entry may fire)
+//   thorn, shoot  a thorn piece is a box wide enough for the ship to pass where one broke, and a hedge that closes the band can be shot through in time
+//            (course-fair-wood.js; the band rule below counts the hedges that leave a way round, as it counts a pillar, and not the ones that close it)
 //   hp       a turret, a crate and a gate have hp above 0
 //   pillar   it has a width and a height, and its height is at most -2 * SPAWN_Y, so it comes up whole above the screen (R19)
 //   walls    the keyframes are in order of `at`; slope: no edge moves faster than WALL_SLOPE_MAX px a px of scroll (R21)
-//   band     at every row the widest gap the walls and the pillars leave is at least BAND_MIN
-//   buried   no turret, crate, stone, checkpoint or pillar stands in rock (a ground object counts from its edge, GROUND_R)
+//   band     at every row the widest gap the walls, the pillars and the hedges that leave a way round leave is at least BAND_MIN
+//   buried   no turret, crate, stone, checkpoint, pillar or thorn piece stands in rock (a ground object counts from its edge, GROUND_R)
 //   quiet    nothing comes up in the stretch of the start and of every checkpoint: from the row the ship is put on to the top of the
 //            screen the checkpoint was reached on, and RESPAWN_SAFE s of scroll more; open: the walls leave the whole width open
 //            along it (R20)
@@ -29,12 +32,8 @@ import { curtains, AIR_PATTERNS } from './course-fair-wood.js';
 //            clear of the HUD's panels: a gate's top edge at the stop is at HUD_BOTTOM or below) and in the band
 
 const need = (ok, rule, what) => (ok ? [] : [`${rule}: ${what}`]);
-const rowsOf = (lo, hi) => { // the integer rows from lo up to hi, and hi itself
-  const rows = [];
-  for (let at = lo; at < hi; at++) rows.push(at);
-  return [...rows, hi];
-};
 const pillars = ({ spawns }) => spawns.filter((e) => e.kind === 'pillar');
+const boxes = ({ spawns }) => spawns.filter((e) => BOXES.includes(e.kind));
 const inside = (course, at, x, r) => { // does the disc at x on row `at` lie within the band?
   const { left, right } = bandAt(course, at);
   return x - r >= left && x + r <= right;
@@ -74,23 +73,10 @@ function walls({ walls: keys = [] }) {
   });
 }
 
-// The widest gap at row `at`: the band less the pillars across it (a pillar's box covers its `at` +- h / 2).
-function widestGap(course, blocks, at) {
-  const { left, right } = bandAt(course, at);
-  let widest = 0;
-  let from = left;
-  for (const b of blocks) {
-    if (at < b.top || at > b.bottom) continue;
-    widest = Math.max(widest, b.left - from);
-    from = Math.max(from, b.right);
-  }
-  return Math.max(widest, right - from);
-}
+// The pillars and the pieces of the hedges that leave a way round stand in the band; a hedge that closes it is shot through instead (hedges).
 function band(course) {
-  const blocks = pillars(course)
-    .map((p) => ({ left: p.x - p.w / 2, right: p.x + p.w / 2, top: p.at - p.h / 2, bottom: p.at + p.h / 2 }))
-    .sort((a, b) => a.left - b.left);
-  const row = rowsOf(SPAWN_Y - HEIGHT, course.length).find((at) => widestGap(course, blocks, at) < BAND_MIN);
+  const blocks = blocksOf([...pillars(course), ...openThorns(course)]);
+  const row = courseRows(course).find((at) => widestGap(course, blocks, at) < BAND_MIN);
   return need(row === undefined, 'band', `under ${BAND_MIN} px open at ${row}`);
 }
 
@@ -99,9 +85,9 @@ function buried(course) {
   const ground = course.spawns
     .filter((e) => GROUND_KINDS.includes(e.kind))
     .flatMap((e) => need(inside(course, e.at, e.x, GROUND_R), 'buried', `${e.kind} at ${e.at} stands in rock`));
-  const piers = pillars(course).filter((p) => p.w > 0 && p.h > 0).flatMap((p) => {
+  const piers = boxes(course).filter((p) => p.w > 0 && p.h > 0).flatMap((p) => {
     const row = rowsOf(Math.ceil(p.at - p.h / 2), Math.floor(p.at + p.h / 2)).find((at) => !inside(course, at, p.x, p.w / 2));
-    return need(row === undefined, 'buried', `pillar at ${p.at} stands in rock at ${row}`);
+    return need(row === undefined, 'buried', `${p.kind} at ${p.at} stands in rock at ${row}`);
   });
   return [...ground, ...piers];
 }
@@ -146,5 +132,5 @@ function holds(course) {
 
 export function unfair(level) {
   const c = level.course;
-  return [...sorted(c), ...craft(c), ...hp(c), ...pillar(c), ...walls(c), ...band(c), ...buried(c), ...quiet(level), ...ending(c), ...holds(c), ...curtains(level)];
+  return [...sorted(c), ...craft(c), ...hp(c), ...pillar(c), ...walls(c), ...band(c), ...buried(c), ...quiet(level), ...ending(c), ...holds(c), ...curtains(level), ...hedges(c)];
 }
