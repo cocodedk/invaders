@@ -14,6 +14,7 @@ import { LAND_WOOD } from '../core/levels-8-kit.js';
 import { paintRock } from './course-land-rock.js';
 import { landEnd, paintRunout } from './course-land-end.js';
 import { pathAt, paintWood } from './course-land-wood.js';
+import { paintTrace } from './course-land-trace.js';
 import { STRIP_SPAN, dice, riverAt, paintValley } from './course-land-valley.js';
 
 export { STRIP_SPAN, TREE_MARGIN, FIELD_MARGIN, scatter, riverAt } from './course-land-valley.js'; // the valley floor's, kept here for the callers of the land's art
@@ -42,7 +43,7 @@ export function paintStrip(g, painted, k, seed, course) {
     g.fillStyle = painted ? PAL.paint : PAL.parchment;
     g.fillRect(0, 0, W, STRIP_SPAN);
     if (!painted) flecks(g, dice(seed + 1, k), STRIP_SPAN);
-    if (course.land === LAND_WOOD) paintWood(g, painted, k, seed, course, end);
+    if (course.land === LAND_WOOD) { paintWood(g, painted, k, seed, course, end); paintTrace(g, painted, k, course); }
     else paintValley(g, painted, k, seed, course, end);
   }
   if (blank > 0) {

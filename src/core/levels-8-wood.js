@@ -11,6 +11,7 @@ import { course, LAND_WOOD, air, smudge, turret, crate, pillar, hedge, lantern, 
 
 const LANTERN_1 = 6200; // grants the line
 const LANTERN_2 = 14400;
+const TRACE_AT = 7000; // the fallen pencil (view only: course-land-trace.js), in the open quiet stretch after lantern 1, clear of the walls and of the first spawn at 7800
 const GATE_HP = hpFor('gate'); // the Thicket's gates all stand as long under steady fire
 const CAP = GATE_DY_MAX; // the highest gate, the top of the ring: as high up as a gate may stand, its top edge just below the HUD at the stop
 const GATE_AT = 25420; // the anchor of the Thicket: the scroll stops 380 px on (course-hold.js stopAt)
@@ -96,6 +97,7 @@ const LEG_2 = {
   length: stopAt(STRETCH_3.at(-1)) + END_RUN, // the hold is the last entry: the scroll stops at it, and once it has fallen runs on END_RUN px more and clears
   starts: ['seed'],
   land: LAND_WOOD, // the look of its ground (view only)
+  trace: { at: TRACE_AT, x: 960, a: -0.25 }, // the fallen pencil: the row of its middle, its x, its angle (view only)
   walls: WALLS,
   spawns: [...STRETCH_1, ...STRETCH_2, ...STRETCH_3],
 };
