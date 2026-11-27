@@ -9,6 +9,9 @@ import { hpFor } from './course-kinds.js';
 
 export const course = (seed, data) => ({ seed, bunkers: false, course: data });
 
+// A leg's `land` key names the look of its ground (the view reads it, the core never does): a leg without one has the valley's floor.
+export const LAND_WOOD = 'wood';
+
 // An air craft takes its role letter (g grunt, d diver, u gunner, a armored, c carrier: a carrier fires nothing and always drops a power-up),
 // its path, the x it starts at and the pattern it fires; a crate holds 'bomb', 'life' or, with none, the usual random drop; a lantern is a
 // checkpoint, and grants an ability or nothing.

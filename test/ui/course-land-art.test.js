@@ -41,7 +41,7 @@ test('the trees and fields lie whole inside their strip, in the band and off the
 });
 
 test('the land reads marks from the course only, and has no dice, clock or shadow blur', () => {
-  for (const file of ['course-land.js', 'course-land-art.js', 'course-land-end.js', 'course-land-rock.js', 'course-view.js', 'course-objects.js']) {
+  for (const file of ['course-land.js', 'course-land-art.js', 'course-land-valley.js', 'course-land-end.js', 'course-land-rock.js', 'course-view.js', 'course-objects.js']) {
     const src = readFileSync(new URL(`../../src/ui/${file}`, import.meta.url), 'utf8');
     assert.ok((src.match(/\w*\.marks\b/g) ?? []).every((m) => /^(course|land)\.marks$/.test(m)), `${file} reads marks from the course only`);
     assert.ok(src.split('\n').length < 200, `${file} is under 200 lines`);

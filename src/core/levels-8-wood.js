@@ -7,7 +7,7 @@
 import { WIDTH as W } from './kinds.js';
 import { hpFor, END_RUN } from './course-kinds.js';
 import { stopAt, GATE_DY_MAX } from './course-hold.js';
-import { course, air, smudge, turret, crate, pillar, hedge, lantern, LEFT, RIGHT } from './levels-8-kit.js';
+import { course, LAND_WOOD, air, smudge, turret, crate, pillar, hedge, lantern, LEFT, RIGHT } from './levels-8-kit.js';
 
 const LANTERN_1 = 6200; // grants the line
 const LANTERN_2 = 14400;
@@ -95,6 +95,7 @@ const LEG_2 = {
   speed: 220,
   length: stopAt(STRETCH_3.at(-1)) + END_RUN, // the hold is the last entry: the scroll stops at it, and once it has fallen runs on END_RUN px more and clears
   starts: ['seed'],
+  land: LAND_WOOD, // the look of its ground (view only)
   walls: WALLS,
   spawns: [...STRETCH_1, ...STRETCH_2, ...STRETCH_3],
 };
