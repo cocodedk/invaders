@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { eventSounds, SILENT } from '../../src/ui/sounds.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { WANDER_WORLD } from '../../src/ui/wander-kit.js';
+import { THORN } from '../../src/core/course-kinds.js';
 import { sampleEvent as sample } from '../event-sample.js';
 
 // World 22's events (the core's course-*.js and the events its ground and air craft borrow) and the sounds they make (sfx-road.js).
@@ -49,6 +50,13 @@ test("a kite shot down flutters, a paper rustle at its x over the kill's stab, i
   assert.deepEqual(sounds([kill], WORLD_22).map((s) => [s.name, s.x]), [['kill', 420], ['flutter', 420]]);
   assert.deepEqual(sounds([kill]).map((s) => s.name), ['kill'], 'a bare world');
   assert.deepEqual(sounds([kill], { boss: null, level: { world: WANDER_WORLD - 1 } }).map((s) => s.name), ['kill'], 'the world before');
+});
+
+test("a stopped line scratches, not chips; a thorn's break is the kill then a snap, a stone's has no snap", () => {
+  assert.deepEqual(sounds([{ ...sample('lineStop'), x: 500 }], WORLD_22), [{ name: 'lineScratch', x: 500 }]);
+  const kind = (k) => sounds([{ ...sample('groundKill'), kind: k, x: 900 }], WORLD_22).map((s) => s.name);
+  assert.deepEqual(kind(THORN), ['kill', 'brambleSnap']);
+  assert.deepEqual(kind('stone'), ['kill']);
 });
 
 test("the ground's breaks and strikes do not flutter: a stone is not paper", () => {

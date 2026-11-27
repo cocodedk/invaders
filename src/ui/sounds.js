@@ -24,8 +24,9 @@
 // (`groundKill`) is a kill at the combo it raised (the event says it: mult), a strike that leaves it standing (`groundHit`)
 // a hit. A pillar and a gate, the big ones, sound as an armored alien, the rest as a grunt. The rest of its events have sounds of their own
 // (sfx-road.js): a lantern chime at a `checkpoint`, a glow at an `ability` (at the ship, the event has no x), a pop at a `seedBurst`, a crack
-// at a struck bullet (`chip`) and at a broken one (`cut`, which the road's style cracks), a swell at a `respawn`, a flood and a chord at a
+// at a struck bullet (`chip`) and at a broken one (`cut`, which the road's style cracks), a swell at a `respawn`, a pencil scratch at a `lineStop`, a twig's snap after a thorn's break, a flood and a chord at a
 // `holdBreak`; and a kite shot down (a `kill` in this world: the ground's breaks are `groundKill`s) flutters, a paper rustle over the kill's stab.
+import { THORN } from '../core/course-kinds.js';
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X, WIDTH } from '../core/kinds.js';
 import { BIG_GROUND } from '../fx/react-ground.js';
@@ -117,13 +118,16 @@ export function eventSounds(events, world, play) {
       case 'plop': play('plop', at(e)); break;
       case 'fizzle': play('fizzle', at(e)); break;
       case 'arrowTurn': play('arrowTurn', at(e)); break;
-      case 'groundKill': play('kill', { role: groundRole(e.kind), mult: e.mult ?? 1, x: e.x }); break;
+      case 'groundKill':
+        play('kill', { role: groundRole(e.kind), mult: e.mult ?? 1, x: e.x });
+        if (e.kind === THORN) play('brambleSnap', at(e)); // a twig cracks
+        break;
       case 'groundHit': play('hit', { role: groundRole(e.kind), x: e.x }); break;
       case 'checkpoint': play('checkpoint', at(e)); break;
       case 'ability': play('ability', { x: world.ship?.x }); break;
       case 'seedBurst': play('seedBurst', at(e)); break;
       case 'chip': play('chip', at(e)); break;
-      case 'lineStop': play('chip', at(e)); break; // a stand-in for the pencil scratch, which comes with the leg's sounds
+      case 'lineStop': play('lineScratch', at(e)); break;
       case 'respawn': play('respawn', at(e)); break;
       case 'holdBreak': play('holdBreak'); break;
       default: break; // SILENT

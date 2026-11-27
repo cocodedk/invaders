@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ROAD, CHIME, BLOOM, SWELL, CRACK, RUSTLE, FLOOD } from '../../src/ui/sfx-road.js';
+import { ROAD, CHIME, BLOOM, SWELL, CRACK, RUSTLE, FLOOD, SCRATCH, SNAP } from '../../src/ui/sfx-road.js';
 import { WORLD } from '../../src/ui/sfx-world.js';
 import { SFX } from '../../src/ui/sfx.js';
 import { kitFor, degreeMidi, midiHz } from '../../src/ui/sound-data.js';
@@ -9,7 +9,7 @@ import w22 from '../../src/ui/looks/w22.js';
 import w4 from '../../src/ui/looks/w4.js';
 
 const KIT = kitFor(w22.music);
-const NAMES = ['checkpoint', 'ability', 'seedBurst', 'chip', 'respawn', 'holdBreak', 'flutter'];
+const NAMES = ['checkpoint', 'ability', 'seedBurst', 'chip', 'respawn', 'holdBreak', 'flutter', 'lineScratch', 'brambleSnap'];
 const sources = (nodes) => nodes.filter((n) => n.kind === 'Oscillator' || n.kind === 'BufferSource');
 const starts = (nodes) => nodes.filter((n) => n.kind === 'Oscillator').map((n) => n.frequency.calls[0]?.[1] ?? n.frequency.value);
 const build = (patch, o = {}, kit = KIT) => {
@@ -70,4 +70,19 @@ test("a broken bullet cracks only in this world: another world's cut is still it
   assert.notEqual(other.style, 'road');
   assert.equal(trace(build(SFX.cut, { x: 300 }, other)), trace(build(WORLD.cut, { x: 300 }, other)));
   assert.notEqual(trace(build(SFX.cut, { x: 300 }, KIT)), trace(build(WORLD.cut, { x: 300 }, KIT)), 'here it is the crack, not the shuriken\'s shing');
+});
+
+test('the pencil scratch is noise only: one band-passed hiss stroke each, sweeping down, quiet and short', () => {
+  const { nodes, secs } = build(ROAD.lineScratch);
+  assert.equal(sources(nodes).length, SCRATCH.strokes.length);
+  assert.ok(sources(nodes).every((n) => n.kind === 'BufferSource'), 'no tone');
+  assert.ok(secs <= SCRATCH.max, secs + ' s');
+  assert.ok(SCRATCH.strokes.every((s) => s.f1 < s.f0));
+});
+
+test("the bramble snap is a high-passed crack and a knock on a degree of the world's scale", () => {
+  const { nodes, secs } = build(ROAD.brambleSnap);
+  assert.ok(nodes.some((n) => n.kind === 'BufferSource'), 'the snap');
+  assert.ok(plays(nodes, SNAP.degree, SNAP.octave), 'the knock is in key');
+  assert.ok(secs < 0.2);
 });

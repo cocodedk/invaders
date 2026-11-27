@@ -27,7 +27,8 @@ export const hpFor = (kind) => Math.round(BREAK_SECS[kind] / SHOT_SECS);
 
 // The ground kinds that are a box { x, y, w, h }, (x, y) its centre: they ram the ship while they stand (course-terrain.js) and the shots reach them
 // across their box (course-shots.js). A pillar is the first, a piece of a thorn hedge (Leg 2) the second.
-export const BOXES = ['pillar', 'thorn'];
+export const THORN = 'thorn'; // the kind of a piece of a thorn hedge (Leg 2)
+export const BOXES = ['pillar', THORN];
 
 // Is the thing (an air craft, a ground object) on the screen, where the player can see it?
 export const inView = (a) => a.x >= 0 && a.x <= WIDTH && a.y >= 0 && a.y <= HEIGHT;
