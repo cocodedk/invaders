@@ -5,6 +5,16 @@
 import { glow } from './sprites.js';
 import { bulletKit } from './bullet-sprites.js';
 import { drawDragged } from './bullets-dragged.js';
+import { CURTAIN_GAP } from '../core/patterns.js';
+
+// The Smudge's curtain (world 22) blinks like an LED strip: each bullet steps through these, a
+// neighbour one step ahead. No white: that is the ship's own shot there.
+export const LED_COLOURS = ['#ff2a2a', '#ffe030', '#30ff5a', '#30f0ff', '#3a5aff', '#ff30e0'];
+export const LED_RATE = 8; // colour steps a second
+export const ledColour = (b, t) => {
+  const n = LED_COLOURS.length;
+  return LED_COLOURS[(((Math.floor(t * LED_RATE + b.x / CURTAIN_GAP)) % n) + n) % n];
+};
 
 // A bullet's own animation offset: its heading and speed, which belong to the bullet (an index into
 // the list does not: it shifts whenever an earlier bullet is removed, and every star after it would
@@ -33,7 +43,7 @@ export function drawBullets(ctx, world, look, t, quality = 1) {
     for (const b of list) {
       if (b.pattern === 'laser') continue;
       const r = b.r * (b.pattern === 'shuriken' ? 2.2 : b.dragged ? 3.4 : 2.8);
-      ctx.drawImage(b.pattern === 'acid' ? glow('#b8ff3a') : b.dragged ? mine : g, b.x - r, b.y - r, r * 2, r * 2);
+      ctx.drawImage(b.pattern === 'curtain' ? glow(ledColour(b, t)) : b.pattern === 'acid' ? glow('#b8ff3a') : b.dragged ? mine : g, b.x - r, b.y - r, r * 2, r * 2);
     }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
@@ -44,7 +54,8 @@ export function drawBullets(ctx, world, look, t, quality = 1) {
   for (const b of list) {
     const p = b.pattern;
     if (p === 'laser') continue;
-    if (p === 'shuriken') rotated(ctx, m, b.x, b.y, t * 9 + phaseOf(b), K.star, 48 * (b.r / 18));
+    if (p === 'curtain') { const c = glow(ledColour(b, t)), r = b.r * 1.8; ctx.drawImage(c, b.x - r, b.y - r, r * 2, r * 2); }
+    else if (p === 'shuriken') rotated(ctx, m, b.x, b.y, t * 9 + phaseOf(b), K.star, 48 * (b.r / 18));
     else if (p === 'rain') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), K.drop);
     else if (p === 'acid') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy || 1), K.acid);
     else if (b.dragged) drawDragged(ctx, m, b, look, t, phaseOf(b), quality); // the ship's now (world 18, bullets-dragged.js)
