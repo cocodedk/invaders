@@ -3,13 +3,18 @@
 // bottom edges. Baked once per size (cached), in a sprite that holds its outline and its shadow as a pillar's does (course-sprites.js).
 import { cached } from './sprites.js';
 import { PAL } from './wander-kit.js';
-import { PILLAR_PAD, SHADOW_DX, SHADOW_DY } from './course-sprites.js';
+import { PILLAR_PAD, SHADOW_DX, SHADOW_DY, RING, OBJECT_SCALE, round, openEye, shutEye } from './course-sprites.js';
+import { GROUND_R } from '../core/course-ground.js';
 
 export const THORN_STEP = 18; // px between one thorn and the next along an edge
 export const THORN_LEN = 9; // px a thorn points in from its edge
 export const THORN_BASE = 5; // px: half the width of a thorn at its edge
 export const STEM_SWAY = 0.18; // of the box's height: how far a stem swings from the middle, up and down
 const SHADOW = 'rgba(40,40,50,0.18)';
+const TAU = Math.PI * 2;
+export const THICKET_THORNS = 14; // thorns round a bramble gate's ring, pointing out
+export const THICKET_THORN_LEN = 12; // px a gate's thorn points out from its ring: its tip is at GROUND_R
+export const THICKET_CENTRE = '#33302a'; // the dark clearing in the middle of a gate
 
 function stems(g, w, h) { // two stems crossing the box, one swaying each way
   g.strokeStyle = PAL.stoneDark;
@@ -49,4 +54,40 @@ export const thornSprite = (w, h) => cached(`wanderThorn${w}x${h}`, w + 2 * PILL
   g.strokeStyle = PAL.stoneDark;
   g.lineWidth = 2;
   g.strokeRect(-w / 2, -h / 2, w, h);
+});
+
+// A bramble gate: the gate's square and eye, its ring a tangle of bramble with thorns pointing out (the tips at GROUND_R) round a dark centre.
+export const thicketGateSprite = (awake) => round(awake ? 'wanderThicketAwake' : 'wanderThicketAsleep', (g) => {
+  const outer = GROUND_R - THICKET_THORN_LEN; // the ring's outside
+  g.fillStyle = SHADOW;
+  g.beginPath();
+  g.ellipse(SHADOW_DX, SHADOW_DY, GROUND_R, GROUND_R * 0.6, 0, 0, TAU);
+  g.fill();
+  g.beginPath();
+  g.arc(0, 0, outer - RING / 2, 0, TAU);
+  g.fillStyle = THICKET_CENTRE;
+  g.fill();
+  g.lineWidth = RING;
+  g.strokeStyle = PAL.kiteShade;
+  g.stroke();
+  g.lineWidth = 3;
+  g.strokeStyle = PAL.stoneDark;
+  for (const r of [outer - 3, outer - RING + 3]) { // two stems round the ring
+    g.beginPath();
+    g.arc(0, 0, r, 0, TAU);
+    g.stroke();
+  }
+  g.fillStyle = PAL.stoneDark;
+  g.beginPath();
+  for (let i = 0; i < THICKET_THORNS; i++) {
+    const a = (i / THICKET_THORNS) * TAU;
+    const half = THORN_BASE / outer;
+    g.moveTo(Math.cos(a - half) * outer, Math.sin(a - half) * outer);
+    g.lineTo(Math.cos(a + half) * outer, Math.sin(a + half) * outer);
+    g.lineTo(Math.cos(a) * GROUND_R, Math.sin(a) * GROUND_R);
+  }
+  g.fill();
+  g.scale(OBJECT_SCALE, OBJECT_SCALE); // the eye is the stone's
+  if (awake) openEye(g);
+  else { g.fillStyle = PAL.kite; g.beginPath(); g.ellipse(0, 0, 12, 8, 0, 0, TAU); g.fill(); shutEye(g); } // a pale patch to read the lid on
 });

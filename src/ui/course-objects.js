@@ -8,7 +8,8 @@
 import { H, glow, addGlow } from './sprites.js';
 import { RESPAWN_Y } from '../core/course-check.js';
 import { PAL } from './wander-kit.js';
-import { thornSprite } from './course-sprites-wood.js';
+import { thornSprite, thicketGateSprite } from './course-sprites-wood.js';
+import { LAND_WOOD } from '../core/levels-8-kit.js';
 import {
   OBJECT_SCALE, PILLAR_PAD, LANTERN, LANTERN_SCALE, PUPIL,
   stoneSprite, turretSprite, gateSprite, crateSprite, pillarSprite, lanternSprite, pupilSprite,
@@ -54,9 +55,9 @@ const DRAW = {
   crate: (ctx) => blit(ctx, crateSprite()),
   pillar: (ctx, { w, h }) => ctx.drawImage(pillarSprite(w, h), -PILLAR_PAD - w / 2, -PILLAR_PAD - h / 2),
   thorn: (ctx, { w, h }) => ctx.drawImage(thornSprite(w, h), -PILLAR_PAD - w / 2, -PILLAR_PAD - h / 2), // a bramble box of its w x h, laid like a pillar
-  gate: (ctx, g, t, holdId) => { // awake while the hold stands
+  gate: (ctx, g, t, holdId, land) => { // awake while the hold stands; the Thicket's are bramble (view only: the core never reads the land)
     const awake = g.holdId === holdId;
-    blit(ctx, gateSprite(awake));
+    blit(ctx, (land === LAND_WOOD ? thicketGateSprite : gateSprite)(awake));
     if (awake) pupil(ctx, t);
   },
   checkpoint: (ctx, g, t) => lantern(ctx, g.reached, t),
@@ -70,7 +71,7 @@ export function drawObjects(ctx, world, t) {
     if (!draw || !inSight(g.y, (g.h ?? 0) / 2, g.kind === 'checkpoint' && g.reached)) continue;
     ctx.save();
     ctx.translate(g.x, g.y);
-    draw(ctx, g, t, holdId);
+    draw(ctx, g, t, holdId, world.level.course.land);
     ctx.restore();
   }
   const spot = lanternSpot(course);

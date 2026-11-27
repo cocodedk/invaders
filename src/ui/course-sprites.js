@@ -22,7 +22,7 @@ export const PUPIL = { mid: 4, swell: 1 }; // an awake eye's pupil in the mockup
 export const PUPIL_PX = Math.ceil((PUPIL.mid + PUPIL.swell) * OBJECT_SCALE * 2); // px, the baked pupil's edge: as big as it swells to
 const SHADOW = 'rgba(40,40,50,0.18)';
 
-const round = (key, paint) => cached(key, ROUND_HALF * 2, ROUND_HALF * 2, (g) => {
+export const round = (key, paint) => cached(key, ROUND_HALF * 2, ROUND_HALF * 2, (g) => {
   g.translate(ROUND_HALF, ROUND_HALF);
   paint(g);
 });
@@ -46,7 +46,7 @@ function stoneBody(g) {
   disc(g, -6, -8, 7, 11, PAL.stoneLight);
 }
 
-function shutEye(g) { // the sleeping eye: a lid, drawn as the mockup's smile
+export function shutEye(g) { // the sleeping eye: a lid, drawn as the mockup's smile
   g.beginPath();
   g.arc(0, -3, 9, 0.3, Math.PI - 0.3);
   g.strokeStyle = PAL.stoneDark;
@@ -54,7 +54,7 @@ function shutEye(g) { // the sleeping eye: a lid, drawn as the mockup's smile
   g.stroke();
 }
 
-const openEye = (g) => disc(g, 0, 0, 11, 6, PAL.lid); // the awake eye's white; its violet pupil is the live part
+export const openEye = (g) => disc(g, 0, 0, 11, 6, PAL.lid); // the awake eye's white; its violet pupil is the live part
 
 export const stoneSprite = () => round('wanderStone', (g) => { stoneBody(g); shutEye(g); });
 export const turretSprite = () => round('wanderTurret', (g) => { stoneBody(g); openEye(g); });

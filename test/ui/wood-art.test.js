@@ -13,6 +13,7 @@ const { CURTAIN_BODY_SCALE } = await import('../../src/ui/bullets-view.js');
 const { createWorld } = await import('../../src/core/world.js');
 const { levelById } = await import('../../src/core/levels.js');
 
+const { GROUND_R } = await import('../../src/core/course-ground.js');
 const level = levelById('w22-2');
 
 test('a thorn piece is drawn by the bramble sprite, its outline exactly its w x h box', () => {
@@ -28,6 +29,27 @@ test('a thorn piece is drawn by the bramble sprite, its outline exactly its w x 
     const [, img, dx, dy] = r.calls.find(([k]) => k === 'drawImage');
     assert.equal(img, sprite);
     assert.deepEqual([dx + S.PILLAR_PAD, dy + S.PILLAR_PAD], [-w / 2, -h / 2]);
+  }
+});
+
+test("w22-2's gates draw the Thicket's bramble ring and w22-1's still draw the stone one, the ring reaching at most GROUND_R", () => {
+  const gateDrawn = (id, awake) => {
+    const lv = levelById(id);
+    const world = createWorld(lv, lv.seed);
+    Object.assign(world.course, { ground: [{ id: 1, kind: 'gate', at: 0, x: 700, y: 500, holdId: awake ? 1 : 2 }], held: { holdId: 1 }, lit: 0 });
+    const r = recorder();
+    drawObjects(r.ctx, world, 0);
+    return r.calls.find(([k]) => k === 'drawImage')[1];
+  };
+  for (const awake of [true, false]) {
+    assert.equal(gateDrawn('w22-2', awake), W.thicketGateSprite(awake));
+    assert.equal(gateDrawn('w22-1', awake), S.gateSprite(awake));
+    assert.notEqual(W.thicketGateSprite(awake), S.gateSprite(awake));
+    const sprite = W.thicketGateSprite(awake);
+    assert.ok(made.includes(sprite));
+    assert.deepEqual([sprite.width, sprite.height], [S.ROUND_HALF * 2, S.ROUND_HALF * 2]);
+    const b = sprite.T.bounds; // the shadow lies right and below, so the left and top are the body's
+    for (const reach of [S.ROUND_HALF - b.x0, S.ROUND_HALF - b.y0]) assert.ok(reach <= GROUND_R && reach > GROUND_R - 1, `reach ${reach}`);
   }
 });
 
