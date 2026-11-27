@@ -8,7 +8,7 @@ const { drawObjects } = await import('../../src/ui/course-objects.js');
 const W = await import('../../src/ui/course-sprites-wood.js');
 const S = await import('../../src/ui/course-sprites.js');
 const { smudgeRole, SMUDGE_ROLES } = await import('../../src/ui/aliens/w22-smudge.js');
-const { HANG_ARRIVE, CURTAIN_WIND, CURTAIN_COOL } = await import('../../src/core/course-air.js');
+const { HANG_ARRIVE, HANG_LEAVE, CURTAIN_WIND, CURTAIN_COOL } = await import('../../src/core/course-air.js');
 const { CURTAIN_BODY_SCALE } = await import('../../src/ui/bullets-view.js');
 const { createWorld } = await import('../../src/core/world.js');
 const { levelById } = await import('../../src/core/levels.js');
@@ -38,6 +38,7 @@ test('the Smudge is a role of its own, its eye open from CURTAIN_WIND before eac
   assert.equal(smudgeRole(hang(HANG_ARRIVE, CURTAIN_WIND)), 'smudgeOpen', 'looks as it arrives, the first curtain a wind-up away');
   assert.equal(smudgeRole(hang(HANG_ARRIVE + 3, CURTAIN_COOL)), 'smudge', 'shut after a curtain falls');
   assert.equal(smudgeRole(hang(HANG_ARRIVE + 3, CURTAIN_WIND)), 'smudgeOpen');
+  assert.equal(smudgeRole(hang(HANG_LEAVE, 0)), 'smudge', 'shut once it goes on down, however low its cool');
   assert.deepEqual(SMUDGE_ROLES, ['smudge', 'smudgeOpen']);
 });
 

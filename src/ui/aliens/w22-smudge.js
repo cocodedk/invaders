@@ -4,7 +4,7 @@
 import { path, circle, ellipse } from './kit.js';
 import { tidy } from './w16-kit.js';
 import { PAL } from '../wander-kit.js';
-import { HANG_ARRIVE, CURTAIN_WIND } from '../../core/course-air.js';
+import { HANG_ARRIVE, HANG_LEAVE, CURTAIN_WIND } from '../../core/course-air.js';
 
 export const SMUDGE_ROLES = ['smudge', 'smudgeOpen'];
 const SIZE = 128; // px, a sprite canvas's edge
@@ -71,6 +71,6 @@ const smudge = (open) => {
 
 export const smudgePainters = { smudge: smudge(false), smudgeOpen: smudge(true) };
 
-// The role a craft is drawn as: a hang craft is the Smudge, open-eyed from CURTAIN_WIND before its curtain (a.cool counts down while it hangs),
+// The role a craft is drawn as: a hang craft is the Smudge, open-eyed from CURTAIN_WIND before its curtain while it hangs (a.cool counts down only then, so it is shut again once it leaves),
 // any other craft its own role.
-export const smudgeRole = (a) => (a.path !== 'hang' ? a.role : a.t >= HANG_ARRIVE && a.cool <= CURTAIN_WIND ? 'smudgeOpen' : 'smudge');
+export const smudgeRole = (a) => (a.path !== 'hang' ? a.role : a.t >= HANG_ARRIVE && a.t < HANG_LEAVE && a.cool <= CURTAIN_WIND ? 'smudgeOpen' : 'smudge');

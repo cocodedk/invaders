@@ -34,7 +34,7 @@ export const HANG_SECS = 6; // s it hangs
 export const CURTAIN_WIND = 0.6; // s after it arrives that the first curtain falls: the wind-up the player sees
 export const CURTAIN_COOL = 2.5; // s of hanging between one curtain and the next
 export const HANG_ARRIVE = (HANG_Y - SPAWN_Y) / HANG_VY; // s after spawning that it reaches HANG_Y
-const HANG_LEAVE = HANG_ARRIVE + HANG_SECS; // s after spawning that it goes on down
+export const HANG_LEAVE = HANG_ARRIVE + HANG_SECS; // s after spawning that it goes on down
 
 const side = (x0) => (x0 < MID_X ? 1 : -1); // a swoop and a crossing head for the far side from where they start
 
