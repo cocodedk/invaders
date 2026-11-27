@@ -35,7 +35,7 @@ Decided by the owner in this conversation:
 ## Non-goals (for this build)
 
 - **Hardcore.** It is decided (above) and recorded so that it gets built as decided, but it needs at least two
-  legs to mean anything, so it comes with Leg 2. Note for then: a Hardcore leg starts with lives carried over,
+  legs to mean anything, so it comes later, as its own design. Note for then: a Hardcore leg starts with lives carried over,
   so its saved run must record them, or its replay diverges.
 - Legs after the first, and their abilities. The theme section sketches a direction; nothing there is
   committed.
@@ -227,7 +227,7 @@ is not to make things easy; the first stretch is still the gentlest of the leg.
 
 ## Calls I made (the owner may overrule any)
 
-- **Hardcore waits for Leg 2**, since one leg can't be a journey. It will be built as decided.
+- **Hardcore comes later, as its own design**, since one leg can't be a journey. It will be built as decided.
 - A 22nd world in the grid, not a separate mode, the way world 18 began with one level.
 - Top-down, scrolling upward, so the gun still fires up.
 - On a death (the last life lost), score, bombs and the ground's marks go back to the checkpoint, the power-up

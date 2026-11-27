@@ -142,3 +142,8 @@ test('an idle flight never fills the field: the hold loses no flight to a full s
   assert.ok(flown.peakAir > 0 && flown.peakAir < HOLD_FLIGHTS_MAX, `${flown.peakAir} craft at once while the hold stood`);
   assert.ok(flown.peakBullets < MAX_BULLETS / 2, `${flown.peakBullets} bullets at once`);
 });
+
+// A swallowed entry once slipped through (a spawn lost without a failing test); re-take this number from `levelById('w22-2').course.spawns.length` when the course data is changed on purpose.
+test('Leg 2 keeps every spawn it was authored with', () => {
+  assert.equal(leg.course.spawns.length, 149);
+});
