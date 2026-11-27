@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { WOOD } from '../../src/core/levels-8-wood.js';
 import { recorder, paintStrip, STRIP_SPAN, level, data } from './course-land-kit.js';
-const { PENCIL, traceReach, paintTrace } = await import('../../src/ui/course-land-trace.js');
+const { PENCIL, TIP_POINT, traceReach, paintTrace } = await import('../../src/ui/course-land-trace.js');
 const { PAL } = await import('../../src/ui/wander-kit.js');
 
 const { at, x } = WOOD.course.trace;
@@ -63,4 +63,22 @@ test('Leg 2 strips outside the trace paint exactly as paintStrip did without it'
   paintStrip(near.ctx, true, kAt, WOOD.seed, WOOD.course);
   assert.ok(near.calls.some(([n]) => n === 'translate'));
   assert.equal(level.id, 'w22-1');
+});
+
+test("the graphite line starts at the snapped point's tip, not off it", () => {
+  const { u, v } = TIP_POINT;
+  const tilt = PENCIL.tipTilt;
+  assert.ok(Math.abs(u - (PENCIL.body + PENCIL.cone) / 2 - PENCIL.tipGap - PENCIL.tipLen * Math.cos(tilt)) < 1e-9);
+  assert.ok(Math.abs(v - PENCIL.tipDrift - PENCIL.tipLen * Math.sin(tilt)) < 1e-9);
+  assert.ok(run(false, kAt).calls.some(([n, x, y]) => n === 'moveTo' && x === u && y === v), 'the first stroke of the line begins at the point');
+});
+
+test('the fallen pencil lies under the canopies: in a strip that holds both, it is drawn before any crown', () => {
+  const seq = [];
+  const r = recorder();
+  const ctx = new Proxy(r.ctx, { set: (o, p, val) => { if (p === 'fillStyle') seq.push(val); o[p] = val; return true; } });
+  paintStrip(ctx, true, kAt, WOOD.seed, WOOD.course);
+  const [pencil, crown] = [seq.indexOf(PAL.lacquer), seq.indexOf(PAL.canopy)];
+  assert.ok(pencil >= 0 && crown >= 0, 'both are in the strip');
+  assert.ok(pencil < crown, 'the pencil first');
 });

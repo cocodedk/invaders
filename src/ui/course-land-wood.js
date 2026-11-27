@@ -4,13 +4,14 @@
 // A canopy is a scalloped pencil ring with a short hard noon shadow offset a few px (no blur); in colour a crown with a highlight, bluebells by it.
 //   pathAt(at) -> { x, w }                          the path's middle and half width on a row
 //   scatterWood(seed, k, course) -> { crowns, clearings }   { x, y, s, ... } in the strip: only in the band, off the path, before the land's end
-//   paintWood(g, painted, k, seed, course, end)     strip k's path, clearings and canopies, the path stopping on the row `end`
+//   paintWood(g, painted, k, seed, course, end)     strip k's clearings, path and the fallen pencil (course-land-trace.js, it lies on the ground), then the canopies over them, the path stopping on the row `end`
 import { W, rgba } from './sprites.js';
 import { MID_X } from '../core/kinds.js';
 import { bandAt } from '../core/course-terrain.js';
 import { PAL } from './wander-kit.js';
 import { STRIP_SPAN, dice } from './course-land-valley.js';
 import { landEnd } from './course-land-end.js';
+import { paintTrace } from './course-land-trace.js';
 
 export const CROWN_TRIES = 22; // spots tried for canopies on a strip: the ones in the band and off the path stay
 export const CLEARING_TRIES = 2;
@@ -19,8 +20,14 @@ export const CROWN_R = 22; // px: radius of the smallest crown, and CROWN_VAR th
 export const CROWN_VAR = 16;
 export const CROWN_GAP = 24; // px a crown keeps from the path and the band's edge
 export const SHADOW = { dx: 7, dy: 5, ink: 0.2 }; // the hard noon shadow: its offset in px and the pencil's alpha
-export const SCALLOPS = 9; // bumps round a canopy's ring
+export const CROWN_BUMPS = 9; // bumps round a canopy's ring
 export const BELLS = 7; // bluebell dots by a crown
+export const BELL = { gap: 6, rise: 12, spread: 24, size: 3 }; // a bell dot: px right of the crown's edge, px above its middle, the px the dice spread it over, its size
+export const HIGHLIGHT = { off: 0.3, r: 0.4 }; // the crown's light patch, as shares of its radius: how far up and left of the middle, and its own radius
+export const BUMP = { swell: 0.1, wobble: 0.05 }; // a canopy ring's radius, as shares of it: the scallops' swell and the wobble the dice add
+export const CROWN_INK = { line: 0.6, width: 1.3 }; // a canopy's pencil outline: alpha and px
+export const PATH_INK = { alpha: 0.7, width: 2 }; // the path's two edges on the sketch
+export const CLEARING_INK = { painted: 0.15, sketch: 0.3, width: 1.2 }; // a clearing's outline: alpha on the colour bake and on the sketch, px
 export const CLEARING = { rx: 90, rxVar: 40, ry: 50, ryVar: 20, gap: 30 };
 export const PATH = { sway: 110, wave: 300, phase: 1.1, width: 34, swell: 8, swellWave: 130 };
 export const PATH_STEP = 6; // px of `at` between the points the path is drawn through (it divides STRIP_SPAN, so every strip has a point on each seam)
@@ -74,8 +81,8 @@ function path(g, k, painted, end) {
     g.fillStyle = PAL.sand;
     g.fill();
   }
-  g.strokeStyle = painted ? PAL.sandLine : pencil(0.7);
-  g.lineWidth = 2;
+  g.strokeStyle = painted ? PAL.sandLine : pencil(PATH_INK.alpha);
+  g.lineWidth = PATH_INK.width;
   for (const side of [-1, 1]) {
     g.beginPath();
     for (const p of pts) g.lineTo(p.x + side * p.w, p.y);
@@ -90,8 +97,8 @@ function clearing(g, c, painted) {
     g.fillStyle = PAL.clearing;
     g.fill();
   }
-  g.strokeStyle = pencil(painted ? 0.15 : 0.3);
-  g.lineWidth = 1.2;
+  g.strokeStyle = pencil(painted ? CLEARING_INK.painted : CLEARING_INK.sketch);
+  g.lineWidth = CLEARING_INK.width;
   g.stroke();
 }
 
@@ -100,7 +107,7 @@ function ring(g, t, x, y) {
   g.beginPath();
   for (let j = 0; j < RING_POINTS; j++) {
     const a = (j / RING_POINTS) * 2 * Math.PI;
-    const rr = t.s * (1 + 0.1 * Math.abs(Math.sin((SCALLOPS * a) / 2)) + 0.05 * t.wob[j % WOB]);
+    const rr = t.s * (1 + BUMP.swell * Math.abs(Math.sin((CROWN_BUMPS * a) / 2)) + BUMP.wobble * t.wob[j % WOB]);
     g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
   }
   g.closePath();
@@ -117,13 +124,13 @@ function crown(g, t, painted) {
     g.fill();
     g.fillStyle = PAL.canopyLight;
     g.beginPath();
-    g.arc(x - s * 0.3, y - s * 0.3, s * 0.4, 0, 7);
+    g.arc(x - s * HIGHLIGHT.off, y - s * HIGHLIGHT.off, s * HIGHLIGHT.r, 0, 7);
     g.fill();
     g.fillStyle = PAL.bluebell;
-    for (let j = 0; j < BELLS; j++) g.fillRect(x + s + 6 + t.bells[2 * j] * 24, y - 12 + t.bells[2 * j + 1] * 24, 3, 3);
+    for (let j = 0; j < BELLS; j++) g.fillRect(x + s + BELL.gap + t.bells[2 * j] * BELL.spread, y - BELL.rise + t.bells[2 * j + 1] * BELL.spread, BELL.size, BELL.size);
   }
-  g.strokeStyle = pencil(0.6);
-  g.lineWidth = 1.3;
+  g.strokeStyle = pencil(CROWN_INK.line);
+  g.lineWidth = CROWN_INK.width;
   ring(g, t, x, y);
   g.stroke();
 }
@@ -132,5 +139,6 @@ export function paintWood(g, painted, k, seed, course, end) {
   const { crowns, clearings } = scatterWood(seed, k, course);
   for (const c of clearings) clearing(g, c, painted);
   path(g, k, painted, end);
+  paintTrace(g, painted, k, course);
   for (const t of crowns) crown(g, t, painted);
 }

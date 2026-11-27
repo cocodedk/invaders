@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fastForward, drain, startClip, stepClip, clipDone, HOLD } from '../../src/ui/trailer/reel.js';
 import { cutClips, BLOOPER_TICKS } from '../../src/ui/trailer/cut.js';
+import { LAND_WOOD } from '../../src/core/levels-8-kit.js';
 import { levelById } from '../../src/core/levels.js';
 import { createWorld, stepWorld } from '../../src/core/world.js';
 import { autopilot } from '../../src/core/autopilot.js';
@@ -20,6 +21,14 @@ function flown(id) {
   }
   return { level, inputs, world };
 }
+
+test("a clip's fx knows its leg's land, so a Leg 2 clip throws the wood's paints and a Leg 1 clip the valley's", () => {
+  const clip = { start: 0, end: 1, peak: 0, kind: 'test' };
+  const land = (id) => { const lv = levelById(id); return startClip(createWorld(lv, lv.seed), [], clip).fx.land; };
+  assert.equal(land('w22-2'), LAND_WOOD);
+  assert.equal(land('w22-1'), null);
+  assert.equal(land('w1-1'), null);
+});
 
 const starts = (events, ticks) => cutClips(events, ticks).map((c) => c.start);
 

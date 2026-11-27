@@ -78,11 +78,13 @@ test('the pencil scratch is noise only: one band-passed hiss stroke each, sweepi
   assert.ok(sources(nodes).every((n) => n.kind === 'BufferSource'), 'no tone');
   assert.ok(secs <= SCRATCH.max, secs + ' s');
   assert.ok(SCRATCH.strokes.every((s) => s.f1 < s.f0));
+  assert.deepEqual(nodes.filter((n) => n.kind === 'BiquadFilter').map((n) => n.type), SCRATCH.strokes.map(() => 'bandpass'), 'each stroke is band-passed');
 });
 
 test("the bramble snap is a high-passed crack and a knock on a degree of the world's scale", () => {
   const { nodes, secs } = build(ROAD.brambleSnap);
   assert.ok(nodes.some((n) => n.kind === 'BufferSource'), 'the snap');
+  assert.deepEqual(nodes.filter((n) => n.kind === 'BiquadFilter').map((n) => n.type), ['highpass'], 'the crack is high-passed');
   assert.ok(plays(nodes, SNAP.degree, SNAP.octave), 'the knock is in key');
   assert.ok(secs < 0.2);
 });

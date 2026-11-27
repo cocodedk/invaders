@@ -14,7 +14,9 @@ const SHADOW = 'rgba(40,40,50,0.18)';
 const TAU = Math.PI * 2;
 export const THICKET_THORNS = 14; // thorns round a bramble gate's ring, pointing out
 export const THICKET_THORN_LEN = 12; // px a gate's thorn points out from its ring: its tip is at GROUND_R
+export const THICKET_OUTER = GROUND_R - THICKET_THORN_LEN; // the ring's outside
 export const THICKET_RING = 10; // px of bramble in a gate's ring, thinner than a stone ring so the dark clearing shows round the eye
+export const THICKET_PATCH = { rx: 12, ry: 8 }; // the pale patch under a sleeping gate's lid, in the eye's own (scaled) units
 export const THICKET_CENTRE = '#33302a'; // the dark clearing in the middle of a gate
 
 function stems(g, w, h) { // two stems crossing the box, one swaying each way
@@ -27,6 +29,13 @@ function stems(g, w, h) { // two stems crossing the box, one swaying each way
     g.bezierCurveTo(-w / 6, s * h * STEM_SWAY * 2, w / 6, -s * h * STEM_SWAY * 2, w / 2, 0);
     g.stroke();
   }
+}
+
+// One of a gate's thorns, at angle a: its base chord lies on the ring's outside, so no corner dips in, and its tip is at GROUND_R. -> [[x, y], [x, y], [x, y]]
+export function thicketThorn(a) {
+  const half = THORN_BASE / THICKET_OUTER;
+  const base = THICKET_OUTER / Math.cos(half);
+  return [[Math.cos(a - half) * base, Math.sin(a - half) * base], [Math.cos(a + half) * base, Math.sin(a + half) * base], [Math.cos(a) * GROUND_R, Math.sin(a) * GROUND_R]];
 }
 
 function thorns(g, w, h) { // small dark triangles pointing in from the top edge (down) and the bottom edge (up)
@@ -59,7 +68,7 @@ export const thornSprite = (w, h) => cached(`wanderThorn${w}x${h}`, w + 2 * PILL
 
 // A bramble gate: the gate's square and eye, its ring a tangle of bramble with thorns pointing out (the tips at GROUND_R) round a dark centre.
 export const thicketGateSprite = (awake) => round(awake ? 'wanderThicketAwake' : 'wanderThicketAsleep', (g) => {
-  const outer = GROUND_R - THICKET_THORN_LEN; // the ring's outside
+  const outer = THICKET_OUTER;
   g.fillStyle = SHADOW;
   g.beginPath();
   g.ellipse(SHADOW_DX, SHADOW_DY, GROUND_R, GROUND_R * 0.6, 0, 0, TAU);
@@ -82,13 +91,13 @@ export const thicketGateSprite = (awake) => round(awake ? 'wanderThicketAwake' :
   g.beginPath();
   for (let i = 0; i < THICKET_THORNS; i++) {
     const a = (i / THICKET_THORNS) * TAU;
-    const half = THORN_BASE / outer;
-    g.moveTo(Math.cos(a - half) * outer, Math.sin(a - half) * outer);
-    g.lineTo(Math.cos(a + half) * outer, Math.sin(a + half) * outer);
-    g.lineTo(Math.cos(a) * GROUND_R, Math.sin(a) * GROUND_R);
+    const [p, q, tip] = thicketThorn(a);
+    g.moveTo(...p);
+    g.lineTo(...q);
+    g.lineTo(...tip);
   }
   g.fill();
   g.scale(OBJECT_SCALE, OBJECT_SCALE); // the eye is the stone's
   if (awake) openEye(g);
-  else { g.fillStyle = PAL.kite; g.beginPath(); g.ellipse(0, 0, 12, 8, 0, 0, TAU); g.fill(); shutEye(g); } // a pale patch to read the lid on
+  else { g.fillStyle = PAL.kite; g.beginPath(); g.ellipse(0, 0, THICKET_PATCH.rx, THICKET_PATCH.ry, 0, 0, TAU); g.fill(); shutEye(g); } // a pale patch to read the lid on
 });

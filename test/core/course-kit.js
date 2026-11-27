@@ -7,6 +7,7 @@ import { RESPAWN_Y } from '../../src/core/course-check.js';
 import { BOMB_DAMAGE } from '../../src/core/damage.js';
 import { hurtGround } from '../../src/core/course-ground.js';
 import { stopAt } from '../../src/core/course-hold.js';
+import { SEED_DMG } from '../../src/core/course-seed.js';
 import { TICK, IDLE, step } from './world-kit.js';
 
 // Shared by the course tests (world 22): a test-only course level, which createWorld takes as it takes the
@@ -72,6 +73,19 @@ export const launched = (spawns, opts) => {
   step(world);
   return world;
 };
+
+// The seed and bomb tests' ground (world 22): objects at `at` 0 with hp enough to take a few hits, a ground object put on a screen y, and
+// a course world past one play tick with its ship unhurtable and its gun jammed (the shots hurt the ground too, course-shots.js), with `starts` abilities.
+export const GROUND_HP = 3 * Math.max(SEED_DMG, BOMB_DAMAGE);
+export const turret = (x = MID_X, hp = GROUND_HP) => ({ kind: 'turret', at: 0, x, hp });
+export const crate = (x, drop = null, hp = GROUND_HP) => ({ kind: 'crate', at: 0, x, hp, drop });
+export const put = (world, g, y) => { g.at = SPAWN_Y + world.course.dist - y; }; // the object stands at screen y now
+export function seedWorld(spawns = [turret()], starts = ['seed'], speed = 60) {
+  const world = launched(spawns, { speed, starts });
+  world.ship.invuln = Infinity;
+  world.ship.cooldown = Infinity;
+  return world;
+}
 
 // The end hold (world 22). `hold()` is an entry with two gates and no flights, over which `o` goes; a gate is { x, dy, hp } and a
 // flight is an air entry with a time t: it comes t s after the stop, and again every `period`. `stopOf` is the dist the scroll stops at (the

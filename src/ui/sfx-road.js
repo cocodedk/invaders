@@ -18,8 +18,8 @@ export const BLOOM = { chord: [0, 2, 4], octave: 4, spark: [0, 2, 4, 7], sparkOc
 export const SWELL = { chord: [0, 4, 7], octave: 3, attack: 0.5 }; // a respawn: root, fifth and octave of the chord swelling in (degree 7 is the root an octave up)
 export const CRACK = { chip: 0.45, cut: 1 }; // how big the crack of a struck bullet and of a broken one is (1 is the biggest)
 export const RUSTLE = { beats: [0, 0.04, 0.09, 0.15, 0.23, 0.33], pitches: [5600, 4300, 5000, 3400, 3900, 2600] }; // the flutter: when each rustle starts (s) and its centre (Hz)
-export const SCRATCH = { strokes: [{ f0: 3600, f1: 1800, at: 0 }, { f0: 3000, f1: 1500, at: 0.04 }, { f0: 2500, f1: 1200, at: 0.08 }], dur: 0.04, peak: 0.05, max: 0.2 }; // the pencil scratch: each stroke's sweep (Hz) and start (s)
-export const SNAP = { degree: 4, octave: 4, dur: 0.05, peak: 0.08 }; // the twig's knock: a degree of the scale
+export const SCRATCH = { strokes: [{ f0: 3600, f1: 1800, at: 0 }, { f0: 3000, f1: 1500, at: 0.04 }, { f0: 2500, f1: 1200, at: 0.08 }], dur: 0.04, peak: 0.05, max: 0.2, q: 1.2, tail: 0.04 }; // the pencil scratch: each stroke's sweep (Hz) and start (s)
+export const SNAP = { degree: 4, octave: 4, dur: 0.05, peak: 0.08, crack: { f0: 6000, f1: 3000, dur: 0.025, peak: 0.14 }, tail: 0.05 }; // the twig's knock: a degree of the scale, and the high-passed crack (Hz sweep, s, peak) before it
 export const FLOOD = { chord: [0, 2, 4, 7, 9], octave: 4, gap: 0.08, ring: 2, rush: 1.4, top: 11, topOctave: 6, topAt: 0.5, bell: 1.6 }; // the gate's chord, wide and held (ring s), and a bell on top of it
 
 const bellOn = (a, d, octave, t, o = {}) => fm(a, { t, f0: noteHz(a.kit, d, octave), ratio: 3.51, index: 0.7, dur: CHIME.dur, peak: 0.07, cut: 6500, ...o });
@@ -57,14 +57,14 @@ function flutter(a) {
 }
 
 function lineScratch(a) {
-  SCRATCH.strokes.forEach((s) => hiss(a, { t: a.t + s.at, type: 'bandpass', f0: s.f0, f1: s.f1, q: 1.2, dur: SCRATCH.dur, peak: SCRATCH.peak }));
-  return SCRATCH.strokes.at(-1).at + SCRATCH.dur + 0.04;
+  SCRATCH.strokes.forEach((s) => hiss(a, { t: a.t + s.at, type: 'bandpass', f0: s.f0, f1: s.f1, q: SCRATCH.q, dur: SCRATCH.dur, peak: SCRATCH.peak }));
+  return SCRATCH.strokes.at(-1).at + SCRATCH.dur + SCRATCH.tail;
 }
 
 function brambleSnap(a) {
-  hiss(a, { type: 'highpass', f0: 6000, f1: 3000, dur: 0.025, peak: 0.14 });
+  hiss(a, { type: 'highpass', ...SNAP.crack });
   tone(a, { type: 'triangle', f0: noteHz(a.kit, SNAP.degree, SNAP.octave), dur: SNAP.dur, peak: SNAP.peak });
-  return SNAP.dur + 0.05;
+  return SNAP.dur + SNAP.tail;
 }
 
 function respawn(a) {

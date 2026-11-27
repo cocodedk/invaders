@@ -21,7 +21,7 @@ export const CONTOUR_INK = 0.35; // how much of the pencil shows through on the 
 export const CONTOUR_WOBBLE = 6; // px a line sways from where the gap puts it, either way
 export const CONTOUR_WAVE = 40; // px of `at` for one radian of the sway (the mockup's)
 export const CONTOUR_STEP = 12; // px of `at` between the points a line is drawn through
-export const SCALLOPS = 4; // rows of canopy scallops inside the wood's edge (Leg 2: course-land-wood.js has the floor)
+export const EDGE_ROWS = 4; // rows of canopy scallops inside the wood's edge (Leg 2: course-land-wood.js has the floor)
 export const SCALLOP_R = 14; // px: the radius of one scallop, a half circle bulging toward the valley
 export const SCALLOP_GAP = 22; // px between the rows, the first that far inside the edge
 export const SCALLOP_STEP = 28; // px of `at` between the scallops of a row (every other row shifted half a step)
@@ -49,7 +49,7 @@ function scallops(g, lo, hi, course) {
   g.lineWidth = 1.4;
   g.beginPath();
   for (const side of SIDES) {
-    for (let k = 0; k < SCALLOPS; k++) {
+    for (let k = 0; k < EDGE_ROWS; k++) {
       const shift = (k % 2) * (SCALLOP_STEP / 2);
       const first = Math.floor((lo - SCALLOP_R - shift) / SCALLOP_STEP) * SCALLOP_STEP + shift;
       for (let at = first; at <= hi + SCALLOP_R; at += SCALLOP_STEP) {

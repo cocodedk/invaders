@@ -9,7 +9,6 @@ const W = await import('../../src/ui/course-sprites-wood.js');
 const S = await import('../../src/ui/course-sprites.js');
 const { smudgeRole, SMUDGE_ROLES } = await import('../../src/ui/aliens/w22-smudge.js');
 const { HANG_ARRIVE, HANG_LEAVE, CURTAIN_WIND, CURTAIN_COOL } = await import('../../src/core/course-air.js');
-const { CURTAIN_BODY_SCALE } = await import('../../src/ui/bullets-view.js');
 const { createWorld } = await import('../../src/core/world.js');
 const { levelById } = await import('../../src/core/levels.js');
 
@@ -53,6 +52,15 @@ test("w22-2's gates draw the Thicket's bramble ring and w22-1's still draw the s
   }
 });
 
+test("a gate's thorns start on the ring's outside, none of the base dipping into the dark centre, and end at GROUND_R", () => {
+  for (let i = 0; i < W.THICKET_THORNS; i++) {
+    const [p, q, tip] = W.thicketThorn((i / W.THICKET_THORNS) * 2 * Math.PI);
+    for (const [x, y] of [p, q]) assert.ok(Math.hypot(x, y) >= W.THICKET_OUTER - 1e-9, `base corner at ${Math.hypot(x, y)}`);
+    assert.ok(Math.hypot((p[0] + q[0]) / 2, (p[1] + q[1]) / 2) >= W.THICKET_OUTER - 1e-9, 'the base chord');
+    assert.ok(Math.abs(Math.hypot(...tip) - GROUND_R) < 1e-9);
+  }
+});
+
 test('the Smudge is a role of its own, its eye open from CURTAIN_WIND before each curtain until it falls', () => {
   const hang = (t, cool) => ({ role: 'gunner', path: 'hang', t, cool });
   assert.equal(smudgeRole({ role: 'grunt', path: 'swoop' }), 'grunt');
@@ -64,7 +72,6 @@ test('the Smudge is a role of its own, its eye open from CURTAIN_WIND before eac
   assert.deepEqual(SMUDGE_ROLES, ['smudge', 'smudgeOpen']);
 });
 
-test('the curtain bullet scale is a named constant and the files keep the rules', () => {
-  assert.equal(CURTAIN_BODY_SCALE, 1.8);
+test('the wood sprites file keeps the rules', () => {
   fileRules(assert, ['course-sprites-wood.js']);
 });

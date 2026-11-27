@@ -69,9 +69,11 @@ export function drain(gen) {
 }
 
 export function startClip(world, inputs, clip, { seed = 0, speed = 1, peakSlow = PEAK_SLOW } = {}) {
+  const fx = createFx();
+  fx.land = world.level.course?.land ?? null; // the look of the leg's ground, for the paint its bursts throw (as react-story.js openLeg sets it, without the caption)
   return {
     world, inputs, start: clip.start, end: clip.end, peak: clip.peak, kind: clip.kind,
-    fx: createFx(), rng: makeRng(((seed ^ FX_SALT) + clip.start) >>> 0),
+    fx, rng: makeRng(((seed ^ FX_SALT) + clip.start) >>> 0),
     acc: 0, speed, peakSlow, peaked: false, t: 0, after: 0,
   };
 }

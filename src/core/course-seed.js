@@ -11,8 +11,9 @@ import { GROUND_R, hurtGround } from './course-ground.js';
 // the land) and bursts `t` s later. A burst hurts every ground object on the screen within SEED_R of it (one above the top
 // edge, which the player cannot see, takes nothing; a ground object counts from its own edge, GROUND_R), adds { x, at, r }
 // to course.marks (what the view paints, so a respawn or a snapshot shows the same land) and says 'seedBurst'. Seeds are
-// the player's, so they run in real time, and they never touch a bullet or an air craft. The ability is `'seed'` in course.abilities (a level's `starts`, or a checkpoint's grant);
-// with it, holding fire drops one every SEED_COOLDOWN s as well as the gun's shots. They draw no rng.
+// the player's, so they run in real time, and they never touch a bullet or an air craft. The ability is `'seed'` in
+// course.abilities (a level's `starts`, or a checkpoint's grant); with it, holding fire drops one every SEED_COOLDOWN s as
+// well as the gun's shots. They draw no rng.
 
 export const SEED_COOLDOWN = 0.4; // s between one seed and the next while fire is held
 export const SEED_FALL = 0.5; // s from the drop to the burst
@@ -47,8 +48,8 @@ function bombed(world) {
 // One tick of the seeds, `dt` real seconds, in the order: the cooldown runs down, the seeds in the air fall and the
 // ones whose time is up burst (in array order), then a fresh seed drops if the ability, fire, a living ship and the
 // cooldown allow (it starts falling next tick), and last the bomb of this tick hurts every ground object on the
-// screen, and wakes the whole screen's land (a mark of BOMB_BLOOM_R). course.js calls this after the ground has been put where the scroll says, before the turrets fire, so a
-// turret broken now does not fire on the tick it breaks.
+// screen, and wakes the whole screen's land (a mark of BOMB_BLOOM_R). course.js calls this after the ground has been put
+// where the scroll says, before the turrets fire, so a turret broken now does not fire on the tick it breaks.
 export function stepSeeds(world, dt, input) {
   const { course, ship } = world;
   course.seedCool = Math.max(0, course.seedCool - dt);

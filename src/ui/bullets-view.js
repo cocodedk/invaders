@@ -10,7 +10,6 @@ import { CURTAIN_GAP } from '../core/patterns.js';
 // The Smudge's curtain (world 22) blinks like an LED strip: each bullet steps through these, a
 // neighbour one step ahead. No white: that is the ship's own shot there.
 export const LED_COLOURS = ['#ff2a2a', '#ffe030', '#30ff5a', '#30f0ff', '#3a5aff', '#ff30e0'];
-export const CURTAIN_BODY_SCALE = 1.8; // a curtain bullet's body sprite is this many times its radius wide, either side
 export const LED_RATE = 8; // colour steps a second
 export const LED_RIM = 3; // px a bulb's disc is wider than the bullet's radius
 export const LED_DARK_EVERY = 4; // one bulb in this many is dark at a time, the dark one walking along the row

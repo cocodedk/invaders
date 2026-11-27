@@ -23,7 +23,7 @@ export const ROAD_WORLD = 22; // the renderer's WANDER_WORLD (ui/wander-kit.js; 
 // The colours, copied from ui/wander-kit.js PAL (react-road.test.js keeps them alike): the lantern's golds, what hurts, and the paint the valley floods with.
 export const GOLDS = ['#e9b949', '#c8901f', '#ffe9a8'];
 export const VIOLETS = ['#7a5cc4', '#2e2250'];
-export const WOOD_PAINTS = ['#3f7d3a', '#a6d672', '#5a6fd6', '#c3de92', '#b4d9a0']; // Leg 2's: canopy greens, bluebell, clearing (PAL; react-road.test.js keeps them alike)
+export const WOOD_PAINTS = ['#3f7d3a', '#a6d672', '#5a6fd6', '#c3de92', '#b4d9a0']; // Leg 2's: canopy greens, canopy edge, bluebell, clearing (PAL; react-road.test.js keeps them alike)
 export const GRAPHITE = '#34302c'; // the line's ink (ui/course-line-view.js LINE_COLOUR; react-road.test.js keeps the two alike)
 export const PAINTS = ['#a9cf74', '#3fa7a5', '#d8c35a', '#4f8f45', '#bee68c', '#e0533a', '#e9b949', '#4fc3c0'];
 

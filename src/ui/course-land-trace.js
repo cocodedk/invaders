@@ -9,10 +9,14 @@ import { PAL } from './wander-kit.js';
 import { STRIP_SPAN } from './course-land-valley.js';
 
 export const PENCIL = { body: 900, cone: 300, width: 110, tipGap: 40, tipLen: 90, tipTilt: 0.18, tipDrift: 26, lineLen: 260, lineWobble: 7, lineStep: 20, snapTeeth: 5 };
+export const SNAP_TOOTH = 9; // px a jagged tooth of the snap reaches along the axis
+export const TIP_MARK = { at: 0.7, half: 0.4 }; // the graphite tip's dark point: where it starts along the tip's length, and its half width as a share of the tip's
+export const LINE_INK = { width: 3, wave: 31 }; // the graphite line: its px width, and the px of its length for one radian of its wobble
 export const TRACE_INK = { line: 0.65, fine: 0.35, fade: 0.8 }; // pencil alphas: outlines, ridges, and the graphite line's start (it fades along its length)
 const HALF = (PENCIL.body + PENCIL.cone) / 2;
 const TAIL = HALF + PENCIL.tipGap + PENCIL.tipLen + PENCIL.lineLen; // the furthest the graphite line runs from the middle, along the axis
 const TIP_HALF = 0.1; // the cone's point, as a share of the half width, where it snaps
+export const TIP_POINT = { u: HALF + PENCIL.tipGap + PENCIL.tipLen * Math.cos(PENCIL.tipTilt), v: PENCIL.tipDrift + PENCIL.tipLen * Math.sin(PENCIL.tipTilt) }; // where the snapped point's graphite tip lies, in the axis' frame: the line starts here
 
 export const traceReach = (a) => Math.ceil(TAIL * Math.abs(Math.sin(a)) + PENCIL.width);
 
@@ -29,7 +33,7 @@ function poly(g, pts, fill, stroke, width) {
 }
 
 // The jagged edge of the snap at u, half width h: the cone's end and the tip piece's start are cut along it.
-const teeth = (u, h, dir) => Array.from({ length: PENCIL.snapTeeth * 2 + 1 }, (_, i) => [u + dir * (i % 2) * 9, -h + (2 * h * i) / (PENCIL.snapTeeth * 2)]);
+const teeth = (u, h, dir) => Array.from({ length: PENCIL.snapTeeth * 2 + 1 }, (_, i) => [u + dir * (i % 2) * SNAP_TOOTH, -h + (2 * h * i) / (PENCIL.snapTeeth * 2)]);
 
 function body(g, painted) {
   const h = PENCIL.width / 2;
@@ -53,22 +57,21 @@ function tip(g, painted) {
   poly(g, [...teeth(0, h, 1), [PENCIL.tipLen, 0]], painted ? PAL.woodBare : null, pencil(TRACE_INK.line), 1.6);
   g.fillStyle = pencil(TRACE_INK.line);
   g.beginPath();
-  g.moveTo(PENCIL.tipLen * 0.7, -h * 0.4);
+  g.moveTo(PENCIL.tipLen * TIP_MARK.at, -h * TIP_MARK.half);
   g.lineTo(PENCIL.tipLen, 0);
-  g.lineTo(PENCIL.tipLen * 0.7, h * 0.4);
+  g.lineTo(PENCIL.tipLen * TIP_MARK.at, h * TIP_MARK.half);
   g.fill();
   g.restore();
 }
 
-// The graphite the point left running on from the snap, wobbling a little and fading.
+// The graphite the point left running on from the snap (it starts at the tip's point, TIP_POINT), wobbling a little and fading.
 function line(g) {
-  const u0 = HALF + PENCIL.tipGap + PENCIL.tipLen;
-  g.lineWidth = 3;
+  g.lineWidth = LINE_INK.width;
   for (let s = 0; s < PENCIL.lineLen; s += PENCIL.lineStep) {
     g.strokeStyle = pencil(TRACE_INK.fade * (1 - s / PENCIL.lineLen));
     g.beginPath();
-    g.moveTo(u0 + s, PENCIL.tipDrift + PENCIL.lineWobble * Math.sin(s / 31));
-    g.lineTo(u0 + s + PENCIL.lineStep, PENCIL.tipDrift + PENCIL.lineWobble * Math.sin((s + PENCIL.lineStep) / 31));
+    g.moveTo(TIP_POINT.u + s, TIP_POINT.v + PENCIL.lineWobble * Math.sin(s / LINE_INK.wave));
+    g.lineTo(TIP_POINT.u + s + PENCIL.lineStep, TIP_POINT.v + PENCIL.lineWobble * Math.sin((s + PENCIL.lineStep) / LINE_INK.wave));
     g.stroke();
   }
 }

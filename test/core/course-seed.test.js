@@ -5,28 +5,15 @@ import { MID_X } from '../../src/core/kinds.js';
 import { SPAWN_Y } from '../../src/core/course-kinds.js';
 import { GROUND_R, GROUND_SCORE } from '../../src/core/course-ground.js';
 import { SEED_COOLDOWN, SEED_FALL, SEED_REACH, SEED_R, SEED_DMG } from '../../src/core/course-seed.js';
-import { BOMB_DAMAGE } from '../../src/core/damage.js';
 import { step, drain, ofType, gunTicks, FIRE } from './world-kit.js';
-import { courseLevel, launched } from './course-kit.js';
+import { courseLevel, GROUND_HP, turret, crate, seedWorld } from './course-kit.js';
 
 // The seeds (world 22's ground weapon) and the bomb on the ground. The scroll is slow (a pixel a tick); where a test puts
 // a ground object next to a seed it says so in course coordinates (x, at), which no scroll changes.
-const SPEED = 60;
-const HP = 3 * Math.max(SEED_DMG, BOMB_DAMAGE); // enough to take a few hits
+const HP = GROUND_HP;
 const REACH = SEED_R + GROUND_R; // how far from a burst a ground object is still hurt
-const turret = (x = MID_X, hp = HP) => ({ kind: 'turret', at: 0, x, hp });
-const crate = (x, drop = null, hp = HP) => ({ kind: 'crate', at: 0, x, hp, drop });
 const yOf = (world, at) => SPAWN_Y + world.course.dist - at;
-const put = (world, g, y) => { g.at = SPAWN_Y + world.course.dist - y; }; // the object stands at screen y now
 
-// A course world past one play tick (the entries are on the ground), the ship unhurtable, with `starts` abilities. Its gun is
-// jammed: the shots hurt the ground too (course-shots.js), and these tests are about the seeds, which drop with fire held.
-function seedWorld(spawns = [turret()], starts = ['seed']) {
-  const world = launched(spawns, { speed: SPEED, starts });
-  world.ship.invuln = Infinity;
-  world.ship.cooldown = Infinity;
-  return world;
-}
 // A seed dropped this tick, with the first ground object moved to (dx, dat) from where it will burst.
 function dropOnto(world, dx = 0, dat = 0) {
   step(world, 1, FIRE);
@@ -42,7 +29,7 @@ test('a course holds the abilities its level starts with, as its own copy, and n
   assert.deepEqual([world.course.abilities, world.course.marks, world.course.seeds, world.course.seedCool], [['seed'], [], [], 0]);
   world.course.abilities.push('later');
   assert.deepEqual(data.starts, ['seed']);
-  const { starts, ...bare } = data;
+  const bare = { ...data, starts: undefined };
   assert.deepEqual(createWorld(courseLevel(bare)).course.abilities, []);
 });
 

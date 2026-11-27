@@ -6,20 +6,10 @@ import { GROUND_SCORE } from '../../src/core/course-ground.js';
 import { BOMB_BLOOM_R } from '../../src/core/course-seed.js';
 import { BOMB_DAMAGE, targets } from '../../src/core/damage.js';
 import { step, ofType, input } from './world-kit.js';
-import { launched } from './course-kit.js';
+import { GROUND_HP, turret, crate, put, seedWorld } from './course-kit.js';
 
 // The bomb on the ground (world 22): it hurts every ground object on screen and wakes the land it hits.
-const SPEED = 60;
-const HP = 3 * BOMB_DAMAGE; // enough to take a few hits
-const turret = (x = MID_X, hp = HP) => ({ kind: 'turret', at: 0, x, hp });
-const crate = (x, drop = null, hp = HP) => ({ kind: 'crate', at: 0, x, hp, drop });
-const put = (world, g, y) => { g.at = SPAWN_Y + world.course.dist - y; }; // the object stands at screen y now
-function seedWorld(spawns = [turret()], starts = ['seed']) {
-  const world = launched(spawns, { speed: SPEED, starts });
-  world.ship.invuln = Infinity;
-  world.ship.cooldown = Infinity;
-  return world;
-}
+const HP = GROUND_HP;
 
 // A bomb world: a turret on screen, one above the top edge, a crate, a stone and a lantern on screen; the bomb comes next tick.
 function bombWorld() {

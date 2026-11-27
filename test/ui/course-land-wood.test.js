@@ -98,3 +98,24 @@ test('a canopy keeps off the path and inside the band', async () => {
   }
   assert.ok(n > 0);
 });
+
+test('drawCourse fills the rock with the rock tan on Leg 1 and the canopy edge on Leg 2 (the view reads the land key; the core never does)', async () => {
+  const { SPAWN_Y } = await import('../../src/core/course-kinds.js');
+  const { HEIGHT } = await import('../../src/core/kinds.js');
+  const { drawCourse, buildCourseView } = await import('../../src/ui/course-view.js');
+  const { createWorld } = await import('../../src/core/world.js');
+  const { levelById } = await import('../../src/core/levels.js');
+  const fills = (id) => {
+    const lv = levelById(id);
+    const r = recorder();
+    const seen = new Set();
+    const ctx = new Proxy(r.ctx, { set: (o, p, v) => { if (p === 'fillStyle') seen.add(v); o[p] = v; return true; } });
+    const world = createWorld(lv, lv.seed);
+    const [at] = lv.course.walls.find(([, left]) => left > 0); // a row with rock on screen's middle
+    world.course.dist = at - SPAWN_Y + HEIGHT / 2;
+    drawCourse(ctx, buildCourseView(lv.seed), world, 0);
+    return seen;
+  };
+  assert.ok(fills('w22-1').has(PAL.rock) && !fills('w22-1').has(PAL.canopyEdge));
+  assert.ok(fills('w22-2').has(PAL.canopyEdge) && !fills('w22-2').has(PAL.rock));
+});

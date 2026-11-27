@@ -29,7 +29,8 @@ export { TICK };
 // counts), so the same pointer inputs fly a different course and meet different bullets. 11: R70, the base gun
 // fires every 9 ticks instead of 11, so the same inputs fire more shots. World 19's bonk (R71: dizzy bodies the
 // ship bats) is scoped to its world and draws no rng, so the version stays 11; so are world 20's echo
-// and world 21's returning arrow.
+// and world 21's returning arrow. World 22's marks (a seed's burst, a bomb's bloom, Leg 2's) are pushed onto course.marks, which
+// only the view and stateHash (its length) read, so they change no play and the version stays 11.
 const RUN_V = 11;
 
 // The storable form of a finished run. `level` is a level or its id; `result` is { score, stars }.
