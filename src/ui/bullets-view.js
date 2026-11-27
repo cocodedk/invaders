@@ -3,7 +3,7 @@
 // stars, acid; a homing bullet the ship has dragged round (world 18) is drawn as the ship's own (bullets-dragged.js). Lasers are in lasers-view.js. One glow + one body sprite per bullet; at half quality
 // the glow is skipped.
 import { glow } from './sprites.js';
-import { bulletKit } from './bullet-sprites.js';
+import { bulletKit, bulb } from './bullet-sprites.js';
 import { drawDragged } from './bullets-dragged.js';
 import { CURTAIN_GAP } from '../core/patterns.js';
 
@@ -12,6 +12,10 @@ import { CURTAIN_GAP } from '../core/patterns.js';
 export const LED_COLOURS = ['#ff2a2a', '#ffe030', '#30ff5a', '#30f0ff', '#3a5aff', '#ff30e0'];
 export const CURTAIN_BODY_SCALE = 1.8; // a curtain bullet's body sprite is this many times its radius wide, either side
 export const LED_RATE = 8; // colour steps a second
+export const LED_RIM = 3; // px a bulb's disc is wider than the bullet's radius
+export const LED_DARK_EVERY = 4; // one bulb in this many is dark at a time, the dark one walking along the row
+export const LED_OFF = '#2a2630'; // an unlit bulb
+export const ledLit = (b, t) => (Math.floor(t * LED_RATE) + Math.round(b.x / CURTAIN_GAP)) % LED_DARK_EVERY !== 0;
 export const ledColour = (b, t) => {
   const n = LED_COLOURS.length;
   return LED_COLOURS[(((Math.floor(t * LED_RATE + b.x / CURTAIN_GAP)) % n) + n) % n];
@@ -42,9 +46,9 @@ export function drawBullets(ctx, world, look, t, quality = 1) {
     const g = glow(enemy);
     const mine = glow(look.palette.accent); // a dragged bullet (world 18) glows in the ship's colour
     for (const b of list) {
-      if (b.pattern === 'laser') continue;
+      if (b.pattern === 'laser' || b.pattern === 'curtain') continue; // a curtain bulb is opaque, no glow
       const r = b.r * (b.pattern === 'shuriken' ? 2.2 : b.dragged ? 3.4 : 2.8);
-      ctx.drawImage(b.pattern === 'curtain' ? glow(ledColour(b, t)) : b.pattern === 'acid' ? glow('#b8ff3a') : b.dragged ? mine : g, b.x - r, b.y - r, r * 2, r * 2);
+      ctx.drawImage(b.pattern === 'acid' ? glow('#b8ff3a') : b.dragged ? mine : g, b.x - r, b.y - r, r * 2, r * 2);
     }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
@@ -55,7 +59,7 @@ export function drawBullets(ctx, world, look, t, quality = 1) {
   for (const b of list) {
     const p = b.pattern;
     if (p === 'laser') continue;
-    if (p === 'curtain') { const c = glow(ledColour(b, t)), r = b.r * CURTAIN_BODY_SCALE; ctx.drawImage(c, b.x - r, b.y - r, r * 2, r * 2); }
+    if (p === 'curtain') { const s = bulb(ledLit(b, t) ? ledColour(b, t) : LED_OFF, b.r + LED_RIM); ctx.drawImage(s, b.x - s.width / 2, b.y - s.height / 2); }
     else if (p === 'shuriken') rotated(ctx, m, b.x, b.y, t * 9 + phaseOf(b), K.star, 48 * (b.r / 18));
     else if (p === 'rain') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy), K.drop);
     else if (p === 'acid') rotated(ctx, m, b.x, b.y, heading(b.vx, b.vy || 1), K.acid);

@@ -136,3 +136,20 @@ export const strip = (color) => cached('strip' + color, 64, 4, (g, w, h) => {
   ]);
   g.fillRect(0, 0, w, h);
 });
+
+// An LED bulb of disc radius r: opaque colour, a dark pencil outline and a white spot, so it reads on parchment.
+export const bulb = (color, r) => cached('bulb' + color + r, r * 2 + 6, r * 2 + 6, (g, w) => {
+  const c = w / 2;
+  g.fillStyle = INK;
+  g.beginPath();
+  g.arc(c, c, r + 2, 0, TAU);
+  g.fill();
+  g.fillStyle = color;
+  g.beginPath();
+  g.arc(c, c, r, 0, TAU);
+  g.fill();
+  g.fillStyle = '#ffffff';
+  g.beginPath();
+  g.arc(c - r * 0.35, c - r * 0.35, r * 0.28, 0, TAU);
+  g.fill();
+});
