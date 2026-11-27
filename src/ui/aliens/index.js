@@ -19,6 +19,7 @@ import { clamp } from '../../core/math.js';
 import { WRECK_TIME } from '../../core/twists-2.js';
 import { isSwooping } from '../../core/aliens.js';
 import { art, roleSprites, extraSprites } from './bake.js';
+import { smudgeRole } from './w22-smudge.js';
 import { cracked, crackLights } from './cracks.js';
 import { drawShells } from '../shell-view.js';
 import { drawMending } from '../mending-view.js';
@@ -133,7 +134,7 @@ export function drawAliens(ctx, world, look, t) {
   halos(ctx, world.aliens, look, A, t);
   for (const w of world.wrecks) wreck(ctx, w, look, t);
   for (const a of world.aliens) {
-    const set = roleSprites(look, a.role);
+    const set = roleSprites(look, smudgeRole(a));
     const f = frameOf(A, a, t);
     const k = crackStage(a);
     const img = flashing(a, t) ? set.flash[f] : k ? cracked(set, f, k) : set.body[f];
@@ -141,7 +142,7 @@ export function drawAliens(ctx, world, look, t) {
   }
   ctx.globalCompositeOperation = 'lighter';
   for (const a of world.aliens) {
-    const set = roleSprites(look, a.role);
+    const set = roleSprites(look, smudgeRole(a));
     blit(ctx, set.lights[frameOf(A, a, t)], set, a.x, a.y + bobOf(A, a, t), 1, lean(world, a));
   }
   ctx.globalAlpha = 1;
@@ -158,7 +159,7 @@ export function drawAlienLights(ctx, world, look, t, k) {
     const y = a.y + bobOf(A, a, t);
     ctx.globalAlpha = 0.45 * k;
     ctx.drawImage(glow(colors[a.role]), a.x - 46, y - 46, 92, 92);
-    const set = roleSprites(look, a.role);
+    const set = roleSprites(look, smudgeRole(a));
     const f = frameOf(A, a, t);
     const rot = lean(world, a);
     blit(ctx, set.lights[f], set, a.x, y, k, rot);

@@ -8,6 +8,7 @@
 import { H, glow, addGlow } from './sprites.js';
 import { RESPAWN_Y } from '../core/course-check.js';
 import { PAL } from './wander-kit.js';
+import { thornSprite } from './course-sprites-wood.js';
 import {
   OBJECT_SCALE, PILLAR_PAD, LANTERN, LANTERN_SCALE, PUPIL,
   stoneSprite, turretSprite, gateSprite, crateSprite, pillarSprite, lanternSprite, pupilSprite,
@@ -52,7 +53,7 @@ const DRAW = {
   turret: (ctx, g, t) => { blit(ctx, turretSprite()); pupil(ctx, t); },
   crate: (ctx) => blit(ctx, crateSprite()),
   pillar: (ctx, { w, h }) => ctx.drawImage(pillarSprite(w, h), -PILLAR_PAD - w / 2, -PILLAR_PAD - h / 2),
-  thorn: (ctx, g) => DRAW.pillar(ctx, g), // a placeholder until the bramble has its own look (Leg 2's drawing task): a thorn piece is drawn as a pillar of its w x h
+  thorn: (ctx, { w, h }) => ctx.drawImage(thornSprite(w, h), -PILLAR_PAD - w / 2, -PILLAR_PAD - h / 2), // a bramble box of its w x h, laid like a pillar
   gate: (ctx, g, t, holdId) => { // awake while the hold stands
     const awake = g.holdId === holdId;
     blit(ctx, gateSprite(awake));

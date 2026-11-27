@@ -90,7 +90,7 @@ function shelf(look, scale) {
 
 export function roleSprites(look, role, scale = 1) {
   const s = shelf(look, scale);
-  return (s[role] ??= bakeSet(art(look)[role], look.palette.alien[role], scale, ROLE_LIST.indexOf(role) + 1, art(look).crack, true));
+  return (s[role] ??= bakeSet(art(look)[role], look.palette.alien[role] ?? look.palette.alien.gunner, scale, ROLE_LIST.indexOf(role) + 1, art(look).crack, true));
 }
 
 export function extraSprites(look, name, scale = 1) {
@@ -99,10 +99,10 @@ export function extraSprites(look, name, scale = 1) {
 }
 
 export function warmAliens(look) {
-  for (const role of ROLE_LIST) roleSprites(look, role);
+  for (const role of [...ROLE_LIST, ...(art(look).roles ?? [])]) roleSprites(look, role);
   extraSprites(look, 'saucer');
   extraSprites(look, 'wreck');
-  for (const role of CRACKABLE) {
+  for (const role of [...CRACKABLE, ...(art(look).roles ?? [])]) { // a world's own extra roles (w22's Smudge) too
     const set = roleSprites(look, role);
     for (const f of [0, 1]) {
       for (const stage of [1, 2]) {
