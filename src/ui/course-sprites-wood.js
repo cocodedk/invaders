@@ -3,7 +3,7 @@
 // bottom edges. Baked once per size (cached), in a sprite that holds its outline and its shadow as a pillar's does (course-sprites.js).
 import { cached } from './sprites.js';
 import { PAL } from './wander-kit.js';
-import { PILLAR_PAD, SHADOW_DX, SHADOW_DY, RING, OBJECT_SCALE, round, openEye, shutEye } from './course-sprites.js';
+import { PILLAR_PAD, SHADOW_DX, SHADOW_DY, OBJECT_SCALE, round, openEye, shutEye } from './course-sprites.js';
 import { GROUND_R } from '../core/course-ground.js';
 
 export const THORN_STEP = 18; // px between one thorn and the next along an edge
@@ -14,6 +14,7 @@ const SHADOW = 'rgba(40,40,50,0.18)';
 const TAU = Math.PI * 2;
 export const THICKET_THORNS = 14; // thorns round a bramble gate's ring, pointing out
 export const THICKET_THORN_LEN = 12; // px a gate's thorn points out from its ring: its tip is at GROUND_R
+export const THICKET_RING = 10; // px of bramble in a gate's ring, thinner than a stone ring so the dark clearing shows round the eye
 export const THICKET_CENTRE = '#33302a'; // the dark clearing in the middle of a gate
 
 function stems(g, w, h) { // two stems crossing the box, one swaying each way
@@ -64,15 +65,15 @@ export const thicketGateSprite = (awake) => round(awake ? 'wanderThicketAwake' :
   g.ellipse(SHADOW_DX, SHADOW_DY, GROUND_R, GROUND_R * 0.6, 0, 0, TAU);
   g.fill();
   g.beginPath();
-  g.arc(0, 0, outer - RING / 2, 0, TAU);
+  g.arc(0, 0, outer - THICKET_RING / 2, 0, TAU);
   g.fillStyle = THICKET_CENTRE;
   g.fill();
-  g.lineWidth = RING;
+  g.lineWidth = THICKET_RING;
   g.strokeStyle = PAL.kiteShade;
   g.stroke();
   g.lineWidth = 3;
   g.strokeStyle = PAL.stoneDark;
-  for (const r of [outer - 3, outer - RING + 3]) { // two stems round the ring
+  for (const r of [outer - 3, outer - THICKET_RING + 3]) { // two stems round the ring
     g.beginPath();
     g.arc(0, 0, r, 0, TAU);
     g.stroke();
