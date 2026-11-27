@@ -16,11 +16,13 @@ import { STORY } from './react-story.js';
 import { WORLD } from './react-world.js';
 import { between, pick } from '../core/rng.js';
 import { WIDTH, HEIGHT } from '../core/kinds.js';
+import { LAND_WOOD } from '../core/levels-8-kit.js';
 
 export const ROAD_WORLD = 22; // the renderer's WANDER_WORLD (ui/wander-kit.js; react-road.test.js keeps the two alike)
 // The colours, copied from ui/wander-kit.js PAL (react-road.test.js keeps them alike): the lantern's golds, what hurts, and the paint the valley floods with.
 export const GOLDS = ['#e9b949', '#c8901f', '#ffe9a8'];
 export const VIOLETS = ['#7a5cc4', '#2e2250'];
+export const WOOD_PAINTS = ['#3f7d3a', '#a6d672', '#5a6fd6', '#c3de92', '#b4d9a0']; // Leg 2's: canopy greens, bluebell, clearing (PAL; react-road.test.js keeps them alike)
 export const PAINTS = ['#a9cf74', '#3fa7a5', '#d8c35a', '#4f8f45', '#bee68c', '#e0533a', '#e9b949', '#4fc3c0'];
 
 export const GLOW = { checkpoint: 8, ability: 6, respawn: 8, chips: 6, spread: 26, size: 24, rise: 90 }; // gold puffs of each (counts), gold chips of a checkpoint, and the puffs' spread, radius (px) and rise (px/s)
@@ -50,9 +52,12 @@ const abilityFor = (caption) => (fx, ev, rng, world) => {
   if (world?.ship) lit(fx, rng, world.ship.x, world.ship.y, GLOW.ability);
 };
 
+const paintsOf = (fx) => (fx.land === LAND_WOOD ? WOOD_PAINTS : PAINTS); // the land the session's leg learned (react-story.js openLeg)
+
 function seedBurst(fx, ev, rng) {
-  puffs(fx, rng, ev.x, ev.y, SEED.puffs, PAINTS, { spread: ev.r ?? 0, size: SEED.size });
-  debris(fx, rng, ev.x, ev.y, SEED.chips, PAINTS, SEED.chipSpeed, SEED.chipSize);
+  const paints = paintsOf(fx);
+  puffs(fx, rng, ev.x, ev.y, SEED.puffs, paints, { spread: ev.r ?? 0, size: SEED.size });
+  debris(fx, rng, ev.x, ev.y, SEED.chips, paints, SEED.chipSpeed, SEED.chipSize);
 }
 
 function chip(fx, ev, rng) {
@@ -71,10 +76,11 @@ function respawn(fx, ev, rng) {
 }
 
 function holdBreak(fx, ev, rng) {
+  const paints = paintsOf(fx);
   for (let i = 0; i < FLOOD.spots; i++) {
     const [x, y] = [between(rng, 0, WIDTH), between(rng, 0, HEIGHT)];
-    puffs(fx, rng, x, y, FLOOD.puffs, PAINTS, { spread: FLOOD.spread, size: between(rng, FLOOD.size[0], FLOOD.size[1]), grow: FLOOD.grow, life: FLOOD.life });
-    debris(fx, rng, x, y, FLOOD.chips, PAINTS, FLOOD.chipSpeed, FLOOD.chipSize);
+    puffs(fx, rng, x, y, FLOOD.puffs, paints, { spread: FLOOD.spread, size: between(rng, FLOOD.size[0], FLOOD.size[1]), grow: FLOOD.grow, life: FLOOD.life });
+    debris(fx, rng, x, y, FLOOD.chips, paints, FLOOD.chipSpeed, FLOOD.chipSize);
   }
 }
 

@@ -5,8 +5,9 @@ import { applyEvent } from '../../src/fx/react.js';
 import { MAX_PARTICLES } from '../../src/fx/particles.js';
 import { makeRng } from '../../src/core/rng.js';
 import { WIDTH, HEIGHT } from '../../src/core/kinds.js';
-import { ROAD_WORLD, GOLDS, VIOLETS, PAINTS, GLOW, SEED, FLECKS, FLOOD } from '../../src/fx/react-road.js';
-import { ABILITY_CAPTIONS, CAPTION } from '../../src/fx/react-story.js';
+import { ROAD_WORLD, GOLDS, VIOLETS, PAINTS, WOOD_PAINTS, GLOW, SEED, FLECKS, FLOOD } from '../../src/fx/react-road.js';
+import { ABILITY_CAPTIONS, CAPTION, openLeg } from '../../src/fx/react-story.js';
+import { levelById } from '../../src/core/levels.js';
 import { PAL, WANDER_WORLD } from '../../src/ui/wander-kit.js';
 import { sampleEvent as sample } from '../event-sample.js';
 import { react, ofKind, run } from './fx-kit.js';
@@ -22,6 +23,27 @@ test("the world's number and the colours are the renderer's (ui/wander-kit.js)",
   assert.deepEqual(GOLDS, [PAL.gold, PAL.goldDeep, PAL.flame]);
   assert.deepEqual(VIOLETS, [PAL.violet, PAL.violetRim]);
   assert.deepEqual(PAINTS, [PAL.paint, PAL.river, PAL.field, PAL.leaf, PAL.leafLight, PAL.poppy, PAL.gold, PAL.teal]);
+});
+
+test("the wood's paints are the wood's colours (ui/wander-kit.js)", () => {
+  assert.deepEqual(WOOD_PAINTS, [PAL.canopy, PAL.canopyLight, PAL.bluebell, PAL.clearing, PAL.canopyEdge]);
+});
+
+// A session on a leg: openLeg learns the land, then the events are applied.
+const onLeg = (id, ev, seed = 1) => {
+  const fx = createFx();
+  openLeg(fx, levelById(id));
+  applyEvent(fx, ev, makeRng(seed), WORLD_22);
+  return fx;
+};
+
+test("a seed burst and the flood throw the wood's paints on Leg 2 and the valley's on Leg 1, and never the other's", () => {
+  for (const type of ['seedBurst', 'holdBreak']) {
+    const wood = onLeg('w22-2', sample(type)).particles.filter((p) => p.kind !== 'popup');
+    assert.ok(wood.length > 0 && wood.every((p) => WOOD_PAINTS.includes(p.color)), type);
+    const valley = onLeg('w22-1', sample(type)).particles;
+    assert.ok(valley.length > 0 && valley.every((p) => PAINTS.includes(p.color)), type);
+  }
 });
 
 test('every event has an effect of plain, solid shapes, with or without a world, and none leaves a flash or a ring', () => {

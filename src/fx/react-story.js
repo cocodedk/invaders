@@ -18,6 +18,7 @@ export const CAPTION = { y: 420, scale: 2.2, life: 3.2, vy: -10, color: '#ffe9a8
 const say = (fx, text) => addPopup(fx, { x: MID_X, y: CAPTION.y, text, color: CAPTION.color, scale: CAPTION.scale, life: CAPTION.life, vy: CAPTION.vy });
 
 export function openLeg(fx, level) {
+  fx.land = level.course?.land ?? null; // the look of the leg's ground, for the paint its bursts throw (react-road.js)
   if (Object.hasOwn(OPENINGS, level.id)) say(fx, OPENINGS[level.id]);
 }
 
