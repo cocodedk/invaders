@@ -13,6 +13,7 @@ import { PAL } from './wander-kit.js';
 import { LAND_WOOD } from '../core/levels-8-kit.js';
 import { paintRock } from './course-land-rock.js';
 import { landEnd, paintRunout } from './course-land-end.js';
+import { pathAt, paintWood } from './course-land-wood.js';
 import { STRIP_SPAN, dice, riverAt, paintValley } from './course-land-valley.js';
 
 export { STRIP_SPAN, TREE_MARGIN, FIELD_MARGIN, scatter, riverAt } from './course-land-valley.js'; // the valley floor's, kept here for the callers of the land's art
@@ -26,7 +27,8 @@ function flecks(g, r, h) {
   }
 }
 
-const riverX = (at) => riverAt(at).x; // the pencil line past the land's end is the river's middle, run on
+const riverX = (at) => riverAt(at).x; // the pencil line past the land's end is the river's middle, run on, or the path's middle on the wood
+const pathX = (at) => pathAt(at).x;
 
 // One strip's art: the parchment (flecked) or the green, the valley's fields, river and trees (course-land-valley.js, not on Leg 2's land); the blank past the land's end over the top of them (the same
 // flecked parchment, the guide lines and the line, in both bakes, so that a seed's colour stamped there changes nothing); and last the rock cut out of it
@@ -40,13 +42,14 @@ export function paintStrip(g, painted, k, seed, course) {
     g.fillStyle = painted ? PAL.paint : PAL.parchment;
     g.fillRect(0, 0, W, STRIP_SPAN);
     if (!painted) flecks(g, dice(seed + 1, k), STRIP_SPAN);
-    if (course.land !== LAND_WOOD) paintValley(g, painted, k, seed, course, end); // the wood's floor is painted by nothing yet
+    if (course.land === LAND_WOOD) paintWood(g, painted, k, seed, course, end);
+    else paintValley(g, painted, k, seed, course, end);
   }
   if (blank > 0) {
     g.fillStyle = PAL.parchment;
     g.fillRect(0, 0, W, blank);
     flecks(g, dice(seed + 2, k), blank);
-    paintRunout(g, lo, hi, end, riverX);
+    paintRunout(g, lo, hi, end, course.land === LAND_WOOD ? pathX : riverX);
   }
   paintRock(g, painted, lo, hi, course);
 }

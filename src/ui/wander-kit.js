@@ -11,4 +11,5 @@ export const PAL = {
   violet: '#7a5cc4', violetRim: '#2e2250',
   paper: '#f6efe0', paperLine: '#6b6256', glider: '#b8893a', spark: '#fff3c4', lamp: '#ffc85a', bridge: '#b9ab95', bridgeLine: '#6d6150', lid: '#f2efe6',
   paint: '#a9cf74', river: '#3fa7a5', riverDeep: '#2b7c7a', field: '#d8c35a', fieldLine: '#826e1e', leaf: '#4f8f45', leafLight: '#bee68c', poppy: '#e0533a',
+  canopy: '#3f7d3a', canopyLight: '#a6d672', bluebell: '#5a6fd6', sand: '#e6d29c', sandLine: '#a8905a', clearing: '#c3de92', // Leg 2's wood (course-land-wood.js)
 };

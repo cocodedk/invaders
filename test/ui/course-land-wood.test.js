@@ -30,10 +30,58 @@ test('Leg 1 land golden: the strips paint exactly as they did', () => {
   assert.deepEqual(got, GOLDEN);
 });
 
-test('only Leg 2 carries the land key, and the wood paints no valley floor yet', () => {
+const { pathAt, PATH } = await import('../../src/ui/course-land-wood.js');
+const { PAL } = await import('../../src/ui/wander-kit.js');
+const K = 14;
+const run = (painted, k, c = WOOD.course) => {
+  const r = recorder();
+  const styles = new Set();
+  const ctx = new Proxy(r.ctx, { set: (o, p, v) => { if (p === 'fillStyle' || p === 'strokeStyle') styles.add(v); o[p] = v; return true; } });
+  paintStrip(ctx, painted, k, WOOD.seed, c);
+  return { calls: r.calls, styles, sha: createHash('sha1').update(JSON.stringify(r.calls)).digest('hex') };
+};
+
+test('only Leg 2 carries the land key', () => {
   assert.equal(WOOD.course.land, LAND_WOOD);
   assert.equal(data.land, undefined, 'Leg 1 has no land key');
-  const strokes = (c, painted) => { const r = recorder(); paintStrip(r.ctx, painted, 14, WOOD.seed, c); return r.calls.filter(([k]) => k === 'strokeRect' || k === 'arc').length; };
-  assert.equal(strokes(WOOD.course, true), 0, 'no field or tree on the wood floor');
-  assert.ok(strokes({ ...WOOD.course, land: undefined }, true) > 0, 'the valley floor paints them');
+});
+
+test('a wood strip bakes the same twice and differs from its neighbour', () => {
+  for (const p of [false, true]) {
+    assert.equal(run(p, K).sha, run(p, K).sha);
+    assert.notEqual(run(p, K).sha, run(p, K + 1).sha);
+  }
+});
+
+test('the path sways as a function of the row and runs on through the seam two strips share', () => {
+  const seam = (K + 1) * STRIP_SPAN;
+  const { x, w } = pathAt(seam);
+  assert.ok(Math.abs(x - pathAt(seam + 600).x) > 1 || Math.abs(x - pathAt(seam + 1200).x) > 1, 'it sways');
+  assert.ok(w > 0 && w <= PATH.width + PATH.swell);
+  const edge = (k, y) => run(true, k).calls.filter(([n, px, py]) => n === 'lineTo' && py === y).map(([, px]) => px);
+  assert.ok(edge(K, 0).includes(x - w), 'strip below draws the left edge on the seam row');
+  assert.ok(edge(K + 1, STRIP_SPAN).includes(x - w), 'strip above draws it on the same row at the same x');
+});
+
+test('the painted wood uses canopy, bluebell and sand and none of river, poppy or field', () => {
+  const { styles, calls } = run(true, K);
+  for (const c of [PAL.canopy, PAL.canopyLight, PAL.bluebell, PAL.sand]) assert.ok(styles.has(c), c);
+  for (const c of [PAL.river, PAL.riverDeep, PAL.poppy, PAL.field]) assert.ok(!styles.has(c), c);
+  assert.equal(calls.filter(([n]) => n === 'strokeRect').length, 0);
+});
+
+test('a canopy keeps off the path and inside the band', async () => {
+  const { scatterWood } = await import('../../src/ui/course-land-wood.js');
+  const { bandAt } = await import('../../src/core/course-terrain.js');
+  let n = 0;
+  for (let k = 2; k < 20; k++) {
+    for (const t of scatterWood(WOOD.seed, k, WOOD.course).crowns) {
+      const at = (k + 1) * STRIP_SPAN - t.y;
+      const b = bandAt(WOOD.course, at);
+      assert.ok(t.x - t.s > b.left && t.x + t.s < b.right);
+      assert.ok(Math.abs(t.x - pathAt(at).x) > pathAt(at).w + t.s);
+      n++;
+    }
+  }
+  assert.ok(n > 0);
 });
