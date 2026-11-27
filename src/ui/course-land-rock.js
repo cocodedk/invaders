@@ -13,6 +13,7 @@
 import { W, mix } from './sprites.js';
 import { bandAt } from '../core/course-terrain.js';
 import { PAL } from './wander-kit.js';
+import { LAND_WOOD } from '../core/levels-8-kit.js';
 
 export const CONTOURS = 8; // pencilled lines inside the rock, as many as the mockup draws on its highland
 export const CONTOUR_GAP = 30; // px between them, the first that far inside the rock (the mockup's own px, as is the sway)
@@ -20,6 +21,11 @@ export const CONTOUR_INK = 0.35; // how much of the pencil shows through on the 
 export const CONTOUR_WOBBLE = 6; // px a line sways from where the gap puts it, either way
 export const CONTOUR_WAVE = 40; // px of `at` for one radian of the sway (the mockup's)
 export const CONTOUR_STEP = 12; // px of `at` between the points a line is drawn through
+export const SCALLOPS = 4; // rows of canopy scallops inside the wood's edge (Leg 2: course-land-wood.js has the floor)
+export const SCALLOP_R = 14; // px: the radius of one scallop, a half circle bulging toward the valley
+export const SCALLOP_GAP = 22; // px between the rows, the first that far inside the edge
+export const SCALLOP_STEP = 28; // px of `at` between the scallops of a row (every other row shifted half a step)
+export const SCALLOP_INK = 0.5; // how much of the canopy green the pencil lets through on the soft green
 const OUT = 2; // px the hole reaches past the screen's edge
 const SIDES = [-1, 1]; // the left rock, the right rock
 
@@ -37,6 +43,26 @@ function rows(course, lo, hi) {
 
 const edgeOf = (r, side) => (side < 0 ? r.left : r.right);
 
+// Leg 2: the rock's hole is massed canopy, rows of scallops along the edge, each on a grid fixed to `at` so two strips draw the seam alike.
+function scallops(g, lo, hi, course) {
+  g.strokeStyle = mix(PAL.canopyEdge, PAL.canopy, SCALLOP_INK);
+  g.lineWidth = 1.4;
+  g.beginPath();
+  for (const side of SIDES) {
+    for (let k = 0; k < SCALLOPS; k++) {
+      const shift = (k % 2) * (SCALLOP_STEP / 2);
+      const first = Math.floor((lo - SCALLOP_R - shift) / SCALLOP_STEP) * SCALLOP_STEP + shift;
+      for (let at = first; at <= hi + SCALLOP_R; at += SCALLOP_STEP) {
+        const x = edgeOf(bandAt(course, at), side) + side * (SCALLOP_R + k * SCALLOP_GAP);
+        const y = hi - at;
+        g.moveTo(x, y + side * SCALLOP_R);
+        g.arc(x, y, SCALLOP_R, side < 0 ? Math.PI * 1.5 : Math.PI / 2, side < 0 ? Math.PI / 2 : Math.PI * 1.5);
+      }
+    }
+  }
+  g.stroke();
+}
+
 export function paintRock(g, painted, lo, hi, course) {
   const rs = rows(course, lo, hi);
   g.globalCompositeOperation = 'destination-out'; // whatever the colour, the fill takes the strip's pixels away
@@ -52,6 +78,7 @@ export function paintRock(g, painted, lo, hi, course) {
   }
   g.globalCompositeOperation = 'source-over';
   if (painted) return;
+  if (course.land === LAND_WOOD) return scallops(g, lo, hi, course);
   g.strokeStyle = mix(PAL.rock, PAL.pencil, CONTOUR_INK);
   g.lineWidth = 1.4;
   g.beginPath();

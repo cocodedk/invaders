@@ -70,6 +70,19 @@ test('the painted wood uses canopy, bluebell and sand and none of river, poppy o
   assert.equal(calls.filter(([n]) => n === 'strokeRect').length, 0);
 });
 
+test("the wood's edge is massed canopy: scallops in the rock's hole and no contour lines, the hole still cut along bandAt; Leg 1 keeps its contours", async () => {
+  const { SCALLOP_R, CONTOUR_INK } = await import('../../src/ui/course-land-rock.js');
+  const { mix } = await import('../../src/ui/sprites.js');
+  const contour = mix(PAL.rock, PAL.pencil, CONTOUR_INK);
+  const wood = run(false, K);
+  const arcs = wood.calls.filter(([n, , , r]) => n === 'arc' && r === SCALLOP_R);
+  assert.ok(arcs.length > 20, `${arcs.length} scallops`);
+  assert.ok(!wood.styles.has(contour), 'no contour lines on the wood');
+  const valley = (() => { const r = recorder(); const st = new Set(); const c = new Proxy(r.ctx, { set: (o, p, v) => { if (p === 'strokeStyle') st.add(v); o[p] = v; return true; } }); paintStrip(c, false, 27, level.seed, data); return { st, calls: r.calls }; })();
+  assert.ok(valley.st.has(contour), 'Leg 1 keeps its contour lines');
+  assert.equal(valley.calls.filter(([n, , , r]) => n === 'arc' && r === SCALLOP_R).length, 0, 'and has no scallops');
+});
+
 test('a canopy keeps off the path and inside the band', async () => {
   const { scatterWood } = await import('../../src/ui/course-land-wood.js');
   const { bandAt } = await import('../../src/core/course-terrain.js');

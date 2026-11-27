@@ -31,7 +31,7 @@ test("world 22's look is the course's: parchment for a sky, the only one with a 
 });
 
 test('what hurts is violet and reads against the parchment and the rock', () => {
-  for (const ground of [PAL.parchment, PAL.rock]) {
+  for (const ground of [PAL.parchment, PAL.rock, PAL.canopyEdge]) {
     assert.ok(contrast(look.palette.enemy, ground) >= MIN_CONTRAST, `enemy fire on ${ground}: ${contrast(look.palette.enemy, ground).toFixed(2)}`);
   }
   assert.ok(contrast(look.palette.enemyRim, PAL.parchment) >= MIN_CONTRAST * 2, 'and its rim is dark');

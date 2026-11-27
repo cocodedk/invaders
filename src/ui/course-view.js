@@ -19,6 +19,7 @@ import { drawObjects } from './course-objects.js';
 import { drawCourseLine } from './course-line-view.js';
 import { createLand, drawLand } from './course-land.js';
 import { PAL } from './wander-kit.js';
+import { LAND_WOOD } from '../core/levels-8-kit.js';
 
 export const WALL_STEP = 32; // px of the course (of `at`) between the rows the rock's edge is drawn through, besides one row on every keyframe
 export const SEED_DROP = 80; // px above the ground a seed starts its fall
@@ -62,7 +63,7 @@ function along(ctx, rows, side) {
 // out of them (course-land-rock.js) so the tan shows through, and its edge pencilled over the land.
 const open = (rows, side) => rows.every((r) => (side < 0 ? r.left : r.right) === (side < 0 ? 0 : W)); // the band is open on this side
 
-function rockFill(ctx, rows, side) {
+function rockFill(ctx, rows, side, fill) {
   if (open(rows, side)) return;
   const wall = side < 0 ? 0 : W;
   ctx.beginPath();
@@ -70,7 +71,7 @@ function rockFill(ctx, rows, side) {
   for (const r of rows) ctx.lineTo(side < 0 ? r.left : r.right, r.y);
   ctx.lineTo(wall, rows[rows.length - 1].y);
   ctx.closePath();
-  ctx.fillStyle = PAL.rock;
+  ctx.fillStyle = fill;
   ctx.fill();
 }
 
@@ -115,7 +116,8 @@ function sight(ctx, { ship, course }) {
 export function drawCourse(ctx, cv, world, t) {
   const { course } = world;
   const rows = wallRows(world.level.course, course.dist);
-  for (const side of SIDES) rockFill(ctx, rows, side);
+  const fill = world.level.course.land === LAND_WOOD ? PAL.canopyEdge : PAL.rock; // view only: the core never reads the land key
+  for (const side of SIDES) rockFill(ctx, rows, side, fill);
   drawLand(ctx, cv.land, world);
   for (const side of SIDES) rockEdge(ctx, rows, side);
   drawObjects(ctx, world, t);
