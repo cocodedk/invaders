@@ -1,4 +1,4 @@
-import { EPS } from './kinds.js';
+import { EPS, MID_X, WIDTH, HEIGHT } from './kinds.js';
 import { emit, prune } from './util.js';
 import { BOMB_DAMAGE } from './damage.js';
 import { SPAWN_Y, inView } from './course-kinds.js';
@@ -19,6 +19,8 @@ export const SEED_FALL = 0.5; // s from the drop to the burst
 export const SEED_REACH = 380; // px ahead of the ship (up the screen) a seed falls
 export const SEED_R = 100; // px: the burst's radius
 export const SEED_DMG = 1; // hp a burst takes off each ground object in reach
+
+export const BOMB_BLOOM_R = Math.ceil(Math.hypot(WIDTH / 2, HEIGHT / 2)); // px: a bomb's bloom, from the screen's centre to a corner
 
 const yOf = (course, at) => SPAWN_Y + course.dist - at;
 
@@ -45,7 +47,7 @@ function bombed(world) {
 // One tick of the seeds, `dt` real seconds, in the order: the cooldown runs down, the seeds in the air fall and the
 // ones whose time is up burst (in array order), then a fresh seed drops if the ability, fire, a living ship and the
 // cooldown allow (it starts falling next tick), and last the bomb of this tick hurts every ground object on the
-// screen. course.js calls this after the ground has been put where the scroll says, before the turrets fire, so a
+// screen, and wakes the whole screen's land (a mark of BOMB_BLOOM_R). course.js calls this after the ground has been put where the scroll says, before the turrets fire, so a
 // turret broken now does not fire on the tick it breaks.
 export function stepSeeds(world, dt, input) {
   const { course, ship } = world;
@@ -59,5 +61,8 @@ export function stepSeeds(world, dt, input) {
     course.seedCool = SEED_COOLDOWN;
     course.seeds.push({ x: ship.x, at: course.dist + SPAWN_Y - (ship.y - SEED_REACH), t: SEED_FALL });
   }
-  if (bombed(world)) for (const g of course.ground) if (inView(g)) hurtGround(world, g, BOMB_DAMAGE);
+  if (bombed(world)) {
+    for (const g of course.ground) if (inView(g)) hurtGround(world, g, BOMB_DAMAGE);
+    course.marks.push({ x: MID_X, at: SPAWN_Y + course.dist - HEIGHT / 2, r: BOMB_BLOOM_R }); // the land the bomb hit wakes green
+  }
 }
