@@ -18,7 +18,7 @@ const { createWorld } = await import('../../src/core/world.js');
 const { levelById } = await import('../../src/core/levels.js');
 export const { bandAt } = await import('../../src/core/course-terrain.js');
 export const { SPAWN_Y } = await import('../../src/core/course-kinds.js');
-export const { SEED_R } = await import('../../src/core/course-seed.js');
+export const { SEED_R, BOMB_BLOOM_R } = await import('../../src/core/course-seed.js');
 export const { stepRespawn, RESPAWN_DELAY } = await import('../../src/core/course-check.js');
 export const { WIDTH, HEIGHT } = await import('../../src/core/kinds.js');
 

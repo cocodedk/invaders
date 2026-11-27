@@ -14,13 +14,13 @@
 // rock's contour lines.
 import { W, H, makeCanvas } from './sprites.js';
 import { SPAWN_Y } from '../core/course-kinds.js';
+import { SOFT_CORE } from '../core/course-seed.js';
 import { STRIP_SPAN, paintStrip } from './course-land-art.js';
 
 export const MAX_STRIPS = Math.ceil(H / STRIP_SPAN) + 2; // the strips on the screen at most, and the one above it that is baked ahead
 export const BAKES_PER_FRAME = 2;
 export const SEAM = 1; // rows either side of two strips' edge that the last row of the upper covers
 export const SOFT_PX = 256; // the soft circle's sprite, baked once and drawn at the mark's size
-export const SOFT_CORE = 0.55; // the share of a mark's radius that is solid colour; the rest fades out (the mockup's)
 
 export const createLand = (seed = 1) => ({ seed, slots: new Map(), free: [], marks: [], epoch: 0, scratch: null, soft: null });
 
@@ -56,18 +56,22 @@ function stamp(land, s, m, course) {
     s.paintOf = s.k;
   }
   land.soft ??= softCircle();
+  // only the part of the circle's square inside this strip is worked on: (cx, cy, w, h) in strip pixels, the circle's square at (x0, y0), d wide
   const d = Math.ceil(2 * m.r);
   const [x0, y0] = [Math.round(m.x - m.r), Math.round(hi - m.at - m.r)];
-  if (!land.scratch) land.scratch = makeCanvas(d, d);
-  else if (land.scratch.width < d) land.scratch.width = land.scratch.height = d;
+  const [cx, cy] = [Math.max(0, x0), Math.max(0, y0)];
+  const [w, h] = [Math.min(W, x0 + d) - cx, Math.min(STRIP_SPAN, y0 + d) - cy];
+  if (w <= 0 || h <= 0) return;
+  if (!land.scratch) land.scratch = makeCanvas(W, STRIP_SPAN);
   const g = land.scratch.getContext('2d');
+  const k = SOFT_PX / d; // the soft circle's pixels per pixel of the mark
   g.globalCompositeOperation = 'source-over';
-  g.clearRect(0, 0, d, d);
-  g.drawImage(land.soft, 0, 0, d, d);
+  g.clearRect(0, 0, w, h);
+  g.drawImage(land.soft, (cx - x0) * k, (cy - y0) * k, w * k, h * k, 0, 0, w, h);
   g.globalCompositeOperation = 'source-in';
-  g.drawImage(s.painted, x0, y0, d, d, 0, 0, d, d);
+  g.drawImage(s.painted, cx, cy, w, h, 0, 0, w, h);
   g.globalCompositeOperation = 'source-over';
-  s.sketch.getContext('2d').drawImage(land.scratch, 0, 0, d, d, x0, y0, d, d);
+  s.sketch.getContext('2d').drawImage(land.scratch, 0, 0, w, h, cx, cy, w, h);
 }
 
 // Bake a strip's sketch if it is new or stale, then stamp the marks it has not had yet.

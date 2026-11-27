@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   canvases, createLand, drawLand, MAX_STRIPS, BAKES_PER_FRAME, SEAM, STRIP_SPAN, level, data, world, atOf, frame, settle, ops, stamps, onScreen, ready,
-  MID, SPAWN_Y, SEED_R, stepRespawn, RESPAWN_DELAY, WIDTH, HEIGHT,
+  BOMB_BLOOM_R, MID, SPAWN_Y, SEED_R, stepRespawn, RESPAWN_DELAY, WIDTH, HEIGHT,
 } from './course-land-kit.js';
 
 // World 22's land (course-land.js): the strips are tied to the scroll, stamped by the marks the seeds leave, and nothing is repainted unless a strip
@@ -97,6 +97,15 @@ test('after a respawn the strips are rebuilt from course.marks, and a world clon
   assert.equal(stamps(land, strip(gone)).length, 0, 'the one that is gone is not');
 });
 
+test('a bomb-sized mark is stamped within each strip: the scratch canvas is never bigger than a strip', () => {
+  const land = createLand(level.seed);
+  const w = world();
+  w.course.marks.push({ x: WIDTH / 2, at: atOf(w, HEIGHT / 2), r: BOMB_BLOOM_R });
+  settle(land, w);
+  assert.ok(land.scratch.width <= WIDTH && land.scratch.height <= STRIP_SPAN);
+  assert.ok(onScreen(w.course.dist).every((k) => stamps(land, land.slots.get(k).sketch).length === 1), 'every strip on the screen is stamped');
+});
+
 test('a frame with nothing to rebuild bakes nothing, and a whole leg runs on a bounded number of canvases of one size', () => {
   const land = createLand(level.seed);
   const w = world(Math.round(4 * STRIP_SPAN + STRIP_SPAN / 2 - SPAWN_Y)); // the middle of a strip sits at the top of the screen: three px of scroll cross no seam
@@ -123,6 +132,6 @@ test('a frame with nothing to rebuild bakes nothing, and a whole leg runs on a b
   }
   const mine = canvases.slice(made);
   assert.ok(mine.length <= 2 * MAX_STRIPS + 2, `${mine.length} canvases for the leg`);
-  assert.ok(mine.filter(strip).length <= 2 * MAX_STRIPS, 'the strips');
+  assert.ok(mine.filter(strip).length <= 2 * MAX_STRIPS + 1, 'the strips, and the scratch canvas, which is one strip big at most');
 });
 

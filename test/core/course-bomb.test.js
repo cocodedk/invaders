@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { MID_X, WIDTH, HEIGHT } from '../../src/core/kinds.js';
 import { SPAWN_Y } from '../../src/core/course-kinds.js';
 import { GROUND_SCORE } from '../../src/core/course-ground.js';
-import { BOMB_BLOOM_R } from '../../src/core/course-seed.js';
+import { BOMB_BLOOM_R, SOFT_CORE } from '../../src/core/course-seed.js';
 import { BOMB_DAMAGE, targets } from '../../src/core/damage.js';
 import { step, ofType, input } from './world-kit.js';
 import { GROUND_HP, turret, crate, put, seedWorld } from './course-kit.js';
@@ -35,7 +35,7 @@ test('a bomb wakes the whole screen: a mark at its centre whose circle reaches a
   assert.equal(marks.length, before + 1);
   const m = marks[marks.length - 1];
   assert.deepEqual(m, { x: MID_X, at: SPAWN_Y + dist - HEIGHT / 2, r: BOMB_BLOOM_R });
-  assert.ok(Math.hypot(WIDTH / 2, HEIGHT / 2) <= BOMB_BLOOM_R);
+  assert.ok(Math.hypot(WIDTH / 2, HEIGHT / 2) <= BOMB_BLOOM_R * SOFT_CORE, 'the solid core of the bloom reaches the corners');
 });
 
 test('the bomb is spent once: the tick after, with the event still on the list, nothing more is hurt', () => {

@@ -21,7 +21,8 @@ export const SEED_REACH = 380; // px ahead of the ship (up the screen) a seed fa
 export const SEED_R = 100; // px: the burst's radius
 export const SEED_DMG = 1; // hp a burst takes off each ground object in reach
 
-export const BOMB_BLOOM_R = Math.ceil(Math.hypot(WIDTH / 2, HEIGHT / 2)); // px: a bomb's bloom, from the screen's centre to a corner
+export const SOFT_CORE = 0.55; // the share of a mark's radius that is solid colour in the view; the rest fades out (the mockup's)
+export const BOMB_BLOOM_R = Math.ceil(Math.hypot(WIDTH / 2, HEIGHT / 2) / SOFT_CORE); // px: a bomb's bloom, whose solid core reaches the screen's corners
 
 const yOf = (course, at) => SPAWN_Y + course.dist - at;
 
