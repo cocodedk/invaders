@@ -5,10 +5,11 @@ import { applyEvent } from '../../src/fx/react.js';
 import { MAX_PARTICLES } from '../../src/fx/particles.js';
 import { makeRng } from '../../src/core/rng.js';
 import { WIDTH, HEIGHT } from '../../src/core/kinds.js';
-import { ROAD_WORLD, GOLDS, VIOLETS, PAINTS, WOOD_PAINTS, GLOW, SEED, FLECKS, FLOOD } from '../../src/fx/react-road.js';
+import { ROAD_WORLD, GOLDS, VIOLETS, PAINTS, WOOD_PAINTS, GRAPHITE, GLOW, SEED, FLECKS, FLOOD, SMUDGE } from '../../src/fx/react-road.js';
 import { ABILITY_CAPTIONS, CAPTION, openLeg } from '../../src/fx/react-story.js';
 import { levelById } from '../../src/core/levels.js';
 import { PAL, WANDER_WORLD } from '../../src/ui/wander-kit.js';
+import { LINE_COLOUR } from '../../src/ui/course-line-view.js';
 import { sampleEvent as sample } from '../event-sample.js';
 import { react, ofKind, run } from './fx-kit.js';
 
@@ -23,6 +24,10 @@ test("the world's number and the colours are the renderer's (ui/wander-kit.js)",
   assert.deepEqual(GOLDS, [PAL.gold, PAL.goldDeep, PAL.flame]);
   assert.deepEqual(VIOLETS, [PAL.violet, PAL.violetRim]);
   assert.deepEqual(PAINTS, [PAL.paint, PAL.river, PAL.field, PAL.leaf, PAL.leafLight, PAL.poppy, PAL.gold, PAL.teal]);
+});
+
+test("the smudge's graphite is the line's (ui/course-line-view.js)", () => {
+  assert.equal(GRAPHITE, LINE_COLOUR);
 });
 
 test("the wood's paints are the wood's colours (ui/wander-kit.js)", () => {
@@ -141,4 +146,16 @@ test('the quality scaler thins the flood, and a storm of these cannot pass the p
 test('the same seed gives the same flood', () => {
   assert.deepEqual(react(sample('holdBreak'), undefined, 5).particles, react(sample('holdBreak'), undefined, 5).particles);
   assert.notDeepEqual(react(sample('holdBreak'), undefined, 5).particles, react(sample('holdBreak'), undefined, 6).particles);
+});
+
+test('a bullet the line stops leaves soft graphite puffs and two flecks at the spot, none rising, all gone in about two seconds', () => {
+  const fx = react({ ...sample('lineStop'), x: 640, y: 420 });
+  const [puffs, flecks] = [ofKind(fx, 'smoke'), ofKind(fx, 'debris')];
+  assert.equal(puffs.length, SMUDGE.puffs);
+  assert.equal(flecks.length, SMUDGE.chips);
+  assert.ok(fx.particles.every((p) => p.color === GRAPHITE && p.vy >= 0 && !p.additive && Math.hypot(p.x - 640, p.y - 420) <= SMUDGE.spread * Math.SQRT2), 'graphite, level or falling, at x, y');
+  assert.ok(plain(fx));
+  run(fx, SMUDGE.life[1] + 0.1);
+  assert.equal(fx.particles.length, 0);
+  assert.ok(SMUDGE.life[1] >= 1.8 && SMUDGE.life[1] <= 2.2, 'about two seconds');
 });

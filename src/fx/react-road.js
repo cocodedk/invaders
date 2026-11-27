@@ -7,6 +7,7 @@
 //   chip         a bullet struck and flying on: a few violet flecks (the colour of what hurts here)
 //   cut          a bullet broken (world 22 only; wraps world's cut, react-world.js): violet chips and a puff of violet, a crack drawn
 //   respawn      the ship set down again at the checkpoint: gold puffs rise
+//   lineStop     a bullet stopped by your line (core 'lineStop'; Leg 2 on): a few soft graphite puffs that stay where they are and fade in about two seconds, and two graphite flecks
 //   holdBreak    the Grey Gate falls and colour floods the valley: soft blobs of every paint colour swell over the whole field and fade, and
 //                chips of colour fall out of them. The core washes the sky clean on the same tick (course-hold.js washAway), so nothing is
 //                drawn where the craft and the bullets were: the flood covers them
@@ -23,11 +24,13 @@ export const ROAD_WORLD = 22; // the renderer's WANDER_WORLD (ui/wander-kit.js; 
 export const GOLDS = ['#e9b949', '#c8901f', '#ffe9a8'];
 export const VIOLETS = ['#7a5cc4', '#2e2250'];
 export const WOOD_PAINTS = ['#3f7d3a', '#a6d672', '#5a6fd6', '#c3de92', '#b4d9a0']; // Leg 2's: canopy greens, bluebell, clearing (PAL; react-road.test.js keeps them alike)
+export const GRAPHITE = '#34302c'; // the line's ink (ui/course-line-view.js LINE_COLOUR; react-road.test.js keeps the two alike)
 export const PAINTS = ['#a9cf74', '#3fa7a5', '#d8c35a', '#4f8f45', '#bee68c', '#e0533a', '#e9b949', '#4fc3c0'];
 
 export const GLOW = { checkpoint: 8, ability: 6, respawn: 8, chips: 6, spread: 26, size: 24, rise: 90 }; // gold puffs of each (counts), gold chips of a checkpoint, and the puffs' spread, radius (px) and rise (px/s)
 export const SEED = { puffs: 12, chips: 8, size: 24, chipSpeed: 220, chipSize: [3, 6] };
 export const FLECKS = { chip: 3, cut: 8, speed: 180, cutSpeed: 320, size: [2, 5], puffs: 2 }; // violet chips of a struck and a broken bullet, their speeds (px/s at most) and sizes (px radius)
+export const SMUDGE = { puffs: 3, chips: 2, spread: 10, size: 16, grow: 14, life: [1.8, 2.2], chipSpeed: 90, chipSize: [2, 4] }; // the smudge a broken shot leaves: puffs (swelling, not rising) and flecks (level or falling, never up)
 export const FLOOD = { spots: 14, puffs: 5, chips: 3, spread: 240, size: [40, 70], grow: 90, life: [1.4, 2.4], chipSpeed: 420, chipSize: [4, 9] }; // a spot is a place, spread over the field, where puffs and chips come from
 
 // k soft puffs of `colors` over a radius of `spread` px around (x, y), each starting at `size` and swelling, rising at `rise` px/s (0 drifts).
@@ -71,6 +74,18 @@ function snap(fx, ev, rng) {
 
 const cutFor = (usual) => (fx, ev, rng, world) => (world?.level?.world === ROAD_WORLD ? snap(fx, ev, rng) : usual(fx, ev, rng, world));
 
+// The line stopped a bullet: graphite puffs that stay put and flecks that drop or drift sideways, never up.
+function lineStop(fx, ev, rng) {
+  puffs(fx, rng, ev.x, ev.y, SMUDGE.puffs, [GRAPHITE], SMUDGE);
+  for (let i = 0, m = count(fx, SMUDGE.chips); i < m; i++) {
+    addParticle(fx, {
+      x: ev.x + between(rng, -SMUDGE.spread, SMUDGE.spread), y: ev.y + between(rng, -SMUDGE.spread, SMUDGE.spread),
+      vx: between(rng, -SMUDGE.chipSpeed, SMUDGE.chipSpeed), vy: between(rng, 0, SMUDGE.chipSpeed), life: between(rng, SMUDGE.life[0], SMUDGE.life[1]),
+      size: between(rng, SMUDGE.chipSize[0], SMUDGE.chipSize[1]), grow: -1, color: GRAPHITE, kind: 'debris', gravity: 0, drag: 1.2,
+    });
+  }
+}
+
 function respawn(fx, ev, rng) {
   lit(fx, rng, ev.x, ev.y, GLOW.respawn);
 }
@@ -84,4 +99,4 @@ function holdBreak(fx, ev, rng) {
   }
 }
 
-export const ROAD = { checkpoint, ability: abilityFor(STORY.ability), seedBurst, chip, cut: cutFor(WORLD.cut), respawn, holdBreak };
+export const ROAD = { checkpoint, ability: abilityFor(STORY.ability), seedBurst, chip, cut: cutFor(WORLD.cut), lineStop, respawn, holdBreak };

@@ -12,8 +12,8 @@ import { levelById } from '../../src/core/levels.js';
 import { TICK, react } from './fx-kit.js';
 import { sampleEvent } from '../event-sample.js';
 
-// Events the core emits that fx deliberately leaves to the screens (a line stopping a bullet has no effect yet: Leg 2's look comes later).
-const SILENT = ['failed', 'lineStop'];
+// Events the core emits that fx deliberately leaves to the screens (the sounds and the screens tell the rest).
+const SILENT = ['failed'];
 
 test('every event type the core emits has a reaction, or is listed as silent here', () => {
   const dir = fileURLToPath(new URL('../../src/core/', import.meta.url));

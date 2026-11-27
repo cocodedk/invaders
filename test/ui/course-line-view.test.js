@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import { recorder } from './aliens-bath-kit.js';
 import { TICK } from '../core/world-kit.js';
 import { rgba } from '../../src/ui/sprites.js';
+import { PAL } from '../../src/ui/wander-kit.js';
 
 // Your line as the view draws it (course-line-view.js, course-view.js): the ink in course.line, laid by the real drawLine as a ship flies, a dark
 // stroke whose alpha follows the segment's age, a few paths a frame and no canvas state changed for each segment.
 const { drawCourse, buildCourseView } = await import('../../src/ui/course-view.js');
-const { drawCourseLine, LINE_ALPHA_STEPS, LINE_WIDTH, LINE_COLOUR } = await import('../../src/ui/course-line-view.js');
+const { drawCourseLine, LINE_ALPHA_STEPS, LINE_WIDTH, LINE_EDGE, LINE_COLOUR } = await import('../../src/ui/course-line-view.js');
 const { drawLine, LINE_LIFE, LINE_SEGS } = await import('../../src/core/course-line.js');
 const { createWorld } = await import('../../src/core/world.js');
 const { levelById } = await import('../../src/core/levels.js');
@@ -50,6 +51,7 @@ function inkwell() {
   return { ctx, calls: r.calls, strokes, sets: () => sets };
 }
 const INK = rgba(LINE_COLOUR, '').slice(0, -1); // a stroke style of the line, up to its alpha
+const inkOf = ({ strokes }) => strokes.filter(({ style }) => style.startsWith(INK)); // the graphite strokes, one a run
 const alphaOf = (style) => +/^rgba\([^)]*,\s*([\d.]+)\)$/.exec(style)[1];
 const drawn = (world) => {
   const w = inkwell();
@@ -68,7 +70,6 @@ test('the line is stroked when the course holds ink and not when it is empty, ov
     drawCourse(r.ctx, cv, w, 0);
     return r;
   };
-  const inkOf = ({ strokes }) => strokes.filter(({ style }) => style.startsWith(INK));
   const [bare, withInk] = [frame(inked(0)), frame(world)];
   assert.equal(inkOf(bare).length, 0, 'no ink, no stroke of the line');
   assert.ok(inkOf(withInk).length > 0, 'ink, strokes of the line');
@@ -83,8 +84,10 @@ test('every segment is drawn once, in a stroke whose alpha is its own 1 - t / LI
   const { line } = world.course;
   assert.ok(line.length > 3 * LINE_ALPHA_STEPS, `${line.length} segments, several to a step`);
   assert.ok(line[0].t > 0.8 * LINE_LIFE && line.at(-1).t < 0.1 * LINE_LIFE, 'its ink spans nearly the whole of its life');
-  const { strokes } = drawn(world);
+  const all = drawn(world);
+  const strokes = inkOf(all);
   assert.ok(strokes.length <= LINE_ALPHA_STEPS, `${strokes.length} strokes for ${LINE_ALPHA_STEPS} alpha steps`);
+  assert.equal(all.strokes.length, 3 * strokes.length, 'three strokes a run');
   assert.ok(strokes.length > 1, 'and it fades in steps');
   const alphas = strokes.map((s) => alphaOf(s.style));
   assert.ok(alphas.every((a, i) => i === 0 || a > alphas[i - 1]), 'oldest stroke first, each less faint than the one before');
@@ -93,7 +96,19 @@ test('every segment is drawn once, in a stroke whose alpha is its own 1 - t / LI
     assert.equal(hits.length, 1, `the segment at ${s.x1}, ${s.y1} is in one stroke`);
     assert.ok(Math.abs(alphaOf(hits[0].style) - (1 - s.t / LINE_LIFE)) <= 0.5 / LINE_ALPHA_STEPS + 1e-9, `its alpha ${alphaOf(hits[0].style)} follows its age ${s.t}`);
   }
-  assert.ok(strokes.every((s) => s.width === LINE_WIDTH), 'one width');
+  assert.ok(strokes.every((s) => s.width === LINE_WIDTH), 'the graphite is LINE_WIDTH');
+});
+
+test('each run is stroked three times on one path, widest first: turquoise, gold, then the graphite on top, all at the run\'s alpha', () => {
+  const { strokes } = drawn(inked(Math.ceil((2.5 * LINE_LIFE) / TICK)));
+  assert.ok(strokes.length >= 6 && strokes.length % 3 === 0);
+  for (let i = 0; i < strokes.length; i += 3) {
+    const [teal, gold, ink] = strokes.slice(i, i + 3);
+    assert.ok(teal.path === gold.path && gold.path === ink.path, 'one path');
+    assert.deepEqual([teal.width, gold.width, ink.width], [LINE_WIDTH + 4 * LINE_EDGE, LINE_WIDTH + 2 * LINE_EDGE, LINE_WIDTH]);
+    assert.ok(teal.style.startsWith(rgba(PAL.teal, '').slice(0, -1)) && gold.style.startsWith(rgba(PAL.gold, '').slice(0, -1)) && ink.style.startsWith(INK));
+    assert.ok(alphaOf(teal.style) === alphaOf(ink.style) && alphaOf(gold.style) === alphaOf(ink.style), 'the same alpha');
+  }
 });
 
 test('a full line costs a few paths and no state change for each segment, no gradient, pattern or shadow blur', () => {
@@ -104,7 +119,7 @@ test('a full line costs a few paths and no state change for each segment, no gra
   };
   const [one, many] = [young(1), young(LINE_SEGS)];
   assert.equal(many.sets(), one.sets(), 'a long line sets the canvas no more than a short one');
-  assert.equal(many.strokes.length, 1, 'one stroke for one alpha step');
+  assert.equal(many.strokes.length, 3, 'three strokes for one alpha step');
   const w = drawn(inked(Math.ceil((2.5 * LINE_LIFE) / TICK)));
   assert.ok(w.calls.filter(([k]) => PATH_OPS.includes(k)).length <= LINE_SEGS + 2 * LINE_ALPHA_STEPS, 'about a path operation a segment');
   assert.ok(!w.calls.some(([k]) => /^create/.test(k)), 'nothing built per frame');
