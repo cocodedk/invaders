@@ -13,6 +13,7 @@ import { react, run } from './fx-kit.js';
 // as it is gained, and the trailer's last card (trailer-cards-22.test.js). Here are the two that play shows, as pop-ups held above the field.
 const leg = levelById('w22-1');
 const wood = levelById('w22-2');
+const flats = levelById('w22-3');
 const placed = (p) => [p.x, p.y, p.scale, p.life, p.vy, p.color];
 const CAPTION_AT = [MID_X, CAPTION.y, CAPTION.scale, CAPTION.life, CAPTION.vy, CAPTION.color];
 
@@ -28,7 +29,7 @@ test('an ability with no line says nothing, whatever its name looks like', () =>
   for (const kind of ['spread', 'constructor', 'toString', '__proto__', undefined]) {
     assert.equal(react({ type: 'ability', kind }).popups.length, 0, String(kind));
   }
-  assert.deepEqual(Object.keys(ABILITY_CAPTIONS), ['seed', 'line'], 'Leg 1 grants the seed, Leg 2 the line');
+  assert.deepEqual(Object.keys(ABILITY_CAPTIONS), ['seed', 'line', 'lasso'], 'Leg 1 grants the seed, Leg 2 the line, Leg 3 the lasso');
 });
 
 test('Leg 1 opens on its line, as the story has it, in the same place and look', () => {
@@ -36,7 +37,7 @@ test('Leg 1 opens on its line, as the story has it, in the same place and look',
   openLeg(fx, leg);
   assert.deepEqual(fx.popups.map((p) => p.text), ['A LIGHT WAKES.']);
   assert.deepEqual(placed(fx.popups[0]), CAPTION_AT);
-  assert.deepEqual(Object.keys(OPENINGS), [leg.id, wood.id]);
+  assert.deepEqual(Object.keys(OPENINGS), [leg.id, wood.id, flats.id]);
 });
 
 test('Leg 2, the Pencil Wood, opens on its card, and the line it grants names itself in the story\'s words', () => {
@@ -47,8 +48,16 @@ test('Leg 2, the Pencil Wood, opens on its card, and the line it grants names it
   assert.deepEqual(react({ type: 'ability', kind: 'line' }).popups.map((p) => p.text), ['YOUR LINE.']);
 });
 
+test('Leg 3, the Mirror Flats, opens on its card, and the lasso it grants names itself in the story\'s words', () => {
+  const fx = createFx();
+  openLeg(fx, flats);
+  assert.deepEqual(fx.popups.map((p) => p.text), ['THE SKY LIES DOWN.']);
+  assert.deepEqual(placed(fx.popups[0]), CAPTION_AT);
+  assert.deepEqual(react({ type: 'ability', kind: 'lasso' }).popups.map((p) => p.text), ['YOUR CIRCLE.']);
+});
+
 test('every other level opens silent', () => {
-  for (const level of LEVELS.filter((l) => l !== leg && l !== wood)) {
+  for (const level of LEVELS.filter((l) => l !== leg && l !== wood && l !== flats)) {
     const fx = createFx();
     openLeg(fx, level);
     assert.equal(fx.popups.length, 0, level.id);

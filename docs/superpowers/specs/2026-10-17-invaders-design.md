@@ -6,7 +6,7 @@ Working title. The final name is chosen with its CNAME at publish time, as Barra
 
 A single-player cinematic arcade shooter for the Pi games menu (HDMI kiosk) and any desktop browser,
 as beautiful as Barrage (`../artillery`): 22 cinematic worlds (21 × 5 levels, and world 22, which
-grows a leg at a time: 107 levels so far), free 2D
+grows a leg at a time: 108 levels so far), free 2D
 flight, formations, bosses, power-ups — plus one feature no shooter has: your own movie trailer
 (§ The surprise).
 

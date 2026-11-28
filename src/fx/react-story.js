@@ -8,8 +8,8 @@
 import { MID_X } from '../core/kinds.js';
 import { addPopup } from './fx.js';
 
-export const OPENINGS = { 'w22-1': 'A LIGHT WAKES.', 'w22-2': 'THE WOOD REMEMBERS.' };
-export const ABILITY_CAPTIONS = { seed: 'YOUR COLOUR.', line: 'YOUR LINE.' };
+export const OPENINGS = { 'w22-1': 'A LIGHT WAKES.', 'w22-2': 'THE WOOD REMEMBERS.', 'w22-3': 'THE SKY LIES DOWN.' };
+export const ABILITY_CAPTIONS = { seed: 'YOUR COLOUR.', line: 'YOUR LINE.', lasso: 'YOUR CIRCLE.' };
 // Where and how a caption stands: the middle of the field's upper half (the wave clear's own row), as big as it, up long enough to outlast the quiet intro
 // (session-story.test.js) and drifting so slowly that it reads as still. The colour is the lantern's flame (ui/wander-kit.js PAL.flame; react-story.test.js
 // keeps the two alike), its dark rim is the pop-up's own.
