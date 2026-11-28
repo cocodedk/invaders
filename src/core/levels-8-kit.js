@@ -1,5 +1,5 @@
 import { WIDTH as W, MID_X } from './kinds.js';
-import { hpFor, THORN } from './course-kinds.js';
+import { hpFor, THORN, SHARD } from './course-kinds.js';
 
 // The shorthand of world 22's level data (levels-8.js, levels-8-wood.js), one entry a call. `course(seed, data)` is a level spec like `lv` in
 // levels-2.js, and `data` is { speed, length, starts, walls, spawns }: the scroll's speed in px/s and length in px, the abilities the leg
@@ -32,6 +32,8 @@ export const hedge = (at, h, w, ...runs) => runs.flatMap(([from, to]) => {
   const each = (to - from) / n;
   return Array.from({ length: n }, (_, i) => thorn(at, from + each * (i + 0.5), each, h));
 });
+// A mirror shard (Leg 3): round, with the hp GROUND_HP.shard gives it; it throws the ship's shots back (course-shard.js).
+export const shard = (at, x) => ({ kind: SHARD, at, x });
 export const lantern = (at, grants = null) => ({ kind: 'checkpoint', at, x: MID_X, grants });
 export const LEFT = -60; // where a crossing starts: beyond the edge it comes from
 export const RIGHT = W + 60;

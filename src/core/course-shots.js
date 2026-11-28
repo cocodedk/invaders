@@ -3,6 +3,7 @@ import { segDist2, segBoxDist2 } from './math.js';
 import { MUZZLE } from './ship.js';
 import { BEAM_W, BEAM_DPS } from './weapons.js';
 import { inView, BOXES } from './course-kinds.js';
+import { bounceShard } from './course-shard.js';
 import { GROUND_R, GROUND_SCORE, hurtGround } from './course-ground.js';
 
 // The ship's gun against the ground (world 22 only: stepPlay calls gunVsGround when the world has a course). The owner's rule
@@ -42,11 +43,13 @@ function shotsVsGround(world, dt) {
       if (reached.length === 0) continue;
       s.life = 0;
       hurtGround(world, reached[0], s.dmg ?? 1);
+      bounceShard(world, reached[0], s);
       continue;
     }
     for (const g of reached) {
       s.pierced.push(g.id);
       hurtGround(world, g, s.dmg ?? 1);
+      bounceShard(world, g, s);
     }
   }
 }

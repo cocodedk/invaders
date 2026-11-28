@@ -14,7 +14,7 @@ const { glow } = await import('../../src/ui/sprites.js');
 const { PAL } = await import('../../src/ui/wander-kit.js');
 
 const level = levelById('w22-1');
-const KINDS = [...Object.keys(GROUND_SCORE), 'checkpoint'];
+const KINDS = [...Object.keys(GROUND_SCORE).filter((k) => k !== 'shard'), 'checkpoint']; // the shard's painter comes with Leg 3's art
 const entry = (kind, extra = {}) => ({ id: 1, kind, at: 0, x: 700, y: 500, hp: 3, w: 140, h: 150, holdId: 0, reached: false, ...extra });
 const worldOf = (ground, held = null) => {
   const world = createWorld(level, level.seed);

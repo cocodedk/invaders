@@ -22,13 +22,16 @@ export const END_RUN = 600; // px of scroll a leg that ends on its hold runs on 
 // break everything on the ground now, and with auto-fire on a gate of 6-8 hp fell in about a second). A shot takes 1 hp, so a kind's
 // hp is its seconds over SHOT_SECS, the time between two shots as the gun really fires them (whole ticks, ship.js shoots on the first
 // tick its cooldown is within EPS of 0). Leg 1 (levels-8.js) and the defaults of course-ground.js read hpFor, so a change is one line.
-export const BREAK_SECS = { stone: 0.5, turret: 1, pillar: 2, gate: 3, thorn: 0.4 };
+export const BREAK_SECS = { stone: 0.5, turret: 1, pillar: 2, gate: 3, thorn: 0.4, shard: 1 };
 export const SHOT_SECS = Math.ceil((COOLDOWN - EPS) / TICK) * TICK;
 export const hpFor = (kind) => Math.round(BREAK_SECS[kind] / SHOT_SECS);
 
 // The ground kinds that are a box { x, y, w, h }, (x, y) its centre: they ram the ship while they stand (course-terrain.js) and the shots reach them
 // across their box (course-shots.js). A pillar is the first, a piece of a thorn hedge (Leg 2) the second.
 export const THORN = 'thorn'; // the kind of a piece of a thorn hedge (Leg 2)
+export const SHARD = 'shard'; // the kind of a mirror shard (Leg 3): round, never rams, throws a shot back (course-shard.js)
+export const SHARD_SPEED = 0.7; // of the scaled bullet speed: the speed a shard's return flies at
+export const SHARD_MIN_RANGE = 250; // px: a shard returns nothing when the ship is nearer than this to the hit
 export const BOXES = ['pillar', THORN];
 
 // Is the thing (an air craft, a ground object) on the screen, where the player can see it?

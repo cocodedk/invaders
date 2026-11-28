@@ -4,7 +4,7 @@ import { emitPattern } from './patterns.js';
 import { makePickup, dropPickup } from './powerups.js';
 import { awardPoints } from './scoring.js';
 import { emit } from './util.js';
-import { inView, hpFor, BOXES, THORN } from './course-kinds.js';
+import { inView, hpFor, BOXES, THORN, SHARD } from './course-kinds.js';
 
 // Ground targets (world 22): objects on the ground that drift with the scroll (course.js sets their y), in
 // course.ground as { id, kind, at, x, y, hp } and, by kind,
@@ -26,8 +26,8 @@ import { inView, hpFor, BOXES, THORN } from './course-kinds.js';
 export const TURRET_COOL = 2.5; // s between a turret's shots
 export const TURRET_PATTERN = 'heavy'; // what it fires, at the ship: a big slow bullet that takes several hits (course-cut.js)
 export const GROUND_R = 36; // px: how far a round ground object reaches from its centre, for the seeds' bursts (course-seed.js) and the shots (course-shots.js)
-export const GROUND_SCORE = { stone: 50, turret: 300, crate: 200, pillar: 200, gate: 500, [THORN]: 30 }; // points for breaking one, before the combo; the kinds that can be hurt
-export const GROUND_HP = { stone: hpFor('stone'), pillar: hpFor('pillar'), [THORN]: hpFor(THORN) }; // hp of the kinds whose entry names none (a turret, a crate and a gate always do)
+export const GROUND_SCORE = { stone: 50, turret: 300, crate: 200, pillar: 200, gate: 500, [THORN]: 30, [SHARD]: 150 }; // points for breaking one, before the combo; the kinds that can be hurt
+export const GROUND_HP = { stone: hpFor('stone'), pillar: hpFor('pillar'), [THORN]: hpFor(THORN), [SHARD]: hpFor(SHARD) }; // hp of the kinds whose entry names none (a turret, a crate and a gate always do)
 
 // A ground object of the course entry `e` (course.js hands it over on the tick its `at` comes up).
 export function spawnGround(world, e) {
