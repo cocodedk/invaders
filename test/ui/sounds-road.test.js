@@ -16,19 +16,18 @@ const sounds = (events, world = { boss: null }) => {
   return out;
 };
 const coreDir = fileURLToPath(new URL('../../src/core/', import.meta.url));
-const PENDING = ['lasso', 'shardBounce', 'flockScatter']; // silent until Leg 3's sound lands (the shard's return is told by its bullet)
 const COURSE_EVENTS = [...new Set(readdirSync(coreDir).filter((f) => f.startsWith('course')).flatMap((f) =>
   [...readFileSync(coreDir + f, 'utf8').matchAll(/emit\(world, '(\w+)'/g)].map((m) => m[1])))];
 
 test('no event world 22 emits is silent: each makes a sound that exists, and only the two screens that play their own stingers stay silent', () => {
   assert.ok(COURSE_EVENTS.length >= 10, COURSE_EVENTS.join());
-  for (const type of COURSE_EVENTS.filter((t) => !PENDING.includes(t))) {
+  for (const type of COURSE_EVENTS) {
     assert.ok(!Object.hasOwn(SILENT, type), `${type} is silent`);
     const played = sounds([sample(type)], WORLD_22);
     assert.ok(played.length > 0, `${type} makes no sound`);
     for (const { name } of played) assert.equal(typeof SFX[name], 'function', `${type} -> ${name}`);
   }
-  assert.deepEqual(Object.keys(SILENT).sort(), ['cleared', 'failed', ...PENDING].sort());
+  assert.deepEqual(Object.keys(SILENT).sort(), ['cleared', 'failed']);
 });
 
 test('a lantern, a seed, a struck bullet and a respawn sound where they happen; the ability at the ship, the gate over the whole field', () => {
@@ -63,4 +62,11 @@ test("a stopped line scratches, not chips; a thorn's break is the kill then a sn
 test("the ground's breaks and strikes do not flutter: a stone is not paper", () => {
   const events = [{ ...sample('groundKill'), kind: 'gate' }, { ...sample('groundHit'), kind: 'turret' }];
   assert.deepEqual(sounds(events, WORLD_22).map((s) => s.name), ['kill', 'hit']);
+});
+
+test("Leg 3's events sound where they happen: a lasso's bells count what it caught, a shard pings and the flock flutters at their x", () => {
+  const lasso = { ...sample('lasso'), x: 900, shots: 2, craft: 1, ground: 0, pickups: 3 };
+  assert.deepEqual(sounds([lasso]), [{ name: 'lasso', x: 900, count: 6 }]);
+  assert.deepEqual(sounds([{ ...sample('shardBounce'), x: 400 }]), [{ name: 'shardBounce', x: 400 }]);
+  assert.deepEqual(sounds([{ ...sample('flockScatter'), x: 1300 }]), [{ name: 'flockScatter', x: 1300 }]);
 });

@@ -25,7 +25,7 @@
 // a hit. A pillar and a gate, the big ones, sound as an armored alien, the rest as a grunt. The rest of its events have sounds of their own
 // (sfx-road.js): a lantern chime at a `checkpoint`, a glow at an `ability` (at the ship, the event has no x), a pop at a `seedBurst`, a crack
 // at a struck bullet (`chip`) and at a broken one (`cut`, which the road's style cracks), a swell at a `respawn`, a pencil scratch at a `lineStop`, a twig's snap after a thorn's break, a flood and a chord at a
-// `holdBreak`; and a kite shot down (a `kill` in this world: the ground's breaks are `groundKill`s) flutters, a paper rustle over the kill's stab.
+// `holdBreak`; Leg 3's `lasso` (a climbing chime, a bell for each thing caught), `shardBounce` (a glassy ping) and `flockScatter` (a soft flutter of wings), sfx-flats.js; and a kite shot down (a `kill` in this world: the ground's breaks are `groundKill`s) flutters, a paper rustle over the kill's stab.
 import { THORN } from '../core/course-kinds.js';
 import { CHAIN } from '../core/boss-phase.js';
 import { MID_X, WIDTH } from '../core/kinds.js';
@@ -33,9 +33,6 @@ import { BIG_GROUND } from '../fx/react-ground.js';
 import { WANDER_WORLD } from './wander-kit.js';
 
 export const SILENT = {
-  lasso: 'the lasso has no sound yet (Leg 3 gives it one)',
-  flockScatter: 'the flock scatters: the motes flying apart are the sign (Leg 3 may give it a flutter)',
-  shardBounce: 'a shard throws a shot back: the bullet it adds is the sign (Leg 3 may give it a ping)',
   failed: 'the failed screen plays the stinger',
   cleared: 'the results screen plays the stinger after the slow motion',
 };
@@ -133,6 +130,9 @@ export function eventSounds(events, world, play) {
       case 'lineStop': play('lineScratch', at(e)); break;
       case 'respawn': play('respawn', at(e)); break;
       case 'holdBreak': play('holdBreak'); break;
+      case 'lasso': play('lasso', { x: e.x, count: e.shots + e.craft + e.ground + e.pickups }); break; // a bell for each thing the loop caught
+      case 'shardBounce': play('shardBounce', at(e)); break;
+      case 'flockScatter': play('flockScatter', at(e)); break;
       default: break; // SILENT
     }
   }

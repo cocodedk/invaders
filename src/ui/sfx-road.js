@@ -16,6 +16,7 @@ import { WORLD } from './sfx-world.js';
 export const CHIME = { degrees: [0, 2, 4], octave: 5, gap: 0.1, dur: 0.9 }; // the lantern's three bells: root, third, fifth, each struck a gap after the last
 export const BLOOM = { chord: [0, 2, 4], octave: 4, spark: [0, 2, 4, 7], sparkOctave: 6, sparkGap: 0.07 }; // an ability: the pad's chord, then the spark's arpeggio
 export const SWELL = { chord: [0, 4, 7], octave: 3, attack: 0.5 }; // a respawn: root, fifth and octave of the chord swelling in (degree 7 is the root an octave up)
+export const ROAD_GAP = { chip: 0.05, flutter: 0.05, seedBurst: 0.08, lineScratch: 0.08, brambleSnap: 0.06 }; // seconds audio.js thins each by
 export const CRACK = { chip: 0.45, cut: 1 }; // how big the crack of a struck bullet and of a broken one is (1 is the biggest)
 export const RUSTLE = { beats: [0, 0.04, 0.09, 0.15, 0.23, 0.33], pitches: [5600, 4300, 5000, 3400, 3900, 2600] }; // the flutter: when each rustle starts (s) and its centre (Hz)
 export const SCRATCH = { strokes: [{ f0: 3600, f1: 1800, at: 0 }, { f0: 3000, f1: 1500, at: 0.04 }, { f0: 2500, f1: 1200, at: 0.08 }], dur: 0.04, peak: 0.05, max: 0.2, q: 1.2, tail: 0.04 }; // the pencil scratch: each stroke's sweep (Hz) and start (s)
