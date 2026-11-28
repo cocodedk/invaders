@@ -57,10 +57,10 @@ export function dropPickup(world, from) {
 }
 
 // A hit alien has just died at `a`: a carrier always drops, any other formation alien with chance
-// killDrop(d) (R54, R56). Boss minions never roll: their carriers drop as before and the rest do not.
+// killDrop(d) (R54, R56). Boss minions and the Flock's motes (world 22) never roll: their carriers drop as before and the rest do not.
 // The saucer is a carrier. The roll is one draw on world.rng, taken for every such kill, drop or not.
 export function dropOnKill(world, a) {
-  if (a.role === 'carrier' || (!a.minion && rand(world.rng) < killDrop(world.level.d))) dropPickup(world, a);
+  if (a.role === 'carrier' || (!a.minion && !a.flock && rand(world.rng) < killDrop(world.level.d))) dropPickup(world, a);
 }
 
 // World 13's twist and world 18's power: a catch opens the side guns, or keeps them open for a full BROADSIDE_TIME more.

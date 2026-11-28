@@ -16,7 +16,7 @@ const sounds = (events, world = { boss: null }) => {
   return out;
 };
 const coreDir = fileURLToPath(new URL('../../src/core/', import.meta.url));
-const PENDING = ['lasso', 'shardBounce']; // silent until Leg 3's sound lands (the shard's return is told by its bullet)
+const PENDING = ['lasso', 'shardBounce', 'flockScatter']; // silent until Leg 3's sound lands (the shard's return is told by its bullet)
 const COURSE_EVENTS = [...new Set(readdirSync(coreDir).filter((f) => f.startsWith('course')).flatMap((f) =>
   [...readFileSync(coreDir + f, 'utf8').matchAll(/emit\(world, '(\w+)'/g)].map((m) => m[1])))];
 

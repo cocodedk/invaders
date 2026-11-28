@@ -18,6 +18,8 @@ export const LAND_WOOD = 'wood';
 export const air = (at, role, path, x, pattern) => ({ kind: 'air', at, role, path, x, pattern });
 // The Smudge (Leg 2): a gunner that drifts down, hangs at x and fires a curtain across the band (course-air.js hang, patterns.js curtain).
 export const smudge = (at, x) => air(at, 'u', 'hang', x, 'curtain');
+// The Flock (Leg 3): twelve motes that wheel round x as they drift down; they fire nothing (the pattern only satisfies the data check; course-flock.js).
+export const flock = (at, x) => air(at, 'g', 'flock', x, 'aimed');
 // A turret's hp, and a gate's, come from course-kinds.js hpFor: the seconds of steady fire BREAK_SECS names, in shots.
 export const turret = (at, x) => ({ kind: 'turret', at, x, hp: hpFor('turret') });
 export const crate = (at, x, hp, drop = null) => ({ kind: 'crate', at, x, hp, drop });

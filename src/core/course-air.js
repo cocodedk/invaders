@@ -5,11 +5,12 @@ import { fire, roleHp, addBullets, MAX_BULLETS } from './aliens.js';
 import { emitPattern } from './patterns.js';
 import { emit } from './util.js';
 import { SPAWN_Y, CROSS_Y, inView } from './course-kinds.js';
+import { flockCentre, spawnFlock, stepFlocks } from './course-flock.js';
 
 // Air craft (world 22): ordinary aliens that fly a path through a course instead of holding a formation, so
 // shots, rams, scoring and drops are the aliens' own (aliens.js, collide.js). They sit in world.aliens as
 //   { id, role, x, y, hp, maxHp, mode: 'path', path, t, x0, aim, pattern }
-//   path     'swoop' | 'cross' | 'dive' | 'hang' (pathPos)
+//   path     'swoop' | 'cross' | 'dive' | 'hang' | 'flock' (pathPos; a flock's is its wheel's centre, and its motes are course-flock.js's)
 //   t        seconds since it spawned: the path is a pure function of t, so the craft never integrates its position
 //   x0       the x it spawned at (the course entry's x; a crossing's lies beyond the side edge it comes from, within AIR_MARGIN)
 //   aim      a dive's locked x (the ship's x at DIVE_LOCK s), null until then and for the other paths
@@ -47,6 +48,7 @@ const PATHS = {
     const vx = aim === null ? 0 : clamp((aim - x0) / DIVE_REACH, -DIVE_VX, DIVE_VX);
     return { x: x0 + vx * Math.max(0, t - DIVE_LOCK), y: SPAWN_Y + DIVE_VY * t };
   },
+  flock: flockCentre,
   hang: (t, x0) => ({ x: x0, y: t <= HANG_LEAVE ? Math.min(HANG_Y, SPAWN_Y + HANG_VY * t) : HANG_Y + HANG_VY * (t - HANG_LEAVE) }),
 };
 export const pathPos = (path, t, x0, aim = null) => PATHS[path](t, x0, aim);
@@ -55,6 +57,7 @@ export const PATH_NAMES = Object.keys(PATHS); // the names a course entry's `pat
 // A craft of the course entry `e` (course.js hands it over on the tick its `at` comes up), where its path starts,
 // with the hp a wave alien of its role has (aliens.js roleHp).
 export function spawnAir(world, e) {
+  if (e.path === 'flock') return spawnFlock(world, e);
   const role = ROLE[e.role];
   const hp = roleHp(world, role);
   world.aliens.push({
@@ -84,8 +87,9 @@ function stepHang(world, a, dt) {
 // by its own cadence, stepHang). A craft fires only while it is on screen, so no shot ever comes from where the player cannot see.
 export function stepAir(world, dt) {
   const patterns = [];
+  stepFlocks(world, dt, gone); // a flock's motes fly and fire nothing, here and below
   for (const a of world.aliens) {
-    if (a.mode !== 'path' || a.hp <= 0) continue;
+    if (a.mode !== 'path' || a.hp <= 0 || a.path === 'flock') continue;
     a.t += dt;
     if (a.path === 'dive' && a.aim === null && a.t >= DIVE_LOCK) a.aim = world.ship.x;
     Object.assign(a, pathPos(a.path, a.t, a.x0, a.aim));
@@ -94,6 +98,6 @@ export function stepAir(world, dt) {
     else if (!patterns.includes(a.pattern)) patterns.push(a.pattern);
   }
   for (const pattern of patterns) {
-    fire(world, dt, pattern, (a) => a.mode === 'path' && a.path !== 'hang' && a.hp > 0 && a.pattern === pattern && inView(a));
+    fire(world, dt, pattern, (a) => a.mode === 'path' && a.path !== 'hang' && a.path !== 'flock' && a.hp > 0 && a.pattern === pattern && inView(a));
   }
 }
