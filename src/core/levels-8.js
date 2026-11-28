@@ -6,6 +6,7 @@ import { hpFor, END_RUN } from './course-kinds.js';
 import { stopAt, GATE_DY_MAX } from './course-hold.js';
 import { course, air, turret, crate, stone, pillar, lantern, LEFT, RIGHT } from './levels-8-kit.js';
 import { WOOD } from './levels-8-wood.js';
+import { FLATS } from './levels-8-flats.js';
 
 // Leg 1, Dawn Valley: about two minutes of scroll in three stretches, split by two lanterns (checkpoints), ending on the Grey Gate.
 // Each lantern leaves its quiet stretch behind it: nothing comes up for a while, and the walls stand open to the whole width.
@@ -91,4 +92,4 @@ const LEG_1 = {
   spawns: [...STRETCH_1, ...STRETCH_2, ...STRETCH_3],
 };
 
-export const JOURNEY = [[course(220519, LEG_1), WOOD]];
+export const JOURNEY = [[course(220519, LEG_1), WOOD, FLATS]];

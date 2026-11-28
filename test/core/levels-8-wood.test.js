@@ -59,8 +59,8 @@ function idleFlight() {
   return out;
 }
 
-test('levels-8.js has two legs and the second is world 22\'s w22-2: a course named Leg 2, free flight, with the level data of its journey', () => {
-  assert.equal(JOURNEY[0].length, 2);
+test('levels-8.js has Leg 2 second: world 22\'s w22-2: a course named Leg 2, free flight, with the level data of its journey', () => {
+  assert.ok(JOURNEY[0].length >= 2);
   assert.equal(leg.world, WORLD);
   assert.equal(leg.index, 2);
   assert.equal(leg.course, JOURNEY[0][1].course);

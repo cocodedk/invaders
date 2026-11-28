@@ -5,8 +5,9 @@ import { startCheck, RESPAWN_Y } from '../../src/core/course-check.js';
 import { GATE_DY_MAX, stopAt } from '../../src/core/course-hold.js';
 import { GROUND_R } from '../../src/core/course-ground.js';
 import { bandAt } from '../../src/core/course-terrain.js';
-import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN, BOXES } from '../../src/core/course-kinds.js';
+import { SPAWN_Y, BAND_MIN, RESPAWN_SAFE, WALL_SLOPE_MAX, END_RUN, BOXES, SHARD } from '../../src/core/course-kinds.js';
 import { curtains, hedges, openThorns, AIR_PATTERNS } from './course-fair-wood.js';
+import { flats } from './course-fair-flats.js';
 import { rowsOf, courseRows, blocksOf, widestGap } from './course-fair-rows.js';
 
 // The data rules of a course (world 22), as one pure check. unfair(level) walks the level's `course` and returns what breaks them,
@@ -28,6 +29,7 @@ import { rowsOf, courseRows, blocksOf, widestGap } from './course-fair-rows.js';
 //            along it (R20)
 //   length   the course is at least as long as every hold's stop, and exactly that plus END_RUN when the last entry is a hold: the leg ends on it,
 //            runs on END_RUN px of scroll past its stop once the gates have fallen, and clears there
+//   flock, shard, ring   the Mirror Flats' rules (course-fair-flats.js)
 //   period, target, gate, reach   a hold's period is above 0, it has a gate, its gates are in [0, GATE_DY_MAX] (on the screen when the scroll stops, and
 //            clear of the HUD's panels: a gate's top edge at the stop is at HUD_BOTTOM or below) and in the band
 
@@ -80,7 +82,7 @@ function band(course) {
   return need(row === undefined, 'band', `under ${BAND_MIN} px open at ${row}`);
 }
 
-const GROUND_KINDS = ['turret', 'crate', 'stone', 'checkpoint']; // the ground objects with a place of their own (a gate is checked with its hold)
+const GROUND_KINDS = ['turret', 'crate', 'stone', 'checkpoint', SHARD]; // the ground objects with a place of their own (a gate is checked with its hold)
 function buried(course) {
   const ground = course.spawns
     .filter((e) => GROUND_KINDS.includes(e.kind))
@@ -132,5 +134,5 @@ function holds(course) {
 
 export function unfair(level) {
   const c = level.course;
-  return [...sorted(c), ...craft(c), ...hp(c), ...pillar(c), ...walls(c), ...band(c), ...buried(c), ...quiet(level), ...ending(c), ...holds(c), ...curtains(level), ...hedges(c)];
+  return [...sorted(c), ...craft(c), ...hp(c), ...pillar(c), ...walls(c), ...band(c), ...buried(c), ...quiet(level), ...ending(c), ...holds(c), ...curtains(level), ...hedges(c), ...flats(c)];
 }

@@ -18,7 +18,7 @@
 // and armored need the extra hp to survive one bonk and stop a chain.
 // world 20 (the echo) runs a notch above world 19, level for level, because its carbon copy doubles the ship's gun.
 // world 21 (the quiver) runs a notch above world 20, level for level, because its returning arrow gives every shot a second pass.
-// world 22 (the journey) is a course a leg, leg 1 at 0.85 and leg 2 (the Pencil Wood) a little above it, at 0.9, because the owner wants it
+// world 22 (the journey) is a course a leg, leg 1 at 0.85 and leg 2 (the Pencil Wood) a little above it, at 0.9 and leg 3 (the Mirror Flats) above that, at 0.95, because the owner wants it
 // harder: the autopilot cannot fly a course, so no run measures them and the numbers are picks, tuned by play.
 const OWN = {
   9: [0.40, 0.43, 0.45, 0.48, 0.50],
@@ -34,7 +34,7 @@ const OWN = {
   19: [0.64, 0.67, 0.70, 0.73, 0.76],
   20: [0.68, 0.71, 0.74, 0.77, 0.80],
   21: [0.70, 0.73, 0.76, 0.79, 0.82],
-  22: [0.85, 0.9],
+  22: [0.85, 0.9, 0.95],
 };
 export const difficulty = (world, index) => OWN[world]?.[index - 1] ?? ((world - 1) * 5 + index - 1) / 39;
 
