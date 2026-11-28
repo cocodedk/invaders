@@ -10,10 +10,13 @@ import { FLOCK_VY, FLOCK_R } from '../../src/core/course-flock.js';
 //          spawns, so the last flock comes up that long before the stop, and a hold's flights are never flocks
 //   shard  no shard stands within RESPAWN_SAFE s of scroll of a lantern, before it or after: a respawn puts the ship in a field that a shard
 //          would throw its first shots back across
+//   lone   the first FIRST_FLOCKS flocks come alone: no spawn but a lantern within LONE_GAP px of scroll of one, so a loop is the plain answer to it
 //   ring   (a course that grants the lasso) no three of a hold's gates fit inside a circle of diameter LASSO_INK / PI, the widest circle a full line closes: one loop takes at most
 //          two of them, so looping helps and the fight stays a fight
 
 export const FLOCK_STAY = (HEIGHT - SPAWN_Y + FLOCK_R + ALIEN_R) / FLOCK_VY; // s from a flock's spawn until its last mote is below the screen
+export const FIRST_FLOCKS = 2;
+export const LONE_GAP = HEIGHT - SPAWN_Y; // a screen of scroll: what is up when a flock spawns has gone or is not yet in; the data keeps 1300 at least
 export const RING_R = LASSO_INK / Math.PI / 2; // the radius of a circle of a full line
 
 const holds = ({ spawns }) => spawns.filter((e) => e.kind === 'hold');
@@ -56,4 +59,11 @@ export function ring(course) { // only a course that grants the lasso: Legs 1 an
   });
 }
 
-export const flats = (course) => [...flocks(course), ...shards(course), ...ring(course)];
+export function lone({ spawns }) {
+  const firsts = spawns.filter((e) => e.kind === 'air' && e.path === 'flock').sort((a, b) => a.at - b.at).slice(0, FIRST_FLOCKS);
+  return firsts.flatMap((f) => spawns
+    .filter((e) => e !== f && e.kind !== 'checkpoint' && Math.abs(e.at - f.at) < LONE_GAP)
+    .map((e) => `lone: the ${e.kind} at ${e.at} is within ${LONE_GAP} of the flock at ${f.at}`));
+}
+
+export const flats = (course) => [...flocks(course), ...shards(course), ...lone(course), ...ring(course)];

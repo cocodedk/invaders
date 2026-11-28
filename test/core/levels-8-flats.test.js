@@ -12,12 +12,12 @@ import { FLOCK_VY, FLOCK_R } from '../../src/core/course-flock.js';
 import { LAND_FLATS } from '../../src/core/levels-8-kit.js';
 import { parOf } from '../../src/core/pars.js';
 import { unfair } from './course-fair-kit.js';
-import { flocks, shards, ring } from './course-fair-flats.js';
+import { flocks, shards, ring, lone, LONE_GAP, FIRST_FLOCKS } from './course-fair-flats.js';
 import { flyCourse, CLEAR_PARS } from './course-clear-kit.js';
 import { FAIR_COURSE } from './course-kit.js';
 
 // World 22's Leg 3 (the Mirror Flats), proven on its own as levels-8-wood.test.js proves Leg 2: its shape (starts with the seed and the line, two
-// lanterns, the first granting the lasso, flocks and shards, an end hold), the data rules (the three of course-fair-flats.js included, each shown
+// lanterns, the first granting the lasso, flocks and shards, an end hold), the data rules (the four of course-fair-flats.js included, each shown
 // to catch what it names), and a clear. The data is read through LEVELS.
 const WORLD = WORLDS.length;
 const leg = levelById('w22-3');
@@ -106,6 +106,21 @@ test('a shard within RESPAWN_SAFE s of a lantern, before it or after, is caught 
   assert.deepEqual(shards(mk(5000 - near)), []);
   assert.deepEqual(shards(mk(5000 + near)), []);
   assert.ok(RESPAWN_Y > 0);
+});
+
+test('the first Flocks come alone: a spawn within LONE_GAP of one is caught by the lone rule, a lantern or a later flock with neighbours is not', () => {
+  assert.deepEqual(lone(leg.course), []);
+  assert.deepEqual(lone(two.course), [], 'Legs without flocks have nothing to check');
+  const spawns = leg.course.spawns;
+  const firsts = flockEntries(spawns).slice(0, FIRST_FLOCKS);
+  const moved = (e) => spawns.map((s) => (s === e ? { ...s, at: firsts[0].at + LONE_GAP - 1 } : s));
+  const other = spawns.find((s) => s.kind === 'air' && s.path !== 'flock');
+  assert.match(lone({ ...leg.course, spawns: moved(other) })[0], /^lone: /);
+  const lamp = { kind: 'checkpoint', at: firsts[0].at + 1, x: 960, grants: null };
+  assert.deepEqual(lone({ ...leg.course, spawns: [...spawns, lamp] }), []);
+  const third = flockEntries(spawns)[FIRST_FLOCKS];
+  const near = { kind: 'air', at: third.at + 1, role: 'g', path: 'swoop', x: 960, pattern: 'aimed' };
+  assert.deepEqual(lone({ ...leg.course, spawns: [...spawns, near] }), []);
 });
 
 test('Leg 3 can be cleared: a steered, unhittable flight reaches the end of its hold within its pars', () => {
