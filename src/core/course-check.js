@@ -55,7 +55,7 @@ function respawn(world) {
   if (ship.power) emit(world, 'power', { kind: ship.power.kind, on: false }); // cut short, not run out: it says so, as tickPower does (the reserve is lost without a word, as a displaced one is)
   for (const list of [world.aliens, world.bullets, world.shots, world.pickups, course.ground, course.seeds, course.line]) list.length = 0;
   course.marks.length = c.marks;
-  Object.assign(course, { dist: c.dist, next: c.next, abilities: [...c.abilities], respawn: null, held: null, pen: null });
+  Object.assign(course, { dist: c.dist, next: c.next, abilities: [...c.abilities], respawn: null, held: null, pen: null, lassoCool: 0 });
   restoreScore(world, c.score);
   Object.assign(ship, {
     alive: true, x: c.x, y: RESPAWN_Y, fromX: c.x, fromY: RESPAWN_Y, vx: 0, vy: 0, pointed: false,

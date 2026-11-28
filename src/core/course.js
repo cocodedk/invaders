@@ -32,7 +32,7 @@ import { SPAWN_Y, GROUND_MARGIN } from './course-kinds.js';
 export function createCourse(level) {
   return {
     dist: 0, next: 0, ground: [], abilities: [...(level.course.starts ?? [])], marks: [], seeds: [], seedCool: 0,
-    respawn: null, held: null, check: startCheck(level), lit: 0, line: [], pen: null,
+    respawn: null, held: null, check: startCheck(level), lit: 0, line: [], pen: null, lassoCool: 0,
   };
 }
 

@@ -13,7 +13,7 @@ import { TICK, react } from './fx-kit.js';
 import { sampleEvent } from '../event-sample.js';
 
 // Events the core emits that fx deliberately leaves to the screens (the sounds and the screens tell the rest).
-const SILENT = ['failed'];
+const SILENT = ['failed', 'lasso']; // the lasso's reaction comes with Leg 3's art
 
 test('every event type the core emits has a reaction, or is listed as silent here', () => {
   const dir = fileURLToPath(new URL('../../src/core/', import.meta.url));

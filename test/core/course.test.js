@@ -24,7 +24,7 @@ function fresh(spawns) {
 test('the course starts at dist 0 with nothing on the ground, and a wave level has no course at all', () => {
   const world = createWorld(courseLevel(data([stone(50)])));
   // `check` is the start's record (course-check.test.js reads it)
-  const course = { dist: 0, next: 0, ground: [], abilities: [], marks: [], seeds: [], seedCool: 0, respawn: null, held: null, lit: 0, line: [], pen: null, check: world.course.check };
+  const course = { dist: 0, next: 0, ground: [], abilities: [], marks: [], seeds: [], seedCool: 0, respawn: null, held: null, lit: 0, line: [], pen: null, lassoCool: 0, check: world.course.check };
   assert.deepEqual(world.course, course);
   assert.equal('course' in createWorld(level([wave()])), false);
 });

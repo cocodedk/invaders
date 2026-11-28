@@ -2,6 +2,8 @@ import { EPS } from './kinds.js';
 import { segDist2, segSegDist2 } from './math.js';
 import { BULLET_HP } from './course-cut.js';
 import { emit, prune } from './util.js';
+import { LINE_STEP } from './course-kinds.js';
+import { LASSO_SEGS, LASSO_LIFE, closeLoop } from './course-lasso.js';
 
 // Your line (world 22, Leg 2 on): once the ship holds the ability 'line' (a lantern grants it, course-check.js), the path it flies hangs
 // in the air and stops enemy fire. The strokes are in screen space and do not drift with the land. course.line is the ink, oldest first,
@@ -18,10 +20,14 @@ import { emit, prune } from './util.js';
 //              A laser, which no shot can break either, passes. The ship, its shots and the air craft pass through the line.
 // stepPlay calls lineStops first, then drawLine: the stops use the ink laid before this tick, so a move never draws its own shield.
 
-export const LINE_STEP = 16; // px: one segment's length
+export { LINE_STEP }; // px: one segment's length (course-kinds.js)
 export const LINE_INK = 700; // px of stroke the line holds at most
 export const LINE_SEGS = Math.floor(LINE_INK / LINE_STEP);
 export const LINE_LIFE = 3; // s a segment hangs before it is gone
+// With the ability 'lasso' (Leg 3) the line holds more ink for longer, and closes into loops (course-lasso.js).
+const lasso = (course) => course.abilities.includes('lasso');
+export const lineSegs = (course) => (lasso(course) ? LASSO_SEGS : LINE_SEGS);
+export const lineLife = (course) => (lasso(course) ? LASSO_LIFE : LINE_LIFE);
 export const LINE_BITE = 12; // px of ink a stopped bullet rubs out around it, for each hit point it had
 
 export function drawLine(world, dt) {
@@ -29,7 +35,8 @@ export function drawLine(world, dt) {
   if (!course.abilities.includes('line')) return;
   const { line } = course;
   for (const s of line) s.t += dt;
-  prune(line, (s) => s.t < LINE_LIFE - EPS);
+  prune(line, (s) => s.t < lineLife(course) - EPS);
+  if (lasso(course)) course.lassoCool = Math.max(0, course.lassoCool - dt);
   if (!ship.alive) {
     course.pen = null;
     return;
@@ -49,8 +56,9 @@ export function drawLine(world, dt) {
     line.push({ x1: pen.x, y1: pen.y, x2, y2, t: 0 });
     pen.x = x2;
     pen.y = y2;
+    if (line.length > lineSegs(course)) line.shift();
+    if (lasso(course) && course.lassoCool === 0) closeLoop(world);
   }
-  if (line.length > LINE_SEGS) line.splice(0, line.length - LINE_SEGS);
 }
 
 export function lineStops(world, slow) {

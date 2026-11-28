@@ -62,7 +62,8 @@ const courseParts = ({ course }) => {
   return ['course', round(course.dist), course.next, held ? round(held.t) : '-', respawn === null ? '-' : round(respawn),
     course.abilities.length, course.marks.length,
     ground.length, ...ground.map((g) => `${g.kind},${round(g.x)},${round(g.y)},${g.hp}`),
-    seeds.length, ...seeds.map((s) => `${round(s.x)},${round(s.at)},${round(s.t)}`), ...lineParts(course)];
+    seeds.length, ...seeds.map((s) => `${round(s.x)},${round(s.at)},${round(s.t)}`), ...lineParts(course),
+    ...(course.abilities.includes('lasso') ? ['lasso', round(course.lassoCool)] : [])]; // Leg 3's lasso rest, once held, else nothing is added
 };
 
 export function stateHash(world) {

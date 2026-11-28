@@ -33,6 +33,7 @@ import { BIG_GROUND } from '../fx/react-ground.js';
 import { WANDER_WORLD } from './wander-kit.js';
 
 export const SILENT = {
+  lasso: 'the lasso has no sound yet (Leg 3 gives it one)',
   failed: 'the failed screen plays the stinger',
   cleared: 'the results screen plays the stinger after the slow motion',
 };
