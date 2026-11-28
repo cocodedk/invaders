@@ -12,6 +12,7 @@
 //             full: lights the whole frame (x, y, r unused); ramp: the share of its life spent
 //             brightening before it fades (0 fades from the start, 1 a charge that peaks at its end);
 //             alpha is the peak; tag names the cause
+//   loops     a closed lasso loop's outline { poly: flat [x0, y0, ...], life, max } (react-road.js lasso; ui/loop-flash-view.js strokes it, bright, fading)
 //   popups    floating text { x, y, vy, text, color, scale, life, max }
 //   slices    glitch bands { x, y, w, h, dx, color, life, max }: shift the band of the frame by dx
 //   shake     screen-shake amplitude in px; shakeX/shakeY the offset to apply this frame
@@ -38,7 +39,7 @@ export const BREATH_BURST = 6; // wiped bullets that may sparkle at once (the br
 
 export function createFx() {
   return {
-    particles: [], rings: [], flashes: [], popups: [], slices: [],
+    particles: [], rings: [], flashes: [], popups: [], slices: [], loops: [],
     shake: 0, shakeX: 0, shakeY: 0, slow: 1, slowLeft: 0, time: 0,
     bulletTime: false, slowPower: false, density: 1, shieldT: -1,
     breathBudget: { n: BREATH_BURST, t: 0 },
@@ -63,6 +64,8 @@ export const addRing = (fx, r) => {
   const ring = { x: MID_X, y: MID_Y, r0: 0, maxR: 100, width: 4, color: '#ffffff', kind: 'ring', life: 0.5, ...r };
   push(fx.rings, { ...ring, r: ring.r0 });
 };
+
+export const addLoop = (fx, l) => push(fx.loops, l);
 
 export const addPopup = (fx, p) => push(fx.popups, {
   x: MID_X, y: MID_Y, vy: -60, text: '', color: '#ffffff', scale: 1, life: 1, ...p,
@@ -102,6 +105,7 @@ export function stepFx(fx, dt) {
     r.r = r.r0 + (r.maxR - r.r0) * (1 - (1 - t) * (1 - t)); // ease-out
   });
   stepTimed(fx.flashes, sdt);
+  stepTimed(fx.loops, sdt);
   stepTimed(fx.popups, sdt, (p, d) => { p.y += p.vy * d; });
   stepTimed(fx.slices, sdt);
   stepShake(fx, dt);

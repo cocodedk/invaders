@@ -11,6 +11,8 @@ import { step, drain, ofType, pickupAt } from './world-kit.js';
 import { lineWorld, put, hline } from './course-line-kit.js';
 import { circle, lassoWorld, bullet, gnd, caught, CX, CY, R } from './course-lasso-kit.js';
 
+const SMALL = R / 1.5; // a circle that closes on its own: a smaller one is too little ink to cross itself
+
 // The lasso (world 22, Leg 3): the line closes into a loop and what is inside is caught (course-lasso.js).
 
 test('without the ability a closed circle of flight catches nothing, and the line keeps Leg 2 numbers and hash', () => {
@@ -135,7 +137,7 @@ test('during LASSO_RECHARGE a second circle catches nothing, keeps its ink and s
   circle(world);
   drain(world);
   const stone = gnd(world, 'stone', CX, CY);
-  circle(world, { r: R / 2 }); // quick enough to close inside the rest
+  circle(world, { r: SMALL }); // quick enough to close inside the rest
   assert.equal(stone.hp > 0, true);
   assert.ok(world.course.lassoCool > 0);
   assert.ok(world.course.line.length >= 8, 'the ink stays');
@@ -147,7 +149,7 @@ test('during LASSO_RECHARGE a second circle catches nothing, keeps its ink and s
   assert.ok(ofType(drain(world), 'lineStop').length >= 1);
   for (let t = 0; t < LASSO_RECHARGE / TICK + 2; t++) drawLine(world, TICK);
   assert.equal(world.course.lassoCool, 0);
-  circle(world, { r: R / 2 });
+  circle(world, { r: SMALL });
   assert.equal(stone.hp, 0);
 });
 

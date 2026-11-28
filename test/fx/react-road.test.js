@@ -5,7 +5,7 @@ import { applyEvent } from '../../src/fx/react.js';
 import { MAX_PARTICLES } from '../../src/fx/particles.js';
 import { makeRng } from '../../src/core/rng.js';
 import { WIDTH, HEIGHT } from '../../src/core/kinds.js';
-import { ROAD_WORLD, GOLDS, VIOLETS, PAINTS, WOOD_PAINTS, GRAPHITE, GLOW, SEED, FLECKS, FLOOD, SMUDGE, LOOP_SPARKS, SPARKLE } from '../../src/fx/react-road.js';
+import { ROAD_WORLD, GOLDS, VIOLETS, PAINTS, WOOD_PAINTS, GRAPHITE, GLOW, SEED, FLECKS, FLOOD, SMUDGE, LOOP_SPARKS, LOOP_FLASH_LIFE, SPARKLE } from '../../src/fx/react-road.js';
 import { ABILITY_CAPTIONS, CAPTION, openLeg } from '../../src/fx/react-story.js';
 import { levelById } from '../../src/core/levels.js';
 import { PAL, WANDER_WORLD } from '../../src/ui/wander-kit.js';
@@ -169,6 +169,10 @@ test('a closing loop bursts LOOP_SPARKS gold sparkles along its edge, flying out
   const j = SPARKLE.jitter; // the sample loop is the square from (400, 200) to (600, 400)
   assert.ok(fx.particles.every((p) => p.x >= 400 - j && p.x <= 600 + j && p.y >= 200 - j && p.y <= 400 + j), 'on the loop');
   assert.ok(fx.particles.every((p) => (p.x - ev.x) * p.vx + (p.y - ev.y) * p.vy >= 0), 'outward');
+  assert.equal(fx.loops.length, 1);
+  assert.deepEqual(fx.loops[0].poly, ev.poly);
+  run(fx, LOOP_FLASH_LIFE + 0.1);
+  assert.equal(fx.loops.length, 0, 'the outline fades');
   run(fx, SPARKLE.life[1] + 0.1);
   assert.equal(fx.particles.length, 0);
   const storm = createFx();

@@ -9,6 +9,7 @@ import { drawMend, drawScatter } from './mending-fx-view.js';
 import { drawLeaf, drawTwinkle } from './breath-fx-view.js';
 import { drawArc } from './arc-fx-view.js';
 import { drawSuds } from './bath-fx-view.js';
+import { drawLoopFlash } from './loop-flash-view.js';
 import { HUD_BOTTOM } from '../core/kinds.js';
 import { flashK } from '../fx/fx.js';
 import { TAU } from '../core/math.js';
@@ -193,4 +194,5 @@ export function drawFx(ctx, fx) {
   ctx.globalCompositeOperation = 'source-over';
   flashes(ctx, fx);
   rings(ctx, fx);
+  drawLoopFlash(ctx, fx);
 }

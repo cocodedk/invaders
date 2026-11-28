@@ -48,7 +48,7 @@ function findLoop(line) {
   const k = line.length - 1;
   let from = k; // the oldest segment of the unbroken chain that ends at k
   while (from > 0 && line[from].x1 === line[from - 1].x2 && line[from].y1 === line[from - 1].y2) from--;
-  for (let j = Math.max(0, from - 1); j <= k - 3; j++) {
+  for (let j = from; j <= k - 3; j++) {
     const [a, b] = [line[j], line[k]];
     if (segSegDist2(a.x1, a.y1, a.x2, a.y2, b.x1, b.y1, b.x2, b.y2) !== 0) continue;
     const poly = line.slice(j + 1).map((s) => ({ x: s.x1, y: s.y1 }));
