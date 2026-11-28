@@ -5,8 +5,9 @@
 //                                 each segment (there are LINE_SEGS of them at most). Nothing here is drawn from a
 //                                 clock: the age is the segment's own.
 import { rgba } from './sprites.js';
-import { LINE_LIFE } from '../core/course-line.js';
+import { lineLife } from '../core/course-line.js';
 import { PAL } from './wander-kit.js';
+import { star, addGlow } from './sprites.js';
 
 export const LINE_ALPHA_STEPS = 6; // the fade is drawn in this many alphas, a path each at most
 export const LINE_WIDTH = 5; // px
@@ -15,10 +16,30 @@ export const GOLD_EDGES = 2; // the gold ribbon edge is this many LINE_EDGEs eac
 export const TEAL_EDGES = 4; // and the turquoise this many
 export const LINE_COLOUR = '#34302c'; // graphite, darker than the pencil of the ground (PAL.pencil) so it reads over the land
 
-const stepOf = (s) => Math.min(LINE_ALPHA_STEPS - 1, Math.floor((Math.max(0, s.t) / LINE_LIFE) * LINE_ALPHA_STEPS));
+export const SPARKLE_EVERY = 6; // with the lasso, a star sits on one segment in this many
+export const SPARKLE_SIZE = 16; // px radius of a star at its fullest
+export const SPARKLE_TWINKLE = 9; // rad a second the stars swell and shrink, each from its own age and place
+export const SPARKLE_FLOOR = 0.35; // the least a star swells to, of SPARKLE_SIZE
+export const SPARKLE_DIM = 0.3; // the stars' alpha while the lasso recharges (course.lassoCool > 0)
+export const SPARKLE_COLOUR = '#fff6c8'; // pale gold, a glint on the gold ribbon
 
-export function drawCourseLine(ctx, { line }) {
+const stepOf = (s, life) => Math.min(LINE_ALPHA_STEPS - 1, Math.floor((Math.max(0, s.t) / life) * LINE_ALPHA_STEPS));
+
+// The glitter: a cached star on every SPARKLE_EVERY-th segment, drawn additively, its swell from the segment's own age (no clock), its alpha the ink's.
+function sparkle(ctx, line, life, cool) {
+  const sprite = star(SPARKLE_COLOUR);
+  for (let i = 0; i < line.length; i += SPARKLE_EVERY) {
+    const s = line[i];
+    const swell = SPARKLE_FLOOR + (1 - SPARKLE_FLOOR) * (0.5 + 0.5 * Math.sin(s.t * SPARKLE_TWINKLE + i));
+    const fade = Math.max(0, 1 - s.t / life);
+    addGlow(ctx, sprite, (s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2, SPARKLE_SIZE * swell, fade * (cool > 0 ? SPARKLE_DIM : 1));
+  }
+}
+
+export function drawCourseLine(ctx, course) {
+  const { line } = course;
   if (line.length === 0) return;
+  const life = lineLife(course);
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -34,7 +55,7 @@ export function drawCourseLine(ctx, { line }) {
   let step = -1; // the alpha step of the path being laid
   let end = null; // where it has got to, the previous segment's far end
   for (const s of line) {
-    const k = stepOf(s);
+    const k = stepOf(s, life);
     if (k !== step) {
       if (step >= 0) stroke(alpha);
       ctx.beginPath();
@@ -47,5 +68,6 @@ export function drawCourseLine(ctx, { line }) {
     end = s;
   }
   stroke(alpha);
+  if (course.abilities.includes('lasso')) sparkle(ctx, line, life, course.lassoCool);
   ctx.restore();
 }

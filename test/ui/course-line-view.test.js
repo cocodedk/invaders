@@ -125,3 +125,40 @@ test('a full line costs a few paths and no state change for each segment, no gra
   assert.ok(!w.calls.some(([k]) => /^create/.test(k)), 'nothing built per frame');
   assert.ok(!('shadowBlur' in w.ctx), 'no shadow blur');
 });
+
+// The lasso glitters (Leg 3): once held, cached star sprites twinkle along the ink, dimmer while it recharges.
+const { LASSO_RECHARGE } = await import('../../src/core/course-lasso.js');
+const { SPARKLE_EVERY, SPARKLE_DIM, SPARKLE_SIZE } = await import('../../src/ui/course-line-view.js');
+const glints = ({ calls }) => calls.filter(([k, img]) => k === 'drawImage' && img?.width !== undefined);
+const lassoed = (cool) => {
+  const w = inked(0);
+  w.course.abilities.push('lasso');
+  w.course.lassoCool = cool;
+  w.course.line = Array.from({ length: 4 * SPARKLE_EVERY }, (_, i) => ({ x1: 100 + i * 10, y1: 500, x2: 110 + i * 10, y2: 500, t: 0.1 * i }));
+  return w;
+};
+const alphaSum = (w) => {
+  const r = inkwell();
+  let a = 1;
+  const ctx = new Proxy(r.ctx, { get: (o, k) => (k === 'drawImage' ? (...x) => { r.seen.push(o.globalAlpha); o.drawImage(...x); } : o[k]), set: (o, k, v) => ((o[k] = v), true) });
+  r.seen = [];
+  drawCourseLine(ctx, w.course);
+  return { ...r, a, total: r.seen.reduce((s, x) => s + x, 0) };
+};
+
+test('with the lasso the line also draws cached sparkle sprites, additively, one to every SPARKLE_EVERY segments', () => {
+  const lit = drawn(lassoed(0));
+  assert.equal(glints(lit).length, 4, 'four sparkles on four groups of segments');
+  assert.ok(lit.calls.some(([k]) => k === 'fill' || k === 'stroke') && !lit.calls.some(([k]) => /^create/.test(k)), 'nothing built per frame');
+  assert.ok(!('shadowBlur' in lit.ctx), 'no shadow blur');
+  const w = lassoed(0);
+  assert.ok(SPARKLE_SIZE > 0);
+  w.course.abilities.pop();
+  assert.equal(glints(drawn(w)).length, 0, 'without the lasso, no sparkle');
+});
+
+test('the sparkles are dimmer while the lasso recharges', () => {
+  const [ready, cooling] = [alphaSum(lassoed(0)), alphaSum(lassoed(LASSO_RECHARGE))];
+  assert.ok(ready.total > 0 && cooling.total > 0);
+  assert.ok(Math.abs(cooling.total - SPARKLE_DIM * ready.total) < 1e-9, 'dimmer by SPARKLE_DIM');
+});
