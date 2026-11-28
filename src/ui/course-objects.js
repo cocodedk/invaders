@@ -9,6 +9,7 @@ import { H, glow, addGlow } from './sprites.js';
 import { RESPAWN_Y } from '../core/course-check.js';
 import { PAL } from './wander-kit.js';
 import { thornSprite, thicketGateSprite } from './course-sprites-wood.js';
+import { shardSprite } from './course-sprites-flats.js';
 import { LAND_WOOD } from '../core/levels-8-kit.js';
 import {
   OBJECT_SCALE, PILLAR_PAD, LANTERN, LANTERN_SCALE, PUPIL,
@@ -60,6 +61,7 @@ const DRAW = {
     blit(ctx, (land === LAND_WOOD ? thicketGateSprite : gateSprite)(awake));
     if (awake) pupil(ctx, t);
   },
+  shard: (ctx) => blit(ctx, shardSprite()), // Leg 3's mirror shard, round like a stone
   checkpoint: (ctx, g, t) => lantern(ctx, g.reached, t),
 };
 

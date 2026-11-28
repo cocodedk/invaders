@@ -10,6 +10,7 @@ import { path, circle, ellipse, shade, rgba } from './kit.js';
 import { tidy } from './w16-kit.js';
 import { PAL } from '../wander-kit.js';
 import { smudgePainters, SMUDGE_ROLES } from './w22-smudge.js';
+import { motePainters, MOTE_ROLES } from './w22-flock.js';
 
 const SIZE = 160; // px, a sprite canvas's edge: a kite, its tail and its shadow stand in it
 const WAVER = 6; // px: how far the tail swings out of line, and the frame swings it the other way
@@ -121,6 +122,7 @@ export default {
   gunner: kite({ w: 24, h: 28, knots: 5, step: 8 }, eyeMark),
   armored: kite({ w: 28, h: 30, knots: 4, step: 8, line: 3.2 }, platesMark),
   carrier: kite({ w: 30, h: 34, knots: 6, step: 7, ribbon: true }, sparkleMark),
-  roles: SMUDGE_ROLES, // the extra roles to warm (bake.js)
+  roles: [...SMUDGE_ROLES, ...MOTE_ROLES], // the extra roles to warm (bake.js)
   ...smudgePainters, // the hang craft (w22-smudge.js), baked as the roles 'smudge' and 'smudgeOpen'
+  ...motePainters, // the Flock's motes (w22-flock.js), baked as the role 'mote'
 };
