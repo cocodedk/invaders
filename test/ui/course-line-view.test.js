@@ -146,7 +146,7 @@ const alphaSum = (w) => {
   return { ...r, a, total: r.seen.reduce((s, x) => s + x, 0) };
 };
 
-test('with the lasso the line also draws cached sparkle sprites, additively, one to every SPARKLE_EVERY segments', () => {
+test('with the lasso the line also draws cached sparkle sprites, one to every SPARKLE_EVERY segments', () => {
   const lit = drawn(lassoed(0));
   assert.equal(glints(lit).length, 4, 'four sparkles on four groups of segments');
   assert.ok(lit.calls.some(([k]) => k === 'fill' || k === 'stroke') && !lit.calls.some(([k]) => /^create/.test(k)), 'nothing built per frame');

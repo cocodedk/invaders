@@ -7,7 +7,7 @@
 import { rgba } from './sprites.js';
 import { lineLife } from '../core/course-line.js';
 import { PAL } from './wander-kit.js';
-import { star, addGlow } from './sprites.js';
+import { star } from './sprites.js';
 
 export const LINE_ALPHA_STEPS = 6; // the fade is drawn in this many alphas, a path each at most
 export const LINE_WIDTH = 5; // px
@@ -17,22 +17,25 @@ export const TEAL_EDGES = 4; // and the turquoise this many
 export const LINE_COLOUR = '#34302c'; // graphite, darker than the pencil of the ground (PAL.pencil) so it reads over the land
 
 export const SPARKLE_EVERY = 6; // with the lasso, a star sits on one segment in this many
-export const SPARKLE_SIZE = 16; // px radius of a star at its fullest
+export const SPARKLE_SIZE = 22; // px radius of a star at its fullest
 export const SPARKLE_TWINKLE = 9; // rad a second the stars swell and shrink, each from its own age and place
 export const SPARKLE_FLOOR = 0.35; // the least a star swells to, of SPARKLE_SIZE
 export const SPARKLE_DIM = 0.3; // the stars' alpha while the lasso recharges (course.lassoCool > 0)
-export const SPARKLE_COLOUR = '#fff6c8'; // pale gold, a glint on the gold ribbon
+export const SPARKLE_COLOUR = '#e08a00'; // deep amber: pale stars vanish on the parchment, so they are drawn in this, over it
 
 const stepOf = (s, life) => Math.min(LINE_ALPHA_STEPS - 1, Math.floor((Math.max(0, s.t) / life) * LINE_ALPHA_STEPS));
 
-// The glitter: a cached star on every SPARKLE_EVERY-th segment, drawn additively, its swell from the segment's own age (no clock), its alpha the ink's.
+// The glitter: a cached star on every SPARKLE_EVERY-th segment, drawn source-over (additive light does not show on cream), its swell from the segment's own age (no clock), its alpha the ink's.
 function sparkle(ctx, line, life, cool) {
   const sprite = star(SPARKLE_COLOUR);
   for (let i = 0; i < line.length; i += SPARKLE_EVERY) {
     const s = line[i];
     const swell = SPARKLE_FLOOR + (1 - SPARKLE_FLOOR) * (0.5 + 0.5 * Math.sin(s.t * SPARKLE_TWINKLE + i));
     const fade = Math.max(0, 1 - s.t / life);
-    addGlow(ctx, sprite, (s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2, SPARKLE_SIZE * swell, fade * (cool > 0 ? SPARKLE_DIM : 1));
+    const r = SPARKLE_SIZE * swell;
+    ctx.globalAlpha = fade * (cool > 0 ? SPARKLE_DIM : 1);
+    ctx.drawImage(sprite, (s.x1 + s.x2) / 2 - r, (s.y1 + s.y2) / 2 - r, r * 2, r * 2);
+    ctx.globalAlpha = 1;
   }
 }
 
