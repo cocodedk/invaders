@@ -5,7 +5,7 @@ import { BOXES, LINE_STEP } from './course-kinds.js';
 import { emit } from './util.js';
 
 // The lasso (world 22, Leg 3 on): once the ship holds the ability 'lasso', the line it draws (course-line.js) closes on itself. When the newest
-// segment crosses an older one (the oldest it can, with the segments between them one unbroken chain: a stretch lineStops bit out breaks it)
+// segment touches or crosses an older one, within LOOP_SNAP px (the oldest it can, with the segments between them one unbroken chain: a stretch lineStops bit out breaks it)
 // and the loop between holds at least LOOP_MIN_SEGS segments and LOOP_MIN_AREA px2 (a retraced stroke or a wobble closes nothing), closeLoop
 // catches what is inside, by an even-odd ray cast, in array order: every enemy bullet (a laser too: life 0, settled, no dodge), every air craft
 // (killed, scored), every ground object that can be hurt (broken, scored, a crate drops what it holds), then the pickups, which fly to the ship
@@ -19,6 +19,7 @@ export const LASSO_SEGS = Math.floor(LASSO_INK / LINE_STEP);
 export const LASSO_LIFE = 4; // s a segment hangs with the lasso
 export const LOOP_MIN_SEGS = 8; // segments a loop holds at least
 export const LOOP_MIN_AREA = 6000; // px2 a loop encloses at least
+export const LOOP_SNAP = 6; // px: the newest segment closes on an older one it comes this near (the ink is drawn about this wide)
 export const LASSO_RECHARGE = 1.5; // s after a loop closes before the next can
 
 function area(poly) {
@@ -50,7 +51,7 @@ function findLoop(line) {
   while (from > 0 && line[from].x1 === line[from - 1].x2 && line[from].y1 === line[from - 1].y2) from--;
   for (let j = from; j <= k - 3; j++) {
     const [a, b] = [line[j], line[k]];
-    if (segSegDist2(a.x1, a.y1, a.x2, a.y2, b.x1, b.y1, b.x2, b.y2) !== 0) continue;
+    if (segSegDist2(a.x1, a.y1, a.x2, a.y2, b.x1, b.y1, b.x2, b.y2) > LOOP_SNAP ** 2) continue;
     const poly = line.slice(j + 1).map((s) => ({ x: s.x1, y: s.y1 }));
     if (poly.length >= LOOP_MIN_SEGS && area(poly) >= LOOP_MIN_AREA) return { j, poly };
   }
