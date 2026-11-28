@@ -5,7 +5,7 @@ import { applyEvent } from '../../src/fx/react.js';
 import { MAX_PARTICLES } from '../../src/fx/particles.js';
 import { makeRng } from '../../src/core/rng.js';
 import { WIDTH, HEIGHT } from '../../src/core/kinds.js';
-import { ROAD_WORLD, GOLDS, VIOLETS, PAINTS, WOOD_PAINTS, GRAPHITE, GLOW, SEED, FLECKS, FLOOD, SMUDGE } from '../../src/fx/react-road.js';
+import { ROAD_WORLD, GOLDS, VIOLETS, PAINTS, WOOD_PAINTS, GRAPHITE, GLOW, SEED, FLECKS, FLOOD, SMUDGE, LOOP_SPARKS, SPARKLE } from '../../src/fx/react-road.js';
 import { ABILITY_CAPTIONS, CAPTION, openLeg } from '../../src/fx/react-story.js';
 import { levelById } from '../../src/core/levels.js';
 import { PAL, WANDER_WORLD } from '../../src/ui/wander-kit.js';
@@ -158,4 +158,29 @@ test('a bullet the line stops leaves soft graphite puffs and two flecks at the s
   run(fx, SMUDGE.life[1] + 0.1);
   assert.equal(fx.particles.length, 0);
   assert.ok(SMUDGE.life[1] >= 1.8 && SMUDGE.life[1] <= 2.2, 'about two seconds');
+});
+
+test('a closing loop bursts LOOP_SPARKS gold sparkles along its edge, flying outward from its centre, plain and solid, under the cap', () => {
+  const ev = sample('lasso');
+  const fx = react(ev);
+  assert.equal(fx.particles.length, LOOP_SPARKS);
+  assert.ok(plain(fx));
+  assert.ok(fx.particles.every((p) => GOLDS.includes(p.color) && p.kind === 'spark'));
+  const j = SPARKLE.jitter; // the sample loop is the square from (400, 200) to (600, 400)
+  assert.ok(fx.particles.every((p) => p.x >= 400 - j && p.x <= 600 + j && p.y >= 200 - j && p.y <= 400 + j), 'on the loop');
+  assert.ok(fx.particles.every((p) => (p.x - ev.x) * p.vx + (p.y - ev.y) * p.vy >= 0), 'outward');
+  run(fx, SPARKLE.life[1] + 0.1);
+  assert.equal(fx.particles.length, 0);
+  const storm = createFx();
+  const rng = makeRng(3);
+  for (let i = 0; i < 100; i++) applyEvent(storm, ev, rng, WORLD_22);
+  assert.equal(storm.particles.length, MAX_PARTICLES);
+});
+
+test('a loop with no points reacts safely, and the quality scaler thins the burst', () => {
+  assert.equal(react({ ...sample('lasso'), poly: [] }).particles.length, 0);
+  const fx = createFx();
+  fx.density = 0.5;
+  applyEvent(fx, sample('lasso'), makeRng(1));
+  assert.ok(fx.particles.length < LOOP_SPARKS);
 });

@@ -8,6 +8,7 @@
 //   cut          a bullet broken (world 22 only; wraps world's cut, react-world.js): violet chips and a puff of violet, a crack drawn
 //   respawn      the ship set down again at the checkpoint: gold puffs rise
 //   lineStop     a bullet stopped by your line (core 'lineStop'; Leg 2 on): a few soft graphite puffs that stay where they are and fade in about two seconds, and two graphite flecks
+//   lasso        a loop closes (core 'lasso', Leg 3; poly flat [x0, y0, ...], x, y its centre): LOOP_SPARKS gold sparkles start along its edge and fly outward, solid like the rest (no additive flash on parchment)
 //   holdBreak    the Grey Gate falls and colour floods the valley: soft blobs of every paint colour swell over the whole field and fade, and
 //                chips of colour fall out of them. The core washes the sky clean on the same tick (course-hold.js washAway), so nothing is
 //                drawn where the craft and the bullets were: the flood covers them
@@ -31,6 +32,8 @@ export const GLOW = { checkpoint: 8, ability: 6, respawn: 8, chips: 6, spread: 2
 export const SEED = { puffs: 12, chips: 8, size: 24, chipSpeed: 220, chipSize: [3, 6] };
 export const FLECKS = { chip: 3, cut: 8, speed: 180, cutSpeed: 320, size: [2, 5], puffs: 2 }; // violet chips of a struck and a broken bullet, their speeds (px/s at most) and sizes (px radius)
 export const SMUDGE = { puffs: 3, chips: 2, spread: 10, size: 16, grow: 14, life: [1.8, 2.2], chipSpeed: 90, chipSize: [2, 4] }; // the smudge a broken shot leaves: puffs (swelling, not rising) and flecks (level or falling, never up)
+export const LOOP_SPARKS = 48; // sparkles a closing loop bursts, spread evenly along its edge
+export const SPARKLE = { jitter: 6, speed: [60, 200], size: [2, 4], life: [0.5, 0.9], drag: 2 }; // their scatter off the edge (px), outward speed (px/s), radius (px) and life (s)
 export const FLOOD = { spots: 14, puffs: 5, chips: 3, spread: 240, size: [40, 70], grow: 90, life: [1.4, 2.4], chipSpeed: 420, chipSize: [4, 9] }; // a spot is a place, spread over the field, where puffs and chips come from
 
 // k soft puffs of `colors` over a radius of `spread` px around (x, y), each starting at `size` and swelling, rising at `rise` px/s (0 drifts).
@@ -86,6 +89,22 @@ function lineStop(fx, ev, rng) {
   }
 }
 
+function lasso(fx, ev, rng) {
+  const n = Math.floor(ev.poly.length / 2);
+  if (n === 0) return;
+  for (let i = 0, m = count(fx, LOOP_SPARKS); i < m; i++) {
+    const k = Math.floor((i * n) / m);
+    const [x, y] = [ev.poly[2 * k] + between(rng, -SPARKLE.jitter, SPARKLE.jitter), ev.poly[2 * k + 1] + between(rng, -SPARKLE.jitter, SPARKLE.jitter)];
+    const [dx, dy] = [x - ev.x, y - ev.y];
+    const d = Math.hypot(dx, dy) || 1;
+    const v = between(rng, SPARKLE.speed[0], SPARKLE.speed[1]);
+    addParticle(fx, {
+      x, y, vx: (dx / d) * v, vy: (dy / d) * v, life: between(rng, SPARKLE.life[0], SPARKLE.life[1]),
+      size: between(rng, SPARKLE.size[0], SPARKLE.size[1]), grow: -1, color: pick(rng, GOLDS), kind: 'spark', drag: SPARKLE.drag,
+    });
+  }
+}
+
 function respawn(fx, ev, rng) {
   lit(fx, rng, ev.x, ev.y, GLOW.respawn);
 }
@@ -99,4 +118,4 @@ function holdBreak(fx, ev, rng) {
   }
 }
 
-export const ROAD = { checkpoint, ability: abilityFor(STORY.ability), seedBurst, chip, cut: cutFor(WORLD.cut), lineStop, respawn, holdBreak };
+export const ROAD = { checkpoint, ability: abilityFor(STORY.ability), seedBurst, chip, cut: cutFor(WORLD.cut), lineStop, lasso, respawn, holdBreak };
