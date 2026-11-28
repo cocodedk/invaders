@@ -1,5 +1,5 @@
 // Your line (world 22, Leg 2 on) as the view draws it: the ink in course.line (core/course-line.js), a dark graphite stroke that fades as it ages.
-//   Each run's path is stroked three times, widest first: turquoise (LINE_WIDTH + 4 * LINE_EDGE), gold (+ 2 * LINE_EDGE), graphite on top, all at the run's alpha.
+//   Each run's path is stroked three times, widest first: turquoise (LINE_WIDTH + TEAL_EDGES * LINE_EDGE), gold (+ GOLD_EDGES * LINE_EDGE), graphite on top, all at the run's alpha.
 //   drawCourseLine(ctx, course)   each segment is stroked at alpha 1 - t / LINE_LIFE, rounded to the middle of one of LINE_ALPHA_STEPS steps. The ink is
 //                                 oldest first, so the steps come in runs: one path and one stroke style for each run, never a state change for
 //                                 each segment (there are LINE_SEGS of them at most). Nothing here is drawn from a
@@ -11,6 +11,8 @@ import { PAL } from './wander-kit.js';
 export const LINE_ALPHA_STEPS = 6; // the fade is drawn in this many alphas, a path each at most
 export const LINE_WIDTH = 5; // px
 export const LINE_EDGE = 1.5; // px: the gold ribbon edge shows this much each side of the graphite, the turquoise twice that
+export const GOLD_EDGES = 2; // the gold ribbon edge is this many LINE_EDGEs each side of the graphite
+export const TEAL_EDGES = 4; // and the turquoise this many
 export const LINE_COLOUR = '#34302c'; // graphite, darker than the pencil of the ground (PAL.pencil) so it reads over the land
 
 const stepOf = (s) => Math.min(LINE_ALPHA_STEPS - 1, Math.floor((Math.max(0, s.t) / LINE_LIFE) * LINE_ALPHA_STEPS));
@@ -20,7 +22,7 @@ export function drawCourseLine(ctx, { line }) {
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  const inks = [[PAL.teal, 4], [PAL.gold, 2], [LINE_COLOUR, 0]]; // the ribbon, widest first
+  const inks = [[PAL.teal, TEAL_EDGES], [PAL.gold, GOLD_EDGES], [LINE_COLOUR, 0]]; // the ribbon, widest first
   const stroke = (alpha) => {
     for (const [colour, edges] of inks) {
       ctx.strokeStyle = rgba(colour, alpha);

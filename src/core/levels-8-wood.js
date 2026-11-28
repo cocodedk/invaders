@@ -4,7 +4,7 @@
 // only where the band leaves room beside the curtain, and the thorn hedges come in two kinds: those with a gap to weave through, and those that close
 // the band, which are shot through (course-fair-wood.js: the weakest piece breaks before the hedge scrolls to the free zone, and no air craft is in
 // view while it does, so the shots reach it). Each lantern is followed by its quiet stretch, and then by a closing hedge to learn on.
-import { WIDTH as W } from './kinds.js';
+import { WIDTH as W, MID_X } from './kinds.js';
 import { hpFor, END_RUN } from './course-kinds.js';
 import { stopAt, GATE_DY_MAX } from './course-hold.js';
 import { course, LAND_WOOD, air, smudge, turret, crate, pillar, hedge, lantern, LEFT, RIGHT } from './levels-8-kit.js';
@@ -97,7 +97,7 @@ const LEG_2 = {
   length: stopAt(STRETCH_3.at(-1)) + END_RUN, // the hold is the last entry: the scroll stops at it, and once it has fallen runs on END_RUN px more and clears
   starts: ['seed'],
   land: LAND_WOOD, // the look of its ground (view only)
-  trace: { at: TRACE_AT, x: 960, a: -0.25 }, // the fallen pencil: the row of its middle, its x, its angle (view only)
+  trace: { at: TRACE_AT, x: MID_X, a: -0.25 }, // the fallen pencil: the row of its middle, its x, its angle (view only)
   walls: WALLS,
   spawns: [...STRETCH_1, ...STRETCH_2, ...STRETCH_3],
 };

@@ -1,5 +1,5 @@
 import { WIDTH as W, MID_X } from './kinds.js';
-import { hpFor } from './course-kinds.js';
+import { hpFor, THORN } from './course-kinds.js';
 
 // The shorthand of world 22's level data (levels-8.js, levels-8-wood.js), one entry a call. `course(seed, data)` is a level spec like `lv` in
 // levels-2.js, and `data` is { speed, length, starts, walls, spawns }: the scroll's speed in px/s and length in px, the abilities the leg
@@ -24,7 +24,7 @@ export const crate = (at, x, hp, drop = null) => ({ kind: 'crate', at, x, hp, dr
 export const stone = (at, x) => ({ kind: 'stone', at, x });
 export const pillar = (at, x, w, h) => ({ kind: 'pillar', at, x, w, h });
 // A thorn piece (Leg 2): a box like a pillar, with the hp GROUND_HP.thorn gives it; the pieces that share an `at` are one hedge.
-export const thorn = (at, x, w, h) => ({ kind: 'thorn', at, x, w, h });
+export const thorn = (at, x, w, h) => ({ kind: THORN, at, x, w, h });
 // A hedge (Leg 2): the thorn pieces that share the row `at`, h tall, tiling each run [from, to] of the band in equal pieces about `w` wide (at least one a run).
 // A run that ends on a wall's edge stands flush against it, and the gap between two runs, or between a run and the wall, is the way round it.
 export const hedge = (at, h, w, ...runs) => runs.flatMap(([from, to]) => {

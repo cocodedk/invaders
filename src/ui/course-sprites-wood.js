@@ -10,6 +10,9 @@ export const THORN_STEP = 18; // px between one thorn and the next along an edge
 export const THORN_LEN = 9; // px a thorn points in from its edge
 export const THORN_BASE = 5; // px: half the width of a thorn at its edge
 export const STEM_SWAY = 0.18; // of the box's height: how far a stem swings from the middle, up and down
+export const STEM_WIDTH = 3; // px: a stem's, and a gate ring's stem's, stroke
+export const BOX_OUTLINE = 2; // px: a bramble box's outline
+export const GATE_SHADOW_FLAT = 0.6; // a gate's ground shadow: its height as a share of its width
 const SHADOW = 'rgba(40,40,50,0.18)';
 const TAU = Math.PI * 2;
 export const THICKET_THORNS = 14; // thorns round a bramble gate's ring, pointing out
@@ -21,7 +24,7 @@ export const THICKET_CENTRE = '#33302a'; // the dark clearing in the middle of a
 
 function stems(g, w, h) { // two stems crossing the box, one swaying each way
   g.strokeStyle = PAL.stoneDark;
-  g.lineWidth = 3;
+  g.lineWidth = STEM_WIDTH;
   g.lineCap = 'round';
   for (const s of [-1, 1]) {
     g.beginPath();
@@ -62,7 +65,7 @@ export const thornSprite = (w, h) => cached(`wanderThorn${w}x${h}`, w + 2 * PILL
   stems(g, w, h);
   thorns(g, w, h);
   g.strokeStyle = PAL.stoneDark;
-  g.lineWidth = 2;
+  g.lineWidth = BOX_OUTLINE;
   g.strokeRect(-w / 2, -h / 2, w, h);
 });
 
@@ -71,7 +74,7 @@ export const thicketGateSprite = (awake) => round(awake ? 'wanderThicketAwake' :
   const outer = THICKET_OUTER;
   g.fillStyle = SHADOW;
   g.beginPath();
-  g.ellipse(SHADOW_DX, SHADOW_DY, GROUND_R, GROUND_R * 0.6, 0, 0, TAU);
+  g.ellipse(SHADOW_DX, SHADOW_DY, GROUND_R, GROUND_R * GATE_SHADOW_FLAT, 0, 0, TAU);
   g.fill();
   g.beginPath();
   g.arc(0, 0, outer - THICKET_RING / 2, 0, TAU);
@@ -80,7 +83,7 @@ export const thicketGateSprite = (awake) => round(awake ? 'wanderThicketAwake' :
   g.lineWidth = THICKET_RING;
   g.strokeStyle = PAL.kiteShade;
   g.stroke();
-  g.lineWidth = 3;
+  g.lineWidth = STEM_WIDTH;
   g.strokeStyle = PAL.stoneDark;
   for (const r of [outer - 3, outer - THICKET_RING + 3]) { // two stems round the ring
     g.beginPath();

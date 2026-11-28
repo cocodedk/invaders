@@ -7,9 +7,8 @@
 //   paintWood(g, painted, k, seed, course, end)     strip k's clearings, path and the fallen pencil (course-land-trace.js, it lies on the ground), then the canopies over them, the path stopping on the row `end`
 import { W, rgba } from './sprites.js';
 import { MID_X } from '../core/kinds.js';
-import { bandAt } from '../core/course-terrain.js';
 import { PAL } from './wander-kit.js';
-import { STRIP_SPAN, dice } from './course-land-valley.js';
+import { STRIP_SPAN, dice, clear, WOBBLES } from './course-land-valley.js';
 import { landEnd } from './course-land-end.js';
 import { paintTrace } from './course-land-trace.js';
 
@@ -31,19 +30,11 @@ export const CLEARING_INK = { painted: 0.15, sketch: 0.3, width: 1.2 }; // a cle
 export const CLEARING = { rx: 90, rxVar: 40, ry: 50, ryVar: 20, gap: 30 };
 export const PATH = { sway: 110, wave: 300, phase: 1.1, width: 34, swell: 8, swellWave: 130 };
 export const PATH_STEP = 6; // px of `at` between the points the path is drawn through (it divides STRIP_SPAN, so every strip has a point on each seam)
-const WOB = 14;
+const WOB = WOBBLES; // the valley's wobble table length
 export const RING_POINTS = 48; // points a canopy's ring is drawn through (enough that its scallops read as round bumps)
 
 const pencil = (a) => rgba(PAL.pencil, a);
 export const pathAt = (at) => ({ x: MID_X + PATH.sway * Math.sin(at / PATH.wave + PATH.phase), w: PATH.width + PATH.swell * Math.sin(at / PATH.swellWave) });
-
-// Is a thing `half` px wide (`reach` px up and down) at x on the row `at` inside the band and off the path, `gap` px to spare, and before the land's end?
-const clear = (course, end, x, at, half, reach, gap) =>
-  [at - reach, at, at + reach].every((a) => {
-    const { left, right } = bandAt(course, a);
-    const p = pathAt(a);
-    return a < end && x - half - gap > left && x + half + gap < right && Math.abs(x - p.x) > p.w + half + gap;
-  });
 
 export function scatterWood(seed, k, course) {
   const r = dice(seed + 3, k);
@@ -53,12 +44,12 @@ export function scatterWood(seed, k, course) {
   const crowns = [];
   for (let i = 0; i < CLEARING_TRIES; i++) {
     const c = { x: r() * W, y: WOOD_MARGIN + r() * (STRIP_SPAN - 2 * WOOD_MARGIN), rx: CLEARING.rx + r() * CLEARING.rxVar, ry: CLEARING.ry + r() * CLEARING.ryVar };
-    if (clear(course, end, c.x, hi - c.y, c.rx, c.ry, CLEARING.gap)) clearings.push(c);
+    if (clear(course, end, pathAt, c.x, hi - c.y, c.rx, c.ry, CLEARING.gap)) clearings.push(c);
   }
   for (let i = 0; i < CROWN_TRIES; i++) {
     const t = { x: r() * W, y: WOOD_MARGIN + r() * (STRIP_SPAN - 2 * WOOD_MARGIN), s: CROWN_R + r() * CROWN_VAR, wob: Array.from({ length: WOB }, r), bells: Array.from({ length: 2 * BELLS }, r) };
     const inClearing = clearings.some((c) => ((t.x - c.x) / c.rx) ** 2 + ((t.y - c.y) / c.ry) ** 2 < 1.3);
-    if (!inClearing && clear(course, end, t.x, hi - t.y, t.s, t.s, CROWN_GAP)) crowns.push(t);
+    if (!inClearing && clear(course, end, pathAt, t.x, hi - t.y, t.s, t.s, CROWN_GAP)) crowns.push(t);
   }
   return { crowns, clearings };
 }

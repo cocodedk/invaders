@@ -13,6 +13,7 @@ import { landEnd } from './course-land-end.js';
 export const STRIP_SPAN = 360; // px of `at` a strip covers
 export const TREE_TRIES = 50; // spots tried for trees on a strip: the ones in the band and off the river stay
 export const FIELD_TRIES = 2;
+export const WOBBLES = 14; // points in a tree's wobble table (the wood's crowns use as many)
 export const TREE_MARGIN = 30; // px a tree keeps from its strip's edges (its poppies reach furthest)
 export const FIELD_MARGIN = 80; // and a tilted field
 const TREE_R = 10; // px: radius of the smallest tree, and TREE_VAR the most it grows
@@ -35,11 +36,12 @@ export const dice = (seed, k) => {
   return () => hash(base + 31 * i++);
 };
 
-// Is a thing `half` px wide (and `reach` px up and down) at x on the row `at` inside the band and off the river, `gap` px to spare, and before the land's end?
-const clear = (course, end, x, at, half, reach, gap) =>
+// Is a thing `half` px wide (and `reach` px up and down) at x on the row `at` inside the band and off the centreline, `gap` px to spare, and before the land's end?
+// `centre(a)` is the floor's centreline ({ x, w }: the valley's river, the wood's path); both floors share this.
+export const clear = (course, end, centre, x, at, half, reach, gap) =>
   [at - reach, at, at + reach].every((a) => {
     const { left, right } = bandAt(course, a);
-    const rv = riverAt(a);
+    const rv = centre(a);
     return a < end && x - half - gap > left && x + half + gap < right && Math.abs(x - rv.x) > rv.w + half + gap;
   });
 
@@ -52,11 +54,11 @@ export function scatter(seed, k, course) {
   const trees = [];
   for (let i = 0; i < FIELD_TRIES; i++) {
     const f = { w: FIELD.w + r() * FIELD.wVar, h: FIELD.h + r() * FIELD.hVar, x: r() * W, y: FIELD_MARGIN + r() * (STRIP_SPAN - 2 * FIELD_MARGIN), a: (r() - 0.5) * FIELD.tilt };
-    if (clear(course, end, f.x, hi - f.y, f.w / 2, FIELD_MARGIN, 20)) fields.push(f);
+    if (clear(course, end, riverAt, f.x, hi - f.y, f.w / 2, FIELD_MARGIN, 20)) fields.push(f);
   }
   for (let i = 0; i < TREE_TRIES; i++) {
-    const t = { x: r() * W, y: TREE_MARGIN + r() * (STRIP_SPAN - 2 * TREE_MARGIN), s: TREE_R + r() * TREE_VAR, wob: Array.from({ length: 14 }, r), pop: Array.from({ length: 11 }, r) };
-    if (clear(course, end, t.x, hi - t.y, 0, 0, 36)) trees.push(t);
+    const t = { x: r() * W, y: TREE_MARGIN + r() * (STRIP_SPAN - 2 * TREE_MARGIN), s: TREE_R + r() * TREE_VAR, wob: Array.from({ length: WOBBLES }, r), pop: Array.from({ length: 11 }, r) };
+    if (clear(course, end, riverAt, t.x, hi - t.y, 0, 0, 36)) trees.push(t);
   }
   return { trees, fields };
 }

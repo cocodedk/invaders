@@ -25,6 +25,7 @@ export const EDGE_ROWS = 4; // rows of canopy scallops inside the wood's edge (L
 export const SCALLOP_R = 14; // px: the radius of one scallop, a half circle bulging toward the valley
 export const SCALLOP_GAP = 22; // px between the rows, the first that far inside the edge
 export const SCALLOP_STEP = 28; // px of `at` between the scallops of a row (every other row shifted half a step)
+export const CONTOUR_WIDTH = 1.4; // px: the contour lines' and the scallops' stroke
 export const SCALLOP_INK = 0.5; // how much of the canopy green the pencil lets through on the soft green
 const OUT = 2; // px the hole reaches past the screen's edge
 const SIDES = [-1, 1]; // the left rock, the right rock
@@ -46,7 +47,7 @@ const edgeOf = (r, side) => (side < 0 ? r.left : r.right);
 // Leg 2: the rock's hole is massed canopy, rows of scallops along the edge, each on a grid fixed to `at` so two strips draw the seam alike.
 function scallops(g, lo, hi, course) {
   g.strokeStyle = mix(PAL.canopyEdge, PAL.canopy, SCALLOP_INK);
-  g.lineWidth = 1.4;
+  g.lineWidth = CONTOUR_WIDTH;
   g.beginPath();
   for (const side of SIDES) {
     for (let k = 0; k < EDGE_ROWS; k++) {
@@ -80,7 +81,7 @@ export function paintRock(g, painted, lo, hi, course) {
   if (painted) return;
   if (course.land === LAND_WOOD) return scallops(g, lo, hi, course);
   g.strokeStyle = mix(PAL.rock, PAL.pencil, CONTOUR_INK);
-  g.lineWidth = 1.4;
+  g.lineWidth = CONTOUR_WIDTH;
   g.beginPath();
   for (const side of SIDES) {
     for (let k = 1; k <= CONTOURS; k++) {

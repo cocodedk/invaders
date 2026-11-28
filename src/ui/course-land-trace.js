@@ -8,9 +8,12 @@ import { rgba } from './sprites.js';
 import { PAL } from './wander-kit.js';
 import { STRIP_SPAN } from './course-land-valley.js';
 
-export const PENCIL = { body: 900, cone: 300, width: 110, tipGap: 40, tipLen: 90, tipTilt: 0.18, tipDrift: 26, lineLen: 260, lineWobble: 7, lineStep: 20, snapTeeth: 5 };
+export const PENCIL = { body: 900, cone: 300, width: 110, tipGap: 40, tipLen: 90, tipTilt: 0.18, tipDrift: 26, lineLen: 200, lineWobble: 7, lineStep: 20, snapTeeth: 5 };
 export const SNAP_TOOTH = 9; // px a jagged tooth of the snap reaches along the axis
 export const TIP_MARK = { at: 0.7, half: 0.4 }; // the graphite tip's dark point: where it starts along the tip's length, and its half width as a share of the tip's
+export const OUTLINE_WIDTH = 2; // px: the pencil's outlines
+export const RIDGE_WIDTH = 1.2; // px: its ridges
+export const TIP_OUTLINE_WIDTH = 1.6; // px: the snapped point's outline
 export const LINE_INK = { width: 3, wave: 31 }; // the graphite line: its px width, and the px of its length for one radian of its wobble
 export const TRACE_INK = { line: 0.65, fine: 0.35, fade: 0.8 }; // pencil alphas: outlines, ridges, and the graphite line's start (it fades along its length)
 const HALF = (PENCIL.body + PENCIL.cone) / 2;
@@ -39,13 +42,13 @@ function body(g, painted) {
   const h = PENCIL.width / 2;
   const x0 = -HALF;
   const x1 = x0 + PENCIL.body;
-  poly(g, [[x0, -h], [x1, -h], [x1, h], [x0, h]], painted ? PAL.lacquer : null, pencil(TRACE_INK.line), 2);
+  poly(g, [[x0, -h], [x1, -h], [x1, h], [x0, h]], painted ? PAL.lacquer : null, pencil(TRACE_INK.line), OUTLINE_WIDTH);
   g.strokeStyle = pencil(TRACE_INK.fine); // the hexagon's two ridges
-  g.lineWidth = 1.2;
+  g.lineWidth = RIDGE_WIDTH;
   for (const v of [-h / 2, h / 2]) { g.beginPath(); g.moveTo(x0, v); g.lineTo(x1, v); g.stroke(); }
   const tip = h * TIP_HALF;
   const snap = teeth(HALF, tip, -1);
-  poly(g, [[x1, -h], ...snap.map(([u, v]) => [u, v]), [x1, h]], painted ? PAL.woodBare : null, pencil(TRACE_INK.line), 2);
+  poly(g, [[x1, -h], ...snap.map(([u, v]) => [u, v]), [x1, h]], painted ? PAL.woodBare : null, pencil(TRACE_INK.line), OUTLINE_WIDTH);
 }
 
 // The snapped point, a little off the axis and tilted, its graphite tip toward the line.
@@ -54,7 +57,7 @@ function tip(g, painted) {
   g.save();
   g.translate(HALF + PENCIL.tipGap, PENCIL.tipDrift);
   g.rotate(PENCIL.tipTilt);
-  poly(g, [...teeth(0, h, 1), [PENCIL.tipLen, 0]], painted ? PAL.woodBare : null, pencil(TRACE_INK.line), 1.6);
+  poly(g, [...teeth(0, h, 1), [PENCIL.tipLen, 0]], painted ? PAL.woodBare : null, pencil(TRACE_INK.line), TIP_OUTLINE_WIDTH);
   g.fillStyle = pencil(TRACE_INK.line);
   g.beginPath();
   g.moveTo(PENCIL.tipLen * TIP_MARK.at, -h * TIP_MARK.half);
